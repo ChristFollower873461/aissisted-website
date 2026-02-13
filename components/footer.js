@@ -7,11 +7,6 @@ const footerHTML=`<footer>
 <div class="footer-brand">
 <strong style="font-size:1.2rem;color:#fff">AIssisted Consulting</strong>
 <p>Dedicated, secure AI agents built for small businesses. Your own AI employee that works 24/7.</p>
-<div class="social-links">
-<a href="#" aria-label="LinkedIn">in</a>
-<a href="#" aria-label="Twitter / X">𝕏</a>
-<a href="#" aria-label="Facebook">f</a>
-</div>
 </div>
 <div class="footer-col">
 <h4>Company</h4>
