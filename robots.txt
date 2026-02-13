@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://aissistedconsulting.com/sitemap.xml
+Sitemap: https://ocalaaiconsulting.com/sitemap.xml
