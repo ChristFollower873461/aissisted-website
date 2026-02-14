@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reserve Your AI Agent — AIssisted Consulting</title>
+<meta name="description" content="Reserve your spot in the AIssisted build queue. Secure your dedicated AI employee with a deposit. Limited spots available — first-come, first-served.">
+<meta name="keywords" content="AI agent reservation, AI employee deposit, business AI setup, reserve AI assistant">
+<meta property="og:title" content="Reserve Your AI Agent — AIssisted Consulting">
+<meta property="og:description" content="Secure your spot in the build queue. Reserve your dedicated AI employee today.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://ocalaaiconsulting.com/reserve.html">
+<meta property="og:image" content="https://ocalaaiconsulting.com/assets/og-image.jpg">
+<meta property="og:site_name" content="AIssisted Consulting">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Reserve Your AI Agent — AIssisted Consulting">
+<meta name="twitter:description" content="Secure your spot in the build queue. Reserve your dedicated AI employee today.">
+<meta name="twitter:image" content="https://ocalaaiconsulting.com/assets/og-image.jpg">
+<link rel="canonical" href="https://ocalaaiconsulting.com/reserve.html">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='14' fill='%230B1120'/><text x='16' y='21' text-anchor='middle' font-size='14' font-weight='bold' fill='%23F0D060'>AI</text></svg>">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Product",
+  "name": "AIssisted AI Agent Reservation",
+  "description": "Reserve your dedicated AI employee with a deposit. Secure your spot in the build queue.",
+  "brand": {
+    "@type": "Brand",
+    "name": "AIssisted Consulting"
+  },
+  "offers": [
+    {
+      "@type": "Offer",
+      "name": "Starter Deposit",
+      "price": "1575.00",
+      "priceCurrency": "USD",
+      "availability": "https://schema.org/InStock"
+    },
+    {
+      "@type": "Offer",
+      "name": "Professional Deposit",
+      "price": "2275.00",
+      "priceCurrency": "USD",
+      "availability": "https://schema.org/InStock"
+    },
+    {
+      "@type": "Offer",
+      "name": "Enterprise Deposit",
+      "price": "2975.00",
+      "priceCurrency": "USD",
+      "availability": "https://schema.org/InStock"
+    }
+  ]
+}
+</script>
+<link rel="stylesheet" href="./styles.css">
+<style>
+.reserve-hero {
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(180deg, #0B1120 0%, #1A1035 40%, #3D1D5E 80%, #C4456A 100%);
+  padding: 140px 0 80px;
+}
+.reserve-hero-content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+}
+.reserve-hero h1 {
+  font-size: clamp(2.2rem, 5vw, 3.5rem);
+  font-weight: 800;
+  line-height: 1.15;
+  margin-bottom: 20px;
+  background: linear-gradient(135deg, #fff 30%, var(--gold-light));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.reserve-hero .subtitle {
+  font-size: clamp(1.1rem, 2vw, 1.35rem);
+  color: rgba(255, 255, 255, 0.85);
+  max-width: 700px;
+  margin: 0 auto 32px;
+  line-height: 1.6;
+}
+.urgency-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(212, 168, 67, 0.15);
+  border: 1px solid rgba(212, 168, 67, 0.3);
+  padding: 12px 24px;
+  border-radius: 50px;
+  font-size: 0.95rem;
+  color: var(--gold-light);
+  margin-bottom: 40px;
+}
+.urgency-badge::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  background: #4ade80;
+  border-radius: 50%;
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.7); }
+  50% { opacity: 0.8; box-shadow: 0 0 0 6px rgba(74, 222, 128, 0); }
+}
+
+/* Deposit Cards */
+#deposit-tiers {
+  padding: 100px 0;
+  background: var(--navy);
+}
+.deposit-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+  margin-top: 60px;
+}
+.deposit-card {
+  border-radius: 24px;
+  padding: 48px 32px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(136, 136, 187, 0.12);
+  position: relative;
+  transition: all 0.3s ease;
+  text-align: center;
+}
+.deposit-card:hover {
+  transform: translateY(-8px);
+  border-color: var(--gold-mid);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+.deposit-card.featured {
+  border-color: var(--gold-mid);
+  background: linear-gradient(135deg, rgba(240, 208, 96, 0.08), rgba(212, 168, 67, 0.02));
+  transform: scale(1.02);
+}
+.deposit-card.featured:hover {
+  transform: scale(1.02) translateY(-8px);
+}
+.deposit-card.featured::before {
+  content: 'Most Popular';
+  position: absolute;
+  top: -14px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, var(--gold-light), var(--gold-dark));
+  color: var(--navy);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 6px 18px;
+  border-radius: 20px;
+}
+.deposit-badge {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  color: var(--gold-mid);
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+.deposit-name {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 8px;
+}
+.deposit-price {
+  font-size: 3.2rem;
+  font-weight: 800;
+  color: var(--gold-light);
+  line-height: 1;
+  margin-bottom: 8px;
+}
+.deposit-price-note {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin-bottom: 24px;
+}
+.deposit-total {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  margin-bottom: 24px;
+}
+.deposit-total strong {
+  color: #fff;
+  display: block;
+  font-size: 1.1rem;
+  margin-top: 4px;
+}
+.deposit-features {
+  list-style: none;
+  margin-bottom: 32px;
+  text-align: left;
+}
+.deposit-features li {
+  padding: 10px 0;
+  color: var(--text-muted);
+  font-size: 0.92rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.deposit-features li::before {
+  content: '✓';
+  color: var(--gold-mid);
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.btn-reserve {
+  display: block;
+  width: 100%;
+  padding: 18px 32px;
+  border-radius: 50px;
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: 0.5px;
+  transition: all 0.3s;
+  cursor: pointer;
+  border: none;
+  text-decoration: none;
+  text-align: center;
+  background: linear-gradient(135deg, var(--gold-light), var(--gold-mid), var(--gold-dark));
+  color: var(--navy);
+  box-shadow: 0 4px 24px rgba(212, 168, 67, 0.3);
+}
+.btn-reserve:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(212, 168, 67, 0.5);
+  color: var(--navy);
+}
+.deposit-card.featured .btn-reserve {
+  background: linear-gradient(135deg, #fff, var(--gold-light));
+  box-shadow: 0 4px 24px rgba(240, 208, 96, 0.4);
+}
+.deposit-note {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-top: 16px;
+  font-style: italic;
+}
+
+/* How It Works */
+#process {
+  padding: 100px 0;
+  background: linear-gradient(180deg, var(--navy), var(--purple-deep));
+}
+.process-steps {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 48px;
+}
+.process-step {
+  background: linear-gradient(135deg, rgba(61, 29, 94, 0.5), rgba(26, 16, 53, 0.7));
+  border: 1px solid rgba(136, 136, 187, 0.2);
+  border-radius: 16px;
+  padding: 24px 28px;
+  text-align: center;
+  min-width: 200px;
+  position: relative;
+}
+.process-step .step-num {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 12px;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--navy);
+  background: linear-gradient(135deg, var(--gold-light), var(--gold-dark));
+}
+.process-step h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 4px;
+}
+.process-step p {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+.process-arrow {
+  color: var(--gold-mid);
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+/* Trust Elements */
+#trust {
+  padding: 80px 0;
+  background: var(--purple-deep);
+}
+.trust-grid {
+  display: flex;
+  justify-content: center;
+  gap: 48px;
+  flex-wrap: wrap;
+  margin-top: 40px;
+}
+.trust-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 24px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(136, 136, 187, 0.1);
+  border-radius: 12px;
+}
+.trust-item .icon {
+  font-size: 1.5rem;
+}
+.trust-item span {
+  font-size: 0.95rem;
+  color: var(--text);
+  font-weight: 500;
+}
+
+/* Contact */
+#reserve-contact {
+  padding: 100px 0;
+  background: var(--navy);
+}
+.contact-box {
+  max-width: 600px;
+  margin: 40px auto 0;
+  padding: 48px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(136, 136, 187, 0.1);
+  text-align: center;
+}
+.contact-box h3 {
+  font-size: 1.3rem;
+  color: #fff;
+  margin-bottom: 24px;
+}
+.contact-methods {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  flex-wrap: wrap;
+}
+.contact-method {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.contact-method .icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(240, 208, 96, 0.1), rgba(212, 168, 67, 0.05));
+  border: 1px solid rgba(212, 168, 67, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+}
+.contact-method a {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--gold-light);
+}
+.contact-method a:hover {
+  color: #fff;
+}
+
+@media (max-width: 992px) {
+  .deposit-grid {
+    grid-template-columns: 1fr;
+    max-width: 420px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .deposit-card.featured {
+    transform: none;
+    order: -1;
+  }
+  .deposit-card.featured:hover {
+    transform: translateY(-8px);
+  }
+  .process-steps {
+    flex-direction: column;
+  }
+  .process-arrow {
+    transform: rotate(90deg);
+  }
+  .trust-grid {
+    flex-direction: column;
+    align-items: center;
+  }
+}
+</style>
+<script src="./components/header.js" defer></script>
+<script src="./components/footer.js" defer></script>
+</head>
+<body>
+<div id="header-container"></div>
+
+<section class="reserve-hero">
+<div class="hero-bg-stars" aria-hidden="true">
+<span style="top:10%;left:12%;animation-delay:0s"></span>
+<span style="top:18%;left:80%;animation-delay:0.5s"></span>
+<span style="top:30%;left:45%;animation-delay:1s"></span>
+<span style="top:40%;left:70%;animation-delay:1.5s"></span>
+<span style="top:12%;left:55%;animation-delay:2s"></span>
+<span style="top:50%;left:25%;animation-delay:0.8s"></span>
+</div>
+<div class="container reserve-hero-content">
+<div class="urgency-badge reveal">Limited build queue — Reserve your spot</div>
+<h1 class="reveal">Reserve Your AI Agent</h1>
+<p class="subtitle reveal">Secure your place in our build queue with a deposit. Join businesses transforming their operations with dedicated AI employees that work 24/7.</p>
+<div class="hero-buttons reveal">
+<a href="#deposit-tiers" class="btn btn-primary">Choose Your Tier</a>
+<a href="#process" class="btn btn-secondary">How It Works</a>
+</div>
+</div>
+</section>
+
+<section id="deposit-tiers">
+<div class="container">
+<div class="text-center">
+<p class="section-label reveal">Choose Your Tier</p>
+<h2 class="section-title reveal">Secure Your Spot Today</h2>
+<p class="section-subtitle reveal">A 35% deposit reserves your AI agent build slot. The remaining balance is due after our consultation and before deployment begins.</p>
+</div>
+
+<div class="deposit-grid">
+<div class="deposit-card reveal">
+<div class="deposit-badge">Starter</div>
+<div class="deposit-name">AI Agent Starter</div>
+<div class="deposit-price">$1,575</div>
+<div class="deposit-price-note">35% deposit — Non-refundable</div>
+<div class="deposit-total">
+Total Setup: <strong>$4,500</strong>
+<span style="display:block;font-size:0.85rem;margin-top:4px;color:var(--text-muted)">+$249/month ongoing</span>
+</div>
+<ul class="deposit-features">
+<li>24/7 missed call recovery</li>
+<li>1 email inbox monitored</li>
+<li>Lead capture & qualification</li>
+<li>Daily summary reports</li>
+<li>Email support</li>
+<li>3-month minimum commitment</li>
+</ul>
+<a href="#PJ_REPLACE_STARTER_PAYMENT_LINK" class="btn-reserve">Reserve Now</a>
+<p class="deposit-note">Remaining $2,925 due after consultation</p>
+</div>
+
+<div class="deposit-card featured reveal">
+<div class="deposit-badge">Professional</div>
+<div class="deposit-name">AI Agent Pro</div>
+<div class="deposit-price">$2,275</div>
+<div class="deposit-price-note">35% deposit — Non-refundable</div>
+<div class="deposit-total">
+Total Setup: <strong>$6,500</strong>
+<span style="display:block;font-size:0.85rem;margin-top:4px;color:var(--text-muted)">+$349/month ongoing</span>
+</div>
+<ul class="deposit-features">
+<li>Everything in Starter</li>
+<li>3 email inboxes monitored</li>
+<li>Appointment scheduling & CRM</li>
+<li>Proposal & estimate generation</li>
+<li>Priority support</li>
+<li>6-month minimum commitment</li>
+</ul>
+<a href="#PJ_REPLACE_PROFESSIONAL_PAYMENT_LINK" class="btn-reserve">Reserve Now</a>
+<p class="deposit-note">Remaining $4,225 due after consultation</p>
+</div>
+
+<div class="deposit-card reveal">
+<div class="deposit-badge">Enterprise</div>
+<div class="deposit-name">AI Agent Enterprise</div>
+<div class="deposit-price">$2,975</div>
+<div class="deposit-price-note">35% deposit — Non-refundable</div>
+<div class="deposit-total">
+Total Setup: <strong>$8,500</strong>
+<span style="display:block;font-size:0.85rem;margin-top:4px;color:var(--text-muted)">+$449/month ongoing</span>
+</div>
+<ul class="deposit-features">
+<li>Multi-location support</li>
+<li>Unlimited channels & inboxes</li>
+<li>Custom integrations & API</li>
+<li>Dedicated account manager</li>
+<li>Priority support & SLA</li>
+<li>12-month commitment</li>
+</ul>
+<a href="#PJ_REPLACE_ENTERPRISE_PAYMENT_LINK" class="btn-reserve">Reserve Now</a>
+<p class="deposit-note">Remaining $5,525 due after consultation</p>
+</div>
+</div>
+
+<p class="price-note reveal" style="margin-top:48px">All deposits are <strong>non-refundable</strong> and secure your build slot. The remaining balance is invoiced after our consultation call and is due before build begins. Questions? <a href="#reserve-contact">Contact us</a> before reserving.</p>
+</div>
+</section>
+
+<section id="process">
+<div class="container text-center">
+<p class="section-label reveal">Simple Process</p>
+<h2 class="section-title reveal">What Happens After You Reserve</h2>
+<p class="section-subtitle reveal">From deposit to deployment — here's exactly what to expect</p>
+
+<div class="process-steps">
+<div class="process-step reveal">
+<div class="step-num">1</div>
+<h3>We Confirm Your Spot</h3>
+<p>Payment received & slot secured</p>
+</div>
+<div class="process-arrow reveal">→</div>
+<div class="process-step reveal">
+<div class="step-num">2</div>
+<h3>Schedule Consultation</h3>
+<p>We learn your business needs</p>
+</div>
+<div class="process-arrow reveal">→</div>
+<div class="process-step reveal">
+<div class="step-num">3</div>
+<h3>Build Begins</h3>
+<p>Your custom AI agent takes shape</p>
+</div>
+<div class="process-arrow reveal">→</div>
+<div class="process-step reveal">
+<div class="step-num">4</div>
+<h3>Go Live</h3>
+<p>Deployed in 2-3 weeks</p>
+</div>
+</div>
+
+<p style="margin-top:48px;color:var(--text-muted);font-size:1rem" class="reveal">Typical timeline from deposit to go-live is <strong style="color:var(--gold-light)">2-3 weeks</strong>, depending on complexity and current queue.</p>
+</div>
+</section>
+
+<section id="trust">
+<div class="container text-center">
+<p class="section-label reveal">Why Trust AIssisted</p>
+<h2 class="section-title reveal" style="font-size:2rem">Built for Business Owners Who Value Security</h2>
+
+<div class="trust-grid">
+<div class="trust-item reveal">
+<span class="icon">🔒</span>
+<span>On-premise AI Infrastructure</span>
+</div>
+<div class="trust-item reveal">
+<span class="icon">🏢</span>
+<span>Your Data Stays Local</span>
+</div>
+<div class="trust-item reveal">
+<span class="icon">🖥️</span>
+<span>Dedicated Hardware Per Client</span>
+</div>
+<div class="trust-item reveal">
+<span class="icon">🛡️</span>
+<span>Fully Isolated & Encrypted</span>
+</div>
+</div>
+
+<p style="margin-top:48px;color:var(--text-muted);max-width:700px;margin-left:auto;margin-right:auto;line-height:1.8" class="reveal">Unlike cloud-based AI tools that pool your data with thousands of other users, every AIssisted agent runs on dedicated hardware that only you control. Your customer conversations, business data, and AI training never leave your environment.</p>
+</div>
+</section>
+
+<section id="reserve-contact">
+<div class="container text-center">
+<p class="section-label reveal">Questions?</p>
+<h2 class="section-title reveal">Talk to Us Before You Reserve</h2>
+<p class="section-subtitle reveal">Not sure which tier fits your business? Want to discuss custom requirements? We're here to help.</p>
+
+<div class="contact-box reveal">
+<h3>Reach Out Directly</h3>
+<div class="contact-methods">
+<a href="mailto:pjaissist@icloud.com" class="contact-method">
+<div class="icon">✉️</div>
+<div>
+<div style="font-size:0.85rem;color:var(--text-muted)">Email</div>
+<span>pjaissist@icloud.com</span>
+</div>
+</a>
+<a href="tel:+13528173567" class="contact-method">
+<div class="icon">📞</div>
+<div>
+<div style="font-size:0.85rem;color:var(--text-muted)">Phone</div>
+<span>(352) 817-3567</span>
+</div>
+</a>
+</div>
+</div>
+
+<div style="margin-top:40px" class="reveal">
+<p style="color:var(--text-muted);font-size:0.95rem">Prefer to schedule a call? <a href="./contact.html" style="color:var(--gold-light);font-weight:600">Book a consultation</a></p>
+</div>
+</div>
+</section>
+
+<section id="cta" style="background:linear-gradient(135deg,var(--purple-mid),var(--pink))">
+<div class="container">
+<h2 class="reveal">Ready to Secure Your AI Employee?</h2>
+<p class="reveal">Join the businesses already transforming their operations with dedicated AI agents.</p>
+<div class="reveal">
+<a href="#deposit-tiers" class="btn btn-primary">Reserve Your Spot Now</a>
+</div>
+</div>
+</section>
+
+<div id="footer-container"></div>
+</body>
+</html>
