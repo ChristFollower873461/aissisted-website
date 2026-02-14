@@ -1,4 +1,19 @@
+# AIssisted Consulting - Robots.txt
+# https://ocalaaiconsulting.com
+
 User-agent: *
 Allow: /
 
+# Sitemap location
 Sitemap: https://ocalaaiconsulting.com/sitemap.xml
+
+# Crawl rate optimization
+# Allow search engines to crawl freely but be respectful
+
+# Disallow patterns (if needed in future)
+# Disallow: /admin/
+# Disallow: /private/
+# Disallow: /tmp/
+
+# Host preference
+Host: https://ocalaaiconsulting.com
