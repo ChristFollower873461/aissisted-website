@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Subscription Management — AIssisted Consulting</title>
+<meta name="description" content="Learn how to manage, cancel, and restore subscriptions for AIssisted Consulting iOS apps. Step-by-step guides for iPhone and iPad.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='14' fill='%230B1120'/><text x='16' y='21' text-anchor='middle' font-size='14' font-weight='bold' fill='%23F0D060'>AI</text></svg>">
+<link rel="stylesheet" href="../styles.css">
+<script src="../components/header.js" defer></script>
+<script src="../components/footer.js" defer></script>
+<style>
+.support-hero{min-height:35vh;display:flex;align-items:center;position:relative;overflow:hidden;background:linear-gradient(180deg,#0B1120 0%,#1A1035 60%,#3D1D5E 100%);padding:140px 0 60px}
+.support-hero-content{position:relative;z-index:2;text-align:center}
+.support-hero h1{font-size:clamp(2rem,4vw,3rem);font-weight:800;line-height:1.2;margin-bottom:16px;background:linear-gradient(135deg,#fff 30%,var(--gold-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.support-hero p{font-size:clamp(1rem,1.8vw,1.25rem);color:rgba(255,255,255,.8);max-width:600px;margin:0 auto;line-height:1.6}
+.breadcrumbs{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:24px;font-size:.9rem;color:var(--text-muted);flex-wrap:wrap}
+.breadcrumbs a{color:var(--gold-mid);text-decoration:none}
+.breadcrumbs a:hover{color:var(--gold-light)}
+.breadcrumbs .sep{color:var(--text-muted);opacity:.5}
+.breadcrumbs .current{color:var(--text)}
+.content-section{padding:80px 0}
+.content-section.alt{background:linear-gradient(180deg,var(--navy),var(--purple-deep))}
+.step-card{background:rgba(255,255,255,.03);border:1px solid rgba(136,136,187,.1);border-radius:20px;padding:40px;margin-bottom:32px;transition:all .3s}
+.step-card:hover{border-color:var(--gold-mid);background:rgba(240,208,96,.04)}
+.step-card h3{font-size:1.3rem;color:#fff;margin-bottom:20px;display:flex;align-items:center;gap:12px}
+.step-card h3 .step-num{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--gold-light),var(--gold-dark));color:var(--navy);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1rem}
+.step-card ol{margin:0;padding-left:24px;color:var(--text-muted)}
+.step-card li{margin-bottom:12px;line-height:1.6}
+.step-card strong{color:var(--text)}
+.tip-box{background:linear-gradient(135deg,rgba(240,208,96,.1),rgba(212,168,67,.05));border:1px solid rgba(240,208,96,.2);border-radius:12px;padding:20px;margin:24px 0}
+.tip-box .tip-label{color:var(--gold-light);font-weight:600;font-size:.85rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.tip-box p{margin:0;color:var(--text-muted)}
+.warning-box{background:linear-gradient(135deg,rgba(232,132,90,.1),rgba(196,69,106,.05));border:1px solid rgba(232,132,90,.2);border-radius:12px;padding:20px;margin:24px 0}
+.warning-box .warning-label{color:var(--orange);font-weight:600;font-size:.85rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.warning-box p{margin:0;color:var(--text-muted)}
+.info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px;margin-top:48px}
+.info-card{background:rgba(255,255,255,.03);border:1px solid rgba(136,136,187,.1);border-radius:16px;padding:32px;transition:all .3s}
+.info-card:hover{border-color:var(--gold-mid);transform:translateY(-2px)}
+.info-card .icon{font-size:2.5rem;margin-bottom:16px;display:block}
+.info-card h4{font-size:1.1rem;color:#fff;margin-bottom:12px}
+.info-card p{color:var(--text-muted);font-size:.95rem;line-height:1.6;margin:0}
+.info-card a{color:var(--gold-mid);font-weight:600}
+.faq-list{max-width:780px;margin:48px auto 0}
+.faq-item{border-bottom:1px solid rgba(136,136,187,.1);overflow:hidden}
+.faq-q{padding:24px 0;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-weight:600;font-size:1.05rem;color:#fff;background:none;border:none;width:100%;text-align:left;font-family:inherit;transition:color .3s}
+.faq-q:hover{color:var(--gold-mid)}
+.faq-q::after{content:'+';font-size:1.5rem;color:var(--gold-mid);transition:transform .3s;flex-shrink:0;margin-left:16px}
+.faq-item.open .faq-q::after{transform:rotate(45deg)}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .4s ease,padding .4s ease;color:var(--text-muted);line-height:1.8;font-size:.95rem}
+.faq-item.open .faq-a{max-height:500px;padding-bottom:24px}
+.faq-a p{margin-bottom:16px}
+.faq-a ul,.faq-a ol{margin:16px 0;padding-left:24px}
+.faq-a li{margin-bottom:8px}
+.faq-a strong{color:var(--text)}
+.faq-a a{color:var(--gold-mid)}
+.contact-section{padding:80px 0;background:var(--purple-deep)}
+.contact-card{background:rgba(255,255,255,.03);border:1px solid rgba(136,136,187,.1);border-radius:20px;padding:48px;text-align:center;max-width:600px;margin:0 auto}
+.contact-card h3{font-size:1.4rem;margin-bottom:16px;color:#fff}
+.contact-card p{color:var(--text-muted);margin-bottom:24px;line-height:1.6}
+.contact-methods{display:flex;justify-content:center;gap:24px;flex-wrap:wrap;margin-top:32px}
+.contact-method{display:flex;align-items:center;gap:12px;padding:16px 24px;background:rgba(255,255,255,.05);border-radius:12px;border:1px solid rgba(136,136,187,.1)}
+.contact-method .icon{font-size:1.5rem}
+.contact-method a{color:var(--gold-mid);font-weight:600}
+.support-footer{padding:60px 0 32px;background:var(--navy);border-top:1px solid rgba(136,136,187,.1)}
+.support-footer-content{text-align:center}
+.support-footer-content p{color:var(--text-muted);font-size:.9rem;margin:4px 0}
+.support-footer-content .company{color:#fff;font-weight:600}
+.disclosure-box{background:linear-gradient(135deg,rgba(136,136,187,.1),rgba(85,85,136,.05));border:1px solid rgba(136,136,187,.2);border-radius:12px;padding:24px;margin:32px 0}
+.disclosure-box h4{color:var(--moon-light);font-weight:600;font-size:.9rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px}
+.disclosure-box p{margin:0;color:var(--text-muted);font-size:.9rem;line-height:1.6}
+.app-pricing{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin:24px 0}
+.app-price{background:rgba(255,255,255,.05);border-radius:12px;padding:20px;text-align:center}
+.app-price .app-name{font-weight:600;color:#fff;margin-bottom:8px}
+.app-price .price{color:var(--gold-mid);font-size:1.1rem}
+.app-price .period{font-size:.85rem;color:var(--text-muted)}
+@media(max-width:768px){.contact-methods{flex-direction:column;align-items:center}}
+</style>
+</head>
+<body>
+<div id="header-container"></div>
+
+<section class="support-hero">
+<div class="container support-hero-content">
+<nav class="breadcrumbs">
+<a href="../index.html">Home</a>
+<span class="sep">/</span>
+<a href="index.html">Support</a>
+<span class="sep">/</span>
+<span class="current">Subscriptions</span>
+</nav>
+<h1>Manage Your Subscriptions</h1>
+<p>Everything you need to know about managing, canceling, and restoring subscriptions for all AIssisted Consulting apps.</p>
+</div>
+</section>
+
+<section class="content-section" style="background:var(--navy)">
+<div class="container">
+<p class="section-label reveal">Step-by-Step Guides</p>
+<h2 class="section-title reveal">How to Manage Subscriptions</h2>
+
+<div class="step-card reveal">
+<h3><span class="step-num">1</span> Access Your Subscriptions</h3>
+<p style="color:var(--text-muted);margin-bottom:16px">All subscriptions for AIssisted apps are managed through your Apple ID settings:</p>
+<ol>
+<li>Open the <strong>Settings</strong> app on your iPhone or iPad</li>
+<li>Tap your <strong>name</strong> at the top of the screen (Apple ID)</li>
+<li>Tap <strong>Subscriptions</strong></li>
+<li>You'll see a list of all your active and expired subscriptions</li>
+</ol>
+<div class="tip-box">
+<div class="tip-label">💡 Quick Access</div>
+<p>You can also access subscriptions through the App Store: Open App Store → Tap your profile picture → Subscriptions.</p>
+</div>
+</div>
+
+<div class="step-card reveal">
+<h3><span class="step-num">2</span> Cancel a Subscription</h3>
+<p style="color:var(--text-muted);margin-bottom:16px">To stop automatic renewal and cancel your subscription:</p>
+<ol>
+<li>In Settings → Subscriptions, tap the subscription you want to cancel</li>
+<li>Tap <strong>Cancel Subscription</strong> (or "Cancel Free Trial")</li>
+<li>Confirm your choice when prompted</li>
+</ol>
+<div class="warning-box">
+<div class="warning-label">⚠️ Important</div>
+<p>You'll continue to have access to premium features until the end of your current billing period. Canceling stops the next renewal — it doesn't immediately end your access.</p>
+</div>
+</div>
+
+<div class="step-card reveal">
+<h3><span class="step-num">3</span> Restore Purchases</h3>
+<p style="color:var(--text-muted);margin-bottom:16px">If you previously purchased a subscription and it's not showing:</p>
+<ol>
+<li>Open the app where you made the purchase</li>
+<li>Go to Settings or the Premium/Pro section</li>
+<li>Look for and tap <strong>Restore Purchases</strong></li>
+<li>You may be prompted to sign in with your Apple ID</li>
+<li>Wait for the confirmation that purchases have been restored</li>
+</ol>
+<div class="tip-box">
+<div class="tip-label">💡 Troubleshooting</div>
+<p>Make sure you're signed in with the <strong>same Apple ID</strong> used for the original purchase. Family Sharing purchases must be restored by the family member who originally bought the subscription.</p>
+</div>
+</div>
+
+<div class="step-card reveal">
+<h3><span class="step-num">4</span> Request a Refund</h3>
+<p style="color:var(--text-muted);margin-bottom:16px">Refund requests are handled by Apple, not AIssisted Consulting:</p>
+<ol>
+<li>Visit <a href="https://reportaproblem.apple.com" target="_blank" rel="noopener">reportaproblem.apple.com</a></li>
+<li>Sign in with your Apple ID</li>
+<li>Tap <strong>"I'd like to"</strong> and choose <strong>"Request a refund"</strong></li>
+<li>Select the reason for your refund request</li>
+<li>Choose the subscription or purchase you want refunded</li>
+<li>Submit your request</li>
+</ol>
+<div class="tip-box">
+<div class="tip-label">💡 Refund Tips</div>
+<p>Apple typically reviews refund requests within 48 hours. Be specific about why you're requesting a refund. Refunds are granted on a case-by-case basis according to Apple's policies.</p>
+</div>
+</div>
+</div>
+</section>
+
+<section class="content-section alt">
+<div class="container">
+<p class="section-label reveal">Pricing Information</p>
+<h2 class="section-title reveal">Subscription Pricing</h2>
+<p class="section-subtitle reveal">Pricing for all AIssisted Consulting apps. All subscriptions auto-renew unless canceled.</p>
+
+<div class="app-pricing">
+<div class="app-price reveal">
+<div class="app-name">🏖️ Wanderlux</div>
+<div class="price">$4.99/mo</div>
+<div class="period">or $39.99/year</div>
+</div>
+<div class="app-price reveal">
+<div class="app-name">🔢 NumLock</div>
+<div class="price">$2.99/mo</div>
+<div class="period">or $19.99/year</div>
+</div>
+<div class="app-price reveal">
+<div class="app-name">🐛 PestFriend</div>
+<div class="price">$5.99/mo</div>
+<div class="period">or $49.99/year</div>
+</div>
+</div>
+
+<div class="disclosure-box reveal">
+<h4>Auto-Renewal Disclosure</h4>
+<p>All subscriptions automatically renew unless auto-renew is turned off at least 24 hours before the end of the current period. Your account will be charged for renewal within 24 hours prior to the end of the current period. You can manage your subscriptions and turn off auto-renewal by going to your Account Settings after purchase. Prices are in US dollars and may vary in other countries.</p>
+</div>
+</div>
+</section>
+
+<section class="content-section" style="background:var(--navy)">
+<div class="container">
+<p class="section-label reveal">Common Questions</p>
+<h2 class="section-title reveal">Subscription FAQ</h2>
+
+<div class="faq-list">
+<div class="faq-item reveal">
+<button class="faq-q">Will I lose my data if I cancel my subscription?</button>
+<div class="faq-a">
+<p>No, you won't lose any data. When you cancel:</p>
+<ul>
+<li>Your premium features remain active until the end of your billing period</li>
+<li>After the period ends, you'll revert to the free tier</li>
+<li>Your data (bookmarks, history, progress) is preserved</li>
+<li>Some features may become read-only or limited based on free tier restrictions</li>
+</ul>
+<p>You can resubscribe anytime to regain full access to your data and premium features.</p>
+</div>
+</div>
+
+<div class="faq-item reveal">
+<button class="faq-q">Can I share my subscription with family?</button>
+<div class="faq-a">
+<p>Yes! All AIssisted apps support Family Sharing:</p>
+<ul>
+<li>Up to 5 family members can share one subscription</li>
+<li>Family Sharing must be set up through your Apple ID</li>
+<li>Go to Settings → [Your Name] → Family Sharing → Set Up Your Family</li>
+<li>Once enabled, family members automatically get access</li>
+</ul>
+<p>Each family member uses their own Apple ID but shares the subscription benefits.</p>
+</div>
+</div>
+
+<div class="faq-item reveal">
+<button class="faq-q">I deleted the app but I'm still being charged</button>
+<div class="faq-a">
+<p>Deleting an app does NOT cancel the subscription. You must manually cancel:</p>
+<ol>
+<li>Go to Settings → [Your ID] → Subscriptions</li>
+<li>Find the subscription</li>
+<li>Tap <strong>Cancel Subscription</strong></li>
+</ol>
+<div class="warning-box">
+<div class="warning-label">⚠️ Important</div>
+<p>Uninstalling the app only removes it from your device. The subscription continues until you explicitly cancel it through your Apple ID settings.</p>
+</div>
+</div>
+</div>
+
+<div class="faq-item reveal">
+<button class="faq-q">How do I change from monthly to yearly (or vice versa)?</button>
+<div class="faq-a">
+<p>To switch your billing period:</p>
+<ol>
+<li>Go to Settings → [Your ID] → Subscriptions</li>
+<li>Tap the subscription you want to change</li>
+<li>Select the new plan (Monthly or Yearly)</li>
+<li>Confirm the change</li>
+</ol>
+<p>The change takes effect at your next renewal date. You'll be charged the new rate when the current period ends.</p>
+</div>
+</div>
+
+<div class="faq-item reveal">
+<button class="faq-q">Can I use my subscription on multiple devices?</button>
+<div class="faq-a">
+<p>Yes! Your subscription works across all your devices:</p>
+<ul>
+<li>Use the same Apple ID on all devices</li>
+<li>Download the app on each device</li>
+<li>Restore purchases if premium features don't appear automatically</li>
+<li>iPhone, iPad, and iPod touch are all supported</li>
+</ul>
+<p>There's no limit to how many of your own devices can use the subscription.</p>
+</div>
+</div>
+
+<div class="faq-item reveal">
+<button class="faq-q">What happens to my subscription if I get a new iPhone?</button>
+<div class="faq-a">
+<p>Your subscription automatically transfers:</p>
+<ul>
+<li>Subscriptions are tied to your Apple ID, not your device</li>
+<li>Sign in with the same Apple ID on your new device</li>
+<li>Download the app from the App Store</li>
+<li>Premium features should be available immediately</li>
+</ul>
+<p>If premium features don't appear, tap "Restore Purchases" in the app settings.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<section class="content-section alt">
+<div class="container">
+<p class="section-label reveal">Quick Links</p>
+<h2 class="section-title reveal">Helpful Resources</h2>
+
+<div class="info-grid">
+<a href="https://support.apple.com/en-us/HT202039" target="_blank" rel="noopener" class="info-card reveal">
+<span class="icon">🍎</span>
+<h4>Apple Support</h4>
+<p>Official Apple guide to viewing, changing, or canceling subscriptions.</p>
+</a>
+<a href="https://reportaproblem.apple.com" target="_blank" rel="noopener" class="info-card reveal">
+<span class="icon">💰</span>
+<h4>Request a Refund</h4>
+<p>Submit a refund request directly to Apple for any app purchase or subscription.</p>
+</a>
+<a href="wanderlux.html" class="info-card reveal">
+<span class="icon">🏖️</span>
+<h4>Wanderlux Support</h4>
+<p>App-specific help for resort search, bookmarks, and troubleshooting.</p>
+</a>
+<a href="numlock.html" class="info-card reveal">
+<span class="icon">🔢</span>
+<h4>NumLock Support</h4>
+<p>Help with gameplay, scoring, daily challenges, and technical issues.</p>
+</a>
+<a href="pestfriend.html" class="info-card reveal">
+<span class="icon">🐛</span>
+<h4>PestFriend Support</h4>
+<p>AI pest identification help, treatment guides, and privacy information.</p>
+</a>
+<a href="mailto:pjaissist@icloud.com" class="info-card reveal">
+<span class="icon">✉️</span>
+<h4>Contact Support</h4>
+<p>Can't find what you need? Email us at pjaissist@icloud.com for assistance.</p>
+</a>
+</div>
+</div>
+</section>
+
+<section class="contact-section">
+<div class="container">
+<p class="section-label reveal">Need More Help?</p>
+<h2 class="section-title reveal">Contact Support</h2>
+<div class="contact-card reveal">
+<h3>We're Here to Help</h3>
+<p>Have questions about subscriptions that aren't answered here? Our support team is ready to assist you.</p>
+<div class="contact-methods">
+<div class="contact-method">
+<span class="icon">✉️</span>
+<div>
+<p style="font-size:.85rem;color:var(--text-muted);margin:0 0 4px">Email Us</p>
+<a href="mailto:pjaissist@icloud.com">pjaissist@icloud.com</a>
+</div>
+</div>
+<div class="contact-method">
+<span class="icon">⏱️</span>
+<div>
+<p style="font-size:.85rem;color:var(--text-muted);margin:0 0 4px">Response Time</p>
+<span style="color:#fff;font-weight:600">24-48 Hours</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<footer class="support-footer">
+<div class="container">
+<div class="support-footer-content">
+<p class="company">AIssisted Consulting LLC</p>
+<p>Ocala, Florida</p>
+<p><a href="mailto:pjaissist@icloud.com">pjaissist@icloud.com</a></p>
+<p style="margin-top:24px;font-size:.8rem">© 2026 AIssisted Consulting LLC. All rights reserved.</p>
+</div>
+</div>
+</footer>
+</body>
+</html>

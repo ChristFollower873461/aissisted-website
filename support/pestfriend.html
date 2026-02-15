@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PestFriend Support — AIssisted Consulting</title>
+<meta name="description" content="Get help with PestFriend AI pest identification app. Find FAQs on pest ID, AI chat, treatment guides, privacy, subscriptions, and troubleshooting.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='14' fill='%230B1120'/><text x='16' y='21' text-anchor='middle' font-size='14' font-weight='bold' fill='%23F0D060'>AI</text></svg>">
+<link rel="stylesheet" href="../styles.css">
+<script src="../components/header.js" defer></script>
+<script src="../components/footer.js" defer></script>
+<style>
+.support-hero{min-height:35vh;display:flex;align-items:center;position:relative;overflow:hidden;background:linear-gradient(180deg,#0B1120 0%,#1A1035 60%,#3D1D5E 100%);padding:140px 0 60px}
+.support-hero-content{position:relative;z-index:2;text-align:center}
+.support-hero h1{font-size:clamp(2rem,4vw,3rem);font-weight:800;line-height:1.2;margin-bottom:16px;background:linear-gradient(135deg,#fff 30%,var(--gold-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.support-hero p{font-size:clamp(1rem,1.8vw,1.25rem);color:rgba(255,255,255,.8);max-width:600px;margin:0 auto;line-height:1.6}
+.breadcrumbs{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:24px;font-size:.9rem;color:var(--text-muted);flex-wrap:wrap}
+.breadcrumbs a{color:var(--gold-mid);text-decoration:none}
+.breadcrumbs a:hover{color:var(--gold-light)}
+.breadcrumbs .sep{color:var(--text-muted);opacity:.5}
+.breadcrumbs .current{color:var(--text)}
+.app-badge{display:inline-flex;align-items:center;gap:12px;padding:12px 24px;background:rgba(124,179,66,.15);border:1px solid rgba(124,179,66,.3);border-radius:50px;margin-bottom:24px}
+.app-badge .icon{font-size:1.5rem}
+.app-badge span{font-weight:600;color:#7CB342}
+.content-section{padding:80px 0}
+.content-section.alt{background:linear-gradient(180deg,var(--navy),var(--purple-deep))}
+.faq-list{max-width:780px;margin:0 auto}
+.faq-item{border-bottom:1px solid rgba(136,136,187,.1);overflow:hidden}
+.faq-q{padding:24px 0;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-weight:600;font-size:1.05rem;color:#fff;background:none;border:none;width:100%;text-align:left;font-family:inherit;transition:color .3s}
+.faq-q:hover{color:var(--gold-mid)}
+.faq-q::after{content:'+';font-size:1.5rem;color:var(--gold-mid);transition:transform .3s;flex-shrink:0;margin-left:16px}
+.faq-item.open .faq-q::after{transform:rotate(45deg)}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .4s ease,padding .4s ease;color:var(--text-muted);line-height:1.8;font-size:.95rem}
+.faq-item.open .faq-a{max-height:500px;padding-bottom:24px}
+.faq-a p{margin-bottom:16px}
+.faq-a ul,.faq-a ol{margin:16px 0;padding-left:24px}
+.faq-a li{margin-bottom:8px}
+.faq-a strong{color:var(--text)}
+.faq-a a{color:var(--gold-mid)}
+.faq-a code{background:rgba(255,255,255,.1);padding:2px 6px;border-radius:4px;font-family:monospace;font-size:.9em}
+.tip-box{background:linear-gradient(135deg,rgba(124,179,66,.1),rgba(85,139,47,.05));border:1px solid rgba(124,179,66,.2);border-radius:12px;padding:20px;margin:20px 0}
+.tip-box .tip-label{color:#7CB342;font-weight:600;font-size:.85rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.tip-box p{margin:0;color:var(--text-muted)}
+.warning-box{background:linear-gradient(135deg,rgba(232,132,90,.1),rgba(196,69,106,.05));border:1px solid rgba(232,132,90,.2);border-radius:12px;padding:20px;margin:20px 0}
+.warning-box .warning-label{color:var(--orange);font-weight:600;font-size:.85rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.warning-box p{margin:0;color:var(--text-muted)}
+.privacy-box{background:linear-gradient(135deg,rgba(136,136,187,.1),rgba(85,85,136,.05));border:1px solid rgba(136,136,187,.2);border-radius:12px;padding:20px;margin:20px 0}
+.privacy-box .privacy-label{color:var(--moon-light);font-weight:600;font-size:.85rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.privacy-box p{margin:0;color:var(--text-muted)}
+.contact-section{padding:80px 0;background:var(--purple-deep)}
+.contact-card{background:rgba(255,255,255,.03);border:1px solid rgba(136,136,187,.1);border-radius:20px;padding:48px;text-align:center;max-width:600px;margin:0 auto}
+.contact-card h3{font-size:1.4rem;margin-bottom:16px;color:#fff}
+.contact-card p{color:var(--text-muted);margin-bottom:24px;line-height:1.6}
+.contact-methods{display:flex;justify-content:center;gap:24px;flex-wrap:wrap;margin-top:32px}
+.contact-method{display:flex;align-items:center;gap:12px;padding:16px 24px;background:rgba(255,255,255,.05);border-radius:12px;border:1px solid rgba(136,136,187,.1)}
+.contact-method .icon{font-size:1.5rem}
+.contact-method a{color:var(--gold-mid);font-weight:600}
+.support-footer{padding:60px 0 32px;background:var(--navy);border-top:1px solid rgba(136,136,187,.1)}
+.support-footer-content{text-align:center}
+.support-footer-content p{color:var(--text-muted);font-size:.9rem;margin:4px 0}
+.support-footer-content .company{color:#fff;font-weight:600}
+.section-nav{display:flex;justify-content:space-between;align-items:center;margin-top:48px;padding-top:32px;border-top:1px solid rgba(136,136,187,.1)}
+.section-nav a{display:flex;align-items:center;gap:8px;color:var(--gold-mid);font-weight:600}
+.section-nav a:hover{color:var(--gold-light)}
+.camera-guide{background:rgba(255,255,255,.05);border-radius:12px;padding:24px;margin:20px 0}
+.camera-guide h4{color:#fff;margin-bottom:12px}
+.camera-guide ol{margin:0;padding-left:20px;color:var(--text-muted)}
+.camera-guide li{margin-bottom:8px}
+@media(max-width:768px){.contact-methods{flex-direction:column;align-items:center}.section-nav{flex-direction:column;gap:16px}}
+</style>
+</head>
+<body>
+<div id="header-container"></div>
+
+<section class="support-hero">
+<div class="container support-hero-content">
+<nav class="breadcrumbs">
+<a href="../index.html">Home</a>
+<span class="sep">/</span>
+<a href="index.html">Support</a>
+<span class="sep">/</span>
+<span class="current">PestFriend</span>
+</nav>
+<div class="app-badge">
+<span class="icon">🐛</span>
+<span>PestFriend Support</span>
+</div>
+<h1>Identify Pests Instantly</h1>
+<p>Help with AI pest identification, treatment guides, the AI chat assistant, privacy, subscriptions, and troubleshooting.</p>
+</div>
+</section>
+
+<section id="faq" class="content-section" style="background:var(--navy)">
+<div class="container">
+<p class="section-label reveal">Using PestFriend</p>
+<h2 class="section-title reveal">Frequently Asked Questions</h2>
+
+<div class="faq-list" style="margin-top:48px">
+<div class="faq-item reveal">
+<button class="faq-q">How does pest identification work?</button>
+<div class="faq-a">
+<p>PestFriend uses advanced AI to identify pests from your photos:</p>
+<ol>
+<li><strong>Take a Photo:</strong> Snap a clear picture of the pest or evidence (droppings, damage, etc.)</li>
+<li><strong>Upload:</strong> The image is securely sent to our AI for analysis</li>
+<li><strong>Get Results:</strong> Within seconds, you'll receive the pest identification with confidence level</li>
+<li><strong>Learn More:</strong> Tap the result to view detailed information about the pest</li>
+</ol>
+<div class="tip-box">
+<div class="tip-label">💡 Photo Tips</div>
+<p>For best results, ensure good lighting, get close to the pest, and keep the camera steady. Multiple angles help with accurate identification.</p>
+</div>
+</div>
+</div>
+
+<div class="faq-item reveal">
+<button class="faq-q">What can the AI chat assistant help with?</button>
+<div class="faq-a">
+<p>The AI chat assistant is your personal pest control expert. Ask it about:</p>
+<ul>
+<li><strong>Prevention Tips:</strong> How to keep specific pests away</li>
+<li><strong>Identification Help:</strong> "What does a bed bug look like?"</li>
+<li><strong>Treatment Advice:</strong> "How do I get rid of ants in my kitchen?"</li>
+<li><strong>Safety Information:</strong> "Are these spiders dangerous?"</li>
+<li><strong>Product Recommendations:</strong> "What spray works for roaches?"</li>
+<li><strong>Follow-up Questions:</strong> Deep dive into any pest topic</li>
+</ul>
+<div class="privacy-box">
+<div class="privacy-label">🔒 Privacy Note</div>
+<p>Chat conversations are processed by AI to provide answers but are not stored permanently or used to train models.</p>
+</div>
+</div>
+</div>
+
+<div class="faq-item reveal">
+<button class="faq-q">How do treatment guides work?</button>
+<div class="faq-a">
+<p>Once a pest is identified, PestFriend provides comprehensive treatment guides:</p>
+<ul>
+<li><strong>DIY Methods:</strong> Step-by-step home remedies and prevention tips</li>
+<li><strong>Product Recommendations:</strong> Suggested treatments with safety information</li>
+<li><strong>Safety Warnings:</strong> Important precautions for handling chemicals or infestations</li>
+<li><strong>When to Call a Pro:</strong> Guidance on when professional help is recommended</li>
+<li><strong>Prevention:</strong> Long-term strategies to keep pests from returning</li>
+</ul>
+<p><strong>Pro Users</strong> get access to advanced treatment protocols and priority recommendations.</p>
+</div>
+</div>
+
+<div class="faq-item reveal">
+<button class="faq-q">Can I identify pests from damage or droppings?</button>
+<div class="faq-a">
+<p>Yes! PestFriend can often identify pests from:</p>
+<ul>
+<li><strong>Droppings/Feces:</strong> Upload a photo of pest droppings</li>
+<li><strong>Damage Patterns:</strong> Show chewed wood, fabric, or food packaging</li>
+<li><strong>Nests:</strong> Photo of nests or burrows</li>
+<li><strong>Tracks:</strong> Marks left by pests</li>
+<li><strong>Shed Skins:</strong> Evidence of molting insects</li>
+</ul>
+<div class="tip-box">
+<div class="tip-label">💡 Tip</div>
+<p>When identifying from evidence, include a common object (like a coin) in the photo for size reference.</p>
+</div>
+</div>
+</div>
+
+<div class="faq-item reveal">
+<button class="faq-q">How accurate is the AI identification?</button>
+<div class="faq-a">
+<p>PestFriend's AI is highly accurate for common household and garden pests:</p>
+<ul>
+<li><strong>Clear Photos:</strong> 90%+ accuracy with good lighting and focus</li>
+<li><strong>Common Pests:</strong> Very high accuracy for ants, roaches, spiders, rodents, etc.</li>
+<li><strong>Rare Species:</strong> May provide genus or family level identification</li>
+<li><strong>Confidence Score:</strong> Each result includes a confidence percentage</li>
+</ul>
+<p>If the AI is unsure, it will suggest similar possibilities and recommend consulting a professional for positive identification of dangerous pests.</p>
+<div class="warning-box">
+<div class="warning-label">⚠️ Important</div>
+<p>PestFriend is a tool to assist identification but should not replace professional pest control advice for dangerous infestations or health concerns.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<section id="privacy" class="content-section alt">
+<div class="container">
+<p class="section-label reveal">Privacy</p>
+<h2 class="section-title reveal">Your Privacy Matters</h2>
+
+<div class="faq-list" style="margin-top:48px">
+<div class="faq-item reveal">
+<button class="faq-q">How are my pest photos handled?</button>
+<div class="faq-a">
+<p>We take your privacy seriously:</p>
+<ul>
+<li><strong>Processing:</strong> Photos are sent to our AI service solely for identification</li>
+<li><strong>No Permanent Storage:</strong> Images are not stored permanently on our servers</li>
+<li><strong>No Training:</strong> Your photos are never used to train AI models</li>
+<li><strong>Secure Transmission:</strong> All uploads use encrypted connections</li>
+<li><strong>Local Storage:</strong> Photos are stored on your device only (unless you delete them)</li>
+</ul>
+<div class="privacy-box">
+<div class="privacy-label">🔒 Our Promise</div>
+<p>We don't sell, share, or retain your pest photos beyond the immediate identification process. Your privacy is our priority.</p>
+</div>
+</div>
+</div>
+
+<div class="faq-item reveal">
+<button class="faq-q">Is my chat history saved?</button>
+<div class="faq-a">
+<p>Chat conversations have limited retention:</p>
+<ul>
+<li><strong>Temporary Processing:</strong> Chats are processed in real-time to generate responses</li>
+<li><strong>Session-Based:</strong> Conversations are stored temporarily during your session</li>
+<li><strong>No Training Use:</strong> Chats are not used to train or improve AI models</li>
+<li><strong>Clear History:</strong> You can clear chat history anytime in Settings</li>
+</ul>
+</div>
+</div>
+
+<div class="faq-item reveal">
+<button class="faq-q">What data is collected?</button>
+<div class="faq-a">
+<p>PestFriend collects minimal data:</p>
+<ul>
+<li><strong>App Usage:</strong> Basic analytics to improve the app (optional, can be disabled)</li>
+<li><strong>Crash Reports:</strong> Anonymous data to fix bugs and crashes</li>
+<li><strong>Purchase History:</strong> To validate subscriptions and restore purchases</li>
+</ul>
+<p>We do not collect personal information, location data (unless you grant permission), or pest photo content for any purpose other than identification.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<section id="subscriptions" class="content-section" style="background:var(--navy)">
+<div class="container">
+<p class="section-label reveal">Subscriptions</p>
+<h2 class="section-title reveal">Pro Subscription FAQ</h2>
+
+<div class="faq-list" style="margin-top:48px">
+<div class="faq-item reveal">
+<button class="faq-q">What features are included in Pro?</button>
+<div class="faq-a">
+<p>PestFriend Pro unlocks the full pest-fighting toolkit:</p>
+<ul>
+<li><strong>Unlimited Identifications:</strong> No daily limits on pest IDs</li>
+<li><strong>Advanced Treatment Guides:</strong> Detailed protocols and professional-grade advice</li>
+<li><strong>Priority AI Chat:</strong> Faster response times and more detailed answers</li>
+<li><strong>Offline Mode:</strong> Access common pest info without internet</li>
+<li><strong>Pest History:</strong> Save and track all your past identifications</li>
+<li><strong>Seasonal Alerts:</strong> Get notified about pests active in your area</li>
+<li><strong>No Ads:</strong> Clean, uninterrupted experience</li>
+</ul>
+</div>
+</div>
+
+<div class="faq-item reveal">
+<button class="faq-q">How much does Pro cost?</button>
+<div class="faq-a">
+<p>PestFriend Pro offers flexible pricing:</p>
+<ul>
+<li><strong>Monthly:</strong> $5.99/month</li>
+<li><strong>Yearly:</strong> $49.99/year (save 30%)</li>
+</ul>
+<p>Prices may vary by region. All subscriptions auto-renew unless canceled at least 24 hours before the renewal date.</p>
+</div>
+</div>
+
+<div class="faq-item reveal">
+<button class="faq-q">How do I manage or cancel my subscription?</button>
+<div class="faq-a">
+<p>All subscriptions are managed through your Apple ID:</p>
+<ol>
+<li>Open the <strong>Settings</strong> app on your iPhone/iPad</li>
+<li>Tap your name at the top (Apple ID)</li>
+<li>Tap <strong>Subscriptions</strong></li>
+<li>Find and tap <strong>PestFriend</strong></li>
+<li>Tap <strong>Cancel Subscription</strong> or change your plan</li>
+</ol>
+<div class="tip-box">
+<div class="tip-label">💡 Important</div>
+<p>Deleting the app does not cancel your subscription. You must cancel through Settings → Subscriptions to stop billing.</p>
+</div>
+</div>
+</div>
+
+<div class="faq-item reveal">
+<button class="faq-q">How do I restore my purchases?</button>
+<div class="faq-a">
+<p>If you've previously purchased Pro and it's not showing:</p>
+<ol>
+<li>Open PestFriend</li>
+<li>Tap the Settings icon (gear)</li>
+<li>Tap <strong>Restore Purchases</strong></li>
+<li>Sign in with the same Apple ID used for the original purchase if prompted</li>
+</ol>
+<p>Your Pro features should restore immediately. If not, try force-quitting and reopening the app.</p>
+</div>
+</div>
+</div>
+
+<div class="reveal" style="text-align:center;margin-top:40px">
+<a href="subscriptions.html" class="btn btn-primary">View Detailed Subscription Help</a>
+</div>
+</div>
+</section>
+
+<section id="troubleshooting" class="content-section alt">
+<div class="container">
+<p class="section-label reveal">Troubleshooting</p>
+<h2 class="section-title reveal">Common Issues & Solutions</h2>
+
+<div class="faq-list" style="margin-top:48px">
+<div class="faq-item reveal">
+<button class="faq-q">Camera won't open or photos won't upload</button>
+<div class="faq-a">
+<p>If you're having camera issues:</p>
+<div class="camera-guide">
+<h4>Enable Camera Permissions</h4>
+<ol>
+<li>Open the <strong>Settings</strong> app</li>
+<li>Scroll down and tap <strong>PestFriend</strong></li>
+<li>Tap <strong>Camera</strong></li>
+<li>Select <strong>Allow</strong></li>
+</ol>
+</div>
+<p>Additional troubleshooting:</p>
+<ul>
+<li>Force-quit the app and reopen it</li>
+<li>Restart your device</li>
+<li>Ensure you have available storage space</li>
+<li>Update to the latest iOS version</li>
+</ul>
+</div>
+</div>
+
+<div class="faq-item reveal">
+<button class="faq-q">AI isn't responding or is very slow</button>
+<div class="faq-a">
+<p>If the AI identification or chat isn't working:</p>
+<ol>
+<li>Check your internet connection (WiFi or cellular)</li>
+<li>Try switching between WiFi and cellular data</li>
+<li>Close and reopen the app</li>
+<li>Check if there's a service outage on our status page</li>
+</ol>
+<p><strong>Pro Users:</strong> You get priority processing. If you're experiencing slowness with an active Pro subscription, please contact support.</p>
+</div>
+</div>
+
+<div class="faq-item reveal">
+<button class="faq-q">Identification results seem wrong</button>
+<div class="faq-a">
+<p>If the AI identification doesn't match what you see:</p>
+<ul>
+<li><strong>Retake the photo:</strong> Ensure good lighting and focus</li>
+<li><strong>Multiple angles:</strong> Try photos from different perspectives</li>
+<li><strong>Include scale:</strong> Add a common object for size reference</li>
+<li><strong>Check confidence score:</strong> Low confidence may indicate an unclear image</li>
+</ul>
+<p>You can also use the AI Chat to describe what you see for additional help with identification.</p>
+</div>
+</div>
+
+<div class="faq-item reveal">
+<button class="faq-q">The app is crashing or freezing</button>
+<div class="faq-a">
+<p>Try these troubleshooting steps:</p>
+<ol>
+<li>Force-quit the app: Swipe up from bottom (or double-tap home), swipe up on PestFriend</li>
+<li>Update to the latest version from the App Store</li>
+<li>Restart your device</li>
+<li>Free up storage space on your device</li>
+<li>Delete and reinstall the app</li>
+</ol>
+<p>If crashes continue, please contact support with your device model, iOS version, and what you were doing when the crash occurred.</p>
+</div>
+</div>
+
+<div class="faq-item reveal">
+<button class="faq-q">My pest history disappeared</button>
+<div class="faq-a">
+<p>If your saved identifications are missing:</p>
+<ol>
+<li>Ensure you're signed in with the same Apple ID</li>
+<li>Check that you have an active Pro subscription (history is a Pro feature)</li>
+<li>Pull down on the History screen to refresh</li>
+<li>Check your internet connection</li>
+</ol>
+<p>Free users have limited history retention. Upgrade to Pro for unlimited saved identifications.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<section class="contact-section">
+<div class="container">
+<p class="section-label reveal">Still Need Help?</p>
+<h2 class="section-title reveal">Contact PestFriend Support</h2>
+<div class="contact-card reveal">
+<h3>We're Here to Help</h3>
+<p>Can't find what you're looking for? Our support team is ready to assist you with any PestFriend-related questions or issues.</p>
+<div class="contact-methods">
+<div class="contact-method">
+<span class="icon">✉️</span>
+<div>
+<p style="font-size:.85rem;color:var(--text-muted);margin:0 0 4px">Email Us</p>
+<a href="mailto:pjaissist@icloud.com">pjaissist@icloud.com</a>
+</div>
+</div>
+<div class="contact-method">
+<span class="icon">⏱️</span>
+<div>
+<p style="font-size:.85rem;color:var(--text-muted);margin:0 0 4px">Response Time</p>
+<span style="color:#fff;font-weight:600">24-48 Hours</span>
+</div>
+</div>
+</div>
+</div>
+
+<div class="section-nav reveal">
+<a href="index.html">← Back to Support Home</a>
+<a href="subscriptions.html">Subscription Help →</a>
+</div>
+</div>
+</section>
+
+<footer class="support-footer">
+<div class="container">
+<div class="support-footer-content">
+<p class="company">AIssisted Consulting LLC</p>
+<p>Ocala, Florida</p>
+<p><a href="mailto:pjaissist@icloud.com">pjaissist@icloud.com</a></p>
+<p style="margin-top:24px;font-size:.8rem">© 2026 AIssisted Consulting LLC. All rights reserved.</p>
+</div>
+</div>
+</footer>
+</body>
+</html>
