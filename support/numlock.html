@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NumLock Support — AIssisted Consulting</title>
+<meta name="description" content="Get help with NumLock daily number puzzle game. Find FAQs on gameplay, scoring, hints, daily challenges, subscriptions, and troubleshooting.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='14' fill='%230B1120'/><text x='16' y='21' text-anchor='middle' font-size='14' font-weight='bold' fill='%23F0D060'>AI</text></svg>">
+<link rel="stylesheet" href="../styles.css">
+<script src="../components/header.js" defer></script>
+<script src="../components/footer.js" defer></script>
+<style>
+.support-hero{min-height:35vh;display:flex;align-items:center;position:relative;overflow:hidden;background:linear-gradient(180deg,#0B1120 0%,#1A1035 60%,#3D1D5E 100%);padding:140px 0 60px}
+.support-hero-content{position:relative;z-index:2;text-align:center}
+.support-hero h1{font-size:clamp(2rem,4vw,3rem);font-weight:800;line-height:1.2;margin-bottom:16px;background:linear-gradient(135deg,#fff 30%,var(--gold-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.support-hero p{font-size:clamp(1rem,1.8vw,1.25rem);color:rgba(255,255,255,.8);max-width:600px;margin:0 auto;line-height:1.6}
+.breadcrumbs{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:24px;font-size:.9rem;color:var(--text-muted);flex-wrap:wrap}
+.breadcrumbs a{color:var(--gold-mid);text-decoration:none}
+.breadcrumbs a:hover{color:var(--gold-light)}
+.breadcrumbs .sep{color:var(--text-muted);opacity:.5}
+.breadcrumbs .current{color:var(--text)}
+.app-badge{display:inline-flex;align-items:center;gap:12px;padding:12px 24px;background:rgba(240,208,96,.15);border:1px solid rgba(240,208,96,.3);border-radius:50px;margin-bottom:24px}
+.app-badge .icon{font-size:1.5rem}
+.app-badge span{font-weight:600;color:var(--gold-light)}
+.content-section{padding:80px 0}
+.content-section.alt{background:linear-gradient(180deg,var(--navy),var(--purple-deep))}
+.faq-list{max-width:780px;margin:0 auto}
+.faq-item{border-bottom:1px solid rgba(136,136,187,.1);overflow:hidden}
+.faq-q{padding:24px 0;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-weight:600;font-size:1.05rem;color:#fff;background:none;border:none;width:100%;text-align:left;font-family:inherit;transition:color .3s}
+.faq-q:hover{color:var(--gold-mid)}
+.faq-q::after{content:'+';font-size:1.5rem;color:var(--gold-mid);transition:transform .3s;flex-shrink:0;margin-left:16px}
+.faq-item.open .faq-q::after{transform:rotate(45deg)}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .4s ease,padding .4s ease;color:var(--text-muted);line-height:1.8;font-size:.95rem}
+.faq-item.open .faq-a{max-height:500px;padding-bottom:24px}
+.faq-a p{margin-bottom:16px}
+.faq-a ul,.faq-a ol{margin:16px 0;padding-left:24px}
+.faq-a li{margin-bottom:8px}
+.faq-a strong{color:var(--text)}
+.faq-a a{color:var(--gold-mid)}
+.faq-a code{background:rgba(255,255,255,.1);padding:2px 6px;border-radius:4px;font-family:monospace;font-size:.9em}
+.tip-box{background:linear-gradient(135deg,rgba(240,208,96,.1),rgba(212,168,67,.05));border:1px solid rgba(240,208,96,.2);border-radius:12px;padding:20px;margin:20px 0}
+.tip-box .tip-label{color:var(--gold-light);font-weight:600;font-size:.85rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.tip-box p{margin:0;color:var(--text-muted)}
+.warning-box{background:linear-gradient(135deg,rgba(232,132,90,.1),rgba(196,69,106,.05));border:1px solid rgba(232,132,90,.2);border-radius:12px;padding:20px;margin:20px 0}
+.warning-box .warning-label{color:var(--orange);font-weight:600;font-size:.85rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.warning-box p{margin:0;color:var(--text-muted)}
+.contact-section{padding:80px 0;background:var(--purple-deep)}
+.contact-card{background:rgba(255,255,255,.03);border:1px solid rgba(136,136,187,.1);border-radius:20px;padding:48px;text-align:center;max-width:600px;margin:0 auto}
+.contact-card h3{font-size:1.4rem;margin-bottom:16px;color:#fff}
+.contact-card p{color:var(--text-muted);margin-bottom:24px;line-height:1.6}
+.contact-methods{display:flex;justify-content:center;gap:24px;flex-wrap:wrap;margin-top:32px}
+.contact-method{display:flex;align-items:center;gap:12px;padding:16px 24px;background:rgba(255,255,255,.05);border-radius:12px;border:1px solid rgba(136,136,187,.1)}
+.contact-method .icon{font-size:1.5rem}
+.contact-method a{color:var(--gold-mid);font-weight:600}
+.support-footer{padding:60px 0 32px;background:var(--navy);border-top:1px solid rgba(136,136,187,.1)}
+.support-footer-content{text-align:center}
+.support-footer-content p{color:var(--text-muted);font-size:.9rem;margin:4px 0}
+.support-footer-content .company{color:#fff;font-weight:600}
+.section-nav{display:flex;justify-content:space-between;align-items:center;margin-top:48px;padding-top:32px;border-top:1px solid rgba(136,136,187,.1)}
+.section-nav a{display:flex;align-items:center;gap:8px;color:var(--gold-mid);font-weight:600}
+.section-nav a:hover{color:var(--gold-light)}
+.gameplay-example{background:rgba(255,255,255,.05);border-radius:12px;padding:24px;margin:20px 0;text-align:center;font-family:monospace}
+.gameplay-example .row{display:flex;justify-content:center;gap:8px;margin:8px 0}
+.gameplay-example .cell{width:50px;height:50px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:bold}
+.gameplay-example .cell.empty{background:rgba(255,255,255,.1);border:2px solid rgba(136,136,187,.3)}
+.gameplay-example .cell.filled{background:var(--gold-mid);color:var(--navy)}
+.gameplay-example .cell.correct{background:#4ECDC4;color:var(--navy)}
+.gameplay-example .cell.wrong{background:var(--pink);color:#fff}
+@media(max-width:768px){.contact-methods{flex-direction:column;align-items:center}.section-nav{flex-direction:column;gap:16px}}
+</style>
+</head>
+<body>
+<div id="header-container"></div>
+
+<section class="support-hero">
+<div class="container support-hero-content">
+<nav class="breadcrumbs">
+<a href="../index.html">Home</a>
+<span class="sep">/</span>
+<a href="index.html">Support</a>
+<span class="sep">/</span>
+<span class="current">NumLock</span>
+</nav>
+<div class="app-badge">
+<span class="icon">🔢</span>
+<span>NumLock Support</span>
+</div>
+<h1>Master the Numbers</h1>
+<p>Help with gameplay, scoring, hints, daily challenges, Premium features, and troubleshooting for NumLock.</p>
+</div>
+</section>
+
+<section id="faq" class="content-section" style="background:var(--navy)">
+<div class="container">
+<p class="section-label reveal">How to Play</p>
+<h2 class="section-title reveal">Gameplay FAQ</h2>
+
+<div class="faq-list" style="margin-top:48px">
+<div class="faq-item reveal">
+<button class="faq-q">How do I play NumLock?</button>
+<div class="faq-a">
+<p>NumLock is a daily number puzzle game. Here's how it works:</p>
+<ol>
+<li><strong>The Goal:</strong> Guess the secret 5-digit number in 6 tries or fewer</li>
+<li><strong>Make a Guess:</strong> Enter any 5-digit number (digits can repeat)</li>
+<li><strong>Get Feedback:</strong> After each guess, you'll see color-coded hints:</li>
+</ol>
+<div class="gameplay-example">
+<div class="row">
+<div class="cell correct">1</div>
+<div class="cell wrong">2</div>
+<div class="cell filled">3</div>
+<div class="cell empty">4</div>
+<div class="cell correct">5</div>
+</div>
+</div>
+<ul>
+<li><strong>Green:</strong> Correct digit in the correct position</li>
+<li><strong>Yellow/Gold:</strong> Correct digit in the wrong position</li>
+<li><strong>Gray:</strong> Digit not in the secret number</li>
+</ul>
+<p>Use the feedback to narrow down the answer and solve the puzzle!</p>
+</div>
+</div>
+
+<div class="faq-item reveal">
+<button class="faq-q">How does scoring work?</button>
+<div class="faq-a">
+<p>Your score is based on several factors:</p>
+<ul>
+<li><strong>Speed:</strong> Faster solves earn more points</li>
+<li><strong>Attempts:</strong> Solving in fewer guesses gives bonus points</li>
+<li><strong>Streaks:</strong> Consecutive daily solves multiply your score</li>
+<li><strong>Perfect Solve:</strong> Guess correctly on the first try for maximum points</li>
+</ul>
+<div class="tip-box">
+<div class="tip-label">💡 Scoring Tip</div>
+<p>Maintain your daily streak! Each consecutive day you solve the puzzle, your streak multiplier increases, dramatically boosting your score.</p>
+</div>
+</div>
+</div>
+
+<div class="faq-item reveal">
+<button class="faq-q">How do hints work?</button>
+<div class="faq-a">
+<p>Hints help you when you're stuck:</p>
+<ul>
+<li><strong>Free Users:</strong> Get 1 hint per puzzle</li>
+<li><strong>Premium Users:</strong> Get unlimited hints</li>
+</ul>
+<p><strong>Types of Hints:</strong></p>
+<ul>
+<li><strong>Reveal Digit:</strong> Shows one correct digit in its position</li>
+<li><strong>Eliminate:</strong> Removes one incorrect digit from the keyboard</li>
+<li><strong>Position Clue:</strong> Tells you if a specific digit is in the right spot</li>
+</ul>
+<p>Tap the lightbulb icon (💡) during gameplay to use a hint.</p>
+</div>
+</div>
+
+<div class="faq-item reveal">
+<button class="faq-q">What are daily challenges?</button>
+<div class="faq-a">
+<p>Every day at midnight local time, a new puzzle is released:</p>
+<ul>
+<li>All players worldwide get the same puzzle each day</li>
+<li>You have 24 hours to solve it before the next puzzle appears</li>
+<li>Your solve time and attempts are recorded for the leaderboard</li>
+<li>Missing a day breaks your streak</li>
+</ul>
+<p><strong>Practice Mode:</strong> Premium users can play unlimited practice puzzles anytime without affecting their daily streak.</p>
+</div>
+</div>
+
+<div class="faq-item reveal">
+<button class="faq-q">Can I play past puzzles?</button>
+<div class="faq-a">
+<p>Yes! With NumLock Premium, you can access the archive:</p>
+<ul>
+<li>Play any previous daily puzzle</li>
+<li>Practice on puzzles you missed</li>
+<li>Challenge friends to specific past puzzles</li>
+</ul>
+<p>Free users can only play the current day's puzzle and must wait for the next daily release.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<section id="subscriptions" class="content-section alt">
+<div class="container">
+<p class="section-label reveal">Subscriptions</p>
+<h2 class="section-title reveal">Premium Subscription FAQ</h2>
+
+<div class="faq-list" style="margin-top:48px">
+<div class="faq-item reveal">
+<button class="faq-q">What features are included in Premium?</button>
+<div class="faq-a">
+<p>NumLock Premium unlocks the full game experience:</p>
+<ul>
+<li><strong>Unlimited Hints:</strong> Never get stuck again</li>
+<li><strong>Practice Mode:</strong> Play unlimited puzzles anytime</li>
+<li><strong>Puzzle Archive:</strong> Access all past daily puzzles</li>
+<li><strong>Detailed Stats:</strong> Track your progress with advanced analytics</li>
+<li><strong>Custom Themes:</strong> Unlock exclusive color themes</li>
+<li><strong>No Ads:</strong> Enjoy uninterrupted gameplay</li>
+<li><strong>Leaderboard Access:</strong> See global rankings and compete</li>
+</ul>
+</div>
+</div>
+
+<div class="faq-item reveal">
+<button class="faq-q">How much does Premium cost?</button>
+<div class="faq-a">
+<p>NumLock Premium offers flexible pricing:</p>
+<ul>
+<li><strong>Monthly:</strong> $2.99/month</li>
+<li><strong>Yearly:</strong> $19.99/year (save 44%)</li>
+</ul>
+<p>Prices may vary by region. All subscriptions auto-renew unless canceled at least 24 hours before the renewal date.</p>
+</div>
+</div>
+
+<div class="faq-item reveal">
+<button class="faq-q">How do I manage or cancel my subscription?</button>
+<div class="faq-a">
+<p>All subscriptions are managed through your Apple ID:</p>
+<ol>
+<li>Open the <strong>Settings</strong> app on your iPhone/iPad</li>
+<li>Tap your name at the top (Apple ID)</li>
+<li>Tap <strong>Subscriptions</strong></li>
+<li>Find and tap <strong>NumLock</strong></li>
+<li>Tap <strong>Cancel Subscription</strong> or change your plan</li>
+</ol>
+<div class="tip-box">
+<div class="tip-label">💡 Important</div>
+<p>Deleting the app does not cancel your subscription. You must cancel through Settings → Subscriptions to stop billing.</p>
+</div>
+</div>
+</div>
+
+<div class="faq-item reveal">
+<button class="faq-q">How do I restore my purchases?</button>
+<div class="faq-a">
+<p>If you've previously purchased Premium and it's not showing:</p>
+<ol>
+<li>Open NumLock</li>
+<li>Tap the Settings icon (gear) in the top right</li>
+<li>Tap <strong>Restore Purchases</strong></li>
+<li>Sign in with the same Apple ID used for the original purchase if prompted</li>
+</ol>
+<p>Your Premium features should restore immediately. If not, try force-quitting and reopening the app.</p>
+</div>
+</div>
+</div>
+
+<div class="reveal" style="text-align:center;margin-top:40px">
+<a href="subscriptions.html" class="btn btn-primary">View Detailed Subscription Help</a>
+</div>
+</div>
+</section>
+
+<section id="troubleshooting" class="content-section" style="background:var(--navy)">
+<div class="container">
+<p class="section-label reveal">Troubleshooting</p>
+<h2 class="section-title reveal">Common Issues & Solutions</h2>
+
+<div class="faq-list" style="margin-top:48px">
+<div class="faq-item reveal">
+<button class="faq-q">My progress isn't saving</button>
+<div class="faq-a">
+<p>If your game progress or streak isn't being saved:</p>
+<ol>
+<li>Ensure you're connected to the internet when completing puzzles</li>
+<li>Check that you're signed in with the same Apple ID across devices</li>
+<li>Enable iCloud if you want progress synced across devices</li>
+<li>Try force-quitting the app and reopening it</li>
+</ol>
+<div class="warning-box">
+<div class="warning-label">⚠️ Note</div>
+<p>Progress is tied to your device unless you're signed in and have iCloud enabled. If you delete the app without these enabled, your progress may be lost.</p>
+</div>
+</div>
+</div>
+
+<div class="faq-item reveal">
+<button class="faq-q">Leaderboard isn't showing my score</button>
+<div class="faq-a">
+<p>If your scores aren't appearing on the leaderboard:</p>
+<ol>
+<li>Ensure you have an internet connection when completing puzzles</li>
+<li>Check that Leaderboards are enabled in Settings → Privacy & Security → Game Center</li>
+<li>Sign in to Game Center if prompted</li>
+<li>Scores only upload after you complete or give up on a puzzle</li>
+</ol>
+<p>Leaderboard updates may take a few minutes to appear. If issues persist, try logging out and back into Game Center.</p>
+</div>
+</div>
+
+<div class="faq-item reveal">
+<button class="faq-q">The daily puzzle didn't refresh</button>
+<div class="faq-a">
+<p>New puzzles release at midnight in your local time zone. If you don't see a new puzzle:</p>
+<ol>
+<li>Pull down on the main screen to refresh</li>
+<li>Ensure you have an internet connection</li>
+<li>Close and reopen the app</li>
+<li>Check that your device's time and date are set correctly (Settings → General → Date & Time → Set Automatically)</li>
+</ol>
+<p>If you still see yesterday's puzzle after trying these steps, contact support.</p>
+</div>
+</div>
+
+<div class="faq-item reveal">
+<button class="faq-q">The app is crashing during gameplay</button>
+<div class="faq-a">
+<p>Try these troubleshooting steps:</p>
+<ol>
+<li>Force-quit the app: Swipe up from bottom (or double-tap home), swipe up on NumLock</li>
+<li>Update to the latest version from the App Store</li>
+<li>Restart your device</li>
+<li>Free up storage space on your device (Settings → General → iPhone Storage)</li>
+<li>Delete and reinstall the app (your progress will restore if synced)</li>
+</ol>
+<p>If crashes continue, please contact support with your device model and iOS version.</p>
+</div>
+</div>
+
+<div class="faq-item reveal">
+<button class="faq-q">Hints aren't working</button>
+<div class="faq-a">
+<p>If you're having trouble with hints:</p>
+<ul>
+<li><strong>Free users:</strong> You get only 1 hint per puzzle. Once used, hints are unavailable until the next daily puzzle.</li>
+<li><strong>Premium users:</strong> Ensure your subscription is active. Check in Settings → Subscription Status.</li>
+<li>Try force-quitting and reopening the app</li>
+<li>Restore purchases if Premium features aren't showing</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<section class="contact-section">
+<div class="container">
+<p class="section-label reveal">Still Need Help?</p>
+<h2 class="section-title reveal">Contact NumLock Support</h2>
+<div class="contact-card reveal">
+<h3>We're Here to Help</h3>
+<p>Can't find what you're looking for? Our support team is ready to assist you with any NumLock-related questions or issues.</p>
+<div class="contact-methods">
+<div class="contact-method">
+<span class="icon">✉️</span>
+<div>
+<p style="font-size:.85rem;color:var(--text-muted);margin:0 0 4px">Email Us</p>
+<a href="mailto:pjaissist@icloud.com">pjaissist@icloud.com</a>
+</div>
+</div>
+<div class="contact-method">
+<span class="icon">⏱️</span>
+<div>
+<p style="font-size:.85rem;color:var(--text-muted);margin:0 0 4px">Response Time</p>
+<span style="color:#fff;font-weight:600">24-48 Hours</span>
+</div>
+</div>
+</div>
+</div>
+
+<div class="section-nav reveal">
+<a href="index.html">← Back to Support Home</a>
+<a href="subscriptions.html">Subscription Help →</a>
+</div>
+</div>
+</section>
+
+<footer class="support-footer">
+<div class="container">
+<div class="support-footer-content">
+<p class="company">AIssisted Consulting LLC</p>
+<p>Ocala, Florida</p>
+<p><a href="mailto:pjaissist@icloud.com">pjaissist@icloud.com</a></p>
+<p style="margin-top:24px;font-size:.8rem">© 2026 AIssisted Consulting LLC. All rights reserved.</p>
+</div>
+</div>
+</footer>
+</body>
+</html>

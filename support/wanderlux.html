@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wanderlux Support — AIssisted Consulting</title>
+<meta name="description" content="Get help with Wanderlux resort search app. Find FAQs on searching, filters, bookmarks, subscriptions, and troubleshooting.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='14' fill='%230B1120'/><text x='16' y='21' text-anchor='middle' font-size='14' font-weight='bold' fill='%23F0D060'>AI</text></svg>">
+<link rel="stylesheet" href="../styles.css">
+<script src="../components/header.js" defer></script>
+<script src="../components/footer.js" defer></script>
+<style>
+.support-hero{min-height:35vh;display:flex;align-items:center;position:relative;overflow:hidden;background:linear-gradient(180deg,#0B1120 0%,#1A1035 60%,#3D1D5E 100%);padding:140px 0 60px}
+.support-hero-content{position:relative;z-index:2;text-align:center}
+.support-hero h1{font-size:clamp(2rem,4vw,3rem);font-weight:800;line-height:1.2;margin-bottom:16px;background:linear-gradient(135deg,#fff 30%,var(--gold-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.support-hero p{font-size:clamp(1rem,1.8vw,1.25rem);color:rgba(255,255,255,.8);max-width:600px;margin:0 auto;line-height:1.6}
+.breadcrumbs{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:24px;font-size:.9rem;color:var(--text-muted);flex-wrap:wrap}
+.breadcrumbs a{color:var(--gold-mid);text-decoration:none}
+.breadcrumbs a:hover{color:var(--gold-light)}
+.breadcrumbs .sep{color:var(--text-muted);opacity:.5}
+.breadcrumbs .current{color:var(--text)}
+.app-badge{display:inline-flex;align-items:center;gap:12px;padding:12px 24px;background:rgba(78,205,196,.15);border:1px solid rgba(78,205,196,.3);border-radius:50px;margin-bottom:24px}
+.app-badge .icon{font-size:1.5rem}
+.app-badge span{font-weight:600;color:#4ECDC4}
+.content-section{padding:80px 0}
+.content-section.alt{background:linear-gradient(180deg,var(--navy),var(--purple-deep))}
+.toc{position:sticky;top:100px;background:rgba(255,255,255,.03);border:1px solid rgba(136,136,187,.1);border-radius:16px;padding:24px;margin-bottom:32px}
+.toc h4{font-size:1rem;color:var(--gold-mid);margin-bottom:16px;text-transform:uppercase;letter-spacing:2px}
+.toc ul{list-style:none;margin:0;padding:0}
+.toc li{margin:8px 0}
+.toc a{color:var(--text-muted);font-size:.9rem;display:block;padding:4px 0;transition:color .3s}
+.toc a:hover{color:var(--gold-mid)}
+.toc a.active{color:var(--gold-mid);font-weight:600}
+.faq-list{max-width:780px;margin:0 auto}
+.faq-item{border-bottom:1px solid rgba(136,136,187,.1);overflow:hidden}
+.faq-q{padding:24px 0;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-weight:600;font-size:1.05rem;color:#fff;background:none;border:none;width:100%;text-align:left;font-family:inherit;transition:color .3s}
+.faq-q:hover{color:var(--gold-mid)}
+.faq-q::after{content:'+';font-size:1.5rem;color:var(--gold-mid);transition:transform .3s;flex-shrink:0;margin-left:16px}
+.faq-item.open .faq-q::after{transform:rotate(45deg)}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .4s ease,padding .4s ease;color:var(--text-muted);line-height:1.8;font-size:.95rem}
+.faq-item.open .faq-a{max-height:500px;padding-bottom:24px}
+.faq-a p{margin-bottom:16px}
+.faq-a ul,.faq-a ol{margin:16px 0;padding-left:24px}
+.faq-a li{margin-bottom:8px}
+.faq-a strong{color:var(--text)}
+.faq-a a{color:var(--gold-mid)}
+.faq-a code{background:rgba(255,255,255,.1);padding:2px 6px;border-radius:4px;font-family:monospace;font-size:.9em}
+.tip-box{background:linear-gradient(135deg,rgba(78,205,196,.1),rgba(68,160,141,.05));border:1px solid rgba(78,205,196,.2);border-radius:12px;padding:20px;margin:20px 0}
+.tip-box .tip-label{color:#4ECDC4;font-weight:600;font-size:.85rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.tip-box p{margin:0;color:var(--text-muted)}
+.warning-box{background:linear-gradient(135deg,rgba(232,132,90,.1),rgba(196,69,106,.05));border:1px solid rgba(232,132,90,.2);border-radius:12px;padding:20px;margin:20px 0}
+.warning-box .warning-label{color:var(--orange);font-weight:600;font-size:.85rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.warning-box p{margin:0;color:var(--text-muted)}
+.contact-section{padding:80px 0;background:var(--purple-deep)}
+.contact-card{background:rgba(255,255,255,.03);border:1px solid rgba(136,136,187,.1);border-radius:20px;padding:48px;text-align:center;max-width:600px;margin:0 auto}
+.contact-card h3{font-size:1.4rem;margin-bottom:16px;color:#fff}
+.contact-card p{color:var(--text-muted);margin-bottom:24px;line-height:1.6}
+.contact-methods{display:flex;justify-content:center;gap:24px;flex-wrap:wrap;margin-top:32px}
+.contact-method{display:flex;align-items:center;gap:12px;padding:16px 24px;background:rgba(255,255,255,.05);border-radius:12px;border:1px solid rgba(136,136,187,.1)}
+.contact-method .icon{font-size:1.5rem}
+.contact-method a{color:var(--gold-mid);font-weight:600}
+.support-footer{padding:60px 0 32px;background:var(--navy);border-top:1px solid rgba(136,136,187,.1)}
+.support-footer-content{text-align:center}
+.support-footer-content p{color:var(--text-muted);font-size:.9rem;margin:4px 0}
+.support-footer-content .company{color:#fff;font-weight:600}
+.section-nav{display:flex;justify-content:space-between;align-items:center;margin-top:48px;padding-top:32px;border-top:1px solid rgba(136,136,187,.1)}
+.section-nav a{display:flex;align-items:center;gap:8px;color:var(--gold-mid);font-weight:600}
+.section-nav a:hover{color:var(--gold-light)}
+@media(max-width:768px){.contact-methods{flex-direction:column;align-items:center}.section-nav{flex-direction:column;gap:16px}}
+</style>
+</head>
+<body>
+<div id="header-container"></div>
+
+<section class="support-hero">
+<div class="container support-hero-content">
+<nav class="breadcrumbs">
+<a href="../index.html">Home</a>
+<span class="sep">/</span>
+<a href="index.html">Support</a>
+<span class="sep">/</span>
+<span class="current">Wanderlux</span>
+</nav>
+<div class="app-badge">
+<span class="icon">🏖️</span>
+<span>Wanderlux Support</span>
+</div>
+<h1>Find Your Perfect Getaway</h1>
+<p>Help with resort search, bookmarks, filters, subscriptions, and more for the Wanderlux app.</p>
+</div>
+</section>
+
+<section id="faq" class="content-section" style="background:var(--navy)">
+<div class="container">
+<p class="section-label reveal">Getting Started</p>
+<h2 class="section-title reveal">Frequently Asked Questions</h2>
+
+<div class="faq-list" style="margin-top:48px">
+<div class="faq-item reveal">
+<button class="faq-q">How do I search for resorts?</button>
+<div class="faq-a">
+<p>Searching for your perfect resort is easy:</p>
+<ol>
+<li>Tap the Search tab at the bottom of the screen</li>
+<li>Enter a destination, resort name, or keyword in the search bar</li>
+<li>Browse the results or apply filters to narrow down your options</li>
+<li>Tap on any resort to view detailed information, photos, and amenities</li>
+</ol>
+<div class="tip-box">
+<div class="tip-label">💡 Pro Tip</div>
+<p>Use natural language searches like "beachfront resorts in Maui" or "all-inclusive Caribbean" for better results.</p>
+</div>
+</div>
+</div>
+
+<div class="faq-item reveal">
+<button class="faq-q">How do the filters work?</button>
+<div class="faq-a">
+<p>Wanderlux offers powerful filtering to help you find exactly what you're looking for:</p>
+<ul>
+<li><strong>Price Range:</strong> Set minimum and maximum nightly rates</li>
+<li><strong>Star Rating:</strong> Filter by 3, 4, or 5-star properties</li>
+<li><strong>Amenities:</strong> Select must-have features like pools, spas, beach access, or all-inclusive</li>
+<li><strong>Property Type:</strong> Choose from hotels, resorts, villas, or boutique properties</li>
+<li><strong>Guest Rating:</strong> Filter by traveler review scores</li>
+</ul>
+<p>Tap "Filters" on the search screen, select your preferences, then tap "Apply Filters" to see your refined results.</p>
+</div>
+</div>
+
+<div class="faq-item reveal">
+<button class="faq-q">How do I bookmark resorts?</button>
+<div class="faq-a">
+<p>Save your favorite resorts to your personal collection:</p>
+<ol>
+<li>Find a resort you love</li>
+<li>Tap the bookmark icon (🔖) on the resort card or detail page</li>
+<li>The resort is saved to your Bookmarks tab</li>
+<li>Access all saved resorts anytime from the Bookmarks tab</li>
+</ol>
+<p><strong>With Premium:</strong> Create unlimited custom collections (like "Honeymoon Ideas" or "Family Vacations") to organize your bookmarks.</p>
+</div>
+</div>
+
+<div class="faq-item reveal">
+<button class="faq-q">Can I share resorts with friends?</button>
+<div class="faq-a">
+<p>Yes! You can share any resort:</p>
+<ol>
+<li>Open the resort detail page</li>
+<li>Tap the Share button</li>
+<li>Choose your preferred method: Messages, Email, AirDrop, or social media</li>
+</ol>
+<p>The share includes resort details, photos, and a link to view it in Wanderlux.</p>
+</div>
+</div>
+
+<div class="faq-item reveal">
+<button class="faq-q">How often is resort data updated?</button>
+<div class="faq-a">
+<p>Resort information is updated regularly from our travel partners. Pricing and availability are refreshed daily, while amenities, photos, and descriptions are reviewed weekly. Some data may vary based on what our partners provide.</p>
+<div class="tip-box">
+<div class="tip-label">💡 Note</div>
+<p>Always verify pricing and availability directly with the resort or booking site before making reservations.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<section id="subscriptions" class="content-section alt">
+<div class="container">
+<p class="section-label reveal">Subscriptions</p>
+<h2 class="section-title reveal">Premium Subscription FAQ</h2>
+
+<div class="faq-list" style="margin-top:48px">
+<div class="faq-item reveal">
+<button class="faq-q">What features are included in Premium?</button>
+<div class="faq-a">
+<p>Wanderlux Premium unlocks powerful features for serious travelers:</p>
+<ul>
+<li><strong>Unlimited Bookmarks:</strong> Save as many resorts as you want</li>
+<li><strong>Custom Collections:</strong> Organize bookmarks into themed lists</li>
+<li><strong>Advanced Filters:</strong> Access exclusive filters like "Adults Only" and "Pet Friendly"</li>
+<li><strong>Price Alerts:</strong> Get notified when prices drop on saved resorts</li>
+<li><strong>Offline Access:</strong> View saved resorts without internet</li>
+<li><strong>No Ads:</strong> Enjoy an ad-free experience</li>
+</ul>
+</div>
+</div>
+
+<div class="faq-item reveal">
+<button class="faq-q">How much does Premium cost?</button>
+<div class="faq-a">
+<p>Wanderlux Premium offers flexible pricing:</p>
+<ul>
+<li><strong>Monthly:</strong> $4.99/month</li>
+<li><strong>Yearly:</strong> $39.99/year (save 33%)</li>
+</ul>
+<p>Prices may vary by region. All subscriptions auto-renew unless canceled at least 24 hours before the renewal date.</p>
+</div>
+</div>
+
+<div class="faq-item reveal">
+<button class="faq-q">How do I manage or cancel my subscription?</button>
+<div class="faq-a">
+<p>All subscriptions are managed through your Apple ID:</p>
+<ol>
+<li>Open the <strong>Settings</strong> app on your iPhone/iPad</li>
+<li>Tap your name at the top (Apple ID)</li>
+<li>Tap <strong>Subscriptions</strong></li>
+<li>Find and tap <strong>Wanderlux</strong></li>
+<li>Tap <strong>Cancel Subscription</strong> or change your plan</li>
+</ol>
+<div class="tip-box">
+<div class="tip-label">💡 Important</div>
+<p>Deleting the app does not cancel your subscription. You must cancel through Settings → Subscriptions to stop billing.</p>
+</div>
+</div>
+</div>
+
+<div class="faq-item reveal">
+<button class="faq-q">How do I restore my purchases?</button>
+<div class="faq-a">
+<p>If you've previously purchased Premium and it's not showing:</p>
+<ol>
+<li>Open Wanderlux</li>
+<li>Go to the Profile tab</li>
+<li>Tap <strong>Settings</strong> (gear icon)</li>
+<li>Tap <strong>Restore Purchases</strong></li>
+<li>Sign in with the same Apple ID used for the original purchase if prompted</li>
+</ol>
+<p>Your Premium features should restore immediately. If not, try force-quitting and reopening the app.</p>
+</div>
+</div>
+
+<div class="faq-item reveal">
+<button class="faq-q">Can I share my subscription with family?</button>
+<div class="faq-a">
+<p>Yes! Wanderlux Premium supports Family Sharing. If you have an active subscription and Family Sharing set up through your Apple ID, up to 5 family members can access Premium features at no additional cost.</p>
+<p>To set up Family Sharing: Settings → [Your Name] → Family Sharing → Set Up Your Family.</p>
+</div>
+</div>
+</div>
+
+<div class="reveal" style="text-align:center;margin-top:40px">
+<a href="subscriptions.html" class="btn btn-primary">View Detailed Subscription Help</a>
+</div>
+</div>
+</section>
+
+<section id="troubleshooting" class="content-section" style="background:var(--navy)">
+<div class="container">
+<p class="section-label reveal">Troubleshooting</p>
+<h2 class="section-title reveal">Common Issues & Solutions</h2>
+
+<div class="faq-list" style="margin-top:48px">
+<div class="faq-item reveal">
+<button class="faq-q">The app isn't showing my location</button>
+<div class="faq-a">
+<p>Wanderlux needs location permissions to show nearby resorts and provide location-based features:</p>
+<ol>
+<li>Open the <strong>Settings</strong> app</li>
+<li>Scroll down and tap <strong>Wanderlux</strong></li>
+<li>Tap <strong>Location</strong></li>
+<li>Select <strong>While Using the App</strong> or <strong>Always</strong></li>
+</ol>
+<div class="warning-box">
+<div class="warning-label">⚠️ Privacy Note</div>
+<p>Your location is only used to show nearby resorts and is never stored or shared with third parties.</p>
+</div>
+</div>
+</div>
+
+<div class="faq-item reveal">
+<button class="faq-q">Resort data won't load / offline mode issues</button>
+<div class="faq-a">
+<p>If you're having trouble loading resort information:</p>
+<ol>
+<li>Check your internet connection</li>
+<li>Try force-quitting the app and reopening it</li>
+<li>Ensure you have the latest version of Wanderlux from the App Store</li>
+<li>Restart your device if problems persist</li>
+</ol>
+<p><strong>For Premium offline access:</strong> Make sure you've opened and viewed resorts while online before going offline. Bookmarked resorts are automatically cached for offline viewing.</p>
+</div>
+</div>
+
+<div class="faq-item reveal">
+<button class="faq-q">Bookmarked resorts disappeared</button>
+<div class="faq-a">
+<p>If your bookmarks are missing:</p>
+<ol>
+<li>Ensure you're signed in with the same Apple ID</li>
+<li>Check that you're looking at the correct collection (if using Premium)</li>
+<li>Pull down on the Bookmarks screen to refresh</li>
+<li>If you had Premium but it lapsed, bookmarks may be limited to the free tier maximum</li>
+</ol>
+<p>If issues persist, contact support and we can help restore your data.</p>
+</div>
+</div>
+
+<div class="faq-item reveal">
+<button class="faq-q">The app is crashing or freezing</button>
+<div class="faq-a">
+<p>Try these troubleshooting steps:</p>
+<ol>
+<li>Force-quit the app: Swipe up from bottom (or double-tap home), swipe up on Wanderlux</li>
+<li>Update to the latest version from the App Store</li>
+<li>Restart your device</li>
+<li>Delete and reinstall the app (your bookmarks will restore if you have an account/cloud sync enabled)</li>
+</ol>
+<p>If crashes continue, please contact support with your device model and iOS version.</p>
+</div>
+</div>
+
+<div class="faq-item reveal">
+<button class="faq-q">Search results seem outdated or incorrect</button>
+<div class="faq-a">
+<p>Resort data comes from our travel partners and is refreshed regularly. If you notice outdated information:</p>
+<ul>
+<li>Pull down on the search results to refresh</li>
+<li>Try clearing the search and searching again</li>
+<li>Check your internet connection</li>
+</ul>
+<p>For persistent issues with specific resorts, please report them through the app (tap the flag icon on the resort page) or contact support.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<section class="contact-section">
+<div class="container">
+<p class="section-label reveal">Still Need Help?</p>
+<h2 class="section-title reveal">Contact Wanderlux Support</h2>
+<div class="contact-card reveal">
+<h3>We're Here to Help</h3>
+<p>Can't find what you're looking for? Our support team is ready to assist you with any Wanderlux-related questions or issues.</p>
+<div class="contact-methods">
+<div class="contact-method">
+<span class="icon">✉️</span>
+<div>
+<p style="font-size:.85rem;color:var(--text-muted);margin:0 0 4px">Email Us</p>
+<a href="mailto:pjaissist@icloud.com">pjaissist@icloud.com</a>
+</div>
+</div>
+<div class="contact-method">
+<span class="icon">⏱️</span>
+<div>
+<p style="font-size:.85rem;color:var(--text-muted);margin:0 0 4px">Response Time</p>
+<span style="color:#fff;font-weight:600">24-48 Hours</span>
+</div>
+</div>
+</div>
+</div>
+
+<div class="section-nav reveal">
+<a href="index.html">← Back to Support Home</a>
+<a href="subscriptions.html">Subscription Help →</a>
+</div>
+</div>
+</section>
+
+<footer class="support-footer">
+<div class="container">
+<div class="support-footer-content">
+<p class="company">AIssisted Consulting LLC</p>
+<p>Ocala, Florida</p>
+<p><a href="mailto:pjaissist@icloud.com">pjaissist@icloud.com</a></p>
+<p style="margin-top:24px;font-size:.8rem">© 2026 AIssisted Consulting LLC. All rights reserved.</p>
+</div>
+</div>
+</footer>
+</body>
+</html>
