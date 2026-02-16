@@ -34,6 +34,7 @@ const headerHTML=`<nav id="nav">
 <a href="${base}services.html">Services</a>
 <a href="${base}industries/">Industries</a>
 <a href="${base}pricing.html">Pricing</a>
+<a href="${base}compare.html">Compare</a>
 <a href="${base}about.html">About</a>
 <a href="${base}case-studies.html">Case Studies</a>
 <a href="${base}blog/">Blog</a>
