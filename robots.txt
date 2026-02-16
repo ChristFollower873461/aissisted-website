@@ -7,6 +7,9 @@ Allow: /
 # Sitemap location
 Sitemap: https://ocalaaiconsulting.com/sitemap.xml
 
+# Disallow pages that shouldn't be indexed
+Disallow: /thank-you.html
+
 # Crawl rate optimization
 # Allow search engines to crawl freely but be respectful
 

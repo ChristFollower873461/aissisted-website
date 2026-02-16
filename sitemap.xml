@@ -2,104 +2,158 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://ocalaaiconsulting.com/</loc>
-    <lastmod>2026-02-13</lastmod>
+    <lastmod>2026-02-15</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://ocalaaiconsulting.com/index.html</loc>
+    <lastmod>2026-02-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://ocalaaiconsulting.com/services.html</loc>
-    <lastmod>2026-02-13</lastmod>
+    <lastmod>2026-02-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://ocalaaiconsulting.com/pricing.html</loc>
-    <lastmod>2026-02-13</lastmod>
+    <lastmod>2026-02-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://ocalaaiconsulting.com/about.html</loc>
-    <lastmod>2026-02-13</lastmod>
+    <lastmod>2026-02-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://ocalaaiconsulting.com/case-studies.html</loc>
-    <lastmod>2026-02-13</lastmod>
+    <lastmod>2026-02-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://ocalaaiconsulting.com/contact.html</loc>
-    <lastmod>2026-02-13</lastmod>
+    <lastmod>2026-02-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
+    <loc>https://ocalaaiconsulting.com/reserve.html</loc>
+    <lastmod>2026-02-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://ocalaaiconsulting.com/compare.html</loc>
+    <lastmod>2026-02-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://ocalaaiconsulting.com/industries/</loc>
-    <lastmod>2026-02-13</lastmod>
+    <lastmod>2026-02-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://ocalaaiconsulting.com/industries/pest-control.html</loc>
-    <lastmod>2026-02-13</lastmod>
+    <lastmod>2026-02-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://ocalaaiconsulting.com/industries/hvac.html</loc>
-    <lastmod>2026-02-13</lastmod>
+    <lastmod>2026-02-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://ocalaaiconsulting.com/industries/plumbing.html</loc>
-    <lastmod>2026-02-13</lastmod>
+    <lastmod>2026-02-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://ocalaaiconsulting.com/industries/real-estate.html</loc>
-    <lastmod>2026-02-13</lastmod>
+    <lastmod>2026-02-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://ocalaaiconsulting.com/industries/landscaping.html</loc>
-    <lastmod>2026-02-13</lastmod>
+    <lastmod>2026-02-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://ocalaaiconsulting.com/industries/electrical.html</loc>
-    <lastmod>2026-02-13</lastmod>
+    <lastmod>2026-02-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://ocalaaiconsulting.com/blog/</loc>
-    <lastmod>2026-02-13</lastmod>
+    <lastmod>2026-02-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://ocalaaiconsulting.com/blog/why-small-businesses-need-dedicated-ai.html</loc>
-    <lastmod>2026-02-01</lastmod>
+    <loc>https://ocalaaiconsulting.com/blog/why-hvac-companies-need-ai.html</loc>
+    <lastmod>2026-02-15</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://ocalaaiconsulting.com/blog/ai-answering-service-vs-call-center.html</loc>
+    <lastmod>2026-02-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://ocalaaiconsulting.com/blog/on-premise-ai-vs-cloud.html</loc>
+    <lastmod>2026-02-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://ocalaaiconsulting.com/blog/5-signs-missing-calls.html</loc>
+    <lastmod>2026-02-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://ocalaaiconsulting.com/blog/ai-for-small-business-2026.html</loc>
+    <lastmod>2026-02-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://ocalaaiconsulting.com/blog/how-ai-receptionist-works.html</loc>
+    <lastmod>2026-02-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
   </url>
   <url>
     <loc>https://ocalaaiconsulting.com/blog/cloud-vs-on-prem-ai-for-small-business.html</loc>
-    <lastmod>2026-02-05</lastmod>
+    <lastmod>2026-02-15</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
+    <priority>0.6</priority>
   </url>
   <url>
     <loc>https://ocalaaiconsulting.com/blog/what-your-missed-calls-are-really-costing-you.html</loc>
-    <lastmod>2026-02-10</lastmod>
+    <lastmod>2026-02-15</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://ocalaaiconsulting.com/blog/why-small-businesses-need-dedicated-ai.html</loc>
+    <lastmod>2026-02-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
   </url>
 </urlset>
