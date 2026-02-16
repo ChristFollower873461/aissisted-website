@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MuteMerit Support — AIssisted Consulting</title>
+<meta name="description" content="Get help with MuteMerit - Phone-Free Focus Timer. Find FAQs on how the timer works, family groups, subscription management, data privacy, and more.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='14' fill='%230B1120'/><text x='16' y='21' text-anchor='middle' font-size='14' font-weight='bold' fill='%23F0D060'>AI</text></svg>">
+<link rel="stylesheet" href="../styles.css">
+<script src="../components/header.js" defer></script>
+<script src="../components/footer.js" defer></script>
+<style>
+:root{
+--mutemerit-dark:#1A1128;
+--mutemerit-purple:#2D1B4E;
+--mutemerit-accent:#6B4E9E;
+--mutemerit-gold:#D4A843;
+}
+.support-hero{min-height:35vh;display:flex;align-items:center;position:relative;overflow:hidden;background:linear-gradient(180deg,var(--mutemerit-dark) 0%,var(--mutemerit-purple) 60%,#3D1D5E 100%);padding:140px 0 60px}
+.support-hero-content{position:relative;z-index:2;text-align:center}
+.support-hero h1{font-size:clamp(2rem,4vw,3rem);font-weight:800;line-height:1.2;margin-bottom:16px;background:linear-gradient(135deg,#fff 30%,var(--mutemerit-gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.support-hero p{font-size:clamp(1rem,1.8vw,1.25rem);color:rgba(255,255,255,.8);max-width:600px;margin:0 auto;line-height:1.6}
+.breadcrumbs{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:24px;font-size:.9rem;color:var(--text-muted);flex-wrap:wrap}
+.breadcrumbs a{color:var(--gold-mid);text-decoration:none}
+.breadcrumbs a:hover{color:var(--gold-light)}
+.breadcrumbs .sep{color:var(--text-muted);opacity:.5}
+.breadcrumbs .current{color:var(--text)}
+.app-badge{display:inline-flex;align-items:center;gap:12px;padding:12px 24px;background:rgba(107,78,158,.25);border:1px solid rgba(107,78,158,.5);border-radius:50px;margin-bottom:24px}
+.app-badge .icon{font-size:1.5rem}
+.app-badge span{font-weight:600;color:var(--mutemerit-gold)}
+.content-section{padding:80px 0}
+.content-section.alt{background:linear-gradient(180deg,var(--mutemerit-dark),var(--mutemerit-purple))}
+.faq-list{max-width:780px;margin:0 auto}
+.faq-item{border-bottom:1px solid rgba(136,136,187,.1);overflow:hidden}
+.faq-q{padding:24px 0;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-weight:600;font-size:1.05rem;color:#fff;background:none;border:none;width:100%;text-align:left;font-family:inherit;transition:color .3s}
+.faq-q:hover{color:var(--mutemerit-gold)}
+.faq-q::after{content:'+';font-size:1.5rem;color:var(--mutemerit-gold);transition:transform .3s;flex-shrink:0;margin-left:16px}
+.faq-item.open .faq-q::after{transform:rotate(45deg)}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .4s ease,padding .4s ease;color:var(--text-muted);line-height:1.8;font-size:.95rem}
+.faq-item.open .faq-a{max-height:600px;padding-bottom:24px}
+.faq-a p{margin-bottom:16px}
+.faq-a ul,.faq-a ol{margin:16px 0;padding-left:24px}
+.faq-a li{margin-bottom:8px}
+.faq-a strong{color:var(--text)}
+.faq-a a{color:var(--mutemerit-gold)}
+.tip-box{background:linear-gradient(135deg,rgba(107,78,158,.2),rgba(107,78,158,.1));border:1px solid rgba(107,78,158,.3);border-radius:12px;padding:20px;margin:20px 0}
+.tip-box .tip-label{color:var(--mutemerit-gold);font-weight:600;font-size:.85rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.tip-box p{margin:0;color:var(--text-muted)}
+.warning-box{background:linear-gradient(135deg,rgba(196,69,106,.15),rgba(196,69,106,.05));border:1px solid rgba(196,69,106,.2);border-radius:12px;padding:20px;margin:20px 0}
+.warning-box .warning-label{color:var(--pink);font-weight:600;font-size:.85rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.warning-box p{margin:0;color:var(--text-muted)}
+.contact-section{padding:80px 0;background:var(--mutemerit-dark)}
+.contact-card{background:rgba(255,255,255,.03);border:1px solid rgba(107,78,158,.2);border-radius:20px;padding:48px;text-align:center;max-width:600px;margin:0 auto}
+.contact-card h3{font-size:1.4rem;margin-bottom:16px;color:#fff}
+.contact-card p{color:var(--text-muted);margin-bottom:24px;line-height:1.6}
+.contact-methods{display:flex;justify-content:center;gap:24px;flex-wrap:wrap;margin-top:32px}
+.contact-method{display:flex;align-items:center;gap:12px;padding:16px 24px;background:rgba(107,78,158,.15);border-radius:12px;border:1px solid rgba(107,78,158,.2)}
+.contact-method .icon{font-size:1.5rem}
+.contact-method a{color:var(--mutemerit-gold);font-weight:600}
+.support-footer{padding:60px 0 32px;background:var(--mutemerit-dark);border-top:1px solid rgba(107,78,158,.2)}
+.support-footer-content{text-align:center}
+.support-footer-content p{color:var(--text-muted);font-size:.9rem;margin:4px 0}
+.support-footer-content .company{color:#fff;font-weight:600}
+.support-footer-content a{color:var(--mutemerit-gold)}
+.section-nav{display:flex;justify-content:space-between;align-items:center;margin-top:48px;padding-top:32px;border-top:1px solid rgba(107,78,158,.2)}
+.section-nav a{display:flex;align-items:center;gap:8px;color:var(--mutemerit-gold);font-weight:600}
+.section-nav a:hover{color:#fff}
+.feature-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin:20px 0}
+.feature-card{background:rgba(107,78,158,.15);border-radius:12px;padding:20px;text-align:center}
+.feature-card .icon{font-size:2rem;margin-bottom:12px}
+.feature-card h4{font-size:1rem;color:#fff;margin-bottom:8px}
+.feature-card p{font-size:.85rem;color:var(--text-muted);margin:0}
+@media(max-width:768px){.contact-methods{flex-direction:column;align-items:center}.section-nav{flex-direction:column;gap:16px}}
+</style>
+</head>
+<body>
+<div id="header-container"></div>
+
+<section class="support-hero">
+<div class="container support-hero-content">
+<nav class="breadcrumbs">
+<a href="../index.html">Home</a>
+<span class="sep">/</span>
+<a href="index.html">Support</a>
+<span class="sep">/</span>
+<span class="current">MuteMerit</span>
+</nav>
+<div class="app-badge">
+<span class="icon">🌙</span>
+<span>MuteMerit Support</span>
+</div>
+<h1>Phone-Free Focus Timer</h1>
+<p>Stay present, earn rewards, and build better habits with MuteMerit. Find help with the focus timer, family groups, soundscapes, and subscriptions.</p>
+</div>
+</section>
+
+<section id="faq" class="content-section" style="background:var(--mutemerit-dark)">
+<div class="container">
+<p class="section-label reveal">Getting Started</p>
+<h2 class="section-title reveal">How MuteMerit Works</h2>
+
+<div class="faq-list" style="margin-top:48px">
+<div class="faq-item reveal">
+<button class="faq-q">How does the focus timer work?</button>
+<div class="faq-a">
+<p>MuteMerit helps you stay off your phone and focus on what matters:</p>
+<ol>
+<li><strong>Set Your Focus Time:</strong> Choose how long you want to stay focused — from 15 minutes to several hours</li>
+<li><strong>Pick a Soundscape:</strong> Select from calming ambient sounds like rain, forest, ocean waves, white noise, and more</li>
+<li><strong>Start Your Session:</strong> Put your phone face-down or simply keep it untouched</li>
+<li><strong>Earn Merit Points:</strong> Complete your session without checking your phone to earn points and badges</li>
+</ol>
+<div class="tip-box">
+<div class="tip-label">💡 Pro Tip</div>
+<p>Enable "Strict Mode" for extra motivation — if you pick up your phone before the timer ends, your session is lost!</p>
+</div>
+</div>
+</div>
+
+<div class="faq-item reveal">
+<button class="faq-q">What are Merit Points and badges?</button>
+<div class="faq-a">
+<p>Merit Points reward you for staying focused:</p>
+<ul>
+<li><strong>Earning Points:</strong> Gain points for every minute of completed focus time</li>
+<li><strong>Streak Bonuses:</strong> Earn multipliers for consecutive days of focus sessions</li>
+<li><strong>Achievement Badges:</strong> Unlock badges for milestones like:
+<ul>
+<li>7-Day Streak 🏆</li>
+<li>100 Hours Focused ⭐</li>
+<li>Early Bird (focus before 7 AM) 🌅</li>
+<li>Night Owl (focus after 9 PM) 🌙</li>
+<li>Weekend Warrior 🎯</li>
+</ul>
+</li>
+</ul>
+<p>View your stats and achievements in the Profile tab anytime!</p>
+</div>
+</div>
+
+<div class="faq-item reveal">
+<button class="faq-q">What soundscapes are available?</button>
+<div class="faq-a">
+<p>MuteMerit includes a variety of ambient soundscapes to help you focus:</p>
+<div class="feature-grid">
+<div class="feature-card">
+<div class="icon">🌧️</div>
+<h4>Gentle Rain</h4>
+<p>Soft rainfall for deep concentration</p>
+</div>
+<div class="feature-card">
+<div class="icon">🌲</div>
+<h4>Forest</h4>
+<p>Birds and rustling leaves</p>
+</div>
+<div class="feature-card">
+<div class="icon">🌊</div>
+<h4>Ocean Waves</h4>
+<p>Calming seaside ambience</p>
+</div>
+<div class="feature-card">
+<div class="icon">🔥</div>
+<h4>Crackling Fire</h4>
+<p>Cozy fireplace sounds</p>
+</div>
+<div class="feature-card">
+<div class="icon">🌙</div>
+<h4>Night Sounds</h4>
+<p>Crickets and gentle breeze</p>
+</div>
+<div class="feature-card">
+<div class="icon">⏱️</div>
+<h4>White Noise</h4>
+<p>Consistent background hum</p>
+</div>
+</div>
+<p>Premium subscribers get access to additional exclusive soundscapes and the ability to mix custom combinations.</p>
+</div>
+</div>
+
+<div class="faq-item reveal">
+<button class="faq-q">How do Family Groups work?</button>
+<div class="faq-a">
+<p>Family Groups let you focus together with loved ones:</p>
+<ul>
+<li><strong>Create a Group:</strong> Tap the Family tab and create a new group</li>
+<li><strong>Invite Members:</strong> Share your unique group code with family members</li>
+<li><strong>Group Sessions:</strong> Start synchronized focus sessions that everyone can join</li>
+<li><strong>Group Stats:</strong> See combined family focus time and celebrate milestones together</li>
+<li><strong>Family Leaderboard:</strong> Friendly competition to see who stays focused most</li>
+</ul>
+<div class="tip-box">
+<div class="tip-label">💡 Family Tip</div>
+<p>Use Family Groups for device-free dinners, study sessions, or bedtime routines. Everyone puts their phones away together!</p>
+</div>
+</div>
+</div>
+
+<div class="faq-item reveal">
+<button class="faq-q">Can I use MuteMerit without sound?</button>
+<div class="faq-a">
+<p>Yes! MuteMerit works great in silent mode:</p>
+<ul>
+<li>Turn off soundscapes and use the visual timer only</li>
+<li>Enable vibration alerts when sessions complete</li>
+<li>Perfect for libraries, offices, or when sharing space</li>
+<li>Your phone's physical silence switch won't interfere with the app</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<section id="subscriptions" class="content-section alt">
+<div class="container">
+<p class="section-label reveal">Subscriptions</p>
+<h2 class="section-title reveal">Premium Subscription FAQ</h2>
+
+<div class="faq-list" style="margin-top:48px">
+<div class="faq-item reveal">
+<button class="faq-q">What features are included in Premium?</button>
+<div class="faq-a">
+<p>MuteMerit Premium unlocks the full focus experience:</p>
+<ul>
+<li><strong>Unlimited Session Length:</strong> Focus for as long as you want (free limited to 2 hours)</li>
+<li><strong>Exclusive Soundscapes:</strong> Access to premium ambient sounds and custom mixes</li>
+<li><strong>Advanced Stats:</strong> Detailed analytics on your focus patterns and trends</li>
+<li><strong>Custom Themes:</strong> Dark mode variants and color customization</li>
+<li><strong>Family Group Leader:</strong> Create and manage up to 3 family groups</li>
+<li><strong>No Ads:</strong> Distraction-free experience</li>
+<li><strong>Export Data:</strong> Download your focus history</li>
+</ul>
+</div>
+</div>
+
+<div class="faq-item reveal">
+<button class="faq-q">How much does Premium cost?</button>
+<div class="faq-a">
+<p>MuteMerit Premium subscription details:</p>
+<ul>
+<li><strong>Monthly:</strong> $2.99/month</li>
+<li><strong>7-Day Free Trial:</strong> Try all Premium features free for one week</li>
+</ul>
+<p>Prices may vary by region. All subscriptions auto-renew unless canceled at least 24 hours before the renewal date.</p>
+</div>
+</div>
+
+<div class="faq-item reveal">
+<button class="faq-q">How do I cancel my subscription?</button>
+<div class="faq-a">
+<p>You can cancel your MuteMerit Premium subscription anytime through the App Store:</p>
+<ol>
+<li>Open the <strong>Settings</strong> app on your iPhone/iPad</li>
+<li>Tap your name at the top (Apple ID)</li>
+<li>Tap <strong>Subscriptions</strong></li>
+<li>Find and tap <strong>MuteMerit</strong></li>
+<li>Tap <strong>Cancel Subscription</strong></li>
+</ol>
+<div class="warning-box">
+<div class="warning-label">⚠️ Important</div>
+<p>Deleting the MuteMerit app does NOT cancel your subscription. You must cancel through Settings → Subscriptions to stop future billing. You'll continue to have Premium access until the end of your current billing period.</p>
+</div>
+</div>
+</div>
+
+<div class="faq-item reveal">
+<button class="faq-q">How do I restore my purchases?</button>
+<div class="faq-a">
+<p>If you've previously subscribed to Premium and it's not showing:</p>
+<ol>
+<li>Open MuteMerit</li>
+<li>Tap the Settings icon (gear) in the top right</li>
+<li>Tap <strong>Restore Purchases</strong></li>
+<li>Sign in with the same Apple ID used for the original purchase if prompted</li>
+</ol>
+<p>Your Premium subscription should restore immediately. If not, try force-quitting and reopening the app.</p>
+</div>
+</div>
+
+<div class="faq-item reveal">
+<button class="faq-q">Can I share my subscription with family?</button>
+<div class="faq-a">
+<p>Yes! MuteMerit supports Apple Family Sharing:</p>
+<ul>
+<li>Set up Family Sharing in Settings → [Your Name] → Family Sharing</li>
+<li>Your Premium subscription will be shared with family members automatically</li>
+<li>Each family member gets full Premium access on their own device</li>
+<li>Family Groups feature works independently of Family Sharing</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<section id="privacy" class="content-section" style="background:var(--mutemerit-dark)">
+<div class="container">
+<p class="section-label reveal">Privacy & Data</p>
+<h2 class="section-title reveal">Your Data Privacy</h2>
+
+<div class="faq-list" style="margin-top:48px">
+<div class="faq-item reveal">
+<button class="faq-q">What data does MuteMerit collect?</button>
+<div class="faq-a">
+<p>We believe in privacy-first design. MuteMerit collects minimal data:</p>
+<ul>
+<li><strong>Focus Session Data:</strong> Duration and completion status of your focus sessions (stored locally on your device)</li>
+<li><strong>App Preferences:</strong> Your soundscape choices and settings</li>
+<li><strong>Anonymous Analytics:</strong> Optional crash reports and usage patterns (no personal information)</li>
+</ul>
+<p><strong>We do NOT collect:</strong></p>
+<ul>
+<li>Personal identifiers</li>
+<li>Location data</li>
+<li>Contacts</li>
+<li>Photos or media</li>
+<li>Browsing history</li>
+</ul>
+</div>
+</div>
+
+<div class="faq-item reveal">
+<button class="faq-q">Is my data stored securely?</button>
+<div class="faq-a">
+<p>Your privacy is our priority:</p>
+<ul>
+<li><strong>Local-First Storage:</strong> Most data stays on your device, not our servers</li>
+<li><strong>iCloud Sync:</strong> Optional iCloud backup encrypted with your Apple ID</li>
+<li><strong>No Third-Party Sharing:</strong> We never sell or share your data with advertisers</li>
+<li><strong>Family Group Data:</strong> Only aggregated focus time is shared; individual session details remain private</li>
+</ul>
+</div>
+</div>
+
+<div class="faq-item reveal">
+<button class="faq-q">How do I delete my data?</button>
+<div class="faq-a">
+<p>You can delete your MuteMerit data at any time:</p>
+<ol>
+<li>Open MuteMerit</li>
+<li>Go to Settings → Privacy & Data</li>
+<li>Tap <strong>Clear All Data</strong></li>
+<li>Confirm the deletion</li>
+</ol>
+<p>This will erase all your focus history, badges, and stats from your device. If you have iCloud sync enabled, this will also remove data from iCloud.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<section id="troubleshooting" class="content-section alt">
+<div class="container">
+<p class="section-label reveal">Troubleshooting</p>
+<h2 class="section-title reveal">Common Issues & Solutions</h2>
+
+<div class="faq-list" style="margin-top:48px">
+<div class="faq-item reveal">
+<button class="faq-q">The timer stopped when I locked my phone</button>
+<div class="faq-a">
+<p>This is usually a settings issue. Here's how to fix it:</p>
+<ol>
+<li>Go to iPhone <strong>Settings → MuteMerit</strong></li>
+<li>Enable <strong>Background App Refresh</strong></li>
+<li>Make sure <strong>Low Power Mode</strong> is off during focus sessions</li>
+<li>Keep the app open or ensure it's in your recent apps</li>
+</ol>
+<div class="tip-box">
+<div class="tip-label">💡 Tip</div>
+<p>For best results, keep MuteMerit open with your phone face-down. The app is designed to detect when you pick up your phone!</p>
+</div>
+</div>
+</div>
+
+<div class="faq-item reveal">
+<button class="faq-q">My focus streak was reset</button>
+<div class="faq-a">
+<p>If your streak appears incorrect:</p>
+<ol>
+<li>Check that your device's date and time are set correctly (Settings → General → Date & Time → Set Automatically)</li>
+<li>Ensure you're connected to the internet for streak synchronization</li>
+<li>Sign in with the same Apple ID across devices</li>
+<li>Contact support if you believe there's an error</li>
+</ol>
+<p>Note: You must complete at least one focus session per day to maintain your streak.</p>
+</div>
+</div>
+
+<div class="faq-item reveal">
+<button class="faq-q">Soundscapes aren't playing</button>
+<div class="faq-a">
+<p>If you can't hear the ambient sounds:</p>
+<ol>
+<li>Check that your device volume is up and not muted</li>
+<li>Make sure the silent/ringer switch is OFF (orange not showing)</li>
+<li>Disconnect any Bluetooth headphones if you want phone speaker audio</li>
+<li>Try a different soundscape to see if it's specific to one</li>
+<li>Force-quit and reopen the app</li>
+</ol>
+</div>
+</div>
+
+<div class="faq-item reveal">
+<button class="faq-q">Family Group members can't join</button>
+<div class="faq-a">
+<p>If someone is having trouble joining your family group:</p>
+<ol>
+<li>Make sure you're sharing the correct 6-digit group code</li>
+<li>Check that the group hasn't reached its member limit (6 people)</li>
+<li>Verify everyone is using the latest version of MuteMerit</li>
+<li>Try generating a new invite code in Family Group settings</li>
+<li>Ensure all members have an internet connection when joining</li>
+</ol>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<section class="contact-section">
+<div class="container">
+<p class="section-label reveal">Still Need Help?</p>
+<h2 class="section-title reveal">Contact MuteMerit Support</h2>
+<div class="contact-card reveal">
+<h3>We're Here to Help</h3>
+<p>Can't find what you're looking for? Our support team is ready to assist you with any MuteMerit-related questions or issues.</p>
+<div class="contact-methods">
+<div class="contact-method">
+<span class="icon">✉️</span>
+<div>
+<p style="font-size:.85rem;color:var(--text-muted);margin:0 0 4px">Email Us</p>
+<a href="mailto:support@ocalaaiconsulting.com">support@ocalaaiconsulting.com</a>
+</div>
+</div>
+<div class="contact-method">
+<span class="icon">⏱️</span>
+<div>
+<p style="font-size:.85rem;color:var(--text-muted);margin:0 0 4px">Response Time</p>
+<span style="color:#fff;font-weight:600">24-48 Hours</span>
+</div>
+</div>
+</div>
+</div>
+
+<div class="section-nav reveal">
+<a href="index.html">← Back to Support Home</a>
+<a href="subscriptions.html">Subscription Help →</a>
+</div>
+</div>
+</section>
+
+<footer class="support-footer">
+<div class="container">
+<div class="support-footer-content">
+<p class="company">AIssisted Consulting LLC</p>
+<p>Ocala, Florida</p>
+<p><a href="mailto:support@ocalaaiconsulting.com">support@ocalaaiconsulting.com</a></p>
+<p style="margin-top:24px;font-size:.8rem">Bundle ID: com.aissisted.mutemerit</p>
+<p style="font-size:.8rem">© 2026 AIssisted Consulting LLC. All rights reserved.</p>
+</div>
+</div>
+</footer>
+</body>
+</html>

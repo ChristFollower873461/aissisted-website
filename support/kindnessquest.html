@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KindnessQuest Support — AIssisted Consulting</title>
+<meta name="description" content="Get help with KindnessQuest - Raising Kind Kids. Find FAQs on missions, character evolution, parent PIN, COPPA compliance, subscription management, and more.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='14' fill='%230B1120'/><text x='16' y='21' text-anchor='middle' font-size='14' font-weight='bold' fill='%23F0D060'>AI</text></svg>">
+<link rel="stylesheet" href="../styles.css">
+<script src="../components/header.js" defer></script>
+<script src="../components/footer.js" defer></script>
+<style>
+:root{
+--kindness-teal:#2EC4B6;
+--kindness-coral:#FF6B6B;
+--kindness-yellow:#FFE66D;
+--kindness-purple:#9B5DE5;
+--kindness-orange:#F4A261;
+}
+.support-hero{min-height:35vh;display:flex;align-items:center;position:relative;overflow:hidden;background:linear-gradient(135deg,#FFF8F0 0%,#FFF5E6 50%,#E8F5E9 100%);padding:140px 0 60px}
+.support-hero::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background-image:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23FFE66D' fill-opacity='0.3'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");opacity:0.6;z-index:0}
+.support-hero-content{position:relative;z-index:2;text-align:center}
+.support-hero h1{font-size:clamp(2rem,4vw,3rem);font-weight:800;line-height:1.2;margin-bottom:16px;background:linear-gradient(135deg,var(--kindness-coral) 0%,var(--kindness-purple) 50%,var(--kindness-teal) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.support-hero p{font-size:clamp(1rem,1.8vw,1.25rem);color:#444;max-width:600px;margin:0 auto;line-height:1.6}
+.breadcrumbs{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:24px;font-size:.9rem;color:#666;flex-wrap:wrap}
+.breadcrumbs a{color:var(--kindness-coral);text-decoration:none;font-weight:500}
+.breadcrumbs a:hover{color:var(--kindness-purple)}
+.breadcrumbs .sep{color:#999}
+.breadcrumbs .current{color:#333;font-weight:500}
+.app-badge{display:inline-flex;align-items:center;gap:12px;padding:12px 24px;background:rgba(46,196,182,.15);border:2px solid var(--kindness-teal);border-radius:50px;margin-bottom:24px}
+.app-badge .icon{font-size:1.5rem}
+.app-badge span{font-weight:600;color:var(--kindness-teal)}
+.content-section{padding:80px 0;background:#fff}
+.content-section.alt{background:linear-gradient(180deg,#FFF8F0 0%,#FFF5E6 100%)}
+.content-section.dark{background:linear-gradient(180deg,#2D3436 0%,#1e2527 100%)}
+.content-section.dark .section-label{color:var(--kindness-teal)}
+.content-section.dark .section-title{color:#fff}
+.content-section.dark .faq-q{color:#fff}
+.content-section.dark .faq-a{color:#ccc}
+.content-section.dark .faq-a strong{color:#fff}
+.content-section.dark .faq-item{border-bottom-color:rgba(255,255,255,.1)}
+.faq-list{max-width:780px;margin:0 auto}
+.faq-item{border-bottom:1px solid rgba(0,0,0,.1);overflow:hidden}
+.faq-q{padding:24px 0;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-weight:600;font-size:1.05rem;color:#333;background:none;border:none;width:100%;text-align:left;font-family:inherit;transition:color .3s}
+.faq-q:hover{color:var(--kindness-coral)}
+.faq-q::after{content:'+';font-size:1.5rem;color:var(--kindness-teal);transition:transform .3s;flex-shrink:0;margin-left:16px}
+.faq-item.open .faq-q::after{transform:rotate(45deg)}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .4s ease,padding .4s ease;color:#555;line-height:1.8;font-size:.95rem}
+.faq-item.open .faq-a{max-height:700px;padding-bottom:24px}
+.faq-a p{margin-bottom:16px}
+.faq-a ul,.faq-a ol{margin:16px 0;padding-left:24px}
+.faq-a li{margin-bottom:8px}
+.faq-a strong{color:#333}
+.faq-a a{color:var(--kindness-coral)}
+.tip-box{background:linear-gradient(135deg,rgba(46,196,182,.15),rgba(46,196,182,.05));border:2px solid var(--kindness-teal);border-radius:12px;padding:20px;margin:20px 0}
+.tip-box .tip-label{color:var(--kindness-teal);font-weight:700;font-size:.85rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.tip-box p{margin:0;color:#555}
+.warning-box{background:linear-gradient(135deg,rgba(255,107,107,.15),rgba(255,107,107,.05));border:2px solid var(--kindness-coral);border-radius:12px;padding:20px;margin:20px 0}
+.warning-box .warning-label{color:var(--kindness-coral);font-weight:700;font-size:.85rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.warning-box p{margin:0;color:#555}
+.info-box{background:linear-gradient(135deg,rgba(155,93,229,.15),rgba(155,93,229,.05));border:2px solid var(--kindness-purple);border-radius:12px;padding:20px;margin:20px 0}
+.info-box .info-label{color:var(--kindness-purple);font-weight:700;font-size:.85rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.info-box p{margin:0;color:#555}
+.contact-section{padding:80px 0;background:linear-gradient(135deg,var(--kindness-teal) 0%,#26a69a 100%)}
+.contact-card{background:#fff;border-radius:20px;padding:48px;text-align:center;max-width:600px;margin:0 auto;box-shadow:0 20px 60px rgba(0,0,0,.15)}
+.contact-card h3{font-size:1.4rem;margin-bottom:16px;color:#333}
+.contact-card p{color:#666;margin-bottom:24px;line-height:1.6}
+.contact-methods{display:flex;justify-content:center;gap:24px;flex-wrap:wrap;margin-top:32px}
+.contact-method{display:flex;align-items:center;gap:12px;padding:16px 24px;background:#f8f9fa;border-radius:12px;border:2px solid #e9ecef}
+.contact-method .icon{font-size:1.5rem}
+.contact-method a{color:var(--kindness-coral);font-weight:600}
+.support-footer{padding:60px 0 32px;background:#2D3436;border-top:1px solid rgba(255,255,255,.1)}
+.support-footer-content{text-align:center}
+.support-footer-content p{color:#aaa;font-size:.9rem;margin:4px 0}
+.support-footer-content .company{color:#fff;font-weight:600}
+.support-footer-content a{color:var(--kindness-teal)}
+.section-nav{display:flex;justify-content:space-between;align-items:center;margin-top:48px;padding-top:32px;border-top:1px solid #e9ecef}
+.section-nav a{display:flex;align-items:center;gap:8px;color:var(--kindness-coral);font-weight:600}
+.section-nav a:hover{color:var(--kindness-purple)}
+.character-stages{display:flex;justify-content:center;align-items:center;gap:8px;margin:20px 0;flex-wrap:wrap}
+.character-stage{background:linear-gradient(135deg,#f8f9fa,#e9ecef);border-radius:16px;padding:16px;text-align:center;min-width:80px}
+.character-stage .emoji{font-size:2rem;margin-bottom:8px}
+.character-stage .name{font-size:.75rem;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:.5px}
+.character-stage .level{font-size:.7rem;color:#888;margin-top:4px}
+.arrow{color:var(--kindness-teal);font-size:1.5rem;font-weight:bold}
+.mission-types{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:20px 0}
+.mission-type{background:linear-gradient(135deg,#fff8f0,#fff5e6);border-radius:12px;padding:16px;text-align:center;border:2px solid rgba(244,162,97,.3)}
+.mission-type .icon{font-size:2rem;margin-bottom:8px}
+.mission-type h4{font-size:.9rem;color:#333;margin-bottom:4px}
+.mission-type p{font-size:.8rem;color:#666;margin:0}
+.age-badge{display:inline-flex;align-items:center;gap:8px;padding:8px 16px;background:var(--kindness-yellow);border-radius:20px;font-weight:600;color:#333;font-size:.9rem}
+.coppa-badge{display:inline-flex;align-items:center;gap:8px;padding:8px 16px;background:var(--kindness-teal);border-radius:20px;font-weight:600;color:#fff;font-size:.9rem}
+@media(max-width:768px){.contact-methods{flex-direction:column;align-items:center}.section-nav{flex-direction:column;gap:16px}.character-stages{flex-direction:column}.arrow{transform:rotate(90deg)}}
+</style>
+</head>
+<body>
+<div id="header-container"></div>
+
+<section class="support-hero">
+<div class="container support-hero-content">
+<nav class="breadcrumbs">
+<a href="../index.html">Home</a>
+<span class="sep">/</span>
+<a href="index.html">Support</a>
+<span class="sep">/</span>
+<span class="current">KindnessQuest</span>
+</nav>
+<div class="app-badge">
+<span class="icon">🌈</span>
+<span>KindnessQuest Support</span>
+</div>
+<h1>Raising Kind Kids</h1>
+<p>Help your children develop empathy and compassion through 55 fun kindness missions. Track their growth from seed to crown and celebrate every act of kindness!</p>
+<div style="margin-top:20px;display:flex;justify-content:center;gap:12px;flex-wrap:wrap">
+<span class="age-badge">👶 Ages 4-12</span>
+<span class="coppa-badge">✓ COPPA Compliant</span>
+</div>
+</div>
+</section>
+
+<section id="faq" class="content-section">
+<div class="container">
+<p class="section-label reveal">Getting Started</p>
+<h2 class="section-title reveal">How KindnessQuest Works</h2>
+
+<div class="faq-list" style="margin-top:48px">
+<div class="faq-item reveal">
+<button class="faq-q">What are kindness missions?</button>
+<div class="faq-a">
+<p>KindnessQuest includes <strong>55 unique kindness missions</strong> designed to teach children empathy and compassion:</p>
+<div class="mission-types">
+<div class="mission-type">
+<div class="icon">🏠</div>
+<h4>Home</h4>
+<p>Help family members</p>
+</div>
+<div class="mission-type">
+<div class="icon">🎒</div>
+<h4>School</h4>
+<p>Be kind to classmates</p>
+</div>
+<div class="mission-type">
+<div class="icon">🌳</div>
+<h4>Community</h4>
+<p>Help neighbors & nature</p>
+</div>
+<div class="mission-type">
+<div class="icon">🐾</div>
+<h4>Animals</h4>
+<p>Care for creatures</p>
+</div>
+<div class="mission-type">
+<div class="icon">🌍</div>
+<h4>World</h4>
+<p>Environmental kindness</p>
+</div>
+</div>
+<p>Each mission includes:</p>
+<ul>
+<li>Clear instructions appropriate for ages 4-12</li>
+<li>A fun illustration to engage young minds</li>
+<li>Conversation starters for parents</li>
+<li>Reflection questions to build empathy</li>
+</ul>
+</div>
+</div>
+
+<div class="faq-item reveal">
+<button class="faq-q">How does character evolution work?</button>
+<div class="faq-a">
+<p>Children grow their kindness character as they complete missions:</p>
+<div class="character-stages">
+<div class="character-stage">
+<div class="emoji">🌱</div>
+<div class="name">Seed</div>
+<div class="level">0-5 missions</div>
+</div>
+<span class="arrow">→</span>
+<div class="character-stage">
+<div class="emoji">🌿</div>
+<div class="name">Sprout</div>
+<div class="level">6-15 missions</div>
+</div>
+<span class="arrow">→</span>
+<div class="character-stage">
+<div class="emoji">🌷</div>
+<div class="name">Bud</div>
+<div class="level">16-30 missions</div>
+</div>
+<span class="arrow">→</span>
+<div class="character-stage">
+<div class="emoji">🌻</div>
+<div class="name">Bloom</div>
+<div class="level">31-45 missions</div>
+</div>
+<span class="arrow">→</span>
+<div class="character-stage">
+<div class="emoji">👑</div>
+<div class="name">Crown</div>
+<div class="level">46+ missions</div>
+</div>
+</div>
+<p>Each stage unlocks new visual celebrations and special badges. Kids love watching their character grow!</p>
+</div>
+</div>
+
+<div class="faq-item reveal">
+<button class="faq-q">What age is KindnessQuest for?</button>
+<div class="faq-a">
+<p>KindnessQuest is designed for children <strong>ages 4 to 12</strong>:</p>
+<ul>
+<li><strong>Ages 4-6:</strong> Simple missions with parent guidance ("give a hug," "say thank you")</li>
+<li><strong>Ages 7-9:</strong> Independent missions with check-ins ("help a friend," "pick up litter")</li>
+<li><strong>Ages 10-12:</strong> Complex missions encouraging leadership ("organize a food drive," "mentor a younger child")</li>
+</ul>
+<div class="tip-box">
+<div class="tip-label">💡 Parent Tip</div>
+<p>Younger children may need help reading mission descriptions. Use this as bonding time — read together and discuss what kindness means!</p>
+</div>
+</div>
+</div>
+
+<div class="faq-item reveal">
+<button class="faq-q">How do badges work?</button>
+<div class="faq-a">
+<p>Kids earn badges for different types of kindness achievements:</p>
+<ul>
+<li><strong>Category Badges:</strong> Complete multiple missions in a category (Family Helper, School Star, Nature Friend)</li>
+<li><strong>Streak Badges:</strong> Complete missions on consecutive days</li>
+<li><strong>Milestone Badges:</strong> Reach 10, 25, 50 completed missions</li>
+<li><strong>Special Badges:</strong> Complete secret surprise missions</li>
+</ul>
+<p>All badges appear in the child's profile and can be viewed by parents in the Family Dashboard.</p>
+</div>
+</div>
+
+<div class="faq-item reveal">
+<button class="faq-q">Can multiple children use the app?</button>
+<div class="faq-a">
+<p>Yes! The Family Dashboard supports up to <strong>6 child profiles</strong>:</p>
+<ol>
+<li>Open the Family Dashboard (requires Parent PIN)</li>
+<li>Tap "Add Child"</li>
+<li>Enter the child's name and age</li>
+<li>Choose a character avatar</li>
+</ol>
+<p>Each child has their own:</p>
+<ul>
+<li>Mission progress and history</li>
+<li>Character evolution stage</li>
+<li>Badge collection</li>
+<li>Individual stats</li>
+</ul>
+<p>Premium subscribers can track unlimited children.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<section id="parents" class="content-section alt">
+<div class="container">
+<p class="section-label reveal">For Parents</p>
+<h2 class="section-title reveal">Parent PIN & Family Dashboard</h2>
+
+<div class="faq-list" style="margin-top:48px">
+<div class="faq-item reveal">
+<button class="faq-q">What is the Parent PIN?</button>
+<div class="faq-a">
+<p>The <strong>Parent PIN</strong> is a 4-digit code that protects parent-only areas of the app:</p>
+<ul>
+<li>Access the Family Dashboard to view all children's progress</li>
+<li>Manage subscription settings</li>
+<li>Adjust app preferences</li>
+<li>View detailed activity reports</li>
+</ul>
+<div class="tip-box">
+<div class="tip-label">💡 Setting Up Your PIN</div>
+<p>During your first app launch, you'll be prompted to create a Parent PIN. Choose something you'll remember but your kids won't guess!</p>
+</div>
+</div>
+</div>
+
+<div class="faq-item reveal">
+<button class="faq-q">What can I see in the Family Dashboard?</button>
+<div class="faq-a">
+<p>The Family Dashboard gives parents complete visibility:</p>
+<ul>
+<li><strong>Activity Feed:</strong> See which missions each child completed and when</li>
+<li><strong>Progress Tracking:</strong> View character evolution stages for all children</li>
+<li><strong>Badge Collections:</strong> See all earned badges</li>
+<li><strong>Weekly Reports:</strong> Summaries of kindness activities</li>
+<li><strong>Conversation Starters:</strong> Suggested questions based on completed missions</li>
+</ul>
+<p>All data is stored locally on your device — we don't upload your children's activity to any server.</p>
+</div>
+</div>
+
+<div class="faq-item reveal">
+<button class="faq-q">How do I reset my Parent PIN?</button>
+<div class="faq-a">
+<p>If you forget your Parent PIN:</p>
+<ol>
+<li>On the PIN entry screen, tap "Forgot PIN?"</li>
+<li>You'll need to answer your security question</li>
+<li>After verification, you can create a new PIN</li>
+</ol>
+<div class="warning-box">
+<div class="warning-label">⚠️ Important</div>
+<p>If you can't answer your security question, you'll need to reinstall the app. This will reset all data unless you have iCloud backup enabled.</p>
+</div>
+</div>
+</div>
+
+<div class="faq-item reveal">
+<button class="faq-q">How can I encourage my child to use the app?</button>
+<div class="faq-a">
+<p>Make kindness a family activity:</p>
+<ul>
+<li><strong>Mission of the Day:</strong> Choose one mission everyone does together</li>
+<li><strong>Kindness Challenges:</strong> Set family goals ("20 missions this month!")</li>
+<li><strong>Celebrate Wins:</strong> Praise character evolution milestones</li>
+<li><strong>Discuss Reflections:</strong> Use the conversation starters after each mission</li>
+<li><strong>Lead by Example:</strong> Let kids see you completing kindness missions too!</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<section id="privacy" class="content-section dark">
+<div class="container">
+<p class="section-label reveal">Privacy & Safety</p>
+<h2 class="section-title reveal">COPPA Compliance & Data Protection</h2>
+
+<div class="faq-list" style="margin-top:48px">
+<div class="faq-item reveal">
+<button class="faq-q">Is KindnessQuest COPPA compliant?</button>
+<div class="faq-a">
+<p><strong>Yes!</strong> KindnessQuest is fully compliant with the Children's Online Privacy Protection Act (COPPA):</p>
+<div class="info-box">
+<div class="info-label">✓ No Accounts Required</div>
+<p>Children use the app without creating any account or providing personal information.</p>
+</div>
+<div class="info-box">
+<div class="info-label">✓ No Data Collection</div>
+<p>We do not collect, store, or transmit any personal information about your children.</p>
+</div>
+<div class="info-box">
+<div class="info-label">✓ Local Data Storage</div>
+<p>All app data is stored locally on your device. Nothing is uploaded to our servers.</p>
+</div>
+<div class="info-box">
+<div class="info-label">✓ No Third-Party Sharing</div>
+<p>We do not share any data with advertisers, analytics companies, or third parties.</p>
+</div>
+<div class="info-box">
+<div class="info-label">✓ No Social Features</div>
+<p>There are no chat features, friend lists, or ways for children to communicate with strangers.</p>
+</div>
+</div>
+</div>
+
+<div class="faq-item reveal">
+<button class="faq-q">What data is stored and where?</button>
+<div class="faq-a">
+<p>KindnessQuest stores minimal data, all locally on your device:</p>
+<ul>
+<li><strong>Child Profile Names:</strong> Only you enter these — we don't upload them</li>
+<li><strong>Mission Completion Records:</strong> Stored only on your device</li>
+<li><strong>Badge Progress:</strong> Local game state only</li>
+<li><strong>App Preferences:</strong> Sound, notification, and display settings</li>
+</ul>
+<p><strong>Optional iCloud Backup:</strong> If you enable iCloud for KindnessQuest, your data is backed up to your personal iCloud account (encrypted and under your control).</p>
+</div>
+</div>
+
+<div class="faq-item reveal">
+<button class="faq-q">How do I delete my child's data?</button>
+<div class="faq-a">
+<p>You can delete data in several ways:</p>
+<ol>
+<li><strong>Delete a Child Profile:</strong> Family Dashboard → Child Profile → Delete Profile</li>
+<li><strong>Clear All Data:</strong> Settings → Privacy & Data → Clear All App Data</li>
+<li><strong>Uninstall the App:</strong> Removes all local data (iCloud backup separate)</li>
+</ol>
+<p>To delete iCloud backups:</p>
+<ol>
+<li>iPhone Settings → [Your Name] → iCloud → Manage Storage</li>
+<li>Find KindnessQuest</li>
+<li>Delete Documents & Data</li>
+</ol>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<section id="subscriptions" class="content-section">
+<div class="container">
+<p class="section-label reveal">Subscriptions</p>
+<h2 class="section-title reveal">Premium Subscription FAQ</h2>
+
+<div class="faq-list" style="margin-top:48px">
+<div class="faq-item reveal">
+<button class="faq-q">What features are included in Premium?</button>
+<div class="faq-a">
+<p>KindnessQuest Premium unlocks the complete experience:</p>
+<ul>
+<li><strong>Unlimited Child Profiles:</strong> Add as many children as you need</li>
+<li><strong>All 55 Missions:</strong> Free version includes 15 missions; Premium unlocks all 55</li>
+<li><strong>Advanced Family Dashboard:</strong> Detailed reports and insights</li>
+<li><strong>Custom Avatars:</strong> More character customization options</li>
+<li><strong>Export Progress:</strong> Download reports to share with teachers or counselors</li>
+<li><strong>No Ads:</strong> Completely ad-free experience</li>
+</ul>
+</div>
+</div>
+
+<div class="faq-item reveal">
+<button class="faq-q">How much does Premium cost?</button>
+<div class="faq-a">
+<p>KindnessQuest Premium subscription:</p>
+<ul>
+<li><strong>Monthly:</strong> $4.99/month</li>
+<li><strong>7-Day Free Trial:</strong> Try all Premium features free for one week</li>
+</ul>
+<p>Prices may vary by region. All subscriptions auto-renew unless canceled at least 24 hours before renewal.</p>
+</div>
+</div>
+
+<div class="faq-item reveal">
+<button class="faq-q">How do I cancel my subscription?</button>
+<div class="faq-a">
+<p>You can cancel your Premium subscription anytime through the App Store:</p>
+<ol>
+<li>Open the <strong>Settings</strong> app on your iPhone/iPad</li>
+<li>Tap your name at the top (Apple ID)</li>
+<li>Tap <strong>Subscriptions</strong></li>
+<li>Find and tap <strong>KindnessQuest</strong></li>
+<li>Tap <strong>Cancel Subscription</strong></li>
+</ol>
+<div class="warning-box">
+<div class="warning-label">⚠️ Important</div>
+<p>Deleting the KindnessQuest app does NOT cancel your subscription. You must cancel through Settings → Subscriptions to stop future billing. You'll keep Premium access until the end of your current billing period.</p>
+</div>
+</div>
+</div>
+
+<div class="faq-item reveal">
+<button class="faq-q">How do I restore my purchases?</button>
+<div class="faq-a">
+<p>If Premium isn't showing after subscribing:</p>
+<ol>
+<li>Open KindnessQuest</li>
+<li>Tap Settings (gear icon)</li>
+<li>Tap <strong>Restore Purchases</strong></li>
+<li>Sign in with the same Apple ID if prompted</li>
+</ol>
+<p>Your subscription should restore immediately. Force-quit and reopen the app if needed.</p>
+</div>
+</div>
+
+<div class="faq-item reveal">
+<button class="faq-q">Does Premium work with Family Sharing?</button>
+<div class="faq-a">
+<p>Yes! Premium can be shared through Apple Family Sharing:</p>
+<ul>
+<li>Set up Family Sharing in Settings → [Your Name] → Family Sharing</li>
+<li>The subscriber's Premium benefits extend to all family members</li>
+<li>Each family member gets full Premium access on their own device</li>
+<li>Each device maintains its own child profiles and progress</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<section id="troubleshooting" class="content-section alt">
+<div class="container">
+<p class="section-label reveal">Troubleshooting</p>
+<h2 class="section-title reveal">Common Issues & Solutions</h2>
+
+<div class="faq-list" style="margin-top:48px">
+<div class="faq-item reveal">
+<button class="faq-q">The app is asking for a PIN I never set</button>
+<div class="faq-a">
+<p>If you're being asked for a PIN you didn't create:</p>
+<ol>
+<li>The PIN was likely set during initial setup</li>
+<li>Try common PINs you use (but remember this is meant to keep kids out!)</li>
+<li>If you can't remember, tap "Forgot PIN?" and answer your security question</li>
+<li>As a last resort, delete and reinstall the app (progress may be lost without iCloud)</li>
+</ol>
+</div>
+</div>
+
+<div class="faq-item reveal">
+<button class="faq-q">My child's progress disappeared</button>
+<div class="faq-a">
+<p>If progress seems lost:</p>
+<ol>
+<li>Check that you're viewing the correct child profile</li>
+<li>Ensure you're signed in with the same Apple ID (if using iCloud)</li>
+<li>Check iCloud Settings → [Your Name] → iCloud → ensure KindnessQuest is enabled</li>
+<li>Try pulling down on the Family Dashboard to refresh</li>
+</ol>
+<div class="tip-box">
+<div class="tip-label">💡 Prevention Tip</div>
+<p>Enable iCloud backup to protect your children's progress! Go to Settings → [Your Name] → iCloud → enable KindnessQuest.</p>
+</div>
+</div>
+</div>
+
+<div class="faq-item reveal">
+<button class="faq-q">Premium missions are locked despite subscribing</button>
+<div class="faq-a">
+<p>If Premium content isn't accessible:</p>
+<ol>
+<li>Tap Settings → Restore Purchases</li>
+<li>Force-quit the app and reopen</li>
+<li>Check your subscription status in iPhone Settings → Subscriptions</li>
+<li>Ensure you're using the same Apple ID that purchased Premium</li>
+</ol>
+<p>If issues persist, contact support with your proof of purchase.</p>
+</div>
+</div>
+
+<div class="faq-item reveal">
+<button class="faq-q">The app crashes on my older device</button>
+<div class="faq-a">
+<p>KindnessQuest requires iOS 14.0 or later. For best performance:</p>
+<ol>
+<li>Update to the latest iOS version supported by your device</li>
+<li>Close other apps running in the background</li>
+<li>Free up storage space (Settings → General → iPhone Storage)</li>
+<li>Restart your device</li>
+</ol>
+<p>If crashes continue, please contact support with your device model and iOS version.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<section class="contact-section">
+<div class="container">
+<p class="section-label reveal" style="color:#fff">Still Need Help?</p>
+<h2 class="section-title reveal" style="color:#fff">Contact KindnessQuest Support</h2>
+<div class="contact-card reveal">
+<h3>We're Here to Help</h3>
+<p>Have questions about KindnessQuest? Our support team is ready to assist parents with any questions or concerns.</p>
+<div class="contact-methods">
+<div class="contact-method">
+<span class="icon">✉️</span>
+<div>
+<p style="font-size:.85rem;color:#888;margin:0 0 4px">Email Us</p>
+<a href="mailto:support@ocalaaiconsulting.com">support@ocalaaiconsulting.com</a>
+</div>
+</div>
+<div class="contact-method">
+<span class="icon">⏱️</span>
+<div>
+<p style="font-size:.85rem;color:#888;margin:0 0 4px">Response Time</p>
+<span style="color:#333;font-weight:600">24-48 Hours</span>
+</div>
+</div>
+</div>
+</div>
+
+<div class="section-nav reveal" style="border-top-color:#e9ecef;margin-top:48px">
+<a href="index.html" style="color:var(--kindness-coral)">← Back to Support Home</a>
+<a href="subscriptions.html" style="color:var(--kindness-coral)">Subscription Help →</a>
+</div>
+</div>
+</section>
+
+<footer class="support-footer">
+<div class="container">
+<div class="support-footer-content">
+<p class="company">AIssisted Consulting LLC</p>
+<p>Ocala, Florida</p>
+<p><a href="mailto:support@ocalaaiconsulting.com">support@ocalaaiconsulting.com</a></p>
+<p style="margin-top:24px;font-size:.8rem">Bundle ID: com.aissisted.kindnessquest</p>
+<p style="font-size:.8rem">© 2026 AIssisted Consulting LLC. All rights reserved.</p>
+</div>
+</div>
+</footer>
+</body>
+</html>
