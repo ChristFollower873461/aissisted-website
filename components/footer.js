@@ -6,7 +6,7 @@ const footerHTML=`<footer>
 <div class="footer-grid">
 <div class="footer-brand">
 <strong style="font-size:1.2rem;color:#fff">AIssisted Consulting</strong>
-<p>Dedicated, secure AI agents built for small businesses. Your own AI employee that works 24/7.</p>
+<p>AI consulting for small businesses. Strategy, custom agents, compliance, and hands-on support to help you harness superintelligence.</p>
 </div>
 <div class="footer-col">
 <h4>Company</h4>
