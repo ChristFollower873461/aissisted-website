@@ -309,7 +309,7 @@
             btn.textContent = 'Creating invoice...';
 
             // API call placeholder - will be wired up with Coinbase Commerce API key
-            fetch('/api/create-charge', {
+            fetch('https://pay.aissistedconsulting.com/api/create-charge', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
