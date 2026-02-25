@@ -22,6 +22,7 @@ const footerHTML=`<footer>
 <a href="${base}contact.html">Contact</a>
 <a href="mailto:pjaissist@icloud.com">pjaissist@icloud.com</a>
 <a href="${base}contact.html">Schedule a Consultation</a>
+<a href="${base}pay.html">₿ Pay with Bitcoin</a>
 </div>
 </div>
 <div class="footer-bottom">

@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pay with Bitcoin — AIssisted Consulting</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #0a0e1a;
+            color: #e0e0e0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .header {
+            background: linear-gradient(135deg, #0d1b3e 0%, #1a2a5e 100%);
+            width: 100%;
+            padding: 2rem;
+            text-align: center;
+            border-bottom: 2px solid #f7931a;
+        }
+        .header h1 {
+            color: #fff;
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+        .header p {
+            color: #a0b0d0;
+            font-size: 0.95rem;
+        }
+        .btc-icon {
+            color: #f7931a;
+            font-size: 1.5rem;
+        }
+        .container {
+            max-width: 600px;
+            width: 100%;
+            padding: 2rem;
+        }
+        .card {
+            background: #111827;
+            border: 1px solid #1f2937;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+        }
+        .card h2 {
+            color: #f7931a;
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+        }
+        label {
+            display: block;
+            color: #9ca3af;
+            font-size: 0.85rem;
+            margin-bottom: 0.3rem;
+            margin-top: 1rem;
+        }
+        label:first-of-type { margin-top: 0; }
+        input, select, textarea {
+            width: 100%;
+            padding: 0.75rem;
+            background: #1f2937;
+            border: 1px solid #374151;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 1rem;
+            outline: none;
+        }
+        input:focus, select:focus, textarea:focus {
+            border-color: #f7931a;
+        }
+        textarea { resize: vertical; min-height: 80px; }
+        .amount-display {
+            text-align: center;
+            padding: 1.5rem;
+            background: #0d1b3e;
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+        .amount-display .usd {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #fff;
+        }
+        .amount-display .btc {
+            font-size: 1rem;
+            color: #f7931a;
+            margin-top: 0.3rem;
+        }
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, #f7931a 0%, #e8850f 100%);
+            color: #fff;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 1.5rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 20px rgba(247, 147, 26, 0.3);
+        }
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .services {
+            display: grid;
+            gap: 0.5rem;
+        }
+        .service-option {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            background: #1f2937;
+            border: 1px solid #374151;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+        .service-option:hover { border-color: #f7931a; }
+        .service-option.selected {
+            border-color: #f7931a;
+            background: #1a2235;
+        }
+        .service-option .name { color: #e0e0e0; }
+        .service-option .price { color: #f7931a; font-weight: 600; }
+        .trust-badges {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-top: 1rem;
+            color: #6b7280;
+            font-size: 0.8rem;
+        }
+        .trust-badges span { display: flex; align-items: center; gap: 0.3rem; }
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            color: #4b5563;
+            font-size: 0.8rem;
+        }
+        .footer a { color: #f7931a; text-decoration: none; }
+        .note {
+            background: #1a1f2e;
+            border-left: 3px solid #f7931a;
+            padding: 1rem;
+            margin-top: 1rem;
+            border-radius: 0 8px 8px 0;
+            font-size: 0.85rem;
+            color: #9ca3af;
+        }
+        /* Status message */
+        #status {
+            display: none;
+            text-align: center;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+        #status.success { display: block; background: #064e3b; color: #6ee7b7; }
+        #status.error { display: block; background: #7f1d1d; color: #fca5a5; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1><span class="btc-icon">₿</span> Pay with Bitcoin</h1>
+        <p>AIssisted Consulting — Secure Cryptocurrency Payments</p>
+    </div>
+
+    <div class="container">
+        <div class="card">
+            <h2>Select Service</h2>
+            <div class="services" id="services">
+                <div class="service-option" data-amount="2999" onclick="selectService(this)">
+                    <span class="name">Starter Package — Setup</span>
+                    <span class="price">$2,999</span>
+                </div>
+                <div class="service-option" data-amount="249" onclick="selectService(this)">
+                    <span class="name">Starter Package — Monthly</span>
+                    <span class="price">$249/mo</span>
+                </div>
+                <div class="service-option" data-amount="4499" onclick="selectService(this)">
+                    <span class="name">Professional Package — Setup</span>
+                    <span class="price">$4,499</span>
+                </div>
+                <div class="service-option" data-amount="349" onclick="selectService(this)">
+                    <span class="name">Professional Package — Monthly</span>
+                    <span class="price">$349/mo</span>
+                </div>
+                <div class="service-option" data-amount="5999" onclick="selectService(this)">
+                    <span class="name">Enterprise Package — Setup</span>
+                    <span class="price">$5,999</span>
+                </div>
+                <div class="service-option" data-amount="449" onclick="selectService(this)">
+                    <span class="name">Enterprise Package — Monthly</span>
+                    <span class="price">$449/mo</span>
+                </div>
+                <div class="service-option" data-amount="0" onclick="selectService(this)">
+                    <span class="name">Custom Amount</span>
+                    <span class="price">Enter below</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card" id="custom-amount-card" style="display:none;">
+            <h2>Custom Amount</h2>
+            <label for="amount">Amount (USD)</label>
+            <input type="number" id="amount" placeholder="0.00" min="1" step="0.01" oninput="updateAmount()">
+        </div>
+
+        <div class="card">
+            <h2>Your Information</h2>
+            <label for="name">Name / Company</label>
+            <input type="text" id="name" placeholder="John Smith or Acme Inc.">
+            <label for="email">Email</label>
+            <input type="email" id="email" placeholder="you@example.com">
+            <label for="memo">Invoice / Memo (optional)</label>
+            <textarea id="memo" placeholder="e.g., Invoice #1234, Starter setup, February payment..."></textarea>
+        </div>
+
+        <div class="card">
+            <h2>Payment Summary</h2>
+            <div class="amount-display">
+                <div class="usd" id="display-usd">$0.00</div>
+                <div class="btc" id="display-btc">Powered by Coinbase Commerce</div>
+            </div>
+
+            <button class="btn" id="pay-btn" disabled onclick="initiatePayment()">
+                ₿ Pay with Bitcoin
+            </button>
+
+            <div class="note">
+                Clicking "Pay with Bitcoin" will redirect you to Coinbase Commerce to complete your payment securely. Bitcoin, Ethereum, USDC, and other cryptocurrencies accepted.
+            </div>
+
+            <div id="status"></div>
+        </div>
+
+        <div class="trust-badges">
+            <span>🔒 Secure Payment</span>
+            <span>⚡ Instant Confirmation</span>
+            <span>🏛️ NIST Compliant</span>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>AIssisted Consulting LLC — Ocala, FL</p>
+        <p>Philip J. Standley, CAIS™, CAIC™ — Founder & Forward Engineer</p>
+        <p style="margin-top: 0.5rem;"><a href="/">← Back to Website</a> · <a href="mailto:pj@aissistedconsulting.com">pj@aissistedconsulting.com</a> · (352) 817-3567</p>
+    </div>
+
+    <script>
+        let selectedAmount = 0;
+
+        function selectService(el) {
+            document.querySelectorAll('.service-option').forEach(s => s.classList.remove('selected'));
+            el.classList.add('selected');
+
+            const amount = parseInt(el.dataset.amount);
+            if (amount === 0) {
+                document.getElementById('custom-amount-card').style.display = 'block';
+                selectedAmount = parseFloat(document.getElementById('amount').value) || 0;
+            } else {
+                document.getElementById('custom-amount-card').style.display = 'none';
+                selectedAmount = amount;
+            }
+            updateDisplay();
+        }
+
+        function updateAmount() {
+            selectedAmount = parseFloat(document.getElementById('amount').value) || 0;
+            updateDisplay();
+        }
+
+        function updateDisplay() {
+            document.getElementById('display-usd').textContent = '$' + selectedAmount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            document.getElementById('pay-btn').disabled = selectedAmount <= 0;
+        }
+
+        function initiatePayment() {
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const memo = document.getElementById('memo').value;
+            const status = document.getElementById('status');
+
+            if (!name || !email) {
+                status.className = 'error';
+                status.textContent = 'Please fill in your name and email.';
+                status.style.display = 'block';
+                return;
+            }
+
+            // This will use Coinbase Commerce API once API key is configured
+            // For now, redirect to commerce.coinbase.com charge creation
+            const btn = document.getElementById('pay-btn');
+            btn.disabled = true;
+            btn.textContent = 'Creating invoice...';
+
+            // API call placeholder - will be wired up with Coinbase Commerce API key
+            fetch('/api/create-charge', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    amount: selectedAmount,
+                    currency: 'USD',
+                    name: name,
+                    email: email,
+                    memo: memo
+                })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.hosted_url) {
+                    window.location.href = data.hosted_url;
+                } else {
+                    throw new Error(data.error || 'Failed to create charge');
+                }
+            })
+            .catch(err => {
+                status.className = 'error';
+                status.textContent = 'Payment system is being configured. Please contact pj@aissistedconsulting.com to arrange payment.';
+                status.style.display = 'block';
+                btn.disabled = false;
+                btn.textContent = '₿ Pay with Bitcoin';
+            });
+        }
+    </script>
+</body>
+</html>
