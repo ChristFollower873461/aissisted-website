@@ -237,12 +237,18 @@
                 <div class="btc" id="display-btc">Powered by Coinbase Commerce</div>
             </div>
 
-            <button class="btn" id="pay-btn" disabled onclick="initiatePayment()">
-                ₿ Pay with Bitcoin
-            </button>
+            <div style="display:flex;gap:1rem;margin-top:1.5rem;">
+                <button class="btn" id="pay-btn" disabled onclick="initiatePayment()" style="flex:1;margin-top:0;">
+                    ₿ Pay with Crypto
+                </button>
+                <button class="btn" id="square-btn" disabled onclick="payWithSquare()" style="flex:1;margin-top:0;background:linear-gradient(135deg,#006aff 0%,#0051cc 100%);">
+                    💳 Pay with Card
+                </button>
+            </div>
 
             <div class="note">
-                Clicking "Pay with Bitcoin" will redirect you to Coinbase Commerce to complete your payment securely. Bitcoin, Ethereum, USDC, and other cryptocurrencies accepted.
+                <strong>Crypto:</strong> Bitcoin, Ethereum, USDC and more via Coinbase Commerce.<br>
+                <strong>Card:</strong> Credit/debit cards via Square. Discounts available.
             </div>
 
             <div id="status"></div>
@@ -287,6 +293,21 @@
         function updateDisplay() {
             document.getElementById('display-usd').textContent = '$' + selectedAmount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
             document.getElementById('pay-btn').disabled = selectedAmount <= 0;
+            document.getElementById('square-btn').disabled = selectedAmount <= 0;
+        }
+
+        function payWithSquare() {
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            if (!name || !email) {
+                const status = document.getElementById('status');
+                status.className = 'error';
+                status.textContent = 'Please fill in your name and email.';
+                status.style.display = 'block';
+                return;
+            }
+            // Square Online Checkout — update this URL with PJ's Square payment link
+            window.open('https://square.link/u/PLACEHOLDER', '_blank');
         }
 
         function initiatePayment() {

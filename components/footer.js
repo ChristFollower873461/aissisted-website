@@ -20,7 +20,7 @@ const footerHTML=`<footer>
 <div class="footer-col">
 <h4>Resources</h4>
 <a href="${base}contact.html">Contact</a>
-<a href="mailto:pjaissist@icloud.com">pjaissist@icloud.com</a>
+<a href="mailto:pj@aissistedconsulting.com">pj@aissistedconsulting.com</a>
 <a href="${base}contact.html">Schedule a Consultation</a>
 <a href="${base}pay.html">₿ Pay with Bitcoin</a>
 </div>
