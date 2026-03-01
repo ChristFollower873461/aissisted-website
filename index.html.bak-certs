@@ -364,11 +364,23 @@
 <section id="certifications" style="padding:120px 0;background:linear-gradient(180deg, var(--navy) 0%, #0a1628 100%)">
 <div class="container text-center">
 <p class="section-label reveal">🎓 Credentials</p>
-<h2 class="section-title reveal">Google AI Professional Certifications</h2>
-<p class="section-subtitle reveal">Verified expertise across cybersecurity, IT, data analysis, and application development.</p>
+<h2 class="section-title reveal">Certified AI Scientist & Consultant</h2>
+<p class="section-subtitle reveal">Our founder holds internationally recognized AI certifications from the United States Artificial Intelligence Institute (USAII®) — the gold standard for AI professionals.</p>
 
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:28px;margin-top:48px;max-width:900px;margin-left:auto;margin-right:auto;margin-bottom:64px">
 
+<div class="reveal" style="text-align:center">
+<img src="./cais-badge.png" alt="CAIS™ — Certified Artificial Intelligence Scientist" style="width:100%;max-width:420px;border-radius:8px;box-shadow:0 4px 24px rgba(0,0,0,0.4)">
+</div>
 
+<div class="reveal" style="text-align:center">
+<img src="./caic-badge.png" alt="CAIC™ — Certified Artificial Intelligence Consultant" style="width:100%;max-width:420px;border-radius:8px;box-shadow:0 4px 24px rgba(0,0,0,0.4)">
+</div>
+
+</div>
+
+<h3 class="reveal" style="color:var(--gold-light);font-size:1.15rem;margin-bottom:8px;letter-spacing:1px;text-transform:uppercase">Plus Google AI Professional Certifications</h3>
+<p class="section-subtitle reveal" style="margin-bottom:0">Verified expertise across cybersecurity, IT, data analysis, and application development.</p>
 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px;margin-top:48px;max-width:960px;margin-left:auto;margin-right:auto">
 
 <div class="diff-card reveal" style="padding:32px;text-align:center;border:1px solid rgba(212,175,55,0.3)">
@@ -414,7 +426,7 @@
 </div>
 
 </div>
-<p class="reveal" style="margin-top:32px;color:var(--text-muted);font-size:.9rem">All certifications verifiable via Udemy/Google. Issued February 2026.</p>
+<p class="reveal" style="margin-top:32px;color:var(--text-muted);font-size:.9rem">All certifications verifiable. Issued February 2026.</p>
 </div>
 </section>
 
