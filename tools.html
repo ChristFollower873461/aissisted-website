@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tools We've Built — AIssisted Consulting</title>
+<meta name="description" content="See the AI tools, dashboards, and business systems AIssisted Consulting has built. Real products. Real results. Built for small businesses.">
+<meta property="og:title" content="Tools We've Built — AIssisted Consulting">
+<meta property="og:description" content="A gallery of AI tools, dashboards, and business automation systems we've built for real businesses.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://aissistedconsulting.com/tools.html">
+<meta property="og:site_name" content="AIssisted Consulting">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://aissistedconsulting.com/tools.html">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='14' fill='%230B1120'/><text x='16' y='21' text-anchor='middle' font-size='14' font-weight='bold' fill='%23F0D060'>AI</text></svg>">
+<link rel="stylesheet" href="./styles.css">
+<script src="./components/header.js" defer></script>
+<script src="./components/footer.js" defer></script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=AW-17956049177"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'AW-17956049177');
+</script>
+<style>
+.tools-gallery { padding: 80px 0 120px; background: var(--navy); }
+.tools-filter { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 48px; }
+.filter-btn { padding: 10px 24px; border-radius: 50px; border: 1px solid rgba(136,136,187,.2); background: transparent; color: var(--text-muted); font-size: .9rem; font-weight: 500; cursor: pointer; transition: all .3s; font-family: inherit; }
+.filter-btn:hover, .filter-btn.active { border-color: var(--gold-mid); color: var(--gold-mid); background: rgba(212,168,67,.08); }
+.tools-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 32px; }
+.tool-card { border-radius: 20px; overflow: hidden; background: rgba(255,255,255,.03); border: 1px solid rgba(136,136,187,.1); transition: all .4s; cursor: pointer; }
+.tool-card:hover { border-color: var(--gold-mid); transform: translateY(-6px); box-shadow: 0 20px 60px rgba(0,0,0,.3); }
+.tool-thumb { width: 100%; aspect-ratio: 16/10; object-fit: cover; object-position: top; display: block; border-bottom: 1px solid rgba(136,136,187,.08); }
+.tool-info { padding: 24px; }
+.tool-info h3 { font-size: 1.15rem; color: #fff; margin-bottom: 6px; }
+.tool-info p { font-size: .9rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 12px; }
+.tool-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+.tool-tag { font-size: .75rem; padding: 4px 12px; border-radius: 20px; background: rgba(136,136,187,.12); color: var(--text-muted); font-weight: 500; }
+.tool-tag.live { background: rgba(76,175,80,.15); color: #66bb6a; }
+.tool-tag.demo { background: rgba(240,208,96,.12); color: var(--gold-mid); }
+.lightbox { display: none; position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,.92); backdrop-filter: blur(10px); align-items: center; justify-content: center; padding: 40px; }
+.lightbox.open { display: flex; }
+.lightbox img { max-width: 100%; max-height: 90vh; border-radius: 12px; box-shadow: 0 20px 80px rgba(0,0,0,.5); }
+.lightbox-close { position: absolute; top: 20px; right: 28px; font-size: 2rem; color: #fff; cursor: pointer; background: none; border: none; opacity: .7; transition: opacity .3s; z-index: 10000; }
+.lightbox-close:hover { opacity: 1; }
+@media(max-width: 768px) {
+  .tools-grid { grid-template-columns: 1fr; }
+  .lightbox { padding: 16px; }
+}
+</style>
+</head>
+<body>
+<div id="header-container"></div>
+
+<section class="page-hero">
+  <div class="container page-hero-content">
+    <p class="section-label">Our Work</p>
+    <h1>Tools We've Built</h1>
+    <p>Real AI tools. Real dashboards. Real automation. Every one of these was forward-engineered from scratch for a real business problem.</p>
+  </div>
+</section>
+
+<section class="tools-gallery">
+  <div class="container">
+    <div class="tools-filter reveal">
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="ai-agents">AI Agents</button>
+      <button class="filter-btn" data-filter="dashboards">Dashboards</button>
+      <button class="filter-btn" data-filter="sales-tools">Sales Tools</button>
+      <button class="filter-btn" data-filter="websites">Client Websites</button>
+      <button class="filter-btn" data-filter="apps">Apps</button>
+    </div>
+    <div class="tools-grid">
+
+      <div class="tool-card reveal" data-category="apps ai-agents">
+        <img class="tool-thumb" src="./img/tools-gallery/brightway.jpg" alt="BrightWay AI — Kid-safe learning companion" loading="lazy">
+        <div class="tool-info">
+          <h3>BrightWay AI</h3>
+          <p>Kid-safe AI learning companion for ages 5–12. Generates real-world, hands-on activities from any question. Parent dashboard, age modes, and subscription billing.</p>
+          <div class="tool-tags">
+            <span class="tool-tag live">Live</span>
+            <span class="tool-tag">Next.js</span>
+            <span class="tool-tag">OpenAI</span>
+            <span class="tool-tag">Stripe</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="tool-card reveal" data-category="ai-agents dashboards">
+        <img class="tool-thumb" src="./img/tools-gallery/accountbot.png" alt="BookBot — AI accountant chat interface" loading="lazy">
+        <div class="tool-info">
+          <h3>BookBot — AI Accountant</h3>
+          <p>Chat-based AI bookkeeper. Send receipt photos, log expenses by voice, ask about finances. Auto-categorizes transactions and syncs to a full ledger.</p>
+          <div class="tool-tags">
+            <span class="tool-tag live">Live</span>
+            <span class="tool-tag">Next.js</span>
+            <span class="tool-tag">GPT-4o</span>
+            <span class="tool-tag">Vision</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="tool-card reveal" data-category="dashboards">
+        <img class="tool-thumb" src="./img/tools-gallery/accountbot-ledger.png" alt="BookBot — Transaction ledger" loading="lazy">
+        <div class="tool-info">
+          <h3>BookBot — Transaction Ledger</h3>
+          <p>Searchable transaction ledger with AI-powered categorization. Filter by vendor, date range, or category. Export to QuickBooks-ready CSV.</p>
+          <div class="tool-tags">
+            <span class="tool-tag live">Live</span>
+            <span class="tool-tag">Ledger</span>
+            <span class="tool-tag">QuickBooks</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="tool-card reveal" data-category="dashboards">
+        <img class="tool-thumb" src="./img/tools-gallery/accountbot-reports.png" alt="BookBot — Financial reports" loading="lazy">
+        <div class="tool-info">
+          <h3>BookBot — Financial Reports</h3>
+          <p>Auto-generated financial reports with monthly expense charts, category breakdowns, and profit & loss statements. Updated in real-time.</p>
+          <div class="tool-tags">
+            <span class="tool-tag live">Live</span>
+            <span class="tool-tag">Charts</span>
+            <span class="tool-tag">P&amp;L</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="tool-card reveal" data-category="sales-tools">
+        <img class="tool-thumb" src="./img/tools-gallery/roi-calculator.jpg" alt="ROI Calculator" loading="lazy">
+        <div class="tool-info">
+          <h3>ROI Calculator</h3>
+          <p>Interactive calculator showing revenue lost to missed calls and how AIssisted pays for itself. Industry presets for HVAC, pest control, plumbing, and more.</p>
+          <div class="tool-tags">
+            <span class="tool-tag live">Live</span>
+            <span class="tool-tag">Interactive</span>
+            <span class="tool-tag">Sales</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="tool-card reveal" data-category="ai-agents dashboards">
+        <img class="tool-thumb" src="./img/tools-gallery/realtors.png" alt="Realtor Quote Generator" loading="lazy">
+        <div class="tool-info">
+          <h3>Realtor Quote Generator</h3>
+          <p>Auto-generates pest control quotes from property data. Looks up parcel info by address, calculates pricing, and produces PDF proposals — in seconds.</p>
+          <div class="tool-tags">
+            <span class="tool-tag live">Live</span>
+            <span class="tool-tag">Property Lookup</span>
+            <span class="tool-tag">PDF</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="tool-card reveal" data-category="ai-agents">
+        <img class="tool-thumb" src="./img/tools-gallery/proposal-demo.jpg" alt="AI-generated pest control proposal" loading="lazy">
+        <div class="tool-info">
+          <h3>AI Proposal Generator</h3>
+          <p>Fully automated pest control proposal with inspection findings, treatment plans, pricing tiers, payment schedules, terms, and signature block. One click.</p>
+          <div class="tool-tags">
+            <span class="tool-tag live">Live</span>
+            <span class="tool-tag">Automation</span>
+            <span class="tool-tag">PDF</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="tool-card reveal" data-category="dashboards ai-agents">
+        <img class="tool-thumb" src="./img/tools-gallery/bookkeeper.png" alt="QuickBooks AI Categorizer" loading="lazy">
+        <div class="tool-info">
+          <h3>QuickBooks AI Categorizer</h3>
+          <p>Upload bank transaction CSVs, run AI categorization in seconds, and export QuickBooks-ready files. Direct QuickBooks Online API sync coming soon.</p>
+          <div class="tool-tags">
+            <span class="tool-tag live">Live</span>
+            <span class="tool-tag">GPT-4o</span>
+            <span class="tool-tag">QuickBooks</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="tool-card reveal" data-category="sales-tools">
+        <img class="tool-thumb" src="./img/tools-gallery/compare.jpg" alt="Hiring vs AIssisted cost comparison" loading="lazy">
+        <div class="tool-info">
+          <h3>Hiring Cost Comparison</h3>
+          <p>Side-by-side breakdown: traditional receptionist vs. AI agent. 14 categories from salary to sick days. Shows $121K–$170K in 3-year savings.</p>
+          <div class="tool-tags">
+            <span class="tool-tag live">Live</span>
+            <span class="tool-tag">Interactive</span>
+            <span class="tool-tag">Sales</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="tool-card reveal" data-category="sales-tools websites">
+        <img class="tool-thumb" src="./img/tools-gallery/hvac-pitch.jpg" alt="HVAC industry pitch page" loading="lazy">
+        <div class="tool-info">
+          <h3>HVAC Industry Pitch Page</h3>
+          <p>Industry-specific landing page for HVAC contractors. Tailored pain points, ROI math, pricing, testimonials — all customized for HVAC workflows.</p>
+          <div class="tool-tags">
+            <span class="tool-tag demo">Template</span>
+            <span class="tool-tag">Landing Page</span>
+            <span class="tool-tag">Industry</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="tool-card reveal" data-category="sales-tools">
+        <img class="tool-thumb" src="./img/tools-gallery/one-pager.jpg" alt="Sales one-pager" loading="lazy">
+        <div class="tool-info">
+          <h3>Sales One-Pager</h3>
+          <p>"Stop Missing Calls. Start Growing." Complete sales page with problem/solution framework, pricing tiers, testimonial, and direct CTA.</p>
+          <div class="tool-tags">
+            <span class="tool-tag live">Live</span>
+            <span class="tool-tag">Sales</span>
+            <span class="tool-tag">Conversion</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="tool-card reveal" data-category="websites">
+        <img class="tool-thumb" src="./img/tools-gallery/portfolio-pest.jpg" alt="Standley Pest Control website" loading="lazy">
+        <div class="tool-info">
+          <h3>Pest Control Website</h3>
+          <p>Full business website with service pages, reviews, contact forms, and mobile-responsive design. Built and deployed for Standley Pest Control.</p>
+          <div class="tool-tags">
+            <span class="tool-tag live">Live</span>
+            <span class="tool-tag">Website</span>
+            <span class="tool-tag">SEO</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="tool-card reveal" data-category="websites">
+        <img class="tool-thumb" src="./img/tools-gallery/portfolio-landscaping.jpg" alt="Green Haven Landscapes website" loading="lazy">
+        <div class="tool-info">
+          <h3>Landscaping Website</h3>
+          <p>Portfolio demo for a landscaping company. Services, gallery, testimonials, and quote request form. Industry-specific web presence template.</p>
+          <div class="tool-tags">
+            <span class="tool-tag demo">Demo</span>
+            <span class="tool-tag">Website</span>
+            <span class="tool-tag">Portfolio</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="text-center reveal" style="margin-top: 64px;">
+      <p style="color: var(--text-muted); font-size: 1.1rem; margin-bottom: 24px;">And we're just getting started. New tools ship every week.</p>
+      <a href="./contact.html" class="btn btn-primary">Let's Build Yours</a>
+    </div>
+  </div>
+</section>
+
+<section id="cta">
+  <div class="container">
+    <h2>Ready to See What We Can Build for You?</h2>
+    <p>Every tool on this page was built by our team. Your business is next.</p>
+    <div class="hero-buttons">
+      <a href="./contact.html" class="btn btn-primary">Schedule a Free Consultation</a>
+      <a href="./compare.html" class="btn btn-secondary">See the Savings</a>
+    </div>
+  </div>
+</section>
+
+<div id="footer-container"></div>
+
+<div class="lightbox" id="lightbox">
+  <button class="lightbox-close" aria-label="Close">&times;</button>
+  <img src="" alt="">
+</div>
+
+<script>
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const filter = btn.dataset.filter;
+    document.querySelectorAll('.tool-card').forEach(card => {
+      card.style.display = (filter === 'all' || card.dataset.category.includes(filter)) ? '' : 'none';
+    });
+  });
+});
+const lightbox = document.getElementById('lightbox');
+const lightboxImg = lightbox.querySelector('img');
+document.querySelectorAll('.tool-card').forEach(card => {
+  card.addEventListener('click', () => {
+    const img = card.querySelector('.tool-thumb');
+    lightboxImg.src = img.src;
+    lightboxImg.alt = img.alt;
+    lightbox.classList.add('open');
+  });
+});
+lightbox.querySelector('.lightbox-close').addEventListener('click', () => lightbox.classList.remove('open'));
+lightbox.addEventListener('click', e => { if (e.target === lightbox) lightbox.classList.remove('open'); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') lightbox.classList.remove('open'); });
+</script>
+</body>
+</html>
