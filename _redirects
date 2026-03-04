@@ -1,0 +1,3 @@
+# Redirect legacy domain to primary domain
+https://ocalaaiconsulting.com/* https://aissistedconsulting.com/:splat 301
+https://www.ocalaaiconsulting.com/* https://aissistedconsulting.com/:splat 301
