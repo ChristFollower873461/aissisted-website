@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI for Realtors | Faster, More Organized, Ahead of the Competition | AIssisted Consulting</title>
+<meta name="description" content="AI-powered CRM, website, and assistant built for realtors. Respond to leads instantly, stay organized, and stand out in a saturated market. Your data, your hardware, your business.">
+<meta property="og:title" content="AI for Realtors — Faster Than Your Competition">
+<meta property="og:description" content="Your own website, CRM, and AI assistant. Respond to leads in seconds. Stay organized. Beat the competition. All on your hardware.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://aissistedconsulting.com/realtors">
+<meta property="og:image" content="https://aissistedconsulting.com/assets/og-image.jpg">
+<link rel="canonical" href="https://aissistedconsulting.com/realtors">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='14' fill='%230B1120'/><text x='16' y='21' text-anchor='middle' font-size='14' font-weight='bold' fill='%23F0D060'>AI</text></svg>">
+<link rel="stylesheet" href="./styles.css">
+<script src="./components/header.js" defer></script>
+<script src="./components/footer.js" defer></script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=AW-17956049177"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'AW-17956049177');
+</script>
+<style>
+.realtor-hero {
+  padding: 120px 0 80px;
+  background: linear-gradient(180deg, var(--navy) 0%, #0a1628 100%);
+  text-align: center;
+}
+.realtor-hero h1 {
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  line-height: 1.15;
+  margin-bottom: 24px;
+}
+.realtor-hero .subtitle {
+  font-size: 1.2rem;
+  color: var(--text-muted);
+  max-width: 680px;
+  margin: 0 auto 40px;
+  line-height: 1.6;
+}
+.speed-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 28px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+.speed-card {
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(240,208,96,.15);
+  border-radius: 16px;
+  padding: 36px 28px;
+  text-align: left;
+  transition: border-color .3s, transform .3s;
+}
+.speed-card:hover {
+  border-color: rgba(240,208,96,.4);
+  transform: translateY(-4px);
+}
+.speed-card .icon {
+  font-size: 2.2rem;
+  margin-bottom: 16px;
+}
+.speed-card h3 {
+  color: var(--gold-mid);
+  font-size: 1.15rem;
+  margin: 0 0 10px;
+}
+.speed-card p {
+  color: var(--text-muted);
+  font-size: .95rem;
+  line-height: 1.6;
+  margin: 0;
+}
+.stat-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 32px;
+  max-width: 900px;
+  margin: 0 auto;
+  text-align: center;
+}
+.stat-item .number {
+  font-size: 2.8rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #F0D060, #D4A843);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.stat-item .label {
+  color: var(--text-muted);
+  font-size: .95rem;
+  margin-top: 8px;
+}
+.yours-section {
+  background: rgba(240,208,96,.05);
+  border: 1px solid rgba(240,208,96,.15);
+  border-radius: 20px;
+  padding: 48px 40px;
+  max-width: 800px;
+  margin: 0 auto;
+  text-align: center;
+}
+.yours-section h2 {
+  color: var(--gold-mid);
+  margin-bottom: 20px;
+}
+.yours-list {
+  list-style: none;
+  padding: 0;
+  margin: 24px auto;
+  max-width: 500px;
+  text-align: left;
+}
+.yours-list li {
+  padding: 10px 0;
+  color: var(--text-light);
+  font-size: 1.05rem;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
+.yours-list li:last-child { border-bottom: none; }
+.yours-list li::before {
+  content: "✓ ";
+  color: var(--gold-mid);
+  font-weight: 700;
+}
+.cta-section {
+  text-align: center;
+  padding: 80px 0;
+}
+.cta-section h2 {
+  font-size: clamp(1.6rem, 3.5vw, 2.4rem);
+  margin-bottom: 16px;
+}
+.cta-section p {
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  margin-bottom: 32px;
+}
+.cta-buttons {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+</style>
+</head>
+<body>
+<div id="header-container"></div>
+
+<!-- HERO -->
+<section class="realtor-hero">
+<div class="container">
+<p class="section-label">AI Built for Real Estate</p>
+<h1>Be the Fastest, Most Organized Agent in&nbsp;Your&nbsp;Market</h1>
+<p class="subtitle">The market is saturated. Hundreds of agents fighting for the same listings and the same buyers. The ones who win respond faster and stay more organized than everyone else. We make sure that's you.</p>
+<div class="hero-buttons">
+<a href="./contact.html" class="btn btn-primary">Book a 10-Minute Call</a>
+<a href="tel:+13528173567" class="btn btn-secondary">Call (352) 817-3567</a>
+</div>
+</div>
+</section>
+
+<!-- STATS -->
+<section style="padding:80px 0;background:linear-gradient(180deg, #0a1628 0%, var(--navy) 100%)">
+<div class="container">
+<div class="stat-row reveal">
+<div class="stat-item">
+<div class="number">78%</div>
+<div class="label">of clients go with the agent who responds first</div>
+</div>
+<div class="stat-item">
+<div class="number">5+ hrs</div>
+<div class="label">average agent response time to a new lead</div>
+</div>
+<div class="stat-item">
+<div class="number">10-15 hrs</div>
+<div class="label">per week agents spend on admin instead of selling</div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- SPEED & ORGANIZATION -->
+<section style="padding:80px 0">
+<div class="container">
+<div class="text-center reveal" style="margin-bottom:48px">
+<p class="section-label">What We Build For You</p>
+<h2 class="section-title">Speed Wins Listings. Organization Keeps&nbsp;Them.</h2>
+<p class="section-subtitle">Everything you need to outpace your competition, in one system.</p>
+</div>
+<div class="speed-grid">
+<div class="speed-card reveal">
+<div class="icon">⚡</div>
+<h3>Instant Lead Response</h3>
+<p>New inquiry at 10pm on a Saturday? Your AI responds in seconds with a personalized message. While other agents sleep on it, you've already started the conversation.</p>
+</div>
+<div class="speed-card reveal">
+<div class="icon">📋</div>
+<h3>Every Lead, Organized</h3>
+<p>Leads sorted by priority and next action. No more sticky notes, no more spreadsheets. You always know who to call first and what to say when you do.</p>
+</div>
+<div class="speed-card reveal">
+<div class="icon">🔄</div>
+<h3>Automatic Follow-Ups</h3>
+<p>Follow-ups fire on schedule without you lifting a finger. That lead from 3 months ago who wasn't ready? Your system remembered. You didn't have to.</p>
+</div>
+<div class="speed-card reveal">
+<div class="icon">📱</div>
+<h3>Your Office, Everywhere</h3>
+<p>Access your entire CRM from your phone between showings, your laptop at a closing, or your tablet at an open house. Every conversation, document, and note in one place.</p>
+</div>
+<div class="speed-card reveal">
+<div class="icon">🌐</div>
+<h3>Your Own Website</h3>
+<p>A personal business website that works for you 24/7. Captures leads automatically, showcases your listings, and feeds directly into your CRM. No middleman.</p>
+</div>
+<div class="speed-card reveal">
+<div class="icon">🤖</div>
+<h3>Your Own AI Assistant</h3>
+<p>Handles inquiries, qualifies leads, books appointments, and keeps your pipeline moving. Like having a full-time assistant who never takes a day off.</p>
+</div>
+</div>
+</div>
+</section>
+
+<!-- IT'S YOURS -->
+<section style="padding:80px 0;background:linear-gradient(180deg, var(--navy) 0%, #0a1628 100%)">
+<div class="container">
+<div class="yours-section reveal">
+<h2>Your Software. Your Data. Your Business.</h2>
+<p style="color:var(--text-muted);font-size:1.05rem;line-height:1.7;margin-bottom:24px">Everything we build is yours. Not ours. Not your broker's. Yours. Switch brokerages tomorrow and every lead, every contact, every conversation comes with you.</p>
+<ul class="yours-list">
+<li>Your own personal business website</li>
+<li>Your own CRM with full lead pipeline</li>
+<li>Your own AI assistant working 24/7</li>
+<li>Runs on your hardware, not in the cloud</li>
+<li>Your data never leaves your control</li>
+<li>No brokerage lock-in. Ever.</li>
+</ul>
+</div>
+</div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section style="padding:80px 0">
+<div class="container">
+<div class="text-center reveal" style="margin-bottom:48px">
+<p class="section-label">How It Works</p>
+<h2 class="section-title">Up and Running in Days, Not Months</h2>
+</div>
+<div class="speed-grid" style="max-width:800px">
+<div class="speed-card reveal">
+<div class="icon">1️⃣</div>
+<h3>10-Minute Call</h3>
+<p>Tell us how you work, what's eating your time, and where leads are falling through. No pitch deck. Just a conversation.</p>
+</div>
+<div class="speed-card reveal">
+<div class="icon">2️⃣</div>
+<h3>We Build It</h3>
+<p>Your website, CRM, and AI assistant, custom-built for how you actually run your business. Not a template. Not a cookie-cutter setup.</p>
+</div>
+<div class="speed-card reveal">
+<div class="icon">3️⃣</div>
+<h3>You Win More</h3>
+<p>Respond faster. Stay organized. Close more deals. Look like a team of 10, even if it's just you.</p>
+</div>
+</div>
+</div>
+</section>
+
+<!-- DIFFERENTIATOR -->
+<section style="padding:80px 0;background:linear-gradient(180deg, #0a1628 0%, var(--navy) 100%)">
+<div class="container text-center">
+<div class="reveal" style="max-width:700px;margin:0 auto">
+<p class="section-label">Why Us</p>
+<h2 class="section-title">We're Not a Software Company. We're Builders.</h2>
+<p style="color:var(--text-muted);font-size:1.05rem;line-height:1.7;margin-bottom:16px">We don't sell you a login to someone else's platform. We build your system from scratch, deploy it on your hardware, and make sure it actually works for how you run your business.</p>
+<p style="color:var(--text-muted);font-size:1.05rem;line-height:1.7;margin-bottom:16px">NIST-compliant. On-premise. Secure. Based right here in Ocala, FL.</p>
+<p style="color:var(--gold-mid);font-size:1.1rem;font-weight:600;margin-top:24px">Built by someone who spent 20 years running a service business. We get it.</p>
+</div>
+</div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+<div class="container reveal">
+<h2>Ready to Be the Fastest Agent in Your Market?</h2>
+<p>10 minutes. That's all it takes to see if this fits how you work.</p>
+<div class="cta-buttons">
+<a href="./contact.html" class="btn btn-primary">Book Your Call</a>
+<a href="tel:+13528173567" class="btn btn-secondary">Call PJ — (352) 817-3567</a>
+</div>
+<p style="color:var(--text-muted);font-size:.9rem;margin-top:24px">AIssisted Consulting | Ocala, FL | Serving realtors across Florida</p>
+</div>
+</section>
+
+<div id="footer-container"></div>
+<script src="./main.js"></script>
+</body>
+</html>
