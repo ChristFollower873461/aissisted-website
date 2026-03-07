@@ -37,6 +37,7 @@ const headerHTML=`<nav id="nav">
 <a href="${base}compare.html">Compare</a>
 <a href="${base}about.html">About</a>
 <a href="${base}case-studies.html">Case Studies</a>
+<a href="${base}openclaw.html">OpenClaw</a>
 <a href="${base}tools.html">Tools</a>
 <a href="${base}blog/">Blog</a>
 <a href="${base}reserve.html" class="btn nav-reserve" style="background:transparent;border:2px solid var(--gold-mid);color:var(--gold-mid);padding:10px 20px;font-size:.85rem">Reserve</a>
