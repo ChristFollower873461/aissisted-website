@@ -8,8 +8,9 @@ Allow: /
 Sitemap: https://aissistedconsulting.com/sitemap.xml
 
 # Disallow pages that shouldn't be indexed
-Disallow: /thank-you.html
-Disallow: /pay-success.html
+Disallow: /thank-you
+Disallow: /pay-success
+Disallow: /pay
 
 # Host preference
 Host: https://aissistedconsulting.com
