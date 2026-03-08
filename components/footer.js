@@ -5,7 +5,7 @@ const footerHTML=`<footer>
 <div class="container">
 <div class="footer-grid">
 <div class="footer-brand">
-<a href="${base}index.html"><img src="${base}img/logo-horizontal-tagline.png" alt="AIssisted Consulting - The AI Guy - Local. Trusted. AI." style="max-width:280px;height:auto;margin-bottom:8px"></a>
+<a href="${base}index.html"><img src="${base}img/logo-horizontal-tagline.png" alt="AIssisted Consulting - AI Guy - Local. Trusted. AI." style="max-width:280px;height:auto;margin-bottom:8px"></a>
 <p>NIST-compliant AI consulting by real engineers for small businesses. Local. Trusted. AI.</p>
 </div>
 <div class="footer-col">
@@ -15,7 +15,7 @@ const footerHTML=`<footer>
 <a href="${base}pricing.html">Pricing</a>
 <a href="${base}about.html">About</a>
 <a href="${base}case-studies.html">Case Studies</a>
-<a href="${base}blog/">The AI Guy</a>
+<a href="${base}blog/">AI Guy</a>
 </div>
 <div class="footer-col">
 <h4>Resources</h4>
