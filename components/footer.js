@@ -15,7 +15,7 @@ const footerHTML=`<footer>
 <a href="${base}pricing.html">Pricing</a>
 <a href="${base}about.html">About</a>
 <a href="${base}case-studies.html">Case Studies</a>
-<a href="${base}blog/">Blog</a>
+<a href="${base}blog/">The AI Guy</a>
 </div>
 <div class="footer-col">
 <h4>Resources</h4>
