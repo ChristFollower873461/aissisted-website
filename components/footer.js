@@ -26,7 +26,7 @@ const footerHTML=`<footer>
 </div>
 </div>
 <div class="footer-bottom">
-© 2026 AIssisted Consulting LLC. All rights reserved.
+© 2026 AI Guy — AIssisted Consulting LLC. All rights reserved.
 </div>
 </div>
 </footer>`;
