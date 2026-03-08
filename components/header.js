@@ -5,7 +5,7 @@ const base=isSubdir?'../':'./';
 const headerHTML=`<nav id="nav">
 <div class="container">
 <a href="${base}index.html" class="nav-logo" aria-label="AIssisted Consulting Home">
-<img src="${base}img/logo-horizontal-tagline.png" alt="AIssisted Consulting - AI Guy" style="height:48px;width:auto">
+<img src="${base}img/logo-horizontal-tagline.png?v=2" alt="AIssisted Consulting - AI Guy" style="height:48px;width:auto">
 </a>
 <div class="nav-links" id="navLinks">
 <a href="${base}services.html">Services</a>
