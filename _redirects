@@ -1,3 +1,6 @@
+# Redirect www to non-www (fixes duplicate content for Google)
+https://www.aissistedconsulting.com/* https://aissistedconsulting.com/:splat 301
+
 # Redirect legacy domain to primary domain
 https://ocalaaiconsulting.com/* https://aissistedconsulting.com/:splat 301
 https://www.ocalaaiconsulting.com/* https://aissistedconsulting.com/:splat 301
