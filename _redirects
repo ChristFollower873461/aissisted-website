@@ -4,3 +4,14 @@ https://www.aissistedconsulting.com/* https://aissistedconsulting.com/:splat 301
 # Redirect legacy domain to primary domain
 https://ocalaaiconsulting.com/* https://aissistedconsulting.com/:splat 301
 https://www.ocalaaiconsulting.com/* https://aissistedconsulting.com/:splat 301
+
+# SEO consolidation redirects
+/kids-ai-safety / 301
+/blog/kids-ai-guardrails /blog/ 301
+/home-assistant /services 301
+/blog/on-premise-ai-vs-cloud /blog/cloud-vs-on-prem-ai-for-small-business 301
+/blog/signs-you-need-ai-phone-agent /blog/5-signs-missing-calls 301
+/openclaw-florida /openclaw 301
+/industries/electrical /industries/ 301
+/industries/landscaping /industries/ 301
+/industries/real-estate /industries/ 301

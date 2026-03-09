@@ -5,7 +5,7 @@ const footerHTML=`<footer>
 <div class="container">
 <div class="footer-grid">
 <div class="footer-brand">
-<a href="${base}index.html"><img src="${base}img/official-logo.png?v=1" alt="AIssisted Consulting" style="max-width:320px;height:auto;margin-bottom:12px"></a>
+<a href="${base}index.html" class="footer-brand-link"><img src="${base}img/official-logo.png?v=2" alt="AIssisted Consulting" class="footer-brand-logo"></a>
 <p>NIST-compliant AI consulting by real engineers for small businesses. Local. Trusted. AI.</p>
 </div>
 <div class="footer-col">
