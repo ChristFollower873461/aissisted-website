@@ -4,9 +4,8 @@ const isSubdir=document.querySelector('link[href*="../styles.css"]')!==null;
 const base=isSubdir?'../':'./';
 const headerHTML=`<nav id="nav">
 <div class="container">
-<a href="${base}index.html" class="nav-logo" aria-label="AIssisted Consulting Home">
-<img src="${base}img/square-logo.svg?v=2" alt="AIssisted Consulting symbol" class="nav-logo-mark">
-<img src="${base}img/official-logo.png?v=3" alt="AIssisted Consulting" class="nav-logo-full nav-logo-full--desktop">
+<a href="${base}index.html" class="nav-logo nav-logo-textonly" aria-label="AIssisted Consulting Home">
+<span class="nav-logo-wordmark nav-logo-wordmark--visible">AIssisted Consulting</span>
 </a>
 <div class="nav-links" id="navLinks">
 <a href="${base}services.html">Services</a>
