@@ -1,25 +1,8 @@
-# AIssisted Consulting - Robots.txt
-# https://aissistedconsulting.com
-
 User-agent: *
 Allow: /
-
-# Sitemap location
-Sitemap: https://aissistedconsulting.com/sitemap.xml
-
-# Disallow pages that shouldn't be indexed
 Disallow: /thank-you
 Disallow: /pay-success
 Disallow: /pay
-Disallow: /kids-ai-safety
-Disallow: /blog/kids-ai-guardrails
-Disallow: /home-assistant
-Disallow: /blog/on-premise-ai-vs-cloud
-Disallow: /blog/signs-you-need-ai-phone-agent
-Disallow: /openclaw-florida
-Disallow: /industries/electrical
-Disallow: /industries/landscaping
-Disallow: /industries/real-estate
+Disallow: /tools
 
-# Host preference
-Host: https://aissistedconsulting.com
+Sitemap: https://aissistedconsulting.com/sitemap.xml

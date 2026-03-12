@@ -17,7 +17,7 @@ const headerHTML=`<nav id="nav">
 <a href="${base}tools.html">Tools</a>
 <a href="${base}blog/">Blog</a>
 <a href="${base}reserve.html" class="btn nav-reserve" style="background:transparent;border:2px solid var(--gold-mid);color:var(--gold-mid);padding:10px 20px;font-size:.85rem">Reserve</a>
-<a href="${base}contact.html" class="btn btn-primary nav-cta">Get Started</a>
+<a href="${base}contact.html" class="btn btn-primary nav-cta">Schedule a Demo</a>
 </div>
 <button class="hamburger" id="hamburger" aria-label="Toggle menu">
 <span></span><span></span><span></span>
