@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /thank-you
+Disallow: /pay-success
+Disallow: /pay
+Disallow: /tools
+
+Sitemap: https://aissistedconsulting.com/sitemap.xml

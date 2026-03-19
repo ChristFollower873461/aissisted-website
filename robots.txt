@@ -1,8 +1,9 @@
 User-agent: *
 Allow: /
-Disallow: /thank-you
-Disallow: /pay-success
+
+# Keep transactional pages out of search when reintroduced.
 Disallow: /pay
-Disallow: /tools
+Disallow: /pay-success
+Disallow: /thank-you
 
 Sitemap: https://aissistedconsulting.com/sitemap.xml

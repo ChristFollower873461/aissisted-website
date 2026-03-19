@@ -1,211 +1,204 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Contact — AIssisted Consulting</title>
-<meta name="description" content="Contact AIssisted Consulting to discuss AI systems for calls, follow-up, scheduling, and workflow automation for small businesses.">
-<meta name="keywords" content="AI consulting, small business AI, AI automation, AI agents, AIssisted Consulting">
-<meta property="og:title" content="Contact — AIssisted Consulting">
-<meta property="og:description" content="Get in touch with AIssisted Consulting. Schedule a free demo or ask questions.">
-<meta property="og:type" content="website">
-<meta property="og:url" content="https://aissistedconsulting.com/contact">
-<meta property="og:image" content="https://aissistedconsulting.com/assets/og-image.jpg">
-<meta property="og:site_name" content="AIssisted Consulting">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Contact — AIssisted Consulting">
-<meta name="twitter:description" content="Get in touch with AIssisted Consulting. Schedule a free demo or ask questions.">
-<meta name="twitter:image" content="https://aissistedconsulting.com/assets/og-image.jpg">
-<link rel="canonical" href="https://aissistedconsulting.com/contact">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='14' fill='%230B1120'/><text x='16' y='21' text-anchor='middle' font-size='14' font-weight='bold' fill='%23F0D060'>AI</text></svg>">
-<link rel="stylesheet" href="./styles.css">
-<script src="./components/header.js" defer></script>
-<script src="./components/footer.js" defer></script>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=AW-17956049177"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'AW-17956049177');
-</script>
-</head>
-<body>
-<div id="header-container"></div>
-
-<section class="page-hero">
-<div class="hero-bg-stars" aria-hidden="true">
-<span style="top:10%;left:15%"></span>
-<span style="top:20%;left:80%"></span>
-<span style="top:30%;left:50%"></span>
-<span style="top:15%;left:65%"></span>
-</div>
-<div class="container page-hero-content">
-<p class="section-label reveal">Get In Touch</p>
-<h1 class="reveal">Talk With Us About Your Workflow</h1>
-<p class="reveal">Tell us how your business handles calls, leads, scheduling, and follow-up today. We’ll tell you whether an AI system makes sense and what it would take to implement it.</p>
-</div>
-</section>
-
-<section id="contact">
-<div class="container">
-<div class="contact-grid">
-<div class="contact-info">
-<div class="contact-card reveal" style="background:rgba(240,208,96,.08);border:1px solid rgba(240,208,96,.2)">
-<h3>📍 Location</h3>
-<p><strong>Based in Ocala, Florida</strong><br>Serving businesses across Florida and nationwide</p>
-</div>
-<div class="contact-card reveal">
-<h3>📧 Email</h3>
-<p>For general inquiries and questions:<br><a href="mailto:pjaissist@icloud.com">pjaissist@icloud.com</a></p>
-</div>
-<div class="contact-card reveal">
-<h3>📞 Phone</h3>
-<p>Call or text us:<br><a href="tel:+13528173567">(352) 817-3567</a></p>
-</div>
-<div class="contact-card reveal">
-<h3>🕐 Business Hours</h3>
-<p>Monday – Friday<br>9:00 AM – 6:00 PM Eastern Time</p>
-<p style="font-size:.85rem;margin-top:8px;color:var(--text-muted)">AI agents work 24/7. Humans reply during business hours.</p>
-</div>
-<div class="contact-card reveal">
-<h3>⚡ Quick Response Promise</h3>
-<p>We typically respond to all inquiries within 24 hours during business days. For urgent matters, mention it in your message and we'll prioritize.</p>
-</div>
-</div>
-
-<div class="contact-form reveal">
-<h3 style="color:#fff;margin-bottom:24px;font-size:1.4rem">Send Us a Message</h3>
-<form id="contact-form" onsubmit="return submitContactForm(event)">
-<div class="form-group">
-<label for="name">Your Name</label>
-<input type="text" id="name" name="name" required placeholder="John Smith">
-</div>
-<div class="form-group">
-<label for="phone">Phone Number</label>
-<input type="tel" id="phone" name="phone" placeholder="(352) 555-1234">
-</div>
-<div class="form-group">
-<label for="email">Email Address</label>
-<input type="email" id="email" name="email" required placeholder="john@yourbusiness.com">
-</div>
-<div class="form-group">
-<label for="company">Company Name</label>
-<input type="text" id="company" name="company" placeholder="Your Business LLC">
-</div>
-<div class="form-group">
-<label for="industry">Industry</label>
-<select id="industry" name="industry">
-<option value="">Select your industry...</option>
-<option value="pest-control">Pest Control</option>
-<option value="hvac">HVAC / Heating & Cooling</option>
-<option value="plumbing">Plumbing</option>
-<option value="electrical">Electrical</option>
-<option value="landscaping">Landscaping</option>
-<option value="real-estate">Real Estate</option>
-<option value="legal">Legal / Law Office</option>
-<option value="medical">Medical / Dental</option>
-<option value="insurance">Insurance</option>
-<option value="auto">Auto Dealer / Repair</option>
-<option value="property-mgmt">Property Management</option>
-<option value="other">Other</option>
-</select>
-</div>
-<div class="form-group">
-<label for="message">How Can We Help?</label>
-<textarea id="message" name="message" rows="5" placeholder="Tell us about your business and what you're looking for..."></textarea>
-</div>
-<button type="submit" class="btn btn-primary" id="submit-btn" style="width:100%">Send Message</button>
-<div id="form-status" style="margin-top:16px;text-align:center;display:none"></div>
-<p style="font-size:.85rem;color:var(--text-muted);margin-top:16px;text-align:center">Or email us directly at <a href="mailto:pjaissist@icloud.com">pjaissist@icloud.com</a></p>
-</form>
-<script>
-async function submitContactForm(e) {
-  e.preventDefault();
-  const btn = document.getElementById('submit-btn');
-  const status = document.getElementById('form-status');
-  const form = document.getElementById('contact-form');
-  
-  btn.disabled = true;
-  btn.textContent = 'Sending...';
-  status.style.display = 'none';
-  
-  const nameParts = document.getElementById('name').value.trim().split(' ');
-  const firstName = nameParts[0] || '';
-  const lastName = nameParts.slice(1).join(' ') || '';
-  
-  const data = {
-    first_name: firstName,
-    last_name: lastName,
-    email: document.getElementById('email').value,
-    phone: document.getElementById('phone').value || null,
-    source: 'website',
-    notes: [
-      document.getElementById('company').value ? 'Company: ' + document.getElementById('company').value : '',
-      document.getElementById('industry').value ? 'Industry: ' + document.getElementById('industry').value : '',
-      document.getElementById('message').value ? 'Message: ' + document.getElementById('message').value : ''
-    ].filter(Boolean).join(' | ')
-  };
-  
-  try {
-    const res = await fetch('https://crm.aissistedconsulting.com/api/leads', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    });
-    
-    if (res.ok) {
-      status.style.display = 'block';
-      status.style.color = '#4ade80';
-      status.innerHTML = '✅ Message sent! We\'ll get back to you within 24 hours.';
-      form.reset();
-    } else {
-      throw new Error('Server error');
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact AIssisted Consulting | Request an AI Workflow Assessment</title>
+  <meta name="description" content="Contact AIssisted Consulting for a workflow assessment. Share your current intake, scheduling, and follow-up process to receive a practical implementation recommendation.">
+  <link rel="canonical" href="https://aissistedconsulting.com/contact">
+  <meta property="og:title" content="Contact AIssisted Consulting | Request an AI Workflow Assessment">
+  <meta property="og:description" content="Book a founder-led discovery call and share your current operations so we can assess AI implementation fit.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://aissistedconsulting.com/contact">
+  <meta property="og:image" content="https://aissistedconsulting.com/assets/og-image.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css">
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "ContactPage",
+      "name": "Contact AIssisted Consulting",
+      "url": "https://aissistedconsulting.com/contact",
+      "mainEntity": {
+        "@type": "Organization",
+        "name": "AIssisted Consulting",
+        "telephone": "+1-352-817-3567",
+        "email": "pj@aissistedconsulting.com"
+      }
     }
-  } catch (err) {
-    status.style.display = 'block';
-    status.style.color = '#f87171';
-    status.innerHTML = '⚠️ Something went wrong. Please email us at <a href="mailto:pjaissist@icloud.com" style="color:#F0D060">pjaissist@icloud.com</a>';
-  }
-  
-  btn.disabled = false;
-  btn.textContent = 'Send Message';
-  return false;
-}
-</script>
-</div>
-</div>
+  </script>
+</head>
+<body data-page="contact">
+  <header class="site-header">
+    <div class="container nav-wrap">
+      <a class="brand" href="./index.html" aria-label="AIssisted Consulting home">
+        <span class="brand-text">AI Guy</span>
+      </a>
+      <button class="menu-toggle" data-menu-toggle aria-label="Open navigation">Menu</button>
+      <nav class="nav-links" data-nav-links>
+        <a href="./index.html" data-nav="home">Home</a>
+        <a href="./services.html" data-nav="services">Services</a>
+        <a href="./industries/index.html" data-nav="industries">Industries</a>
+        <a href="./pricing.html" data-nav="pricing">Pricing</a>
+        <a href="./about.html" data-nav="about">About</a>
+        <a href="./contact.html" data-nav="contact">Contact</a>
+      </nav>
+      <div class="cta-group">
+        <a class="btn btn-secondary" href="tel:+13528173567">Call 352-817-3567</a>
+        <a class="btn btn-primary" href="./contact.html">Book Discovery Call</a>
+      </div>
+    </div>
+  </header>
 
-<div class="calendly-placeholder reveal">
-<h3>📅 Schedule a Call</h3>
-<p>Prefer to talk? Email us or call/text <a href="tel:+13528173567">(352) 817-3567</a> and we’ll set a time that works.</p>
-</div>
-</div>
-</section>
+  <main>
+    <section class="page-hero">
+      <div class="container">
+        <p class="eyebrow reveal">Contact and Discovery</p>
+        <h1 class="reveal">Share your current workflow and we will tell you exactly where implementation has real value.</h1>
+        <p class="reveal">This form is intentionally structured so the first conversation starts with useful context, not a generic sales pitch.</p>
+      </div>
+    </section>
 
-<section style="padding:80px 0;background:var(--navy)">
-<div class="container text-center">
-<p class="section-label reveal">See the Savings</p>
-<h2 class="section-title reveal">Compare AI vs. Hiring</h2>
-<p class="section-subtitle reveal">See why businesses are switching to AI and saving over $120,000 in 3 years compared to hiring a receptionist.</p>
-<div class="reveal" style="margin-top:32px">
-<a href="./compare" class="btn btn-primary">See Cost Comparison</a>
-<a href="./case-studies" class="btn btn-secondary" style="margin-left:16px">Read Case Studies</a>
-</div>
-</div>
-</section>
+    <section class="section">
+      <div class="container contact-grid">
+        <div>
+          <article class="contact-card reveal">
+            <h3>Direct Contact</h3>
+            <p><strong>Phone:</strong> <a href="tel:+13528173567">(352) 817-3567</a><br><strong>Email:</strong> <a href="mailto:pj@aissistedconsulting.com">pj@aissistedconsulting.com</a></p>
+          </article>
+          <article class="contact-card reveal">
+            <h3>Location and Coverage</h3>
+            <p>Based in Ocala, Florida. Serving Central Florida, North Central Florida, and remote clients across the United States.</p>
+          </article>
+          <article class="contact-card reveal">
+            <h3>What to Prepare</h3>
+            <p>Bring one current workflow that creates friction today: missed calls, delayed follow-up, scheduling bottlenecks, or reporting gaps.</p>
+          </article>
+          <article class="contact-card reveal">
+            <h3>Related Pages</h3>
+            <p><a href="./services.html">Service detail</a><br><a href="./pricing.html">Pricing and onboarding</a><br><a href="./industries/index.html">Industry fit pages</a></p>
+          </article>
+        </div>
 
-<section id="cta" style="background:var(--purple-deep)">
-<div class="container">
-<h2 class="reveal">Not Ready to Reach Out?</h2>
-<p class="reveal">Explore our services and pricing first, then come back when you're ready.</p>
-<div class="reveal" style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap">
-<a href="./services" class="btn btn-secondary">View Services</a>
-<a href="./pricing" class="btn btn-primary">See Pricing</a>
-</div>
-</div>
-</section>
+        <form class="contact-form reveal" id="candidate-contact-form">
+          <h2 style="margin:0 0 12px; font-size:1.5rem;">Request Workflow Assessment</h2>
+          <p class="section-intro" style="font-size:0.98rem; margin-bottom:16px;">Submitting opens your email client with a structured summary to AIssisted Consulting.</p>
 
-<div id="footer-container"></div>
+          <div class="form-grid">
+            <div>
+              <label for="name">Name</label>
+              <input id="name" name="name" required>
+            </div>
+            <div>
+              <label for="email">Email</label>
+              <input id="email" type="email" name="email" required>
+            </div>
+            <div>
+              <label for="phone">Phone</label>
+              <input id="phone" name="phone">
+            </div>
+            <div>
+              <label for="company">Company</label>
+              <input id="company" name="company">
+            </div>
+            <div>
+              <label for="industry">Industry</label>
+              <select id="industry" name="industry">
+                <option value="">Select</option>
+                <option>HVAC</option>
+                <option>Pest Control</option>
+                <option>Plumbing</option>
+                <option>Electrical</option>
+                <option>Landscaping</option>
+                <option>Real Estate</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div>
+              <label for="timeline">Desired timeline</label>
+              <select id="timeline" name="timeline">
+                <option value="">Select</option>
+                <option>As soon as possible</option>
+                <option>Within 30 days</option>
+                <option>Within 60 days</option>
+                <option>Planning stage only</option>
+              </select>
+            </div>
+            <div class="full">
+              <label for="process">Current process</label>
+              <textarea id="process" name="process" placeholder="How are calls, leads, and scheduling handled today?"></textarea>
+            </div>
+            <div class="full">
+              <label for="pain">Primary pain point</label>
+              <textarea id="pain" name="pain" placeholder="What is the biggest operations issue you want to fix first?"></textarea>
+            </div>
+          </div>
+
+          <button class="btn btn-primary" type="submit" style="margin-top:14px;">Send Assessment Request</button>
+          <p class="fine-print">By sending this request, you are asking for an implementation-fit conversation, not an automated quote bot response.</p>
+        </form>
+      </div>
+    </section>
+
+    <section class="section alt">
+      <div class="container split">
+        <article class="panel reveal">
+          <p class="eyebrow">Conversation flow</p>
+          <h3>What happens after you contact us</h3>
+          <ul class="checklist">
+            <li>Initial reply confirms fit and clarifies the workflow to evaluate first.</li>
+            <li>Discovery call maps process and required controls.</li>
+            <li>You receive recommended scope and implementation sequence.</li>
+          </ul>
+        </article>
+        <article class="panel reveal">
+          <p class="eyebrow">Not sure yet?</p>
+          <h3>Start with page-level detail first.</h3>
+          <p>Review core pages before contacting if you want deeper context.</p>
+          <div class="tag-list">
+            <a class="tag" href="./services.html">Services</a>
+            <a class="tag" href="./pricing.html">Pricing</a>
+            <a class="tag" href="./about.html">About</a>
+            <a class="tag" href="./industries/index.html">Industries</a>
+          </div>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <section>
+          <h3>AIssisted Consulting</h3>
+          <p>Book a practical AI workflow assessment for your business operations.</p>
+          <p><a href="mailto:pj@aissistedconsulting.com">pj@aissistedconsulting.com</a><br><a href="tel:+13528173567">(352) 817-3567</a></p>
+        </section>
+        <section>
+          <h4>Before Contacting</h4>
+          <div class="footer-links">
+            <a href="./services.html">Services</a>
+            <a href="./pricing.html">Pricing</a>
+            <a href="./industries/index.html">Industries</a>
+            <a href="./about.html">About</a>
+          </div>
+        </section>
+        <section>
+          <h4>Coverage Areas</h4>
+          <div class="footer-links">
+            <a href="./industries/hvac.html">HVAC operations</a>
+            <a href="./industries/pest-control.html">Pest control operations</a>
+            <a href="./industries/plumbing.html">Plumbing operations</a>
+          </div>
+        </section>
+      </div>
+      <div class="footer-bottom">Copyright <span data-year></span> AIssisted Consulting. Swap-in candidate only.</div>
+    </div>
+  </footer>
+
+  <script src="./main.js" defer></script>
 </body>
 </html>
