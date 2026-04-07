@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Book a Paid AI Workflow Appointment | AIssisted Consulting</title>
+  <meta name="description" content="Reserve an AIssisted Consulting appointment window with a $200 reservation deposit, choose an available time, and complete Stripe checkout.">
+  <link rel="canonical" href="https://aissistedconsulting.com/book">
+  <meta property="og:title" content="Book a Paid AI Workflow Appointment | AIssisted Consulting">
+  <meta property="og:description" content="Choose an appointment window, submit your intake, and reserve it with a $200 deposit credited toward service if you become a customer.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://aissistedconsulting.com/book">
+  <meta property="og:image" content="https://aissistedconsulting.com/assets/og-image.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Book a Paid AI Workflow Appointment | AIssisted Consulting">
+  <meta name="twitter:description" content="Reserve your appointment window online with a $200 deposit and founder-led intake.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="./booking.css">
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Offer",
+      "name": "AIssisted Consulting appointment reservation",
+      "price": "200.00",
+      "priceCurrency": "USD",
+      "availability": "https://schema.org/InStock",
+      "description": "Reserve an appointment window with a non-refundable deposit that is credited once toward service if you become a customer."
+    }
+  </script>
+</head>
+<body class="booking-page" data-page="book">
+  <header class="site-header">
+    <div class="container nav-wrap">
+      <a class="brand" href="../index.html" aria-label="AIssisted Consulting home">
+        <span class="brand-text">AI Guy</span>
+      </a>
+      <button class="menu-toggle" data-menu-toggle aria-label="Open navigation">Menu</button>
+      <nav class="nav-links" data-nav-links>
+        <a href="../index.html" data-nav="home">Home</a>
+        <a href="../services.html" data-nav="services">Services</a>
+        <a href="../industries/index.html" data-nav="industries">Industries</a>
+        <a href="../pricing.html" data-nav="pricing">Pricing</a>
+        <a href="./index.html" data-nav="book">Book</a>
+        <a href="../about.html" data-nav="about">About</a>
+        <a href="../contact.html" data-nav="contact">Contact</a>
+      </nav>
+      <div class="cta-group">
+        <a class="btn btn-secondary" href="tel:+13528173567">Call 352-817-3567</a>
+        <a class="btn btn-primary" href="../contact.html">Talk First</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="booking-hero">
+      <div class="container booking-hero-grid">
+        <div class="booking-lead">
+          <span class="booking-kicker reveal">Paid Reservation Flow</span>
+          <h1 class="reveal">Reserve a founder-led appointment window with a $200 deposit.</h1>
+          <p class="reveal">Choose an available appointment window, send the core business context we need, then complete secure payment through Stripe. The slot is only confirmed after payment succeeds and the webhook marks the booking as paid.</p>
+          <div class="booking-points reveal">
+            <div><strong>Step 1.</strong><span>Pick an open appointment window sourced from our availability layer.</span></div>
+            <div><strong>Step 2.</strong><span>Share contact and business intake so the meeting starts with useful context.</span></div>
+            <div><strong>Step 3.</strong><span>Pay the $200 reservation deposit and receive confirmation.</span></div>
+          </div>
+        </div>
+        <aside class="policy-card reveal">
+          <h2>Reserve Your Appointment — $200</h2>
+          <p id="policy-text">This payment reserves your appointment window. If you move forward as a customer, the $200 will be credited toward your service. If you do not move forward, the reservation payment is non-refundable.</p>
+          <ul>
+            <li>The slot remains temporary until Stripe payment succeeds.</li>
+            <li>Confirmed bookings receive an internal record and future one-time deposit credit entry.</li>
+            <li>Google Calendar can back this availability layer without redesign when credentials are connected.</li>
+          </ul>
+          <div class="policy-highlight">If payment is abandoned or fails, the appointment window is not confirmed.</div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="booking-workspace">
+      <div class="container booking-shell">
+        <div class="booking-stack">
+          <section class="booking-card reveal">
+            <div class="slot-toolbar">
+              <div>
+                <p class="eyebrow">Step 1</p>
+                <h2>Choose an appointment window</h2>
+              </div>
+              <small>All times shown in the booking timezone published by AIssisted Consulting.</small>
+            </div>
+            <div id="booking-status" class="status-banner" role="status" aria-live="polite"></div>
+            <div id="availability-root">
+              <p class="loading-copy">Loading appointment windows...</p>
+            </div>
+          </section>
+
+          <section class="booking-card reveal">
+            <p class="eyebrow">Step 2</p>
+            <h2>Business intake before checkout</h2>
+            <p>The goal is to start the meeting with enough context to use the time well, not to make you write an essay.</p>
+            <form id="booking-form" class="booking-form">
+              <div class="form-grid">
+                <div>
+                  <label for="name">Name</label>
+                  <input id="name" name="name" maxlength="100" autocomplete="name" required>
+                </div>
+                <div>
+                  <label for="email">Email</label>
+                  <input id="email" name="email" type="email" maxlength="200" autocomplete="email" required>
+                </div>
+                <div>
+                  <label for="phone">Phone</label>
+                  <input id="phone" name="phone" maxlength="40" autocomplete="tel">
+                </div>
+                <div>
+                  <label for="company">Company</label>
+                  <input id="company" name="company" maxlength="120" autocomplete="organization">
+                </div>
+                <div class="full">
+                  <label for="companyWebsite">Website</label>
+                  <input id="companyWebsite" name="companyWebsite" type="url" maxlength="200" inputmode="url" placeholder="https://yourbusiness.com">
+                </div>
+                <div>
+                  <label for="industry">Industry</label>
+                  <select id="industry" name="industry">
+                    <option value="">Select</option>
+                    <option>HVAC</option>
+                    <option>Pest Control</option>
+                    <option>Plumbing</option>
+                    <option>Electrical</option>
+                    <option>Real Estate</option>
+                    <option>Professional Services</option>
+                    <option>Other</option>
+                  </select>
+                </div>
+                <div>
+                  <label for="primaryGoal">Primary goal</label>
+                  <select id="primaryGoal" name="primaryGoal">
+                    <option value="">Select</option>
+                    <option>Missed call recovery</option>
+                    <option>Scheduling and dispatch</option>
+                    <option>Lead qualification</option>
+                    <option>Follow-up automation</option>
+                    <option>Operations reporting</option>
+                    <option>General implementation planning</option>
+                  </select>
+                </div>
+                <div class="full">
+                  <label for="notes">What should we know before the appointment?</label>
+                  <textarea id="notes" name="notes" maxlength="2000" placeholder="Current workflow, key friction, software already in use, or the one outcome that matters most."></textarea>
+                </div>
+              </div>
+
+              <div style="position:absolute;left:-9999px;opacity:0;pointer-events:none;" aria-hidden="true">
+                <label for="websiteLeaveBlank">Leave this field empty</label>
+                <input id="websiteLeaveBlank" name="websiteLeaveBlank" tabindex="-1" autocomplete="off">
+              </div>
+
+              <label class="policy-check" for="policyAccepted">
+                <input id="policyAccepted" name="policyAccepted" type="checkbox">
+                <p>I understand this is a $200 non-refundable reservation deposit. If I become a customer, the deposit is credited once toward service.</p>
+              </label>
+
+              <button id="booking-submit" class="btn btn-primary" type="submit">Reserve with $200 deposit</button>
+              <p class="fine-print">Stripe checkout opens after this form is validated. The slot is not confirmed until payment succeeds and the webhook finalizes the record.</p>
+            </form>
+          </section>
+        </div>
+
+        <aside class="summary-card reveal" aria-label="Reservation summary">
+          <section class="summary-tile">
+            <span class="summary-label">Reservation deposit</span>
+            <div id="reservation-amount" class="summary-amount">$200.00</div>
+            <p>Held as a one-time reservation deposit and credited once toward service if you become a customer.</p>
+          </section>
+          <section class="summary-tile">
+            <span class="summary-label">Selected appointment</span>
+            <div id="selected-slot-label" class="summary-slot">Choose a time window</div>
+            <p id="selected-slot-meta">A slot remains temporary until Stripe payment succeeds.</p>
+          </section>
+          <section class="summary-tile">
+            <span class="summary-label">What gets recorded</span>
+            <ul>
+              <li>Booking status, payment status, hold expiration, and confirmation timestamp.</li>
+              <li>Prospect contact details and Stripe customer linkage.</li>
+              <li>Deposit credit availability so the $200 can only be applied once later.</li>
+            </ul>
+          </section>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <section>
+          <h3>AIssisted Consulting</h3>
+          <p>Founder-led AI workflow implementation for owners who want direct answers and controlled deployment.</p>
+          <p><a href="mailto:pj@aissistedconsulting.com">pj@aissistedconsulting.com</a><br><a href="tel:+13528173567">(352) 817-3567</a></p>
+        </section>
+        <section>
+          <h4>Related pages</h4>
+          <div class="footer-links">
+            <a href="../services.html">Services</a>
+            <a href="../pricing.html">Pricing</a>
+            <a href="../contact.html">Contact</a>
+            <a href="../about.html">About</a>
+          </div>
+        </section>
+        <section>
+          <h4>Need a manual handoff?</h4>
+          <div class="footer-links">
+            <a href="../contact.html">Start with contact</a>
+            <a href="tel:+13528173567">Call directly</a>
+            <a href="mailto:pj@aissistedconsulting.com">Email PJ</a>
+          </div>
+        </section>
+      </div>
+      <div class="footer-bottom">Copyright <span data-year></span> AIssisted Consulting. All rights reserved.</div>
+    </div>
+  </footer>
+
+  <script src="../main.js" defer></script>
+  <script src="./booking.js" defer></script>
+</body>
+</html>
