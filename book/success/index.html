@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Booking Confirmation | AIssisted Consulting</title>
+  <meta name="description" content="Check the status of your AIssisted Consulting appointment reservation after Stripe checkout.">
+  <link rel="canonical" href="https://aissistedconsulting.com/book/success">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../styles.css">
+  <link rel="stylesheet" href="../booking.css">
+</head>
+<body data-page="book">
+  <header class="site-header">
+    <div class="container nav-wrap">
+      <a class="brand" href="../../index.html" aria-label="AIssisted Consulting home">
+        <span class="brand-text">AI Guy</span>
+      </a>
+      <button class="menu-toggle" data-menu-toggle aria-label="Open navigation">Menu</button>
+      <nav class="nav-links" data-nav-links>
+        <a href="../../index.html" data-nav="home">Home</a>
+        <a href="../../services.html" data-nav="services">Services</a>
+        <a href="../../pricing.html" data-nav="pricing">Pricing</a>
+        <a href="../index.html" data-nav="book">Book</a>
+        <a href="../../contact.html" data-nav="contact">Contact</a>
+      </nav>
+      <div class="cta-group">
+        <a class="btn btn-secondary" href="tel:+13528173567">Call 352-817-3567</a>
+        <a class="btn btn-primary" href="../../contact.html">Need help?</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="state-page">
+    <div class="state-wrap">
+      <section id="booking-state" class="state-card">
+        <span id="state-pill" class="state-pill">Processing</span>
+        <h1 id="state-heading">We are checking your reservation.</h1>
+        <p id="state-description">This page watches for the final booking confirmation after Stripe checkout returns.</p>
+        <div id="state-meta" class="state-meta"></div>
+        <div class="state-actions">
+          <a class="btn btn-primary" href="../index.html">Back to booking</a>
+          <a class="btn btn-secondary" href="../../contact.html">Contact AIssisted</a>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script src="../../main.js" defer></script>
+  <script src="../status.js" defer></script>
+</body>
+</html>

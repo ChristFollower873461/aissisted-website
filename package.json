@@ -1,0 +1,8 @@
+{
+  "name": "aissisted-website",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler pages dev .",
+    "test:booking": "node --test tests/booking-hardening.test.mjs"
+  }
+}
