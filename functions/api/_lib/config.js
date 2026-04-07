@@ -7,37 +7,37 @@ const DEFAULT_WEEKLY_AVAILABILITY = [
   {
     day: "MONDAY",
     windows: [
-      { start: "10:00", end: "11:00" },
-      { start: "13:00", end: "14:00" },
-      { start: "15:30", end: "16:30" }
+      { start: "09:40", end: "10:25" },
+      { start: "12:50", end: "13:40" },
+      { start: "15:10", end: "16:05" }
     ]
   },
   {
     day: "TUESDAY",
     windows: [
-      { start: "10:00", end: "11:00" },
-      { start: "13:00", end: "14:00" },
-      { start: "15:30", end: "16:30" }
+      { start: "10:15", end: "11:05" },
+      { start: "13:20", end: "14:10" },
+      { start: "16:00", end: "16:45" }
     ]
   },
   {
     day: "WEDNESDAY",
     windows: [
-      { start: "10:00", end: "11:00" },
-      { start: "13:00", end: "14:00" }
+      { start: "09:55", end: "10:40" },
+      { start: "14:10", end: "15:00" }
     ]
   },
   {
     day: "THURSDAY",
     windows: [
-      { start: "10:00", end: "11:00" },
-      { start: "13:00", end: "14:00" },
-      { start: "15:30", end: "16:30" }
+      { start: "10:35", end: "11:20" },
+      { start: "13:05", end: "13:55" },
+      { start: "15:45", end: "16:35" }
     ]
   },
   {
     day: "FRIDAY",
-    windows: [{ start: "10:00", end: "11:00" }]
+    windows: [{ start: "10:20", end: "11:05" }]
   }
 ];
 
@@ -90,6 +90,7 @@ export function getBookingConfig(env, origin) {
       STRIPE_MINIMUM_SESSION_MINUTES,
       STRIPE_MAXIMUM_SESSION_MINUTES
     ),
+    minimumLeadHours: parsePositiveInteger(env.BOOKING_MINIMUM_LEAD_HOURS, 48),
     lookaheadDays: parsePositiveInteger(env.BOOKING_LOOKAHEAD_DAYS, 21),
     weeklyAvailability: parseWeeklyAvailability(env.BOOKING_WEEKLY_AVAILABILITY_JSON),
     policyVersion: env.BOOKING_POLICY_VERSION || "2026-04-06",

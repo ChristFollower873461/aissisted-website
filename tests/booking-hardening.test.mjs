@@ -34,6 +34,33 @@ test("booking config clamps hold minutes to Stripe-safe minimum", () => {
   );
 
   assert.equal(config.holdMinutes, 30);
+  assert.equal(config.minimumLeadHours, 48);
+});
+
+test("availability excludes slots inside the 48-hour minimum lead time", async () => {
+  resetMemoryStore();
+  const originalDateNow = Date.now;
+  Date.now = () => new Date("2026-04-06T12:00:00.000Z").getTime();
+
+  try {
+    const slots = await listAvailableSlots({
+      env: {},
+      origin: "https://aissistedconsulting.com",
+      store: getBookingStore({}),
+      days: 7
+    });
+
+    assert.ok(slots.length > 0);
+    assert.ok(
+      slots.every(
+        (slot) =>
+          new Date(slot.startsAt).getTime() >=
+          new Date("2026-04-08T12:00:00.000Z").getTime()
+      )
+    );
+  } finally {
+    Date.now = originalDateNow;
+  }
 });
 
 test("availability falls back to weekly template when Google Calendar lookup fails", async () => {

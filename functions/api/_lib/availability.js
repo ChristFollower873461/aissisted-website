@@ -119,8 +119,11 @@ export async function listAvailableSlots({ env, origin, store, days }) {
     }
   }
 
+  const minimumLeadTimeMs = config.minimumLeadHours * 60 * 60 * 1000;
+  const earliestAllowedStartMs = now.getTime() + minimumLeadTimeMs;
+
   return candidates
-    .filter((slot) => new Date(slot.startsAt).getTime() > now.getTime())
+    .filter((slot) => new Date(slot.startsAt).getTime() >= earliestAllowedStartMs)
     .filter((slot) => !isBlocked(slot, reservations, busyIntervals))
     .map((slot) => ({
       ...slot,
