@@ -38,6 +38,16 @@ const DEFAULT_WEEKLY_AVAILABILITY = [
   {
     day: "FRIDAY",
     windows: [{ start: "10:20", end: "11:05" }]
+  },
+  {
+    day: "SATURDAY",
+    windows: [
+      { start: "09:15", end: "10:00" },
+      { start: "10:35", end: "11:20" },
+      { start: "12:10", end: "12:55" },
+      { start: "13:40", end: "14:25" },
+      { start: "15:15", end: "16:00" }
+    ]
   }
 ];
 
