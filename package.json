@@ -3,6 +3,8 @@
   "private": true,
   "scripts": {
     "dev": "wrangler pages dev .",
-    "test:booking": "node --test tests/booking-hardening.test.mjs"
+    "test:booking": "node --test tests/booking-hardening.test.mjs",
+    "test:mcp": "node --test tests/mcp.test.mjs",
+    "test": "node --test tests/*.test.mjs"
   }
 }

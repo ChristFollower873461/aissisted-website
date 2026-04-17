@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MCP Server | AIssisted Consulting</title>
+  <meta name="description" content="How AI agents connect to AIssisted Consulting via the Model Context Protocol (MCP). Discover services, check availability, and initiate bookings on behalf of your human.">
+  <link rel="canonical" href="https://aissistedconsulting.com/docs/mcp">
+  <meta property="og:title" content="AIssisted Consulting MCP Server">
+  <meta property="og:description" content="Public MCP endpoint so AI agents can book AIssisted Consulting on behalf of their humans.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://aissistedconsulting.com/docs/mcp">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles.css">
+  <style>
+    .mcp-body pre { background:#0f172a;color:#e2e8f0;padding:1rem 1.2rem;border-radius:10px;overflow-x:auto;font-size:0.92rem;line-height:1.5; }
+    .mcp-body code { background:#eef2ff;padding:0.1rem 0.35rem;border-radius:4px;font-size:0.92em; }
+    .mcp-body pre code { background:transparent;padding:0;color:inherit; }
+    .mcp-body h2 { margin-top:2.5rem; }
+    .mcp-body h3 { margin-top:1.8rem; }
+    .mcp-body table { width:100%;border-collapse:collapse;margin:1.2rem 0; }
+    .mcp-body th, .mcp-body td { text-align:left;padding:0.55rem 0.75rem;border-bottom:1px solid #e2e8f0;vertical-align:top; }
+    .mcp-body th { background:#f1f5f9; }
+  </style>
+</head>
+<body data-page="docs-mcp">
+  <header class="site-header">
+    <div class="container nav-wrap">
+      <a class="brand" href="../index.html" aria-label="AIssisted Consulting home">
+        <span class="brand-text">AI Guy</span>
+      </a>
+      <button class="menu-toggle" data-menu-toggle aria-label="Open navigation">Menu</button>
+      <nav class="nav-links" data-nav-links>
+        <a href="../index.html">Home</a>
+        <a href="../services.html">Services</a>
+        <a href="../industries/index.html">Industries</a>
+        <a href="../pricing.html">Pricing</a>
+        <a href="../about.html">About</a>
+        <a href="../contact.html">Contact</a>
+      </nav>
+      <div class="cta-group">
+        <a class="btn btn-secondary" href="tel:+13528173567">Call 352-817-3567</a>
+        <a class="btn btn-primary" href="../contact.html">Book Discovery Call</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="page-hero">
+      <div class="container">
+        <p class="eyebrow">Agent access</p>
+        <h1>AIssisted Consulting MCP Server</h1>
+        <p class="lede">Your AI agent can discover our services, check availability, and book a discovery consult on your behalf — no browser handoff required.</p>
+      </div>
+    </section>
+
+    <section class="container mcp-body">
+      <h2>What this is</h2>
+      <p>AIssisted Consulting exposes a public <a href="https://modelcontextprotocol.io" rel="noopener">Model Context Protocol</a> (MCP) endpoint. MCP-aware agents (Claude, ChatGPT, Codex, Cursor, Gemini CLI, and others) can connect to it without an API key and use a small set of tools to learn about our services, check open appointment slots, and start a booking.</p>
+      <p>Write operations stay human-in-the-loop. Free discovery consults are confirmed instantly. Paid services return a Stripe Checkout URL that the human must open and pay.</p>
+
+      <h2>Discovery manifest</h2>
+      <p>Auto-discovery endpoint:</p>
+      <pre><code>https://aissistedconsulting.com/.well-known/mcp.json</code></pre>
+
+      <h2>JSON-RPC endpoint</h2>
+      <pre><code>POST https://aissistedconsulting.com/mcp
+Content-Type: application/json</code></pre>
+
+      <h3>Claude Desktop / Code</h3>
+      <p>Add an entry to <code>~/Library/Application Support/Claude/claude_desktop_config.json</code> (macOS) or the equivalent on your platform:</p>
+      <pre><code>{
+  "mcpServers": {
+    "aissisted": {
+      "transport": "http",
+      "url": "https://aissistedconsulting.com/mcp"
+    }
+  }
+}</code></pre>
+
+      <h3>Raw JSON-RPC example</h3>
+      <pre><code>curl -sS https://aissistedconsulting.com/mcp \
+  -H 'content-type: application/json' \
+  -d '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "tools/call",
+    "params": {
+      "name": "list_services",
+      "arguments": {}
+    }
+  }'</code></pre>
+
+      <h2>Tools</h2>
+      <table>
+        <thead>
+          <tr><th>Tool</th><th>Purpose</th><th>Human approval?</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>list_services</code></td><td>Return the service catalog, pricing, and which services can be booked directly by an agent.</td><td>No</td></tr>
+          <tr><td><code>get_business_info</code></td><td>Return structured facts about AIssisted Consulting (location, contact, founder).</td><td>No</td></tr>
+          <tr><td><code>get_quote</code></td><td>Price a specific service including Florida sales tax.</td><td>No</td></tr>
+          <tr><td><code>check_availability</code></td><td>List open 30-minute slots between two dates.</td><td>No</td></tr>
+          <tr><td><code>start_booking</code></td><td>Hold a slot. Free consults confirm instantly; paid services return a Stripe Checkout URL.</td><td>Yes for paid services</td></tr>
+          <tr><td><code>get_booking_status</code></td><td>Check a booking's current status by id.</td><td>No</td></tr>
+        </tbody>
+      </table>
+
+      <h2>Typical flow for an agent</h2>
+      <ol>
+        <li>Call <code>list_services</code> to find which services have <code>bookable_via_mcp: true</code>.</li>
+        <li>Call <code>check_availability</code> with a date range and a bookable <code>service_id</code>.</li>
+        <li>Ask the human to pick a slot and confirm they want to book.</li>
+        <li>Call <code>start_booking</code> with the slot id and the human's contact info.</li>
+        <li>For free discovery consults the response returns <code>status: "confirmed"</code>. For paid services the response includes a <code>checkout_url</code> for the human to open.</li>
+        <li>Optionally poll <code>get_booking_status</code> until confirmed.</li>
+      </ol>
+
+      <h2>Rate limits</h2>
+      <ul>
+        <li>Read-only tools: 20 requests/minute, 300 requests/hour per IP</li>
+        <li><code>start_booking</code>: 5 requests/minute, 20 requests/hour per IP</li>
+        <li>Free discovery consult: 1 per email per 24h, 3 per IP per 24h</li>
+      </ul>
+      <p>Exceeding a limit returns JSON-RPC error code <code>-32000</code> with a <code>retry_after_seconds</code> hint.</p>
+
+      <h2>Errors</h2>
+      <table>
+        <thead><tr><th>Code</th><th>Meaning</th></tr></thead>
+        <tbody>
+          <tr><td><code>-32700</code></td><td>Parse error (body wasn't valid JSON).</td></tr>
+          <tr><td><code>-32600</code></td><td>Invalid JSON-RPC request shape.</td></tr>
+          <tr><td><code>-32601</code></td><td>Unknown method or tool.</td></tr>
+          <tr><td><code>-32602</code></td><td>Invalid parameters.</td></tr>
+          <tr><td><code>-32603</code></td><td>Internal server error.</td></tr>
+          <tr><td><code>-32000</code></td><td>Rate limit exceeded (custom).</td></tr>
+          <tr><td><code>-32001</code></td><td>Slot no longer available (custom).</td></tr>
+          <tr><td><code>-32002</code></td><td>Stripe error (custom).</td></tr>
+        </tbody>
+      </table>
+
+      <h2>Support</h2>
+      <p>Questions or interested in a direct integration? Email <a href="mailto:pj@aissistedconsulting.com">pj@aissistedconsulting.com</a>.</p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <section>
+          <h3>AIssisted Consulting</h3>
+          <p>Founder-led AI implementation for small business operations.</p>
+          <p><a href="mailto:pj@aissistedconsulting.com">pj@aissistedconsulting.com</a><br><a href="tel:+13528173567">(352) 817-3567</a></p>
+        </section>
+        <section>
+          <h4>Trust Pages</h4>
+          <div class="footer-links">
+            <a href="../about.html">About</a>
+            <a href="../services.html">Services</a>
+            <a href="../pricing.html">Pricing</a>
+            <a href="../contact.html">Contact</a>
+          </div>
+        </section>
+        <section>
+          <h4>Industries</h4>
+          <div class="footer-links">
+            <a href="../industries/hvac.html">HVAC</a>
+            <a href="../industries/pest-control.html">Pest Control</a>
+            <a href="../industries/plumbing.html">Plumbing</a>
+            <a href="../industries/index.html">All industries</a>
+          </div>
+        </section>
+      </div>
+      <div class="footer-bottom">Copyright <span data-year></span> AIssisted Consulting.</div>
+    </div>
+  </footer>
+
+  <script src="../main.js" defer></script>
+</body>
+</html>
