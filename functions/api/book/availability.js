@@ -2,7 +2,7 @@ import { getBookingConfig } from "../_lib/config.js";
 import { json, methodNotAllowed, serverError } from "../_lib/http.js";
 import { formatCurrency } from "../_lib/time.js";
 import { getBookingStore } from "../_lib/storage.js";
-import { listAvailableSlots } from "../_lib/availability.js";
+import { listSlotsWithStatus } from "../_lib/availability.js";
 
 export async function onRequest(context) {
   if (context.request.method !== "GET") {
@@ -17,7 +17,7 @@ export async function onRequest(context) {
 
     await store.cleanupExpiredHolds();
 
-    const slots = await listAvailableSlots({
+    const slots = await listSlotsWithStatus({
       env: context.env,
       origin: url.origin,
       store,

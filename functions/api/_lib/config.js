@@ -1,31 +1,24 @@
 export const RESERVATION_POLICY_TEXT =
-  "This payment reserves your appointment window. If you move forward as a customer, the $200 will be credited toward your service. If you do not move forward, the reservation payment is non-refundable.";
+  "This payment reserves your 60-minute appointment window. If you move forward as a customer, the $225 will be credited toward your service. If you do not move forward, the reservation payment is non-refundable.";
 export const STRIPE_MINIMUM_SESSION_MINUTES = 30;
 export const STRIPE_MAXIMUM_SESSION_MINUTES = 24 * 60;
 
-// Weekly availability template. Slots are 30 minutes back-to-back.
-// Weekday evenings: two slots each (4:30pm and 5:15pm).
-// Thursday + Saturday: 10:00am through 7:00pm, straight through.
+// Weekly availability template. Slots are 60 minutes long ($225 / hour).
+// Weekday evenings (Mon/Tue/Wed/Fri): one slot at 4:30pm–5:30pm.
+// Thursday + Saturday: 10:00am through 7:00pm, back-to-back 60-min slots.
 // Sunday is closed.
 const WEEKDAY_EVENING_WINDOWS = [
-  { start: "16:30", end: "17:00" },
-  { start: "17:15", end: "17:45" }
+  { start: "16:30", end: "17:30" }
 ];
 
 const LONG_DAY_WINDOWS = (() => {
   const windows = [];
-  // 10:00am through 6:30pm in 30-min increments, last slot ends at 7:00pm.
-  for (let hour = 10; hour < 19; hour += 1) {
+  // 10am through 6pm start times, each a 60-min slot; last slot 6:00–7:00pm.
+  for (let hour = 10; hour <= 18; hour += 1) {
     const hh = String(hour).padStart(2, "0");
     const next = String(hour + 1).padStart(2, "0");
-    windows.push({ start: `${hh}:00`, end: `${hh}:30` });
-    if (hour < 18) {
-      // For the last hour (18:00), we still want the :00 slot (ends 18:30) and
-      // one final slot 18:30–19:00, which the `if` block below handles.
-      windows.push({ start: `${hh}:30`, end: `${next}:00` });
-    }
+    windows.push({ start: `${hh}:00`, end: `${next}:00` });
   }
-  windows.push({ start: "18:30", end: "19:00" });
   return windows;
 })();
 
@@ -79,7 +72,7 @@ export function getBookingConfig(env, origin) {
   return {
     businessTitle: env.BOOKING_BUSINESS_TITLE || "AIssisted Consulting",
     siteOrigin: normalizeOrigin(env.PUBLIC_SITE_ORIGIN, origin),
-    reservationAmountCents: parsePositiveInteger(env.BOOKING_RESERVATION_AMOUNT_CENTS, 20000),
+    reservationAmountCents: parsePositiveInteger(env.BOOKING_RESERVATION_AMOUNT_CENTS, 22500),
     currency: String(env.BOOKING_CURRENCY || "usd").toLowerCase(),
     timezone: env.BOOKING_TIMEZONE || "America/New_York",
     holdMinutes: clamp(

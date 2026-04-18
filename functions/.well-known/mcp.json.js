@@ -5,7 +5,7 @@ const MANIFEST = {
   name: "aissisted-consulting",
   version: "1.0.0",
   description:
-    "AI consulting in Ocala, Florida. AI agents can discover services, check availability, and book a paid 30-minute consult with PJ Standley on behalf of their human. Free conversations and hardware purchases are handled through the website and direct contact, not through MCP.",
+    "AI consulting in Ocala, Florida. AI agents can discover services, check availability, and book a paid 60-minute consult ($225) with PJ Standley on behalf of their human. Free conversations and hardware purchases are handled through the website and direct contact, not through MCP.",
   provider: {
     name: "AIssisted Consulting",
     url: "https://aissistedconsulting.com",

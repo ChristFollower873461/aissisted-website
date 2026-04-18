@@ -9,21 +9,23 @@ import {
 } from "./time.js";
 import { getGoogleCalendarBusyIntervals } from "./google-calendar.js";
 
-// Recurring weekly slots that are always shown as unavailable (never listed).
-// Keeps the public availability page from looking empty on long open days
+// Recurring weekly slots that are always rendered as unavailable. They are
+// still *visible* to the booking page so the grid looks populated; the
+// availability API tags them with `status: "booked"` so the UI greys them
+// out with a "Booked" label. This keeps long open days from looking empty
 // without exposing any real calendar data. Times are in America/New_York.
-const PERMANENTLY_HIDDEN_SLOTS = {
-  THURSDAY: ["11:00", "14:00", "17:30"],
-  SATURDAY: ["10:30", "13:00", "16:00"]
+const PERMANENTLY_BOOKED_SLOTS = {
+  THURSDAY: ["12:00", "15:00", "17:00"],
+  SATURDAY: ["11:00", "14:00", "16:00"]
 };
 
-function isHiddenSlot(weekday, startHour, startMinute) {
-  const hidden = PERMANENTLY_HIDDEN_SLOTS[weekday];
-  if (!hidden || !hidden.length) {
+function isPermanentlyBookedSlot(weekday, startHour, startMinute) {
+  const booked = PERMANENTLY_BOOKED_SLOTS[weekday];
+  if (!booked || !booked.length) {
     return false;
   }
   const key = `${String(startHour).padStart(2, "0")}:${String(startMinute).padStart(2, "0")}`;
-  return hidden.includes(key);
+  return booked.includes(key);
 }
 
 function parseTimeRange(windowConfig) {
@@ -61,9 +63,11 @@ function buildCandidateSlots(config, days) {
           return null;
         }
 
-        if (isHiddenSlot(day.weekday, range.startHour, range.startMinute)) {
-          return null;
-        }
+        const displayAsBooked = isPermanentlyBookedSlot(
+          day.weekday,
+          range.startHour,
+          range.startMinute
+        );
 
         const start = zonedTimeToUtc({
           year: day.year,
@@ -89,7 +93,8 @@ function buildCandidateSlots(config, days) {
           startsAt: startIso,
           endsAt: endIso,
           timezone: config.timezone,
-          label: formatSlotLabel(startIso, endIso, config.timezone)
+          label: formatSlotLabel(startIso, endIso, config.timezone),
+          displayAsBooked
         };
       })
       .filter(Boolean);
@@ -146,8 +151,68 @@ export async function listAvailableSlots({ env, origin, store, days }) {
   return candidates
     .filter((slot) => new Date(slot.startsAt).getTime() >= earliestAllowedStartMs)
     .filter((slot) => !isBlocked(slot, reservations, busyIntervals))
-    .map((slot) => ({
+    .filter((slot) => !slot.displayAsBooked)
+    .map(({ displayAsBooked: _dropped, ...slot }) => ({
       ...slot,
       availabilitySource
     }));
+}
+
+// Like `listAvailableSlots`, but also returns slots tagged as
+// `status: "booked"` for display-only purposes. Intended for the public
+// booking page UI that greys out specific slots. MCP and the checkout
+// path should continue using `listAvailableSlots`.
+export async function listSlotsWithStatus({ env, origin, store, days }) {
+  const config = getBookingConfig(env, origin);
+  const lookaheadDays = Math.min(Math.max(days || config.lookaheadDays, 1), config.lookaheadDays);
+  const daySequence = getLocalDateSequence({
+    days: lookaheadDays,
+    timeZone: config.timezone
+  });
+  const candidates = buildCandidateSlots(config, daySequence);
+
+  if (!candidates.length) {
+    return [];
+  }
+
+  const now = new Date();
+  const rangeStart = candidates[0].startsAt;
+  const rangeEnd = candidates[candidates.length - 1].endsAt;
+  const reservations = await store.listActiveSlotReservations({
+    startIso: rangeStart,
+    endIso: rangeEnd,
+    nowTimeIso: now.toISOString()
+  });
+
+  let busyIntervals = [];
+  let availabilitySource = "business-hours";
+  if (isGoogleCalendarConfigured(config)) {
+    availabilitySource = "google-calendar";
+    try {
+      busyIntervals = await getGoogleCalendarBusyIntervals({
+        config,
+        startIso: rangeStart,
+        endIso: rangeEnd
+      });
+    } catch (error) {
+      availabilitySource = "business-hours-fallback";
+      console.error(
+        "[booking-availability] Google Calendar lookup failed. Falling back to weekly template.",
+        error
+      );
+    }
+  }
+
+  const minimumLeadTimeMs = config.minimumLeadHours * 60 * 60 * 1000;
+  const earliestAllowedStartMs = now.getTime() + minimumLeadTimeMs;
+
+  return candidates
+    .filter((slot) => new Date(slot.startsAt).getTime() >= earliestAllowedStartMs)
+    .map((slot) => {
+      const { displayAsBooked, ...rest } = slot;
+      if (displayAsBooked || isBlocked(slot, reservations, busyIntervals)) {
+        return { ...rest, status: "booked", availabilitySource };
+      }
+      return { ...rest, status: "available", availabilitySource };
+    });
 }

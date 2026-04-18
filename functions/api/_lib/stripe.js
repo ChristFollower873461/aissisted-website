@@ -84,11 +84,11 @@ export async function createCheckoutSession(config, booking, prospect) {
     body.set("line_items[0][price_data][currency]", booking.currency);
     body.set(
       "line_items[0][price_data][product_data][name]",
-      "Appointment reservation deposit"
+      "60-minute founder-led consult reservation"
     );
     body.set(
       "line_items[0][price_data][product_data][description]",
-      "Non-refundable $200 reservation deposit credited once toward service if you become a customer."
+      "Non-refundable $225 reservation deposit for a 60-minute session with PJ Standley, credited once toward service if you become a customer."
     );
     body.set(
       "line_items[0][price_data][unit_amount]",

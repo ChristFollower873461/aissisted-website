@@ -52,14 +52,14 @@
       <div class="container">
         <p class="eyebrow">Agent access</p>
         <h1>AIssisted Consulting MCP Server</h1>
-        <p class="lede">Your AI agent can discover our services, check availability, and book a paid 30-minute consult with PJ Standley ($105) on your behalf. Free conversations and hardware purchases are handled directly, not through MCP.</p>
+        <p class="lede">Your AI agent can discover our services, check availability, and book a paid 60-minute consult with PJ Standley ($225) on your behalf. Free conversations and hardware purchases are handled directly, not through MCP.</p>
       </div>
     </section>
 
     <section class="container mcp-body">
       <h2>What this is</h2>
       <p>AIssisted Consulting exposes a public <a href="https://modelcontextprotocol.io" rel="noopener">Model Context Protocol</a> (MCP) endpoint. MCP-aware agents (Claude, ChatGPT, Codex, Cursor, Gemini CLI, and others) can connect to it without an API key and use a small set of tools to learn about our services, check open appointment slots, and start a paid booking.</p>
-      <p>Only one service is bookable directly through MCP: the paid 30-minute consult with PJ Standley ($105). Every booking returns a Stripe Checkout URL that the human must open and pay — no agent ever completes payment on its own. Free conversations exist but are scheduled through the website contact form, and hardware is sold through a direct conversation with PJ, not through agents.</p>
+      <p>Only one service is bookable directly through MCP: the paid 60-minute consult with PJ Standley ($225). Every booking returns a Stripe Checkout URL that the human must open and pay — no agent ever completes payment on its own. Free conversations exist but are scheduled through the website contact form, and hardware is sold through a direct conversation with PJ, not through agents.</p>
 
       <h2>Discovery manifest</h2>
       <p>Auto-discovery endpoint:</p>
@@ -102,7 +102,7 @@ Content-Type: application/json</code></pre>
           <tr><td><code>list_services</code></td><td>Return the service catalog, pricing, and which services can be booked directly by an agent.</td><td>No</td></tr>
           <tr><td><code>get_business_info</code></td><td>Return structured facts about AIssisted Consulting (location, contact, founder).</td><td>No</td></tr>
           <tr><td><code>get_quote</code></td><td>Price a specific service including Florida sales tax.</td><td>No</td></tr>
-          <tr><td><code>check_availability</code></td><td>List open 30-minute slots between two dates for the paid consult.</td><td>No</td></tr>
+          <tr><td><code>check_availability</code></td><td>List open 60-minute slots between two dates for the paid consult.</td><td>No</td></tr>
           <tr><td><code>start_booking</code></td><td>Hold a slot for the paid consult and return a Stripe Checkout URL for the human to complete.</td><td>Yes — human completes payment</td></tr>
           <tr><td><code>get_booking_status</code></td><td>Check a booking's current status by id.</td><td>No</td></tr>
         </tbody>
@@ -112,9 +112,9 @@ Content-Type: application/json</code></pre>
       <ol>
         <li>Call <code>list_services</code> to see what AIssisted offers. Only <code>paid-consult</code> has <code>bookable_via_mcp: true</code>.</li>
         <li>Call <code>check_availability</code> with a date range and <code>service_id: "paid-consult"</code>.</li>
-        <li>Ask the human to pick a slot and confirm they want to pay $105 for a 30-minute consult.</li>
+        <li>Ask the human to pick a slot and confirm they want to pay $225 for a 60-minute consult.</li>
         <li>Call <code>start_booking</code> with the slot id and the human's contact info.</li>
-        <li>The response includes a <code>checkout_url</code>. Hand it to the human and tell them to pay within 30 minutes.</li>
+        <li>The response includes a <code>checkout_url</code>. Hand it to the human and tell them to pay within 60 minutes.</li>
         <li>Optionally poll <code>get_booking_status</code> until confirmed.</li>
       </ol>
       <p>If the human wants a free intro conversation, tell them it is available through the website at <a href="../contact.html">aissistedconsulting.com/contact</a>. If they want hardware or monthly service, point them to the same page to start a direct conversation. Neither is bookable through MCP.</p>

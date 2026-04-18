@@ -198,6 +198,42 @@
   box-shadow: 0 10px 26px rgba(5, 8, 18, 0.28);
 }
 
+.slot-option.is-booked {
+  cursor: not-allowed;
+  opacity: 0.55;
+  background: repeating-linear-gradient(
+    135deg,
+    rgba(11, 17, 32, 0.72) 0 10px,
+    rgba(11, 17, 32, 0.5) 10px 20px
+  );
+  border-color: rgba(138, 139, 221, 0.12);
+  color: rgba(243, 239, 255, 0.7);
+}
+
+.slot-option.is-booked:hover,
+.slot-option.is-booked:focus-visible {
+  transform: none;
+  border-color: rgba(138, 139, 221, 0.12);
+}
+
+.slot-option.is-booked strong {
+  text-decoration: line-through;
+  text-decoration-color: rgba(243, 239, 255, 0.4);
+}
+
+.slot-option.is-booked .slot-badge {
+  display: inline-block;
+  margin-top: 2px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(196, 69, 106, 0.18);
+  color: rgba(255, 210, 220, 0.92);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
 .slot-option strong,
 .slot-option span {
   display: block;
