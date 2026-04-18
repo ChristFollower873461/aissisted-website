@@ -9,6 +9,23 @@ import {
 } from "./time.js";
 import { getGoogleCalendarBusyIntervals } from "./google-calendar.js";
 
+// Recurring weekly slots that are always shown as unavailable (never listed).
+// Keeps the public availability page from looking empty on long open days
+// without exposing any real calendar data. Times are in America/New_York.
+const PERMANENTLY_HIDDEN_SLOTS = {
+  THURSDAY: ["11:00", "14:00", "17:30"],
+  SATURDAY: ["10:30", "13:00", "16:00"]
+};
+
+function isHiddenSlot(weekday, startHour, startMinute) {
+  const hidden = PERMANENTLY_HIDDEN_SLOTS[weekday];
+  if (!hidden || !hidden.length) {
+    return false;
+  }
+  const key = `${String(startHour).padStart(2, "0")}:${String(startMinute).padStart(2, "0")}`;
+  return hidden.includes(key);
+}
+
 function parseTimeRange(windowConfig) {
   const start = String(windowConfig?.start || "").split(":").map(Number);
   const end = String(windowConfig?.end || "").split(":").map(Number);
@@ -41,6 +58,10 @@ function buildCandidateSlots(config, days) {
       .map((windowConfig) => {
         const range = parseTimeRange(windowConfig);
         if (!range) {
+          return null;
+        }
+
+        if (isHiddenSlot(day.weekday, range.startHour, range.startMinute)) {
           return null;
         }
 
