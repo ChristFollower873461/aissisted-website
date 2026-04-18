@@ -10,7 +10,10 @@ pages_build_output_dir = "."
 # separately from [vars] and survive deploys.
 #
 # Current Pages secrets (do not duplicate here):
-#   - STRIPE_SECRET_KEY  (set 2026-04-18, source ~/.openclaw/secrets/stripe.env)
+#   - STRIPE_SECRET_KEY        (set 2026-04-18, source ~/.openclaw/secrets/stripe.env)
+#   - STRIPE_WEBHOOK_SECRET    (set 2026-04-18, source ~/.openclaw/secrets/stripe.env
+#                               webhook endpoint: we_1TNWTsP3Zy09i3ccDXp1XSKD
+#                               url: https://aissistedconsulting.com/api/book/webhook)
 #
 # Non-secret config that IS safe to live here:
 [vars]
