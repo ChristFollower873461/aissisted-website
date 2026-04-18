@@ -4,16 +4,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Book a Paid AI Workflow Appointment | AIssisted Consulting</title>
-  <meta name="description" content="Reserve an AIssisted Consulting appointment window with a $200 reservation deposit, choose an available time, and complete Stripe checkout.">
+  <meta name="description" content="Reserve a 60-minute AIssisted Consulting appointment with a $225 deposit, choose an available hour, and complete Stripe checkout.">
   <link rel="canonical" href="https://aissistedconsulting.com/book">
   <meta property="og:title" content="Book a Paid AI Workflow Appointment | AIssisted Consulting">
-  <meta property="og:description" content="Choose an appointment window, submit your intake, and reserve it with a $200 deposit credited toward service if you become a customer.">
+  <meta property="og:description" content="Choose an appointment window, submit your intake, and reserve it with a $225 deposit credited toward service if you become a customer.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://aissistedconsulting.com/book">
   <meta property="og:image" content="https://aissistedconsulting.com/assets/og-image.jpg">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Book a Paid AI Workflow Appointment | AIssisted Consulting">
-  <meta name="twitter:description" content="Reserve your appointment window online with a $200 deposit and founder-led intake.">
+  <meta name="twitter:description" content="Reserve your appointment window online with a $225 deposit and founder-led intake.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -24,7 +24,7 @@
       "@context": "https://schema.org",
       "@type": "Offer",
       "name": "AIssisted Consulting appointment reservation",
-      "price": "200.00",
+      "price": "225.00",
       "priceCurrency": "USD",
       "availability": "https://schema.org/InStock",
       "description": "Reserve an appointment window with a non-refundable deposit that is credited once toward service if you become a customer."
@@ -59,17 +59,17 @@
       <div class="container booking-hero-grid">
         <div class="booking-lead">
           <span class="booking-kicker reveal">Paid Reservation Flow</span>
-          <h1 class="reveal">Reserve a founder-led appointment window with a $200 deposit.</h1>
-          <p class="reveal">Choose an available appointment window, send the core business context we need, then complete secure payment through Stripe. The slot is only confirmed after payment succeeds and the webhook marks the booking as paid.</p>
+          <h1 class="reveal">Reserve a 60-minute founder-led consult for $225.</h1>
+          <p class="reveal">Pick an open hour, send the core business context we need, then complete secure payment through Stripe. The slot is only confirmed after payment succeeds and the webhook marks the booking as paid.</p>
           <div class="booking-points reveal">
             <div><strong>Step 1.</strong><span>Pick an open appointment window sourced from our availability layer.</span></div>
             <div><strong>Step 2.</strong><span>Share contact and business intake so the meeting starts with useful context.</span></div>
-            <div><strong>Step 3.</strong><span>Pay the $200 reservation deposit and receive confirmation.</span></div>
+            <div><strong>Step 3.</strong><span>Pay the $225 reservation deposit and receive confirmation.</span></div>
           </div>
         </div>
         <aside class="policy-card reveal">
-          <h2>Reserve Your Appointment — $200</h2>
-          <p id="policy-text">This payment reserves your appointment window. If you move forward as a customer, the $200 will be credited toward your service. If you do not move forward, the reservation payment is non-refundable.</p>
+          <h2>Reserve Your 60-Minute Consult — $225</h2>
+          <p id="policy-text">This payment reserves your 60-minute appointment window. If you move forward as a customer, the $225 will be credited toward your service. If you do not move forward, the reservation payment is non-refundable.</p>
           <ul>
             <li>The slot remains temporary until Stripe payment succeeds.</li>
             <li>Confirmed bookings receive an internal record and future one-time deposit credit entry.</li>
@@ -161,10 +161,10 @@
 
               <label class="policy-check" for="policyAccepted">
                 <input id="policyAccepted" name="policyAccepted" type="checkbox">
-                <p>I understand this is a $200 non-refundable reservation deposit. If I become a customer, the deposit is credited once toward service.</p>
+                <p>I understand this is a $225 non-refundable reservation deposit. If I become a customer, the deposit is credited once toward service.</p>
               </label>
 
-              <button id="booking-submit" class="btn btn-primary" type="submit">Reserve with $200 deposit</button>
+              <button id="booking-submit" class="btn btn-primary" type="submit">Reserve with $225 deposit</button>
               <p class="fine-print">Stripe checkout opens after this form is validated. The slot is not confirmed until payment succeeds and the webhook finalizes the record.</p>
             </form>
           </section>
@@ -173,7 +173,7 @@
         <aside class="summary-card reveal" aria-label="Reservation summary">
           <section class="summary-tile">
             <span class="summary-label">Reservation deposit</span>
-            <div id="reservation-amount" class="summary-amount">$200.00</div>
+            <div id="reservation-amount" class="summary-amount">$225.00</div>
             <p>Held as a one-time reservation deposit and credited once toward service if you become a customer.</p>
           </section>
           <section class="summary-tile">
@@ -186,7 +186,7 @@
             <ul>
               <li>Booking status, payment status, hold expiration, and confirmation timestamp.</li>
               <li>Prospect contact details and Stripe customer linkage.</li>
-              <li>Deposit credit availability so the $200 can only be applied once later.</li>
+              <li>Deposit credit availability so the $225 can only be applied once later.</li>
             </ul>
           </section>
         </aside>

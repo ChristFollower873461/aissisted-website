@@ -100,7 +100,8 @@ test("list_services marks only paid-consult as bookable_via_mcp", async () => {
 
   // Only the paid consult is bookable.
   assert.ok(byId["paid-consult"]);
-  assert.equal(byId["paid-consult"].price_usd, 105);
+  assert.equal(byId["paid-consult"].price_usd, 225);
+  assert.equal(byId["paid-consult"].duration_minutes, 60);
   assert.equal(byId["paid-consult"].bookable_via_mcp, true);
 
   const bookable = result.services.filter((s) => s.bookable_via_mcp);
@@ -124,9 +125,9 @@ test("get_quote computes 7% Florida tax and 7-day validity", async () => {
   const restore = freezeTime("2026-04-17T12:00:00.000Z");
   try {
     const quote = await getQuoteTool.handler({}, { service_id: "paid-consult" });
-    assert.equal(quote.base_price_usd, 105);
-    assert.equal(quote.tax_usd, 7.35);
-    assert.equal(quote.total_usd, 112.35);
+    assert.equal(quote.base_price_usd, 225);
+    assert.equal(quote.tax_usd, 15.75);
+    assert.equal(quote.total_usd, 240.75);
     assert.equal(quote.currency, "usd");
     const validUntilMs = Date.parse(quote.valid_until);
     const expected = Date.parse("2026-04-17T12:00:00.000Z") + 7 * 86400000;

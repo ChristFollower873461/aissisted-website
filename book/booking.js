@@ -49,7 +49,7 @@
   }
 
   function getSelectedSlot() {
-    return state.slots.find((slot) => slot.slotId === state.selectedSlotId) || null;
+    return state.slots.find((slot) => slot.slotId === state.selectedSlotId && slot.status !== "booked") || null;
   }
 
   function syncSummary() {
@@ -85,6 +85,15 @@
       .map(([heading, slots]) => {
         const options = slots
           .map((slot) => {
+            const isBooked = slot.status === "booked";
+            if (isBooked) {
+              return `
+                <button type="button" class="slot-option is-booked" data-slot-id="${slot.slotId}" disabled aria-disabled="true" title="This time is already booked">
+                  <strong>${formatSlotTime(slot)}</strong>
+                  <span class="slot-badge">Booked</span>
+                </button>
+              `;
+            }
             const selectedClass =
               slot.slotId === state.selectedSlotId ? " slot-option is-selected" : " slot-option";
             return `
@@ -105,7 +114,7 @@
       })
       .join("");
 
-    availabilityRoot.querySelectorAll("[data-slot-id]").forEach((button) => {
+    availabilityRoot.querySelectorAll("[data-slot-id]:not([disabled])").forEach((button) => {
       button.addEventListener("click", function () {
         state.selectedSlotId = button.getAttribute("data-slot-id") || "";
         renderAvailability();
