@@ -5,7 +5,7 @@ const MANIFEST = {
   name: "aissisted-consulting",
   version: "1.0.0",
   description:
-    "AI consulting, local-AI hardware deployment, and monthly service by AIssisted Consulting in Ocala, Florida. AI agents can discover services, check availability, and initiate bookings on behalf of their humans.",
+    "AI consulting in Ocala, Florida. AI agents can discover services, check availability, and book a paid 30-minute consult with PJ Standley on behalf of their human. Free conversations and hardware purchases are handled through the website and direct contact, not through MCP.",
   provider: {
     name: "AIssisted Consulting",
     url: "https://aissistedconsulting.com",
@@ -25,16 +25,13 @@ const MANIFEST = {
       "get_booking_status"
     ],
     human_approval_required: ["start_booking"],
-    approval_flow: "stripe_checkout_url_for_paid_services"
+    approval_flow: "stripe_checkout_url"
   },
   rate_limits: {
     read_tools: { requests_per_minute: 20, requests_per_hour: 300 },
-    write_tools: { requests_per_minute: 5, requests_per_hour: 20 },
-    free_booking: {
-      per_email_per_24h: 1,
-      per_ip_per_24h: 3
-    }
+    write_tools: { requests_per_minute: 5, requests_per_hour: 20 }
   },
+  bookable_services: ["paid-consult"],
   tools: [
     "list_services",
     "check_availability",

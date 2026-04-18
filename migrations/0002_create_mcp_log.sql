@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS mcp_log (
 
 CREATE INDEX IF NOT EXISTS idx_mcp_log_ts ON mcp_log(ts);
 CREATE INDEX IF NOT EXISTS idx_mcp_log_ip_method_ts ON mcp_log(ip, method, ts);
-CREATE INDEX IF NOT EXISTS idx_mcp_log_email_ts ON mcp_log(agent_name, ts);
+CREATE INDEX IF NOT EXISTS idx_mcp_log_agent_ts ON mcp_log(agent_name, ts);
 
 CREATE TABLE IF NOT EXISTS mcp_rate_counters (
   key TEXT PRIMARY KEY,
@@ -24,14 +24,3 @@ CREATE TABLE IF NOT EXISTS mcp_rate_counters (
 );
 
 CREATE INDEX IF NOT EXISTS idx_mcp_rate_counters_updated ON mcp_rate_counters(updated_at);
-
-CREATE TABLE IF NOT EXISTS mcp_free_booking_log (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  ts INTEGER NOT NULL,
-  email TEXT,
-  ip TEXT,
-  booking_id TEXT
-);
-
-CREATE INDEX IF NOT EXISTS idx_mcp_free_booking_email_ts ON mcp_free_booking_log(email, ts);
-CREATE INDEX IF NOT EXISTS idx_mcp_free_booking_ip_ts ON mcp_free_booking_log(ip, ts);

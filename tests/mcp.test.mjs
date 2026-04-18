@@ -16,7 +16,6 @@ import {
 } from "../functions/api/_lib/mcp-tools.js";
 import { onRequest as mcpEndpoint } from "../functions/mcp/index.js";
 import { onRequest as manifestEndpoint } from "../functions/.well-known/mcp.json.js";
-import { getBookingStore } from "../functions/api/_lib/storage.js";
 
 function resetMemoryStore() {
   delete globalThis.__aissistedBookingStore;
@@ -31,9 +30,8 @@ function freezeTime(isoString) {
   };
 }
 
-// Compute a date range starting ~4 days from now (clears 48-hour lead + weekend edge)
-// through ~14 days from now, using the real wall clock since the underlying
-// availability helpers call `new Date()` (not Date.now()).
+// Compute a date range ~4 days out to ~14 days out, using the real wall clock
+// (the underlying availability helpers call `new Date()` directly).
 function liveDateRange() {
   const now = new Date();
   const from = new Date(now.getTime() + 4 * 86400000);
@@ -59,7 +57,7 @@ function makeRequest(body, { method = "POST", headers = {} } = {}) {
 async function invoke(rpc) {
   const response = await mcpEndpoint({
     request: makeRequest(rpc),
-    env: {} // memory store, no rate limiting
+    env: {}
   });
   const text = await response.text();
   return { status: response.status, body: text ? JSON.parse(text) : null };
@@ -81,21 +79,36 @@ test("tool registry exposes exactly the six spec tools", () => {
   }
 });
 
-test("list_services includes the locked services with bookable flags", async () => {
+test("list_services marks only paid-consult as bookable_via_mcp", async () => {
   const result = await listServicesTool.handler({});
   const byId = Object.fromEntries(result.services.map((s) => [s.id, s]));
 
+  // Everything the business offers is visible to agents...
   assert.ok(byId["ai-hardware-setup"]);
   assert.equal(byId["ai-hardware-setup"].price_usd, 1500);
   assert.equal(byId["ai-hardware-setup"].bookable_via_mcp, false);
 
   assert.ok(byId["monthly-service"]);
   assert.equal(byId["monthly-service"].price_usd, 500);
-  assert.equal(byId["monthly-service"].price_type, "recurring_monthly");
+  assert.equal(byId["monthly-service"].bookable_via_mcp, false);
 
   assert.ok(byId["discovery-consult"]);
   assert.equal(byId["discovery-consult"].price_usd, 0);
-  assert.equal(byId["discovery-consult"].bookable_via_mcp, true);
+  // ...but the free conversation is NOT bookable by agents.
+  assert.equal(byId["discovery-consult"].bookable_via_mcp, false);
+  assert.match(byId["discovery-consult"].booking_url || "", /contact/);
+
+  // Only the paid consult is bookable.
+  assert.ok(byId["paid-consult"]);
+  assert.equal(byId["paid-consult"].price_usd, 105);
+  assert.equal(byId["paid-consult"].bookable_via_mcp, true);
+
+  const bookable = result.services.filter((s) => s.bookable_via_mcp);
+  assert.deepEqual(
+    bookable.map((s) => s.id),
+    ["paid-consult"],
+    "exactly one service is bookable via MCP"
+  );
 });
 
 test("get_business_info returns Ocala/Florida and founder credentials", async () => {
@@ -110,10 +123,10 @@ test("get_business_info returns Ocala/Florida and founder credentials", async ()
 test("get_quote computes 7% Florida tax and 7-day validity", async () => {
   const restore = freezeTime("2026-04-17T12:00:00.000Z");
   try {
-    const quote = await getQuoteTool.handler({}, { service_id: "ai-hardware-setup" });
-    assert.equal(quote.base_price_usd, 1500);
-    assert.equal(quote.tax_usd, 105);
-    assert.equal(quote.total_usd, 1605);
+    const quote = await getQuoteTool.handler({}, { service_id: "paid-consult" });
+    assert.equal(quote.base_price_usd, 105);
+    assert.equal(quote.tax_usd, 7.35);
+    assert.equal(quote.total_usd, 112.35);
     assert.equal(quote.currency, "usd");
     const validUntilMs = Date.parse(quote.valid_until);
     const expected = Date.parse("2026-04-17T12:00:00.000Z") + 7 * 86400000;
@@ -132,7 +145,22 @@ test("get_quote rejects an unknown service", async () => {
 
 // -------- check_availability --------
 
-test("check_availability requires a bookable service", async () => {
+test("check_availability rejects free discovery consult", async () => {
+  await assert.rejects(
+    () =>
+      checkAvailabilityTool.handler(
+        {},
+        {
+          date_from: "2026-04-20",
+          date_to: "2026-04-27",
+          service_id: "discovery-consult"
+        }
+      ),
+    (err) => err instanceof McpToolError && err.code === -32602
+  );
+});
+
+test("check_availability rejects hardware", async () => {
   await assert.rejects(
     () =>
       checkAvailabilityTool.handler(
@@ -147,7 +175,7 @@ test("check_availability requires a bookable service", async () => {
   );
 });
 
-test("check_availability returns slots within the requested window", async () => {
+test("check_availability returns slots within the requested window for paid-consult", async () => {
   resetMemoryStore();
   const { from, to } = liveDateRange();
   const result = await checkAvailabilityTool.handler(
@@ -155,11 +183,11 @@ test("check_availability returns slots within the requested window", async () =>
     {
       date_from: from,
       date_to: to,
-      service_id: "discovery-consult"
+      service_id: "paid-consult"
     }
   );
   assert.equal(result.timezone, "America/New_York");
-  assert.equal(result.service_id, "discovery-consult");
+  assert.equal(result.service_id, "paid-consult");
   assert.ok(result.slots.length > 0, `expected at least one slot in ${from}..${to}`);
 
   const windowStartMs = Date.parse(`${from}T00:00:00-04:00`);
@@ -173,72 +201,35 @@ test("check_availability returns slots within the requested window", async () =>
   }
 });
 
-// -------- start_booking (free path) --------
+// -------- start_booking --------
 
-async function pickFirstFreeSlot(env) {
+async function pickFirstPaidSlot(env) {
   const { from, to } = liveDateRange();
   const availability = await checkAvailabilityTool.handler(env, {
     date_from: from,
     date_to: to,
-    service_id: "discovery-consult"
+    service_id: "paid-consult"
   });
   assert.ok(availability.slots.length, `need at least one available slot in ${from}..${to}`);
   return availability.slots[0];
 }
 
-test("start_booking confirms a free discovery consult immediately", async () => {
+test("start_booking refuses discovery-consult (free) even with valid slot", async () => {
   resetMemoryStore();
   const env = {};
-  const slot = await pickFirstFreeSlot(env);
-  const result = await startBookingTool.handler(env, {
-    service_id: "discovery-consult",
-    slot_id: slot.slot_id,
-    contact: {
-      name: "Agent Human",
-      email: "agent-booking@example.com",
-      phone: "+13525551234",
-      company: "Example LLC",
-      notes: "Booked by Claude on my behalf."
-    },
-    agent_metadata: {
-      agent_name: "claude-desktop",
-      agent_version: "4.7",
-      initiated_at: "2026-04-17T17:00:00Z"
-    }
-  }, { ip: "198.51.100.42" });
-
-  assert.equal(result.status, "confirmed");
-  assert.equal(result.service_id, "discovery-consult");
-  assert.equal(result.confirmation_sent_to, "agent-booking@example.com");
-  assert.ok(result.booking_id.startsWith("book_"));
-  assert.equal(result.human_action_required, null);
-
-  // The store should also say confirmed.
-  const store = getBookingStore(env);
-  const stored = await store.getBookingById(result.booking_id);
-  assert.equal(stored.bookingStatus, "confirmed");
-});
-
-test("start_booking rejects disposable email domains for free bookings", async () => {
-  resetMemoryStore();
-  const env = {};
-  const slot = await pickFirstFreeSlot(env);
+  const slot = await pickFirstPaidSlot(env);
   await assert.rejects(
     () =>
       startBookingTool.handler(env, {
         service_id: "discovery-consult",
         slot_id: slot.slot_id,
-        contact: {
-          name: "Throwaway",
-          email: "foo@mailinator.com"
-        }
-      }, { ip: "198.51.100.99" }),
+        contact: { name: "Freeloader", email: "free@example.com" }
+      }, { ip: "198.51.100.60" }),
     (err) => err instanceof McpToolError && err.code === -32602
   );
 });
 
-test("start_booking refuses a non-bookable service", async () => {
-  resetMemoryStore();
+test("start_booking refuses ai-hardware-setup", async () => {
   await assert.rejects(
     () =>
       startBookingTool.handler({}, {
@@ -250,39 +241,69 @@ test("start_booking refuses a non-bookable service", async () => {
   );
 });
 
+test("start_booking refuses monthly-service", async () => {
+  await assert.rejects(
+    () =>
+      startBookingTool.handler({}, {
+        service_id: "monthly-service",
+        slot_id: "nonsense|slot",
+        contact: { name: "X", email: "x@example.com" }
+      }, { ip: "198.51.100.51" }),
+    (err) => err instanceof McpToolError && err.code === -32602
+  );
+});
+
+test("start_booking for paid-consult without Stripe configured returns -32603", async () => {
+  resetMemoryStore();
+  const env = {}; // no STRIPE_SECRET_KEY -> isStripeConfigured=false
+  const slot = await pickFirstPaidSlot(env);
+  await assert.rejects(
+    () =>
+      startBookingTool.handler(env, {
+        service_id: "paid-consult",
+        slot_id: slot.slot_id,
+        contact: {
+          name: "Paid Tester",
+          email: "paid-test@example.com"
+        },
+        agent_metadata: {
+          agent_name: "claude-desktop",
+          agent_version: "4.7"
+        }
+      }, { ip: "198.51.100.52" }),
+    (err) => err instanceof McpToolError && err.code === -32603
+  );
+});
+
 test("start_booking returns slot-unavailable error for stale slot id", async () => {
   resetMemoryStore();
   await assert.rejects(
     () =>
       startBookingTool.handler({}, {
-        service_id: "discovery-consult",
+        service_id: "paid-consult",
         slot_id: "2020-01-01T00:00:00.000Z|2020-01-01T00:30:00.000Z",
         contact: { name: "A", email: "a@example.com" }
-      }, { ip: "198.51.100.51" }),
+      }, { ip: "198.51.100.53" }),
     (err) => err instanceof McpToolError && err.code === -32001
   );
 });
 
-// -------- get_booking_status --------
-
-test("get_booking_status maps internal status to agent-friendly value", async () => {
+test("start_booking validates contact fields", async () => {
   resetMemoryStore();
   const env = {};
-  const slot = await pickFirstFreeSlot(env);
-  const booked = await startBookingTool.handler(env, {
-    service_id: "discovery-consult",
-    slot_id: slot.slot_id,
-    contact: { name: "Status Tester", email: "status-test@example.com" }
-  }, { ip: "198.51.100.52" });
-
-  const status = await getBookingStatusTool.handler(env, {
-    booking_id: booked.booking_id
-  });
-  assert.equal(status.status, "confirmed");
-  assert.equal(status.raw_status, "confirmed");
-  assert.match(status.customer_email_masked, /@example\.com$/);
-  assert.ok(status.slot.starts_at);
+  const slot = await pickFirstPaidSlot(env);
+  await assert.rejects(
+    () =>
+      startBookingTool.handler(env, {
+        service_id: "paid-consult",
+        slot_id: slot.slot_id,
+        contact: { name: "No Email" } // email missing
+      }, { ip: "198.51.100.54" }),
+    (err) => err instanceof McpToolError && err.code === -32602
+  );
 });
+
+// -------- get_booking_status --------
 
 test("get_booking_status errors cleanly on unknown id", async () => {
   await assert.rejects(
@@ -436,6 +457,7 @@ test("/.well-known/mcp.json returns a valid manifest", async () => {
   assert.equal(body.endpoint, "https://aissistedconsulting.com/mcp");
   assert.ok(body.tools.includes("list_services"));
   assert.ok(body.auth.human_approval_required.includes("start_booking"));
+  assert.deepEqual(body.bookable_services, ["paid-consult"]);
   assert.equal(response.headers.get("access-control-allow-origin"), "*");
 });
 

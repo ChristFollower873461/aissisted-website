@@ -19,13 +19,6 @@ export const RATE_LIMITS = {
   ]
 };
 
-export const FREE_BOOKING_LIMITS = {
-  perEmailPerDay: 1,
-  perIpPerDay: 3,
-  turnstileThresholdInWindow: 2,
-  turnstileWindowSec: 600
-};
-
 function bucketKey({ bucket, ip, windowStart }) {
   return `${bucket}|${ip}|${windowStart}`;
 }
