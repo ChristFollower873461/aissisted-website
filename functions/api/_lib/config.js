@@ -3,52 +3,39 @@ export const RESERVATION_POLICY_TEXT =
 export const STRIPE_MINIMUM_SESSION_MINUTES = 30;
 export const STRIPE_MAXIMUM_SESSION_MINUTES = 24 * 60;
 
-const DEFAULT_WEEKLY_AVAILABILITY = [
-  {
-    day: "MONDAY",
-    windows: [
-      { start: "09:40", end: "10:25" },
-      { start: "12:50", end: "13:40" },
-      { start: "15:10", end: "16:05" }
-    ]
-  },
-  {
-    day: "TUESDAY",
-    windows: [
-      { start: "10:15", end: "11:05" },
-      { start: "13:20", end: "14:10" },
-      { start: "16:00", end: "16:45" }
-    ]
-  },
-  {
-    day: "WEDNESDAY",
-    windows: [
-      { start: "09:55", end: "10:40" },
-      { start: "14:10", end: "15:00" }
-    ]
-  },
-  {
-    day: "THURSDAY",
-    windows: [
-      { start: "10:35", end: "11:20" },
-      { start: "13:05", end: "13:55" },
-      { start: "15:45", end: "16:35" }
-    ]
-  },
-  {
-    day: "FRIDAY",
-    windows: [{ start: "10:20", end: "11:05" }]
-  },
-  {
-    day: "SATURDAY",
-    windows: [
-      { start: "09:15", end: "10:00" },
-      { start: "10:35", end: "11:20" },
-      { start: "12:10", end: "12:55" },
-      { start: "13:40", end: "14:25" },
-      { start: "15:15", end: "16:00" }
-    ]
+// Weekly availability template. Slots are 30 minutes back-to-back.
+// Weekday evenings: two slots each (4:30pm and 5:15pm).
+// Thursday + Saturday: 10:00am through 7:00pm, straight through.
+// Sunday is closed.
+const WEEKDAY_EVENING_WINDOWS = [
+  { start: "16:30", end: "17:00" },
+  { start: "17:15", end: "17:45" }
+];
+
+const LONG_DAY_WINDOWS = (() => {
+  const windows = [];
+  // 10:00am through 6:30pm in 30-min increments, last slot ends at 7:00pm.
+  for (let hour = 10; hour < 19; hour += 1) {
+    const hh = String(hour).padStart(2, "0");
+    const next = String(hour + 1).padStart(2, "0");
+    windows.push({ start: `${hh}:00`, end: `${hh}:30` });
+    if (hour < 18) {
+      // For the last hour (18:00), we still want the :00 slot (ends 18:30) and
+      // one final slot 18:30–19:00, which the `if` block below handles.
+      windows.push({ start: `${hh}:30`, end: `${next}:00` });
+    }
   }
+  windows.push({ start: "18:30", end: "19:00" });
+  return windows;
+})();
+
+const DEFAULT_WEEKLY_AVAILABILITY = [
+  { day: "MONDAY", windows: WEEKDAY_EVENING_WINDOWS },
+  { day: "TUESDAY", windows: WEEKDAY_EVENING_WINDOWS },
+  { day: "WEDNESDAY", windows: WEEKDAY_EVENING_WINDOWS },
+  { day: "THURSDAY", windows: LONG_DAY_WINDOWS },
+  { day: "FRIDAY", windows: WEEKDAY_EVENING_WINDOWS },
+  { day: "SATURDAY", windows: LONG_DAY_WINDOWS }
 ];
 
 function parsePositiveInteger(value, fallback) {
