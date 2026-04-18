@@ -2,6 +2,17 @@ name = "aissisted-website"
 compatibility_date = "2026-03-10"
 pages_build_output_dir = "."
 
+# NOTE ON SECRETS: Do NOT add STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET,
+# or any other credential here. `[vars]` is committed to git and also
+# overwrites the Cloudflare Pages dashboard env vars on every
+# `wrangler pages deploy`. Use `npx wrangler pages secret put NAME
+# --project-name=aissisted-website` for secrets. Secrets are stored
+# separately from [vars] and survive deploys.
+#
+# Current Pages secrets (do not duplicate here):
+#   - STRIPE_SECRET_KEY  (set 2026-04-18, source ~/.openclaw/secrets/stripe.env)
+#
+# Non-secret config that IS safe to live here:
 [vars]
 PUBLIC_SITE_ORIGIN = "https://aissistedconsulting.com"
 BOOKING_BUSINESS_TITLE = "AIssisted Consulting"
