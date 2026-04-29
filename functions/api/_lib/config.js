@@ -36,6 +36,22 @@ function parsePositiveInteger(value, fallback) {
   return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
 }
 
+function parseBoolean(value, fallback = false) {
+  if (value === undefined || value === null || value === "") {
+    return fallback;
+  }
+
+  const normalized = String(value).trim().toLowerCase();
+  if (["1", "true", "yes", "on"].includes(normalized)) {
+    return true;
+  }
+  if (["0", "false", "no", "off"].includes(normalized)) {
+    return false;
+  }
+
+  return fallback;
+}
+
 function clamp(value, minimum, maximum) {
   return Math.min(Math.max(value, minimum), maximum);
 }
@@ -89,9 +105,13 @@ export function getBookingConfig(env, origin) {
     stripeSecretKey: env.STRIPE_SECRET_KEY || "",
     stripeWebhookSecret: env.STRIPE_WEBHOOK_SECRET || "",
     stripePriceId: env.STRIPE_BOOKING_PRICE_ID || "",
-    googleCalendarId: env.GOOGLE_CALENDAR_ID || "",
+    googleCalendarId: env.GOOGLE_CALENDAR_ID || "primary",
     googleServiceAccountEmail: env.GOOGLE_SERVICE_ACCOUNT_EMAIL || "",
     googlePrivateKey: env.GOOGLE_PRIVATE_KEY || "",
+    googleOAuthClientId: env.GOOGLE_OAUTH_CLIENT_ID || "",
+    googleOAuthClientSecret: env.GOOGLE_OAUTH_CLIENT_SECRET || "",
+    googleOAuthRefreshToken: env.GOOGLE_OAUTH_REFRESH_TOKEN || "",
+    googleCalendarRequired: parseBoolean(env.BOOKING_REQUIRE_GOOGLE_CALENDAR, false),
     internalNotificationWebhook: env.BOOKING_NOTIFICATION_WEBHOOK_URL || "",
     customerNotificationWebhook: env.BOOKING_CONFIRMATION_WEBHOOK_URL || ""
   };
@@ -106,9 +126,17 @@ export function isStripeWebhookConfigured(config) {
 }
 
 export function isGoogleCalendarConfigured(config) {
-  return Boolean(
+  const hasServiceAccount = Boolean(
     config.googleCalendarId &&
       config.googleServiceAccountEmail &&
       config.googlePrivateKey
   );
+  const hasOAuthRefresh = Boolean(
+    config.googleCalendarId &&
+      config.googleOAuthClientId &&
+      config.googleOAuthClientSecret &&
+      config.googleOAuthRefreshToken
+  );
+
+  return hasServiceAccount || hasOAuthRefresh;
 }

@@ -48,7 +48,7 @@ async function signJwt(unsignedToken, privateKeyPem) {
   return `${unsignedToken}.${toBase64Url(new Uint8Array(signature))}`;
 }
 
-async function getGoogleAccessToken(config) {
+async function getServiceAccountAccessToken(config) {
   const issuedAt = Math.floor(Date.now() / 1000);
   const header = { alg: "RS256", typ: "JWT" };
   const claim = {
@@ -73,10 +73,44 @@ async function getGoogleAccessToken(config) {
   const payload = await response.json();
 
   if (!response.ok || !payload.access_token) {
-    throw new Error(payload.error_description || payload.error || "Google access token request failed.");
+    throw new Error(payload.error_description || payload.error || "Google service account token request failed.");
   }
 
   return payload.access_token;
+}
+
+async function getOAuthRefreshAccessToken(config) {
+  const params = new URLSearchParams();
+
+  params.set("grant_type", "refresh_token");
+  params.set("client_id", config.googleOAuthClientId);
+  params.set("client_secret", config.googleOAuthClientSecret);
+  params.set("refresh_token", config.googleOAuthRefreshToken);
+
+  const response = await fetch(GOOGLE_TOKEN_URL, {
+    method: "POST",
+    headers: { "content-type": "application/x-www-form-urlencoded" },
+    body: params.toString()
+  });
+  const payload = await response.json();
+
+  if (!response.ok || !payload.access_token) {
+    throw new Error(payload.error_description || payload.error || "Google OAuth refresh token request failed.");
+  }
+
+  return payload.access_token;
+}
+
+async function getGoogleAccessToken(config) {
+  if (config.googleServiceAccountEmail && config.googlePrivateKey) {
+    return getServiceAccountAccessToken(config);
+  }
+
+  if (config.googleOAuthClientId && config.googleOAuthClientSecret && config.googleOAuthRefreshToken) {
+    return getOAuthRefreshAccessToken(config);
+  }
+
+  throw new Error("Google Calendar credentials are not configured.");
 }
 
 export async function getGoogleCalendarBusyIntervals({ config, startIso, endIso }) {

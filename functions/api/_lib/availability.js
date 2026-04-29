@@ -183,6 +183,41 @@ function isBlocked(slot, reservations, busyIntervals) {
   );
 }
 
+async function loadCalendarBusyIntervals(config, rangeStart, rangeEnd) {
+  if (!isGoogleCalendarConfigured(config)) {
+    if (config.googleCalendarRequired) {
+      throw new Error("Google Calendar availability is required but is not configured.");
+    }
+
+    return {
+      busyIntervals: [],
+      availabilitySource: "business-hours"
+    };
+  }
+
+  try {
+    return {
+      busyIntervals: await getGoogleCalendarBusyIntervals({
+        config,
+        startIso: rangeStart,
+        endIso: rangeEnd
+      }),
+      availabilitySource: "google-calendar"
+    };
+  } catch (error) {
+    if (config.googleCalendarRequired) {
+      const detail = error instanceof Error ? error.message : String(error);
+      throw new Error(`Google Calendar availability is required but lookup failed: ${detail}`);
+    }
+
+    console.error("[booking-availability] Google Calendar lookup failed. Falling back to weekly template.", error);
+    return {
+      busyIntervals: [],
+      availabilitySource: "business-hours-fallback"
+    };
+  }
+}
+
 export async function listAvailableSlots({ env, origin, store, days }) {
   const config = getBookingConfig(env, origin);
   const lookaheadDays = Math.min(Math.max(days || config.lookaheadDays, 1), config.lookaheadDays);
@@ -205,21 +240,7 @@ export async function listAvailableSlots({ env, origin, store, days }) {
     nowTimeIso: now.toISOString()
   });
 
-  let busyIntervals = [];
-  let availabilitySource = "business-hours";
-  if (isGoogleCalendarConfigured(config)) {
-    availabilitySource = "google-calendar";
-    try {
-      busyIntervals = await getGoogleCalendarBusyIntervals({
-        config,
-        startIso: rangeStart,
-        endIso: rangeEnd
-      });
-    } catch (error) {
-      availabilitySource = "business-hours-fallback";
-      console.error("[booking-availability] Google Calendar lookup failed. Falling back to weekly template.", error);
-    }
-  }
+  const { busyIntervals, availabilitySource } = await loadCalendarBusyIntervals(config, rangeStart, rangeEnd);
 
   const minimumLeadTimeMs = config.minimumLeadHours * 60 * 60 * 1000;
   const earliestAllowedStartMs = now.getTime() + minimumLeadTimeMs;
@@ -260,24 +281,7 @@ export async function listSlotsWithStatus({ env, origin, store, days }) {
     nowTimeIso: now.toISOString()
   });
 
-  let busyIntervals = [];
-  let availabilitySource = "business-hours";
-  if (isGoogleCalendarConfigured(config)) {
-    availabilitySource = "google-calendar";
-    try {
-      busyIntervals = await getGoogleCalendarBusyIntervals({
-        config,
-        startIso: rangeStart,
-        endIso: rangeEnd
-      });
-    } catch (error) {
-      availabilitySource = "business-hours-fallback";
-      console.error(
-        "[booking-availability] Google Calendar lookup failed. Falling back to weekly template.",
-        error
-      );
-    }
-  }
+  const { busyIntervals, availabilitySource } = await loadCalendarBusyIntervals(config, rangeStart, rangeEnd);
 
   const minimumLeadTimeMs = config.minimumLeadHours * 60 * 60 * 1000;
   const earliestAllowedStartMs = now.getTime() + minimumLeadTimeMs;
