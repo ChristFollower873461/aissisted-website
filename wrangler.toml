@@ -1,0 +1,33 @@
+name = "aissisted-website"
+compatibility_date = "2026-03-10"
+pages_build_output_dir = "."
+
+# Production deploy config for AIssisted Consulting V11.11.
+# Do NOT put credentials in this file. Set secrets through Cloudflare Pages:
+#   STRIPE_SECRET_KEY
+#   STRIPE_WEBHOOK_SECRET
+#   GOOGLE_CALENDAR_ID
+#   GOOGLE_OAUTH_CLIENT_ID
+#   GOOGLE_OAUTH_CLIENT_SECRET
+#   GOOGLE_OAUTH_REFRESH_TOKEN
+# Optional notification webhooks can also be set as secrets if used.
+
+[vars]
+PUBLIC_SITE_ORIGIN = "https://aissistedconsulting.com"
+BOOKING_BUSINESS_TITLE = "AIssisted Consulting"
+BOOKING_SUPPORT_EMAIL = "pj@aissistedconsulting.com"
+BOOKING_CURRENCY = "usd"
+BOOKING_TIMEZONE = "America/New_York"
+BOOKING_HOLD_MINUTES = "30"
+BOOKING_MINIMUM_LEAD_HOURS = "48"
+BOOKING_LOOKAHEAD_DAYS = "21"
+BOOKING_REQUIRE_GOOGLE_CALENDAR = "true"
+BOOKING_POLICY_VERSION = "2026-04-06"
+BOOKING_RESERVATION_AMOUNT_CENTS = "22500"
+STRIPE_BOOKING_PRICE_ID = "price_1TNNnxP3Zy09i3cc3B8yErot"
+
+[[d1_databases]]
+binding = "BOOKING_DB"
+database_name = "aissisted-booking"
+database_id = "702b49f1-4e87-4390-8b36-3da67bc126ff"
+preview_database_id = "702b49f1-4e87-4390-8b36-3da67bc126ff"

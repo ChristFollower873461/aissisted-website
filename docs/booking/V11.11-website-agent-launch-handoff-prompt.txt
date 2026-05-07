@@ -1,0 +1,85 @@
+V11.11 Website Agent Launch Handoff Prompt
+
+You are working on the AIssisted Consulting website launch.
+
+Project root:
+/Users/standley/Documents/New project 2
+
+Local preview:
+http://127.0.0.1:4192/
+
+Goal:
+Wire the live /book/ flow all the way through Stripe Checkout, Google Calendar-backed availability, booking status, webhook confirmation, and safe agent-facing commands without breaking the human site, SEO, ASEO, AEO, or SlipperyAPeI readiness.
+
+Start by reading these files:
+- docs/pjario/transactional-agent-seo-execution-plan.md
+- docs/pjario/qa/013-launch-readiness-final.md
+- docs/pjario/completion/013-launch-readiness-final.md
+- docs/booking/booking-setup.md
+- wrangler.booking.example.toml
+
+Important implementation files:
+- Booking UI: book/index.html, book/booking.js, book/booking.css
+- Booking status UI: book/success/index.html, book/cancel/index.html, book/status.js
+- Booking API: functions/api/book/availability.js, functions/api/book/create-checkout.js, functions/api/book/status.js, functions/api/book/webhook.js
+- Shared backend helpers: functions/api/_lib/config.js, functions/api/_lib/storage.js, functions/api/_lib/stripe.js, functions/api/_lib/google-calendar.js, functions/api/_lib/availability.js, functions/api/_lib/transaction-safety.js
+- Contact API: functions/api/contact/submit.js, contact/index.html, contact/contact.js
+- Database schema: db/booking-schema.sql, migrations/0001_booking_schema.sql
+- Agent/ASEO files: agent.json, .well-known/agent.json, .well-known/agent-skills/index.json, llms.txt, api/business-profile.json, api/services.json, api/service-areas.json, knowledge/*.md
+
+Current state:
+The local code is launch-ready. Stripe, Google Calendar, D1/database, webhook, and production environment configuration still need to be wired for live use. Do not assume static hosting alone is enough because the site uses Cloudflare Pages Functions under functions/api/.
+
+Live booking requirements:
+- Use Stripe Checkout only. Do not collect card details directly on the site.
+- Preserve the current $225 reservation deposit behavior unless PJ changes it.
+- Confirm payment through POST /api/book/webhook.
+- Apply the D1 schema before live testing.
+- Configure Google Calendar availability using either service account env vars or OAuth refresh-token env vars supported in functions/api/_lib/config.js.
+- If Google Calendar is required, set BOOKING_REQUIRE_GOOGLE_CALENDAR=true so availability fails closed instead of silently using fallback slots.
+- Preserve idempotency: Idempotency-Key is required for contact submit and booking checkout.
+- Preserve audit records and duplicate prevention.
+- Booking/payment commands must remain marked as financial/external-write in the agent manifest.
+
+Required production/env setup:
+- PUBLIC_SITE_ORIGIN
+- BOOKING_BUSINESS_TITLE
+- BOOKING_SUPPORT_EMAIL
+- BOOKING_CURRENCY
+- BOOKING_TIMEZONE
+- BOOKING_HOLD_MINUTES
+- BOOKING_MINIMUM_LEAD_HOURS
+- BOOKING_LOOKAHEAD_DAYS
+- BOOKING_REQUIRE_GOOGLE_CALENDAR
+- BOOKING_POLICY_VERSION
+- BOOKING_RESERVATION_AMOUNT_CENTS
+- STRIPE_SECRET_KEY
+- STRIPE_WEBHOOK_SECRET
+- optional STRIPE_BOOKING_PRICE_ID
+- GOOGLE_CALENDAR_ID
+- either GOOGLE_SERVICE_ACCOUNT_EMAIL + GOOGLE_PRIVATE_KEY
+- or GOOGLE_OAUTH_CLIENT_ID + GOOGLE_OAUTH_CLIENT_SECRET + GOOGLE_OAUTH_REFRESH_TOKEN
+- optional notification webhooks: BOOKING_NOTIFICATION_WEBHOOK_URL, BOOKING_CONFIRMATION_WEBHOOK_URL
+
+Before launch, run:
+- npm run check:site
+- npm run check:booking-functions
+- npm run test:booking
+- SlipperyAPeI strict validate/score/doctor against agent.json
+- HTTP checks for /, /book/, /book/success/, /book/cancel/, /contact/, /agent.json, /.well-known/agent.json, /.well-known/agent-skills/index.json, /llms.txt, and the JSON API support files
+- JSON/XML parsing checks
+- one-H1 scan
+- broken local link/asset scan
+- secret scan
+- deployed smoke test using approved test-mode credentials first
+
+Do not push, deploy, change DNS, use live Stripe mode, submit live forms, or run live payment tests until PJ explicitly approves that exact step. Test mode first, then controlled live smoke test only after the deployment and webhook are verified.
+
+Deliverables:
+1. Confirm what is already wired.
+2. List exactly what production secrets/config are still missing.
+3. Wire Cloudflare Pages/D1/Stripe/Google Calendar correctly.
+4. Run local checks.
+5. Run deployed test-mode smoke checks.
+6. Confirm SlipperyAPeI/SEO/ASEO/AEO still pass.
+7. Produce a short launch readiness note with remaining blockers, if any.

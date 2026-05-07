@@ -1,0 +1,58 @@
+# Canonical domain routing
+https://www.aissistedconsulting.com/* https://aissistedconsulting.com/:splat 301
+https://ocalaaiconsulting.com/* https://aissistedconsulting.com/:splat 301
+https://www.ocalaaiconsulting.com/* https://aissistedconsulting.com/:splat 301
+
+# Clean directory routes for legacy extensionless/live paths
+/small-business-ai-help /small-business-ai-help/ 301
+/services /services/ 301
+/privacy-and-control /privacy-and-control/ 301
+/about /about/ 301
+/contact /contact/ 301
+/book /book/ 301
+/book/success /book/success/ 301
+/book/cancel /book/cancel/ 301
+/family-ai-help /family-ai-help/ 301
+/industries /industries/ 301
+/industries/hvac /industries/hvac/ 301
+/industries/pest-control /industries/pest-control/ 301
+/industries/plumbing /industries/plumbing/ 301
+/guides/missed-calls-follow-up /guides/missed-calls-follow-up/ 301
+/guides/ai-workflow-checklist /guides/ai-workflow-checklist/ 301
+/guides/family-ai-safety-basics /guides/family-ai-safety-basics/ 301
+/guides/what-not-to-share-with-ai /guides/what-not-to-share-with-ai/ 301
+/guides/ai-tools-for-household-admin /guides/ai-tools-for-household-admin/ 301
+
+# Legacy AIssisted routes from the current production site
+/pricing /book/ 301
+/pricing.html /book/ 301
+/case-studies /small-business-ai-help/ 301
+/case-studies.html /small-business-ai-help/ 301
+/compare /small-business-ai-help/ 301
+/compare.html /small-business-ai-help/ 301
+/openclaw /services/ 301
+/openclaw.html /services/ 301
+/openclaw-florida /services/ 301
+/openclaw-florida.html /services/ 301
+/realtors /small-business-ai-help/ 301
+/realtors.html /small-business-ai-help/ 301
+/reserve /book/ 301
+/reserve.html /book/ 301
+/pay /book/ 301
+/pay.html /book/ 301
+/pay-success /book/success/ 301
+/pay-success.html /book/success/ 301
+/thank-you /contact/ 301
+/thank-you.html /contact/ 301
+
+# Keep local/project material out of public routing if this root is deployed.
+/docs/* / 404
+/tests/* / 404
+/db/* / 404
+/migrations/* / 404
+/node_modules/* / 404
+/package.json / 404
+/package-lock.json / 404
+/README.md / 404
+/DESIGN.md / 404
+/wrangler.booking.example.toml / 404

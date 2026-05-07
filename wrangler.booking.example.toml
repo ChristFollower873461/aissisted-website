@@ -1,0 +1,27 @@
+name = "aissisted-website-candidate"
+compatibility_date = "2026-03-10"
+pages_build_output_dir = "."
+
+# Local candidate example only. Do not paste production secrets here.
+# Put Stripe, Google, and notification secrets in the Cloudflare dashboard or a
+# local .dev.vars file that is not committed.
+
+[vars]
+PUBLIC_SITE_ORIGIN = "https://aissistedconsulting.com"
+BOOKING_BUSINESS_TITLE = "AIssisted Consulting"
+BOOKING_SUPPORT_EMAIL = "pj@aissistedconsulting.com"
+BOOKING_CURRENCY = "usd"
+BOOKING_TIMEZONE = "America/New_York"
+BOOKING_HOLD_MINUTES = "30"
+BOOKING_MINIMUM_LEAD_HOURS = "48"
+BOOKING_LOOKAHEAD_DAYS = "21"
+BOOKING_REQUIRE_GOOGLE_CALENDAR = "false"
+BOOKING_POLICY_VERSION = "2026-04-06"
+BOOKING_RESERVATION_AMOUNT_CENTS = "22500"
+STRIPE_BOOKING_PRICE_ID = ""
+
+[[d1_databases]]
+binding = "BOOKING_DB"
+database_name = "aissisted-booking"
+database_id = "REPLACE_WITH_CLOUDFLARE_D1_DATABASE_ID"
+preview_database_id = "REPLACE_WITH_CLOUDFLARE_D1_PREVIEW_DATABASE_ID"

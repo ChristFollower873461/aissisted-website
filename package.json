@@ -1,0 +1,16 @@
+{
+  "name": "aissisted-consulting-site-candidate",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Local-only AIssisted Consulting website candidate.",
+  "scripts": {
+    "serve": "python3 -m http.server 4173",
+    "check:site": "node --check main.js && node --check contact/contact.js && node --check book/booking.js && node --check book/status.js",
+    "check:booking-functions": "for f in functions/api/_lib/*.js functions/api/book/*.js functions/api/contact/*.js; do node --check \"$f\" || exit 1; done",
+    "test:booking": "node --test tests/booking-hardening.test.mjs tests/transaction-safety.test.mjs tests/contact-submit.test.mjs tests/booking-checkout.test.mjs"
+  },
+  "dependencies": {
+    "three": "0.184.0"
+  }
+}

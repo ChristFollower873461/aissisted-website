@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Book a Founder-Led AI Consult | AIssisted Consulting</title>
+    <meta name="description" content="Reserve a 60-minute AIssisted Consulting appointment with a $225 deposit, intake details, and Stripe checkout when the booking backend is connected.">
+    <link rel="canonical" href="https://aissistedconsulting.com/book/">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Book a Founder-Led AI Consult | AIssisted Consulting">
+    <meta property="og:description" content="Reserve a 60-minute AIssisted Consulting appointment with a $225 deposit, intake details, and Stripe checkout when the booking backend is connected.">
+    <meta property="og:url" content="https://aissistedconsulting.com/book/">
+    <meta property="og:image" content="https://aissistedconsulting.com/assets/og-image.jpg">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Book a Founder-Led AI Consult | AIssisted Consulting">
+    <meta name="twitter:description" content="Reserve a 60-minute AIssisted Consulting appointment with a $225 deposit, intake details, and Stripe checkout when the booking backend is connected.">
+    <meta name="twitter:image" content="https://aissistedconsulting.com/assets/og-image.jpg">
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="./booking.css">
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Offer",
+        "name": "AIssisted Consulting appointment reservation",
+        "price": "225.00",
+        "priceCurrency": "USD",
+        "availability": "https://schema.org/InStock",
+        "description": "Reserve a 60-minute appointment window with a non-refundable $225 deposit that is credited once toward service if you become a customer."
+      }
+    </script>
+    <script type="application/ld+json">
+    {
+          "@context": "https://schema.org",
+          "@type": "WebPage",
+          "name": "Book a Founder-Led AI Consult | AIssisted Consulting",
+          "description": "Reserve a 60-minute AIssisted Consulting appointment with a $225 deposit, intake details, and Stripe checkout when the booking backend is connected.",
+          "url": "https://aissistedconsulting.com/book/",
+          "publisher": {
+                "@type": "LocalBusiness",
+                "name": "AIssisted Consulting",
+                "telephone": "+13528173567",
+                "email": "pj@aissistedconsulting.com",
+                "address": {
+                      "@type": "PostalAddress",
+                      "addressLocality": "Ocala",
+                      "addressRegion": "FL",
+                      "addressCountry": "US"
+                }
+          }
+    }
+    </script>
+  </head>
+  <body data-page="book">
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <header class="site-header">
+      <div class="container nav-wrap">
+        <a class="brand" href="../" aria-label="AIssisted Consulting home">
+          <img src="../assets/logo.png" alt="AIssisted Consulting logo" width="58" height="44">
+          <span>
+            <strong>AIssisted Consulting</strong>
+            <small>Ocala AI help</small>
+          </span>
+        </a>
+
+        <button class="menu-toggle" type="button" data-menu-toggle aria-expanded="false" aria-controls="site-nav">
+          Menu
+        </button>
+
+        <nav class="nav-links" id="site-nav" data-nav-links aria-label="Primary navigation">
+          <a href="../small-business-ai-help/">Small business</a>
+          <a href="../services/">Services</a>
+          <a href="../family-ai-help/">Family</a>
+          <a href="../industries/">Industries</a>
+          <a href="../privacy-and-control/">Privacy</a>
+          <a href="../about/">About</a>
+          <a href="./">Book</a>
+          <a href="../contact/">Contact</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main">
+      <section class="booking-hero" data-agent="booking" aria-labelledby="booking-title">
+        <div class="container booking-hero-grid">
+          <div class="booking-lead">
+            <p class="eyebrow">Founder-led consult</p>
+            <h1 id="booking-title">Reserve a 60-minute AI workflow consult.</h1>
+            <p>
+              Choose an appointment window, share the business context PJ needs, then complete the $225 reservation deposit through Stripe when checkout is connected.
+            </p>
+            <div class="booking-steps" aria-label="Booking steps">
+              <div>
+                <strong>1</strong>
+                <span>Pick an open hour from the availability layer.</span>
+              </div>
+              <div>
+                <strong>2</strong>
+                <span>Send intake details so the meeting starts useful.</span>
+              </div>
+              <div>
+                <strong>3</strong>
+                <span>Checkout confirms the slot after payment succeeds.</span>
+              </div>
+            </div>
+          </div>
+
+          <aside class="booking-policy-card" aria-labelledby="policy-title">
+            <p class="eyebrow">Reservation policy</p>
+            <h2 id="policy-title">60 minutes. $225 deposit.</h2>
+            <p id="policy-text">
+              This payment reserves your appointment window. If you move forward as a customer, the $225 is credited once toward service. If you do not move forward, the reservation payment is non-refundable.
+            </p>
+            <p class="booking-note">A slot is not confirmed until Stripe payment succeeds and the booking record is finalized.</p>
+          </aside>
+        </div>
+      </section>
+
+      <section class="booking-workspace">
+        <div class="container booking-shell">
+          <div class="booking-stack">
+            <section class="booking-card" aria-labelledby="availability-title">
+              <div class="booking-card-header">
+                <div>
+                  <p class="eyebrow">Step 1</p>
+                  <h2 id="availability-title">Choose an appointment window</h2>
+                </div>
+                <small>Times use the booking timezone published by AIssisted Consulting.</small>
+              </div>
+              <div id="booking-status" class="status-banner" role="status" aria-live="polite"></div>
+              <div id="availability-root">
+                <p class="loading-copy">Loading appointment windows...</p>
+              </div>
+            </section>
+
+            <section class="booking-card" aria-labelledby="intake-title">
+              <p class="eyebrow">Step 2</p>
+              <h2 id="intake-title">Business intake before checkout</h2>
+              <p>Keep it short. The goal is enough context to use the hour well.</p>
+              <form id="booking-form" class="booking-form">
+                <div class="booking-form-grid">
+                  <label>
+                    <span>Name</span>
+                    <input id="name" name="name" maxlength="100" autocomplete="name" required>
+                  </label>
+                  <label>
+                    <span>Email</span>
+                    <input id="email" name="email" type="email" maxlength="200" autocomplete="email" required>
+                  </label>
+                  <label>
+                    <span>Phone</span>
+                    <input id="phone" name="phone" maxlength="40" autocomplete="tel">
+                  </label>
+                  <label>
+                    <span>Company</span>
+                    <input id="company" name="company" maxlength="120" autocomplete="organization">
+                  </label>
+                  <label class="full">
+                    <span>Website</span>
+                    <input id="companyWebsite" name="companyWebsite" type="url" maxlength="200" inputmode="url" placeholder="https://yourbusiness.com">
+                  </label>
+                  <label>
+                    <span>Industry</span>
+                    <select id="industry" name="industry">
+                      <option value="">Select</option>
+                      <option>HVAC</option>
+                      <option>Pest Control</option>
+                      <option>Plumbing</option>
+                      <option>Electrical</option>
+                      <option>Real Estate</option>
+                      <option>Professional Services</option>
+                      <option>Other</option>
+                    </select>
+                  </label>
+                  <label>
+                    <span>Primary goal</span>
+                    <select id="primaryGoal" name="primaryGoal">
+                      <option value="">Select</option>
+                      <option>Missed call recovery</option>
+                      <option>Scheduling and dispatch</option>
+                      <option>Lead qualification</option>
+                      <option>Follow-up support</option>
+                      <option>Operations reporting</option>
+                      <option>General implementation planning</option>
+                    </select>
+                  </label>
+                  <label class="full">
+                    <span>What should we know before the appointment?</span>
+                    <textarea id="notes" name="notes" maxlength="2000" rows="5" placeholder="Current workflow, friction, software in use, or the one decision you want clearer."></textarea>
+                  </label>
+                </div>
+
+                <div class="honeypot" aria-hidden="true">
+                  <label for="websiteLeaveBlank">Leave this field empty</label>
+                  <input id="websiteLeaveBlank" name="websiteLeaveBlank" tabindex="-1" autocomplete="off">
+                </div>
+
+                <label class="policy-check" for="policyAccepted">
+                  <input id="policyAccepted" name="policyAccepted" type="checkbox">
+                  <span>I understand this is a $225 non-refundable reservation deposit, credited once toward service if I become a customer.</span>
+                </label>
+
+                <button id="booking-submit" class="btn btn-primary" type="submit">Reserve with $225 deposit</button>
+                <div id="booking-submit-status" class="status-banner booking-submit-status" role="status" aria-live="polite"></div>
+                <p class="fine-print">Checkout opens only after the form validates. The slot is not confirmed until payment succeeds and the backend finalizes the booking.</p>
+              </form>
+            </section>
+          </div>
+
+          <aside class="booking-summary" aria-label="Reservation summary">
+            <section class="summary-tile">
+              <span class="summary-label">Reservation deposit</span>
+              <strong id="reservation-amount" class="summary-amount">$225.00</strong>
+              <p>Credited once toward service if you become a customer.</p>
+            </section>
+            <section class="summary-tile">
+              <span class="summary-label">Selected appointment</span>
+              <strong id="selected-slot-label" class="summary-slot">Choose a time window</strong>
+              <p id="selected-slot-meta">A slot remains temporary until Stripe payment succeeds.</p>
+            </section>
+            <section class="summary-tile">
+              <span class="summary-label">Recorded after checkout</span>
+              <ul>
+                <li>Booking status and payment status.</li>
+                <li>Contact details and intake context.</li>
+                <li>Deposit credit availability.</li>
+              </ul>
+            </section>
+            <a class="summary-link" href="../contact/">Talk first instead</a>
+          </aside>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container footer-layout">
+        <div>
+          <strong>AIssisted Consulting</strong>
+          <p>Practical AI help for small businesses and families in Ocala, Florida.</p>
+        </div>
+        <nav class="footer-links" aria-label="Footer navigation">
+          <a href="../small-business-ai-help/">Small business</a>
+          <a href="../services/">Services</a>
+          <a href="../family-ai-help/">Family</a>
+          <a href="../privacy-and-control/">Privacy</a>
+          <a href="../contact/">Contact</a>
+        </nav>
+        <img class="ai-guy-mark" src="../assets/ai-guy-logo.jpeg" alt="" width="96" height="96" aria-hidden="true">
+        <p>&copy; <span data-year>2026</span> AIssisted Consulting. Ocala, FL.</p>
+      </div>
+    </footer>
+
+    <script src="../main.js" defer></script>
+    <script src="./booking.js" defer></script>
+  </body>
+</html>
