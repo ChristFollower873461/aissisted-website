@@ -1926,19 +1926,41 @@ address,
   }
 
   [data-page="home"] .hero h1 {
-    max-width: 100%;
-    font-size: clamp(2.42rem, 11.5vw, 3.45rem);
-    line-height: 1.02;
-    text-wrap: balance;
+    max-width: min(100%, 21rem);
+    font-size: clamp(2.25rem, 10vw, 3.05rem);
+    line-height: 1.05;
+    overflow-wrap: normal;
+    text-wrap: wrap;
   }
 
   [data-page="home"] .hero-lede {
-    max-width: 100%;
-    font-size: 1.05rem;
+    max-width: min(100%, 22rem);
+    font-size: 1rem;
   }
 
   [data-page="home"] .hero-actions {
     margin-top: 26px;
+    max-width: min(100%, 22rem);
+  }
+
+  [data-page="home"] .hero-layout {
+    width: min(100% - 32px, 1160px);
+    margin-inline: auto;
+    min-width: 0;
+  }
+
+  [data-page="home"] .hero-copy {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  [data-page="home"] .hero .eyebrow,
+  .hero-brand-lockup,
+  .hero-brand-details,
+  .hero-baseline {
+    width: 100%;
+    max-width: min(100%, 22rem);
   }
 
   .process-grid {
