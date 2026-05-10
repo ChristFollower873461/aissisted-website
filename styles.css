@@ -1418,15 +1418,15 @@ address,
 }
 
 [data-page="home"] .hero {
-  min-height: auto;
-  padding: 80px 0 92px;
+  min-height: calc(100svh - 82px);
+  padding: 92px 0 112px;
   background:
-    linear-gradient(90deg, rgba(8, 13, 26, 0.99) 0%, rgba(8, 13, 26, 0.9) 39%, rgba(21, 18, 48, 0.54) 68%, rgba(61, 29, 94, 0.36) 100%),
-    radial-gradient(circle at 82% 18%, rgba(58, 204, 255, 0.24), transparent 25%),
-    radial-gradient(circle at 76% 86%, rgba(196, 69, 106, 0.3), transparent 34%),
+    linear-gradient(90deg, rgba(8, 13, 26, 0.98) 0%, rgba(8, 13, 26, 0.88) 42%, rgba(13, 16, 37, 0.55) 66%, rgba(13, 16, 37, 0.18) 100%),
+    radial-gradient(circle at 82% 18%, rgba(58, 204, 255, 0.18), transparent 25%),
+    radial-gradient(circle at 76% 86%, rgba(196, 69, 106, 0.24), transparent 34%),
     url("assets/photography/business-computer-team.webp"),
     linear-gradient(135deg, #080d1a 0%, #151230 48%, #251149 72%, #3d1d5e 100%);
-  background-position: center right 34%;
+  background-position: center right 18%;
   background-size: cover;
 }
 
@@ -1466,12 +1466,16 @@ address,
   gap: 0;
   max-width: 700px;
   margin: 34px 0 0;
-  border-top: 1px solid rgba(240, 208, 96, 0.26);
-  border-bottom: 1px solid rgba(240, 208, 96, 0.16);
+  overflow: hidden;
+  border: 1px solid rgba(240, 208, 96, 0.22);
+  border-radius: var(--radius);
+  background: rgba(8, 13, 26, 0.54);
+  box-shadow: 0 18px 48px rgba(2, 5, 14, 0.28);
+  backdrop-filter: blur(10px);
 }
 
 .hero-baseline div {
-  padding: 16px 18px 16px 0;
+  padding: 16px 18px;
 }
 
 .hero-baseline div + div {
