@@ -1,0 +1,152 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2400" height="1350" viewBox="0 0 2400 1350" role="img" aria-labelledby="title desc">
+  <title id="title">Privacy and control background</title>
+  <desc id="desc">A branded AIssisted Consulting background showing privacy boundaries, human review, a lock, and calm control surfaces.</desc>
+  <defs>
+    <radialGradient id="goldGlow" cx="20%" cy="18%" r="54%">
+      <stop offset="0%" stop-color="#f0d060" stop-opacity="0.30"/>
+      <stop offset="44%" stop-color="#8a8bdd" stop-opacity="0.10"/>
+      <stop offset="100%" stop-color="#0b1120" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="coralGlow" cx="90%" cy="78%" r="52%">
+      <stop offset="0%" stop-color="#c4456a" stop-opacity="0.46"/>
+      <stop offset="46%" stop-color="#3d1d5e" stop-opacity="0.26"/>
+      <stop offset="100%" stop-color="#0b1120" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="mintGlow" cx="72%" cy="26%" r="40%">
+      <stop offset="0%" stop-color="#67d9b0" stop-opacity="0.24"/>
+      <stop offset="100%" stop-color="#0b1120" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#151230"/>
+      <stop offset="50%" stop-color="#101b34"/>
+      <stop offset="100%" stop-color="#0b1120"/>
+    </linearGradient>
+    <linearGradient id="panel" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#1c2d56"/>
+      <stop offset="58%" stop-color="#152344"/>
+      <stop offset="100%" stop-color="#090e1d"/>
+    </linearGradient>
+    <linearGradient id="paper" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#fff4d4"/>
+      <stop offset="100%" stop-color="#d8cee9"/>
+    </linearGradient>
+    <linearGradient id="lock" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#ffe59b"/>
+      <stop offset="56%" stop-color="#f0d060"/>
+      <stop offset="100%" stop-color="#d4a843"/>
+    </linearGradient>
+    <filter id="softShadow" x="-30%" y="-32%" width="170%" height="180%">
+      <feDropShadow dx="0" dy="34" stdDeviation="30" flood-color="#03050e" flood-opacity="0.48"/>
+    </filter>
+    <filter id="closeShadow" x="-25%" y="-30%" width="150%" height="170%">
+      <feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#03050e" flood-opacity="0.38"/>
+    </filter>
+    <filter id="grain">
+      <feTurbulence type="fractalNoise" baseFrequency="0.84" numOctaves="2" seed="53" result="noise"/>
+      <feColorMatrix in="noise" type="saturate" values="0"/>
+      <feComponentTransfer>
+        <feFuncA type="table" tableValues="0 0.16"/>
+      </feComponentTransfer>
+    </filter>
+    <pattern id="grid" width="104" height="104" patternUnits="userSpaceOnUse">
+      <path d="M 104 0 L 0 0 0 104" fill="none" stroke="#efeaff" stroke-opacity="0.044" stroke-width="2"/>
+    </pattern>
+  </defs>
+
+  <rect width="2400" height="1350" fill="url(#bg)"/>
+  <rect width="2400" height="1350" fill="url(#goldGlow)"/>
+  <rect width="2400" height="1350" fill="url(#coralGlow)"/>
+  <rect width="2400" height="1350" fill="url(#mintGlow)"/>
+
+  <g opacity="0.26">
+    <path d="M-90 278 C 310 124 650 152 980 304 C 1292 448 1548 398 1852 230 C 2076 106 2260 134 2510 288" fill="none" stroke="#8a8bdd" stroke-width="5" stroke-opacity="0.20"/>
+    <path d="M-120 1118 C 326 952 718 1000 1078 1140 C 1436 1280 1816 1238 2514 998" fill="none" stroke="#f0d060" stroke-width="4" stroke-opacity="0.17"/>
+  </g>
+
+  <g transform="translate(530 214)" filter="url(#softShadow)">
+    <rect x="0" y="0" width="1120" height="760" rx="76" fill="#060a15"/>
+    <rect x="58" y="72" width="1004" height="610" rx="52" fill="url(#panel)"/>
+    <rect x="58" y="72" width="1004" height="610" rx="52" fill="url(#grid)" opacity="0.9"/>
+    <rect x="126" y="142" width="230" height="24" rx="12" fill="#f0d060"/>
+    <rect x="126" y="206" width="500" height="17" rx="9" fill="#b7b8ff" opacity="0.66"/>
+    <rect x="126" y="258" width="430" height="17" rx="9" fill="#67d9b0" opacity="0.58"/>
+    <rect x="126" y="310" width="560" height="17" rx="9" fill="#efeaff" opacity="0.22"/>
+
+    <g transform="translate(704 168)">
+      <path d="M 78 154 L 78 106 C 78 48 126 0 184 0 C 242 0 290 48 290 106 L 290 154" fill="none" stroke="#f0d060" stroke-width="32" stroke-linecap="round"/>
+      <rect x="30" y="132" width="308" height="248" rx="58" fill="url(#lock)"/>
+      <circle cx="184" cy="236" r="32" fill="#101b34"/>
+      <rect x="170" y="264" width="28" height="62" rx="14" fill="#101b34"/>
+      <path d="M 82 166 C 144 140 224 140 286 166" fill="none" stroke="#fff4cf" stroke-width="6" stroke-linecap="round" opacity="0.46"/>
+    </g>
+
+    <g transform="translate(126 410)">
+      <rect x="0" y="0" width="264" height="166" rx="32" fill="#101b34"/>
+      <rect x="30" y="36" width="98" height="16" rx="8" fill="#67d9b0"/>
+      <rect x="30" y="82" width="176" height="12" rx="6" fill="#efeaff" opacity="0.32"/>
+      <rect x="30" y="118" width="136" height="12" rx="6" fill="#efeaff" opacity="0.20"/>
+      <circle cx="218" cy="54" r="26" fill="#67d9b0" opacity="0.84"/>
+    </g>
+    <g transform="translate(430 410)">
+      <rect x="0" y="0" width="264" height="166" rx="32" fill="#101b34"/>
+      <rect x="30" y="36" width="116" height="16" rx="8" fill="#e8845a"/>
+      <rect x="30" y="82" width="178" height="12" rx="6" fill="#efeaff" opacity="0.32"/>
+      <rect x="30" y="118" width="150" height="12" rx="6" fill="#efeaff" opacity="0.20"/>
+      <circle cx="218" cy="54" r="26" fill="#e8845a" opacity="0.84"/>
+    </g>
+    <g transform="translate(734 410)">
+      <rect x="0" y="0" width="264" height="166" rx="32" fill="#101b34"/>
+      <rect x="30" y="36" width="106" height="16" rx="8" fill="#f0d060"/>
+      <rect x="30" y="82" width="178" height="12" rx="6" fill="#efeaff" opacity="0.32"/>
+      <rect x="30" y="118" width="154" height="12" rx="6" fill="#efeaff" opacity="0.20"/>
+      <circle cx="218" cy="54" r="26" fill="#f0d060" opacity="0.84"/>
+    </g>
+  </g>
+
+  <g transform="translate(178 640) rotate(-8)" filter="url(#closeShadow)">
+    <rect x="0" y="0" width="520" height="330" rx="38" fill="url(#paper)"/>
+    <rect x="46" y="48" width="190" height="22" rx="11" fill="#8a8bdd" opacity="0.78"/>
+    <rect x="46" y="106" width="384" height="14" rx="7" fill="#151230" opacity="0.34"/>
+    <rect x="46" y="148" width="320" height="14" rx="7" fill="#151230" opacity="0.26"/>
+    <rect x="46" y="190" width="406" height="14" rx="7" fill="#151230" opacity="0.22"/>
+    <circle cx="84" cy="264" r="30" fill="#67d9b0" opacity="0.84"/>
+    <path d="M 72 264 L 82 274 L 104 246" fill="none" stroke="#0b1120" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="134" y="276" fill="#151230" font-family="Sora, Work Sans, Avenir Next, Segoe UI, sans-serif" font-size="31" font-weight="850">human review</text>
+  </g>
+
+  <g transform="translate(1560 726) rotate(8)" filter="url(#closeShadow)">
+    <rect x="0" y="0" width="560" height="336" rx="44" fill="#101b34"/>
+    <rect x="48" y="48" width="180" height="22" rx="11" fill="#f0d060"/>
+    <rect x="48" y="112" width="398" height="16" rx="8" fill="#efeaff" opacity="0.34"/>
+    <rect x="48" y="160" width="344" height="16" rx="8" fill="#efeaff" opacity="0.24"/>
+    <rect x="48" y="208" width="286" height="16" rx="8" fill="#efeaff" opacity="0.18"/>
+    <g transform="translate(420 170)">
+      <rect x="-72" y="-76" width="144" height="152" rx="34" fill="#67d9b0" opacity="0.82"/>
+      <path d="M -24 0 L -4 22 L 40 -36" fill="none" stroke="#0b1120" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+  </g>
+
+  <g transform="translate(900 948)" filter="url(#closeShadow)">
+    <ellipse cx="0" cy="0" rx="340" ry="88" fill="#03050e" opacity="0.34"/>
+    <rect x="-322" y="-122" width="644" height="176" rx="44" fill="#152344"/>
+    <rect x="-270" y="-76" width="202" height="18" rx="9" fill="#c4456a"/>
+    <rect x="-270" y="-30" width="468" height="14" rx="7" fill="#efeaff" opacity="0.34"/>
+    <rect x="-270" y="10" width="382" height="14" rx="7" fill="#efeaff" opacity="0.22"/>
+    <circle cx="248" cy="-34" r="38" fill="#f0d060" opacity="0.82"/>
+  </g>
+
+  <g opacity="0.72" font-family="Sora, Work Sans, Avenir Next, Segoe UI, sans-serif">
+    <text x="150" y="214" fill="#fff4cf" font-size="54" font-weight="850">Privacy and control</text>
+    <text x="150" y="286" fill="#d7d1ef" font-size="32" font-weight="600">Boundaries, sensitive details, and review points stay visible</text>
+  </g>
+
+  <g opacity="0.72">
+    <circle cx="520" cy="286" r="6" fill="#f0d060"/>
+    <circle cx="1992" cy="260" r="6" fill="#67d9b0"/>
+    <circle cx="2058" cy="1058" r="5" fill="#e8845a"/>
+    <circle cx="1108" cy="168" r="4" fill="#8a8bdd"/>
+  </g>
+
+  <rect width="2400" height="1350" filter="url(#grain)" opacity="0.30"/>
+  <rect width="2400" height="1350" fill="#0b1120" opacity="0.07"/>
+</svg>

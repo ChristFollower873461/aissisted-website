@@ -1,0 +1,101 @@
+{
+  "name": "AIssisted Consulting",
+  "public_brand": "AIssisted Consulting",
+  "founder_operator": {
+    "name": "PJ",
+    "role": "Founder/operator and practical AI implementation partner"
+  },
+  "contact": {
+    "phone_display": "(352) 817-3567",
+    "phone_e164": "+13528173567",
+    "email": "pj@aissistedconsulting.com",
+    "contact_page": "https://aissistedconsulting.com/contact/"
+  },
+  "base_location": {
+    "city": "Ocala",
+    "state": "Florida",
+    "country": "United States"
+  },
+  "service_area": {
+    "local_regions": [
+      "Central Florida",
+      "North Central Florida"
+    ],
+    "remote_region": "United States",
+    "notes": [
+      "AIssisted Consulting is based in Ocala, Florida.",
+      "The site describes help for Central Florida, North Central Florida, and remote clients across the United States.",
+      "This feed does not create extra city, county, or state service claims."
+    ]
+  },
+  "primary_audiences": [
+    {
+      "audience": "Small service businesses",
+      "status": "active",
+      "fit": "Owners who need practical help with intake, scheduling, follow-up, reporting, owner visibility, and reviewable workflows."
+    },
+    {
+      "audience": "Families and households",
+      "status": "guidance",
+      "fit": "Households with setup, privacy, everyday use, and boundary questions about AI tools."
+    }
+  ],
+  "positioning": [
+    "Local, founder-led AI help.",
+    "Plain-English implementation for one useful workflow first.",
+    "Softer sales posture with practical guides, examples, and clear next steps.",
+    "Small-business workflow help and conservative family AI guidance.",
+    "The public booking route can reserve a 60-minute founder-led consult through the same-origin booking backend and Stripe Checkout when deployment credentials are configured."
+  ],
+  "booking": {
+    "page": "https://aissistedconsulting.com/book/",
+    "offer": "60-minute founder-led AI workflow consult",
+    "reservation_deposit_usd": 225,
+    "policy": "The reservation deposit is non-refundable and credited once toward service if the visitor becomes a customer.",
+    "confirmation_boundary": "A slot is not confirmed until Stripe payment succeeds and the booking backend finalizes the record."
+  },
+  "privacy_control_posture": [
+    "AI should support people without handing away sensitive control.",
+    "Customer relationships, family decisions, and important exceptions need human review.",
+    "Sensitive data boundaries should be named before a tool or workflow is added.",
+    "Some work should stay manual."
+  ],
+  "wrong_fit_boundaries": [
+    "Removing human judgment.",
+    "Standing in for staff, parents, caregivers, teachers, or professionals.",
+    "Bypassing privacy, security, legal, medical, financial, school-policy, or compliance review.",
+    "Unapproved communication, commitments, transactions, booking, payment, or external writes.",
+    "Outcome promises around AI visibility, lead flow, revenue, safety, or rankings."
+  ],
+  "canonical_pages": {
+    "home": "https://aissistedconsulting.com/",
+    "small_business_ai_help": "https://aissistedconsulting.com/small-business-ai-help/",
+    "family_ai_help": "https://aissistedconsulting.com/family-ai-help/",
+    "services": "https://aissistedconsulting.com/services/",
+    "privacy_and_control": "https://aissistedconsulting.com/privacy-and-control/",
+    "about": "https://aissistedconsulting.com/about/",
+    "contact": "https://aissistedconsulting.com/contact/",
+    "book": "https://aissistedconsulting.com/book/"
+  },
+  "publication_boundary": "This support file summarizes public site facts and declared local/deployable agent-surface capabilities. It does not represent live AVOS testing, crawler changes, credentialed private workflows, direct card collection, CRM/email writes, analytics writes, or destructive actions.",
+  "last_reviewed": "2026-05-06",
+  "agent_surface": {
+    "manifest": "https://aissistedconsulting.com/.well-known/agent.json",
+    "risk_tiers": [
+      "read_only",
+      "draft_only",
+      "external_write",
+      "financial"
+    ],
+    "contact_submission": "Agent-assisted contact submission is declared only through the same-origin contact endpoint with human approval, consent, Idempotency-Key, duplicate suppression, and audit records.",
+    "booking_checkout": "Agent-assisted booking checkout is declared only through the same-origin booking endpoint with human approval, policy acceptance, checkout consent, exact amount/currency/policy confirmation, Idempotency-Key, slot conflict checks, audit records, and Stripe Checkout.",
+    "excluded_capabilities": [
+      "destructive actions",
+      "direct card collection",
+      "CRM/email writes",
+      "analytics writes",
+      "authentication changes",
+      "crawler-rule changes"
+    ]
+  }
+}

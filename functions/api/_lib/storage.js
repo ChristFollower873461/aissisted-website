@@ -58,6 +58,9 @@ function normalizeBooking(record) {
     updatedAt: record.updatedAt || null,
     policyVersion: record.policyVersion || "",
     policyAcceptedAt: record.policyAcceptedAt || null,
+    checkoutIdempotencyRecordId:
+      record.checkoutIdempotencyRecordId || record.checkout_idempotency_record_id || null,
+    checkoutAuditId: record.checkoutAuditId || record.checkout_audit_id || null,
     intakeSummary: record.intakeSummary || "",
     prospectName: record.prospectName || "",
     prospectEmail: record.prospectEmail || "",
@@ -92,6 +95,95 @@ function normalizeProspect(record) {
   };
 }
 
+function idempotencyRecordKey(commandId, idempotencyKeyHash) {
+  return `${commandId}:${idempotencyKeyHash}`;
+}
+
+function idempotencyTargetKey(targetType, targetId) {
+  return `${targetType}:${targetId}`;
+}
+
+function normalizeIdempotencyRecord(record) {
+  if (!record) {
+    return null;
+  }
+
+  return {
+    id: record.id,
+    commandId: record.commandId || record.command_id,
+    risk: record.risk,
+    idempotencyKeyHash: record.idempotencyKeyHash || record.idempotency_key_hash,
+    requestFingerprint: record.requestFingerprint || record.request_fingerprint,
+    requestSummaryJson: record.requestSummaryJson || record.request_summary_json || null,
+    status: record.status,
+    targetType: record.targetType || record.target_type || "",
+    targetId: record.targetId || record.target_id || "",
+    responseStatus: Number(record.responseStatus || record.response_status || 0) || null,
+    responseBodyJson: record.responseBodyJson || record.response_body_json || null,
+    errorCode: record.errorCode || record.error_code || null,
+    createdAt: record.createdAt || record.created_at || null,
+    updatedAt: record.updatedAt || record.updated_at || null,
+    completedAt: record.completedAt || record.completed_at || null,
+    expiresAt: record.expiresAt || record.expires_at || null
+  };
+}
+
+function normalizeAgentTransactionAudit(record) {
+  if (!record) {
+    return null;
+  }
+
+  return {
+    id: record.id,
+    createdAt: record.createdAt || record.created_at || null,
+    commandId: record.commandId || record.command_id,
+    risk: record.risk,
+    actorType: record.actorType || record.actor_type || "unknown",
+    idempotencyRecordId:
+      record.idempotencyRecordId || record.idempotency_record_id || null,
+    idempotencyKeyHash:
+      record.idempotencyKeyHash || record.idempotency_key_hash || null,
+    requestFingerprint:
+      record.requestFingerprint || record.request_fingerprint || null,
+    targetType: record.targetType || record.target_type || "",
+    targetId: record.targetId || record.target_id || "",
+    result: record.result,
+    responseStatus: Number(record.responseStatus || record.response_status || 0) || null,
+    errorCode: record.errorCode || record.error_code || null,
+    safeSummaryJson: record.safeSummaryJson || record.safe_summary_json || null
+  };
+}
+
+function normalizeContactInquiry(record) {
+  if (!record) {
+    return null;
+  }
+
+  return {
+    id: record.id,
+    status: record.status,
+    name: record.name,
+    email: record.email,
+    emailNormalized: record.emailNormalized || record.email_normalized,
+    phone: record.phone || "",
+    company: record.company || "",
+    audience: record.audience,
+    audienceNormalized: record.audienceNormalized || record.audience_normalized,
+    message: record.message,
+    messageHash: record.messageHash || record.message_hash,
+    duplicateFingerprint:
+      record.duplicateFingerprint || record.duplicate_fingerprint,
+    sourcePage: record.sourcePage || record.source_page || "",
+    consentToSubmit: toBoolean(record.consentToSubmit ?? record.consent_to_submit),
+    consentAt: record.consentAt || record.consent_at,
+    deliveryStatus: record.deliveryStatus || record.delivery_status,
+    idempotencyRecordId:
+      record.idempotencyRecordId || record.idempotency_record_id,
+    createdAt: record.createdAt || record.created_at,
+    updatedAt: record.updatedAt || record.updated_at
+  };
+}
+
 function getMemoryState() {
   if (!globalThis.__aissistedBookingStore) {
     globalThis.__aissistedBookingStore = {
@@ -100,8 +192,33 @@ function getMemoryState() {
       bookings: new Map(),
       bookingsBySession: new Map(),
       depositCredits: new Map(),
+      agentIdempotencyRecords: new Map(),
+      agentIdempotencyRecordsById: new Map(),
+      agentIdempotencyByTarget: new Map(),
+      agentTransactionAudits: [],
+      contactInquiries: new Map(),
+      contactInquiryIdsByDuplicateFingerprint: new Map(),
       events: []
     };
+  }
+
+  if (!globalThis.__aissistedBookingStore.agentIdempotencyRecords) {
+    globalThis.__aissistedBookingStore.agentIdempotencyRecords = new Map();
+  }
+  if (!globalThis.__aissistedBookingStore.agentIdempotencyRecordsById) {
+    globalThis.__aissistedBookingStore.agentIdempotencyRecordsById = new Map();
+  }
+  if (!globalThis.__aissistedBookingStore.agentIdempotencyByTarget) {
+    globalThis.__aissistedBookingStore.agentIdempotencyByTarget = new Map();
+  }
+  if (!globalThis.__aissistedBookingStore.agentTransactionAudits) {
+    globalThis.__aissistedBookingStore.agentTransactionAudits = [];
+  }
+  if (!globalThis.__aissistedBookingStore.contactInquiries) {
+    globalThis.__aissistedBookingStore.contactInquiries = new Map();
+  }
+  if (!globalThis.__aissistedBookingStore.contactInquiryIdsByDuplicateFingerprint) {
+    globalThis.__aissistedBookingStore.contactInquiryIdsByDuplicateFingerprint = new Map();
   }
 
   return globalThis.__aissistedBookingStore;
@@ -135,7 +252,211 @@ function createMemoryStore() {
     });
   }
 
+  function rememberIdempotencyTarget(record) {
+    if (record.targetType && record.targetId) {
+      state.agentIdempotencyByTarget.set(
+        idempotencyTargetKey(record.targetType, record.targetId),
+        record.id
+      );
+    }
+  }
+
+  function putIdempotencyRecord(record) {
+    state.agentIdempotencyRecords.set(
+      idempotencyRecordKey(record.commandId, record.idempotencyKeyHash),
+      record
+    );
+    state.agentIdempotencyRecordsById.set(record.id, record);
+    rememberIdempotencyTarget(record);
+    return normalizeIdempotencyRecord(record);
+  }
+
   return {
+    async getIdempotencyRecord(input) {
+      return normalizeIdempotencyRecord(
+        state.agentIdempotencyRecords.get(
+          idempotencyRecordKey(input.commandId, input.idempotencyKeyHash)
+        )
+      );
+    },
+
+    async getIdempotencyRecordById(id) {
+      return normalizeIdempotencyRecord(state.agentIdempotencyRecordsById.get(id));
+    },
+
+    async getIdempotencyRecordByTarget(input) {
+      const id = state.agentIdempotencyByTarget.get(
+        idempotencyTargetKey(input.targetType, input.targetId)
+      );
+      return id ? this.getIdempotencyRecordById(id) : null;
+    },
+
+    async startIdempotencyRecord(input) {
+      const key = idempotencyRecordKey(input.commandId, input.idempotencyKeyHash);
+      const existing = state.agentIdempotencyRecords.get(key);
+      if (existing) {
+        return normalizeIdempotencyRecord(existing);
+      }
+
+      const timestamp = input.createdAt || nowIso();
+      return putIdempotencyRecord({
+        id: input.id || createId("idem"),
+        commandId: input.commandId,
+        risk: input.risk,
+        idempotencyKeyHash: input.idempotencyKeyHash,
+        requestFingerprint: input.requestFingerprint,
+        requestSummaryJson: input.requestSummaryJson || null,
+        status: "started",
+        targetType: input.targetType || "",
+        targetId: input.targetId || "",
+        responseStatus: null,
+        responseBodyJson: null,
+        errorCode: null,
+        createdAt: timestamp,
+        updatedAt: timestamp,
+        completedAt: null,
+        expiresAt: input.expiresAt || null
+      });
+    },
+
+    async markIdempotencySucceeded(id, input = {}) {
+      const record = state.agentIdempotencyRecordsById.get(id);
+      if (!record) {
+        return null;
+      }
+
+      const timestamp = input.completedAt || nowIso();
+      record.status = "succeeded";
+      record.targetType = input.targetType || record.targetType || "";
+      record.targetId = input.targetId || record.targetId || "";
+      record.responseStatus = input.responseStatus || record.responseStatus || 200;
+      record.responseBodyJson =
+        input.responseBodyJson !== undefined
+          ? input.responseBodyJson
+          : record.responseBodyJson;
+      record.errorCode = null;
+      record.updatedAt = timestamp;
+      record.completedAt = timestamp;
+      return putIdempotencyRecord(record);
+    },
+
+    async markIdempotencyFailed(id, input = {}) {
+      const record = state.agentIdempotencyRecordsById.get(id);
+      if (!record) {
+        return null;
+      }
+
+      const timestamp = input.completedAt || nowIso();
+      record.status = "failed";
+      record.targetType = input.targetType || record.targetType || "";
+      record.targetId = input.targetId || record.targetId || "";
+      record.responseStatus = input.responseStatus || record.responseStatus || 500;
+      record.responseBodyJson =
+        input.responseBodyJson !== undefined
+          ? input.responseBodyJson
+          : record.responseBodyJson;
+      record.errorCode = input.errorCode || record.errorCode || "internal_error";
+      record.updatedAt = timestamp;
+      record.completedAt = timestamp;
+      return putIdempotencyRecord(record);
+    },
+
+    async markIdempotencyConflict(id, input = {}) {
+      const record = state.agentIdempotencyRecordsById.get(id);
+      if (!record) {
+        return null;
+      }
+
+      const timestamp = input.completedAt || nowIso();
+      record.status = "conflict";
+      record.responseStatus = input.responseStatus || record.responseStatus || 409;
+      record.responseBodyJson =
+        input.responseBodyJson !== undefined
+          ? input.responseBodyJson
+          : record.responseBodyJson;
+      record.errorCode = input.errorCode || record.errorCode || "idempotency_conflict";
+      record.updatedAt = timestamp;
+      record.completedAt = timestamp;
+      return putIdempotencyRecord(record);
+    },
+
+    async logAgentTransactionAudit(input) {
+      const audit = {
+        id: input.id || createId("audit"),
+        createdAt: input.createdAt || nowIso(),
+        commandId: input.commandId,
+        risk: input.risk,
+        actorType: input.actorType || "unknown",
+        idempotencyRecordId: input.idempotencyRecordId || null,
+        idempotencyKeyHash: input.idempotencyKeyHash || null,
+        requestFingerprint: input.requestFingerprint || null,
+        targetType: input.targetType || "",
+        targetId: input.targetId || "",
+        result: input.result,
+        responseStatus: input.responseStatus || null,
+        errorCode: input.errorCode || null,
+        safeSummaryJson: input.safeSummaryJson || null
+      };
+      state.agentTransactionAudits.push(audit);
+      return normalizeAgentTransactionAudit(audit);
+    },
+
+    async listAgentTransactionAudits() {
+      return state.agentTransactionAudits.map((audit) =>
+        normalizeAgentTransactionAudit(audit)
+      );
+    },
+
+    async createContactInquiry(input) {
+      const timestamp = input.createdAt || nowIso();
+      const inquiry = {
+        id: input.id || createId("inq"),
+        status: input.status || "received",
+        name: input.name,
+        email: input.email,
+        emailNormalized: input.emailNormalized,
+        phone: input.phone || "",
+        company: input.company || "",
+        audience: input.audience,
+        audienceNormalized: input.audienceNormalized,
+        message: input.message,
+        messageHash: input.messageHash,
+        duplicateFingerprint: input.duplicateFingerprint,
+        sourcePage: input.sourcePage || "",
+        consentToSubmit: input.consentToSubmit === true,
+        consentAt: input.consentAt || timestamp,
+        deliveryStatus: input.deliveryStatus || "local_record_only",
+        idempotencyRecordId: input.idempotencyRecordId,
+        createdAt: timestamp,
+        updatedAt: timestamp
+      };
+      state.contactInquiries.set(inquiry.id, inquiry);
+      const duplicateIds =
+        state.contactInquiryIdsByDuplicateFingerprint.get(inquiry.duplicateFingerprint) || [];
+      duplicateIds.push(inquiry.id);
+      state.contactInquiryIdsByDuplicateFingerprint.set(
+        inquiry.duplicateFingerprint,
+        duplicateIds
+      );
+      return normalizeContactInquiry(inquiry);
+    },
+
+    async getContactInquiryById(id) {
+      return normalizeContactInquiry(state.contactInquiries.get(id));
+    },
+
+    async findRecentContactInquiryByDuplicateFingerprint(input) {
+      const ids =
+        state.contactInquiryIdsByDuplicateFingerprint.get(input.duplicateFingerprint) || [];
+      const sinceIso = input.sinceIso || "";
+      const inquiries = ids
+        .map((id) => state.contactInquiries.get(id))
+        .filter(Boolean)
+        .filter((inquiry) => !sinceIso || inquiry.createdAt >= sinceIso)
+        .sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
+      return normalizeContactInquiry(inquiries[0]);
+    },
+
     async cleanupExpiredHolds(currentTimeIso = nowIso()) {
       for (const booking of state.bookings.values()) {
         if (
@@ -219,6 +540,8 @@ function createMemoryStore() {
         updatedAt: input.createdAt,
         policyVersion: input.policyVersion,
         policyAcceptedAt: input.policyAcceptedAt,
+        checkoutIdempotencyRecordId: input.checkoutIdempotencyRecordId || null,
+        checkoutAuditId: input.checkoutAuditId || null,
         intakeSummary: input.intakeSummary || ""
       };
 
@@ -234,6 +557,9 @@ function createMemoryStore() {
 
       booking.stripeCheckoutSessionId = input.sessionId;
       booking.paymentStatus = "checkout_created";
+      booking.checkoutIdempotencyRecordId =
+        input.checkoutIdempotencyRecordId || booking.checkoutIdempotencyRecordId || null;
+      booking.checkoutAuditId = input.checkoutAuditId || booking.checkoutAuditId || null;
       booking.updatedAt = nowIso();
       state.bookingsBySession.set(input.sessionId, booking.id);
 
@@ -425,6 +751,8 @@ const BOOKING_SELECT = `
     b.updated_at AS updatedAt,
     b.policy_version AS policyVersion,
     b.policy_accepted_at AS policyAcceptedAt,
+    b.checkout_idempotency_record_id AS checkoutIdempotencyRecordId,
+    b.checkout_audit_id AS checkoutAuditId,
     b.intake_summary AS intakeSummary,
     p.name AS prospectName,
     p.email AS prospectEmail,
@@ -449,6 +777,37 @@ function createD1Store(db) {
       .bind(value)
       .first();
     return normalizeBooking(record);
+  }
+
+  async function fetchIdempotencyRecord(whereClause, ...values) {
+    const record = await db
+      .prepare(
+        `
+          SELECT
+            id,
+            command_id,
+            risk,
+            idempotency_key_hash,
+            request_fingerprint,
+            request_summary_json,
+            status,
+            target_type,
+            target_id,
+            response_status,
+            response_body_json,
+            error_code,
+            created_at,
+            updated_at,
+            completed_at,
+            expires_at
+          FROM agent_idempotency_records
+          WHERE ${whereClause}
+          LIMIT 1
+        `
+      )
+      .bind(...values)
+      .first();
+    return normalizeIdempotencyRecord(record);
   }
 
   async function updateProspectStripeCustomer(bookingId, stripeCustomerId, timestamp) {
@@ -503,6 +862,350 @@ function createD1Store(db) {
   }
 
   return {
+    async getIdempotencyRecord(input) {
+      return fetchIdempotencyRecord(
+        "command_id = ?1 AND idempotency_key_hash = ?2",
+        input.commandId,
+        input.idempotencyKeyHash
+      );
+    },
+
+    async getIdempotencyRecordById(id) {
+      return fetchIdempotencyRecord("id = ?1", id);
+    },
+
+    async getIdempotencyRecordByTarget(input) {
+      return fetchIdempotencyRecord(
+        "target_type = ?1 AND target_id = ?2",
+        input.targetType,
+        input.targetId
+      );
+    },
+
+    async startIdempotencyRecord(input) {
+      const existing = await this.getIdempotencyRecord(input);
+      if (existing) {
+        return existing;
+      }
+
+      const timestamp = input.createdAt || nowIso();
+      const id = input.id || createId("idem");
+      await db
+        .prepare(
+          `
+            INSERT INTO agent_idempotency_records (
+              id,
+              command_id,
+              risk,
+              idempotency_key_hash,
+              request_fingerprint,
+              request_summary_json,
+              status,
+              target_type,
+              target_id,
+              response_status,
+              response_body_json,
+              error_code,
+              created_at,
+              updated_at,
+              completed_at,
+              expires_at
+            )
+            VALUES (?1, ?2, ?3, ?4, ?5, ?6, 'started', ?7, ?8, NULL, NULL, NULL, ?9, ?9, NULL, ?10)
+            ON CONFLICT(command_id, idempotency_key_hash) DO NOTHING
+          `
+        )
+        .bind(
+          id,
+          input.commandId,
+          input.risk,
+          input.idempotencyKeyHash,
+          input.requestFingerprint,
+          input.requestSummaryJson || null,
+          input.targetType || null,
+          input.targetId || null,
+          timestamp,
+          input.expiresAt || null
+        )
+        .run();
+
+      return this.getIdempotencyRecord(input);
+    },
+
+    async markIdempotencySucceeded(id, input = {}) {
+      const timestamp = input.completedAt || nowIso();
+      await db
+        .prepare(
+          `
+            UPDATE agent_idempotency_records
+            SET status = 'succeeded',
+                target_type = COALESCE(?1, target_type),
+                target_id = COALESCE(?2, target_id),
+                response_status = COALESCE(?3, response_status, 200),
+                response_body_json = COALESCE(?4, response_body_json),
+                error_code = NULL,
+                updated_at = ?5,
+                completed_at = ?5
+            WHERE id = ?6
+          `
+        )
+        .bind(
+          input.targetType || null,
+          input.targetId || null,
+          input.responseStatus || null,
+          input.responseBodyJson === undefined ? null : input.responseBodyJson,
+          timestamp,
+          id
+        )
+        .run();
+
+      return this.getIdempotencyRecordById(id);
+    },
+
+    async markIdempotencyFailed(id, input = {}) {
+      const timestamp = input.completedAt || nowIso();
+      await db
+        .prepare(
+          `
+            UPDATE agent_idempotency_records
+            SET status = 'failed',
+                target_type = COALESCE(?1, target_type),
+                target_id = COALESCE(?2, target_id),
+                response_status = COALESCE(?3, response_status, 500),
+                response_body_json = COALESCE(?4, response_body_json),
+                error_code = COALESCE(?5, error_code, 'internal_error'),
+                updated_at = ?6,
+                completed_at = ?6
+            WHERE id = ?7
+          `
+        )
+        .bind(
+          input.targetType || null,
+          input.targetId || null,
+          input.responseStatus || null,
+          input.responseBodyJson === undefined ? null : input.responseBodyJson,
+          input.errorCode || null,
+          timestamp,
+          id
+        )
+        .run();
+
+      return this.getIdempotencyRecordById(id);
+    },
+
+    async markIdempotencyConflict(id, input = {}) {
+      const timestamp = input.completedAt || nowIso();
+      await db
+        .prepare(
+          `
+            UPDATE agent_idempotency_records
+            SET status = 'conflict',
+                response_status = COALESCE(?1, response_status, 409),
+                response_body_json = COALESCE(?2, response_body_json),
+                error_code = COALESCE(?3, error_code, 'idempotency_conflict'),
+                updated_at = ?4,
+                completed_at = ?4
+            WHERE id = ?5
+          `
+        )
+        .bind(
+          input.responseStatus || null,
+          input.responseBodyJson === undefined ? null : input.responseBodyJson,
+          input.errorCode || null,
+          timestamp,
+          id
+        )
+        .run();
+
+      return this.getIdempotencyRecordById(id);
+    },
+
+    async logAgentTransactionAudit(input) {
+      const id = input.id || createId("audit");
+      const timestamp = input.createdAt || nowIso();
+      await db
+        .prepare(
+          `
+            INSERT INTO agent_transaction_audits (
+              id,
+              created_at,
+              command_id,
+              risk,
+              actor_type,
+              idempotency_record_id,
+              idempotency_key_hash,
+              request_fingerprint,
+              target_type,
+              target_id,
+              result,
+              response_status,
+              error_code,
+              safe_summary_json
+            )
+            VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14)
+          `
+        )
+        .bind(
+          id,
+          timestamp,
+          input.commandId,
+          input.risk,
+          input.actorType || "unknown",
+          input.idempotencyRecordId || null,
+          input.idempotencyKeyHash || null,
+          input.requestFingerprint || null,
+          input.targetType || null,
+          input.targetId || null,
+          input.result,
+          input.responseStatus || null,
+          input.errorCode || null,
+          input.safeSummaryJson || null
+        )
+        .run();
+
+      return normalizeAgentTransactionAudit({
+        id,
+        createdAt: timestamp,
+        commandId: input.commandId,
+        risk: input.risk,
+        actorType: input.actorType || "unknown",
+        idempotencyRecordId: input.idempotencyRecordId || null,
+        idempotencyKeyHash: input.idempotencyKeyHash || null,
+        requestFingerprint: input.requestFingerprint || null,
+        targetType: input.targetType || "",
+        targetId: input.targetId || "",
+        result: input.result,
+        responseStatus: input.responseStatus || null,
+        errorCode: input.errorCode || null,
+        safeSummaryJson: input.safeSummaryJson || null
+      });
+    },
+
+    async createContactInquiry(input) {
+      const timestamp = input.createdAt || nowIso();
+      const id = input.id || createId("inq");
+      await db
+        .prepare(
+          `
+            INSERT INTO contact_inquiries (
+              id,
+              status,
+              name,
+              email,
+              email_normalized,
+              phone,
+              company,
+              audience,
+              audience_normalized,
+              message,
+              message_hash,
+              duplicate_fingerprint,
+              source_page,
+              consent_to_submit,
+              consent_at,
+              delivery_status,
+              idempotency_record_id,
+              created_at,
+              updated_at
+            )
+            VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17, ?18, ?18)
+          `
+        )
+        .bind(
+          id,
+          input.status || "received",
+          input.name,
+          input.email,
+          input.emailNormalized,
+          input.phone || null,
+          input.company || null,
+          input.audience,
+          input.audienceNormalized,
+          input.message,
+          input.messageHash,
+          input.duplicateFingerprint,
+          input.sourcePage || null,
+          input.consentToSubmit === true ? 1 : 0,
+          input.consentAt || timestamp,
+          input.deliveryStatus || "local_record_only",
+          input.idempotencyRecordId,
+          timestamp
+        )
+        .run();
+
+      return this.getContactInquiryById(id);
+    },
+
+    async getContactInquiryById(id) {
+      const record = await db
+        .prepare(
+          `
+            SELECT
+              id,
+              status,
+              name,
+              email,
+              email_normalized,
+              phone,
+              company,
+              audience,
+              audience_normalized,
+              message,
+              message_hash,
+              duplicate_fingerprint,
+              source_page,
+              consent_to_submit,
+              consent_at,
+              delivery_status,
+              idempotency_record_id,
+              created_at,
+              updated_at
+            FROM contact_inquiries
+            WHERE id = ?1
+            LIMIT 1
+          `
+        )
+        .bind(id)
+        .first();
+      return normalizeContactInquiry(record);
+    },
+
+    async findRecentContactInquiryByDuplicateFingerprint(input) {
+      const record = await db
+        .prepare(
+          `
+            SELECT
+              id,
+              status,
+              name,
+              email,
+              email_normalized,
+              phone,
+              company,
+              audience,
+              audience_normalized,
+              message,
+              message_hash,
+              duplicate_fingerprint,
+              source_page,
+              consent_to_submit,
+              consent_at,
+              delivery_status,
+              idempotency_record_id,
+              created_at,
+              updated_at
+            FROM contact_inquiries
+            WHERE duplicate_fingerprint = ?1
+              AND created_at >= ?2
+            ORDER BY created_at DESC
+            LIMIT 1
+          `
+        )
+        .bind(input.duplicateFingerprint, input.sinceIso || "")
+        .first();
+      return normalizeContactInquiry(record);
+    },
+
     async cleanupExpiredHolds(currentTimeIso = nowIso()) {
       await db
         .prepare(
@@ -634,12 +1337,14 @@ function createD1Store(db) {
                 updated_at,
                 policy_version,
                 policy_accepted_at,
+                checkout_idempotency_record_id,
+                checkout_audit_id,
                 intake_summary
               )
               VALUES (
                 ?1, ?2, ?3, ?4, ?5, ?6,
                 'hold', 'hold_created', ?7, ?8, NULL, NULL,
-                NULL, NULL, ?9, ?10, ?10, ?10, ?11, ?12, ?13
+                NULL, NULL, ?9, ?10, ?10, ?10, ?11, ?12, ?13, ?14, ?15
               )
             `
           )
@@ -656,6 +1361,8 @@ function createD1Store(db) {
             input.createdAt,
             input.policyVersion,
             input.policyAcceptedAt,
+            input.checkoutIdempotencyRecordId || null,
+            input.checkoutAuditId || null,
             input.intakeSummary || null
           )
           .run();
@@ -678,11 +1385,19 @@ function createD1Store(db) {
             UPDATE bookings
             SET stripe_checkout_session_id = ?1,
                 payment_status = 'checkout_created',
-                updated_at = ?2
-            WHERE id = ?3
+                checkout_idempotency_record_id = COALESCE(?2, checkout_idempotency_record_id),
+                checkout_audit_id = COALESCE(?3, checkout_audit_id),
+                updated_at = ?4
+            WHERE id = ?5
           `
         )
-        .bind(input.sessionId, timestamp, bookingId)
+        .bind(
+          input.sessionId,
+          input.checkoutIdempotencyRecordId || null,
+          input.checkoutAuditId || null,
+          timestamp,
+          bookingId
+        )
         .run();
 
       await updateProspectStripeCustomer(bookingId, input.stripeCustomerId, timestamp);

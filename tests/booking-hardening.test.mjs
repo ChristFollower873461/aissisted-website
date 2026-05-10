@@ -95,6 +95,21 @@ test("availability falls back to weekly template when Google Calendar lookup fai
   }
 });
 
+test("required Google Calendar availability fails closed instead of exposing fallback slots", async () => {
+  resetMemoryStore();
+
+  await assert.rejects(
+    () =>
+      listAvailableSlots({
+        env: { BOOKING_REQUIRE_GOOGLE_CALENDAR: "true" },
+        origin: "https://aissistedconsulting.com",
+        store: getBookingStore({}),
+        days: 7
+      }),
+    /Google Calendar availability is required but is not configured/
+  );
+});
+
 test("expired holds move paid checkouts into manual review instead of auto-confirming", async () => {
   resetMemoryStore();
   const store = getBookingStore({});

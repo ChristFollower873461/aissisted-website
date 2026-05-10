@@ -1,16 +1,45 @@
-# Redirect www to non-www (fixes duplicate content for Google)
-https://www.aissistedconsulting.com/* https://aissistedconsulting.com/:splat 301
+# Canonical domain routing and private-file blocking are handled by
+# functions/_middleware.js because Cloudflare Pages _redirects does not accept
+# absolute host rules or 404 status rules.
 
-# Redirect legacy domain to primary domain
-https://ocalaaiconsulting.com/* https://aissistedconsulting.com/:splat 301
-https://www.ocalaaiconsulting.com/* https://aissistedconsulting.com/:splat 301
+# Clean directory routes for legacy extensionless/live paths
+/small-business-ai-help /small-business-ai-help/ 301
+/services /services/ 301
+/services.html /services/ 301
+/privacy-and-control /privacy-and-control/ 301
+/about /about/ 301
+/about.html /about/ 301
+/contact /contact/ 301
+/contact.html /contact/ 301
+/book /book/ 301
+/book/success /book/success/ 301
+/book/cancel /book/cancel/ 301
+/family-ai-help /family-ai-help/ 301
+/industries /industries/ 301
+/industries/hvac /industries/hvac/ 301
+/industries/hvac.html /industries/hvac/ 301
+/industries/pest-control /industries/pest-control/ 301
+/industries/pest-control.html /industries/pest-control/ 301
+/industries/plumbing /industries/plumbing/ 301
+/industries/plumbing.html /industries/plumbing/ 301
+/guides/missed-calls-follow-up /guides/missed-calls-follow-up/ 301
+/guides/ai-workflow-checklist /guides/ai-workflow-checklist/ 301
+/guides/family-ai-safety-basics /guides/family-ai-safety-basics/ 301
+/guides/what-not-to-share-with-ai /guides/what-not-to-share-with-ai/ 301
+/guides/ai-tools-for-household-admin /guides/ai-tools-for-household-admin/ 301
 
-# SEO consolidation redirects
-/kids-ai-safety / 301
-/blog/kids-ai-guardrails /blog/ 301
-/home-assistant /services 301
-/blog/on-premise-ai-vs-cloud /blog/cloud-vs-on-prem-ai-for-small-business 301
-/blog/signs-you-need-ai-phone-agent /blog/5-signs-missing-calls 301
-/industries/electrical /industries/ 301
-/industries/landscaping /industries/ 301
-/industries/real-estate /industries/ 301
+# Legacy AIssisted routes from the current production site that are safe to consolidate.
+# Campaign/funnel routes /openclaw, /openclaw-florida, /reserve, /thank-you, /blog/,
+# and /tools intentionally remain live files because they carry Axos/Axon tracking.
+/pricing /book/ 301
+/pricing.html /book/ 301
+/case-studies /small-business-ai-help/ 301
+/case-studies.html /small-business-ai-help/ 301
+/compare /small-business-ai-help/ 301
+/compare.html /small-business-ai-help/ 301
+/realtors /small-business-ai-help/ 301
+/realtors.html /small-business-ai-help/ 301
+/pay /book/ 301
+/pay.html /book/ 301
+/pay-success /book/success/ 301
+/pay-success.html /book/success/ 301

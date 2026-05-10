@@ -1,5 +1,5 @@
 import { getBookingConfig } from "../_lib/config.js";
-import { json, methodNotAllowed, serverError } from "../_lib/http.js";
+import { json, methodNotAllowed, serverError, unavailable } from "../_lib/http.js";
 import { formatCurrency } from "../_lib/time.js";
 import { getBookingStore } from "../_lib/storage.js";
 import { listSlotsWithStatus } from "../_lib/availability.js";
@@ -28,14 +28,21 @@ export async function onRequest(context) {
       ok: true,
       timezone: config.timezone,
       reservationAmountCents: config.reservationAmountCents,
+      currency: config.currency,
       reservationAmountFormatted: formatCurrency(
         config.reservationAmountCents,
         config.currency
       ),
+      policyVersion: config.policyVersion,
       policyText: config.policyText,
       slots
     });
   } catch (error) {
+    const message = error instanceof Error ? error.message : String(error || "");
+    if (message.startsWith("Google Calendar availability is required")) {
+      return unavailable(message);
+    }
+
     return serverError(error);
   }
 }

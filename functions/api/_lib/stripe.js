@@ -17,6 +17,7 @@ async function stripeRequest(config, path, options = {}) {
     method: options.method || "POST",
     headers: {
       authorization: `Bearer ${config.stripeSecretKey}`,
+      ...(options.idempotencyKey ? { "idempotency-key": options.idempotencyKey } : {}),
       ...(options.body
         ? { "content-type": "application/x-www-form-urlencoded" }
         : {})
@@ -36,7 +37,7 @@ function normalizeString(value) {
   return String(value || "").trim();
 }
 
-export async function createStripeCustomer(config, prospect) {
+export async function createStripeCustomer(config, prospect, options = {}) {
   const body = asFormUrlEncoded({
     name: prospect.name,
     email: prospect.email,
@@ -48,10 +49,13 @@ export async function createStripeCustomer(config, prospect) {
     "metadata[source]": "website-booking"
   });
 
-  return stripeRequest(config, "/customers", { body });
+  return stripeRequest(config, "/customers", {
+    body,
+    idempotencyKey: options.idempotencyKey
+  });
 }
 
-export async function createCheckoutSession(config, booking, prospect) {
+export async function createCheckoutSession(config, booking, prospect, options = {}) {
   const successUrl = `${config.siteOrigin}/book/success/?booking_id=${encodeURIComponent(booking.id)}&session_id={CHECKOUT_SESSION_ID}`;
   const cancelUrl = `${config.siteOrigin}/book/cancel/?booking_id=${encodeURIComponent(booking.id)}`;
   const body = asFormUrlEncoded({
@@ -96,7 +100,10 @@ export async function createCheckoutSession(config, booking, prospect) {
     );
   }
 
-  return stripeRequest(config, "/checkout/sessions", { body });
+  return stripeRequest(config, "/checkout/sessions", {
+    body,
+    idempotencyKey: options.idempotencyKey
+  });
 }
 
 export async function retrieveCheckoutSession(config, sessionId) {

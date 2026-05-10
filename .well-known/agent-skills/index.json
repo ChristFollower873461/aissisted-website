@@ -1,0 +1,91 @@
+{
+  "version": "0.1",
+  "site": {
+    "name": "AIssisted Consulting",
+    "domain": "aissistedconsulting.com"
+  },
+  "purpose": "Static companion skill index for public agent discovery. This file describes read-only, draft-only, external-write, and financial agent-surface manifest commands backed by local endpoint code and tests.",
+  "skills": [
+    {
+      "id": "read-site-overview",
+      "title": "Read public site overview",
+      "risk": "read_only",
+      "manifestCommand": "get_site_overview",
+      "description": "Read public page regions for AIssisted Consulting positioning, audience paths, services, booking-route information, privacy boundaries, and contact details."
+    },
+    {
+      "id": "read-business-profile",
+      "title": "Read public business profile",
+      "risk": "read_only",
+      "manifestCommand": "get_business_profile",
+      "description": "Read public business identity, contact, location, audience, service-area, booking-policy, and boundary facts from the static business profile feed."
+    },
+    {
+      "id": "read-services",
+      "title": "Read public services",
+      "risk": "read_only",
+      "manifestCommand": "get_services",
+      "description": "Read public service categories, workflow focus, fit boundaries, and recommended next actions from the static services feed."
+    },
+    {
+      "id": "read-service-areas",
+      "title": "Read public service areas",
+      "risk": "read_only",
+      "manifestCommand": "get_service_areas",
+      "description": "Read Ocala, Central Florida, North Central Florida, and remote-support facts from the static service areas feed."
+    },
+    {
+      "id": "draft-business-workflow-question",
+      "title": "Draft business workflow question",
+      "risk": "draft_only",
+      "manifestCommand": "draft_business_workflow_question",
+      "description": "Prepare a small-business workflow question draft for human review using the public contact page fields. This skill does not submit the draft."
+    },
+    {
+      "id": "draft-family-ai-question",
+      "title": "Draft family AI question",
+      "risk": "draft_only",
+      "manifestCommand": "draft_family_ai_question",
+      "description": "Prepare a family AI setup, privacy, or safety question draft for human review using the public contact page fields. This skill does not submit the draft."
+    },
+    {
+      "id": "read-booking-slots",
+      "title": "Read booking availability",
+      "risk": "read_only",
+      "manifestCommand": "get_booking_slots",
+      "description": "Read public booking availability, reservation amount, currency, policy version, and policy text without creating a booking hold."
+    },
+    {
+      "id": "read-booking-status",
+      "title": "Read booking status",
+      "risk": "read_only",
+      "manifestCommand": "get_booking_status",
+      "description": "Read status for a booking id and Stripe Checkout session id supplied by the user or success URL."
+    },
+    {
+      "id": "submit-contact-inquiry",
+      "title": "Submit contact inquiry",
+      "risk": "external_write",
+      "manifestCommand": "submit_contact_inquiry",
+      "requiresHumanApproval": true,
+      "description": "Submit a user-approved contact inquiry with consent, Idempotency-Key, duplicate suppression, and audit logging."
+    },
+    {
+      "id": "create-booking-checkout",
+      "title": "Create booking checkout",
+      "risk": "financial",
+      "manifestCommand": "create_booking_checkout",
+      "requiresHumanApproval": true,
+      "description": "Create a user-approved booking hold and Stripe Checkout Session with exact amount and policy confirmation, Idempotency-Key, and audit logging."
+    }
+  ],
+  "boundaries": [
+    "External-write and financial commands require human approval.",
+    "Contact submission requires consent, Idempotency-Key, duplicate suppression, and audit logging.",
+    "Booking checkout requires policy acceptance, checkout consent, exact amount/currency/policy confirmation, Idempotency-Key, slot conflict checks, and Stripe Checkout.",
+    "The website does not collect card details; payment happens on Stripe Checkout.",
+    "No destructive command is exposed.",
+    "No auth, CRM/email, analytics, browser storage, or direct card-collection command is exposed.",
+    "Live publication and production credential setup remain outside this local file until explicitly approved."
+  ]
+}

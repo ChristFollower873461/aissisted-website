@@ -1,0 +1,176 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2400" height="1800" viewBox="0 0 2400 1800" role="img" aria-labelledby="title desc">
+  <title id="title">AIssisted Consulting workflow orbit poster</title>
+  <desc id="desc">A premium dark AI Guy branded workflow orbit showing Intake, Safety, Follow-up, and Review in a dimensional grid space.</desc>
+  <defs>
+    <radialGradient id="bgGlowGold" cx="14%" cy="20%" r="62%">
+      <stop offset="0%" stop-color="#f0d060" stop-opacity="0.28"/>
+      <stop offset="44%" stop-color="#8a8bdd" stop-opacity="0.10"/>
+      <stop offset="100%" stop-color="#0b1120" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="bgGlowCoral" cx="96%" cy="86%" r="58%">
+      <stop offset="0%" stop-color="#c4456a" stop-opacity="0.52"/>
+      <stop offset="52%" stop-color="#3d1d5e" stop-opacity="0.34"/>
+      <stop offset="100%" stop-color="#0b1120" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="bgGlowMint" cx="72%" cy="36%" r="42%">
+      <stop offset="0%" stop-color="#67d9b0" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#0b1120" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="panel" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#182442" stop-opacity="0.92"/>
+      <stop offset="48%" stop-color="#151230" stop-opacity="0.84"/>
+      <stop offset="100%" stop-color="#0b1120" stop-opacity="0.96"/>
+    </linearGradient>
+    <linearGradient id="panelEdge" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#f0d060" stop-opacity="0.72"/>
+      <stop offset="38%" stop-color="#8a8bdd" stop-opacity="0.36"/>
+      <stop offset="100%" stop-color="#c4456a" stop-opacity="0.56"/>
+    </linearGradient>
+    <linearGradient id="floor" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#1c2d56" stop-opacity="0.72"/>
+      <stop offset="56%" stop-color="#151230" stop-opacity="0.80"/>
+      <stop offset="100%" stop-color="#0b1120" stop-opacity="0.92"/>
+    </linearGradient>
+    <linearGradient id="goldNode" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#ffe88d"/>
+      <stop offset="58%" stop-color="#f0d060"/>
+      <stop offset="100%" stop-color="#d4a843"/>
+    </linearGradient>
+    <linearGradient id="violetNode" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#d9d5ff"/>
+      <stop offset="58%" stop-color="#b7b8ff"/>
+      <stop offset="100%" stop-color="#8a8bdd"/>
+    </linearGradient>
+    <linearGradient id="coralNode" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#ffb285"/>
+      <stop offset="58%" stop-color="#e8845a"/>
+      <stop offset="100%" stop-color="#c4456a"/>
+    </linearGradient>
+    <linearGradient id="mintNode" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#8ff5ce"/>
+      <stop offset="54%" stop-color="#67d9b0"/>
+      <stop offset="100%" stop-color="#36a986"/>
+    </linearGradient>
+    <filter id="softShadow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="28" stdDeviation="24" flood-color="#03050e" flood-opacity="0.46"/>
+    </filter>
+    <filter id="nodeShadow" x="-55%" y="-65%" width="210%" height="230%">
+      <feDropShadow dx="0" dy="20" stdDeviation="18" flood-color="#03050e" flood-opacity="0.50"/>
+      <feDropShadow dx="0" dy="0" stdDeviation="14" flood-color="#f0d060" flood-opacity="0.08"/>
+    </filter>
+    <filter id="mintGlow" x="-70%" y="-70%" width="240%" height="240%">
+      <feDropShadow dx="0" dy="20" stdDeviation="18" flood-color="#03050e" flood-opacity="0.50"/>
+      <feDropShadow dx="0" dy="0" stdDeviation="16" flood-color="#67d9b0" flood-opacity="0.28"/>
+    </filter>
+    <filter id="lineGlow" x="-20%" y="-40%" width="140%" height="180%">
+      <feGaussianBlur stdDeviation="5" result="blur"/>
+      <feColorMatrix in="blur" type="matrix" values="1 0 0 0 0.94  0 1 0 0 0.81  0 0 1 0 0.38  0 0 0 0.40 0"/>
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <pattern id="grid" width="112" height="112" patternUnits="userSpaceOnUse">
+      <path d="M 112 0 L 0 0 0 112" fill="none" stroke="#efeaff" stroke-opacity="0.10" stroke-width="2"/>
+    </pattern>
+    <pattern id="fineGrid" width="28" height="28" patternUnits="userSpaceOnUse">
+      <path d="M 28 0 L 0 0 0 28" fill="none" stroke="#efeaff" stroke-opacity="0.035" stroke-width="1"/>
+    </pattern>
+    <clipPath id="floorClip">
+      <path d="M 255 530 C 260 438 326 386 418 392 L 1992 392 C 2092 392 2152 456 2144 556 L 2050 1190 C 2038 1268 1978 1316 1898 1316 L 424 1316 C 328 1316 262 1254 267 1158 Z"/>
+    </clipPath>
+  </defs>
+
+  <rect width="2400" height="1800" fill="#0b1120"/>
+  <rect width="2400" height="1800" fill="url(#bgGlowGold)"/>
+  <rect width="2400" height="1800" fill="url(#bgGlowCoral)"/>
+  <rect width="2400" height="1800" fill="url(#bgGlowMint)"/>
+
+  <g opacity="0.22">
+    <path d="M-60 1640 C 320 1510 440 1350 812 1422 C 1132 1484 1262 1728 1608 1642 C 1844 1584 1992 1360 2480 1460" fill="none" stroke="#f0d060" stroke-width="4" stroke-opacity="0.18"/>
+    <path d="M-120 250 C 318 98 638 104 938 250 C 1278 416 1530 306 1838 182 C 2064 92 2230 120 2508 270" fill="none" stroke="#8a8bdd" stroke-width="5" stroke-opacity="0.20"/>
+  </g>
+
+  <g filter="url(#softShadow)">
+    <rect x="145" y="112" width="2110" height="1574" rx="118" fill="url(#panel)" stroke="url(#panelEdge)" stroke-width="3"/>
+    <rect x="174" y="142" width="2052" height="1516" rx="95" fill="none" stroke="#efeaff" stroke-opacity="0.08" stroke-width="2"/>
+  </g>
+
+  <g font-family="Sora, Work Sans, Avenir Next, Segoe UI, sans-serif">
+    <text x="260" y="292" fill="#d5d0eb" font-size="54" font-weight="500">Founder-led</text>
+    <text x="2072" y="292" fill="#fff1aa" font-size="56" font-weight="800" text-anchor="end">PJ</text>
+  </g>
+
+  <g clip-path="url(#floorClip)">
+    <path d="M 255 530 C 260 438 326 386 418 392 L 1992 392 C 2092 392 2152 456 2144 556 L 2050 1190 C 2038 1268 1978 1316 1898 1316 L 424 1316 C 328 1316 262 1254 267 1158 Z" fill="url(#floor)" stroke="#efeaff" stroke-opacity="0.14" stroke-width="3"/>
+    <rect x="210" y="350" width="1980" height="1010" fill="url(#grid)" opacity="0.95"/>
+    <rect x="210" y="350" width="1980" height="1010" fill="url(#fineGrid)" opacity="0.9"/>
+    <g opacity="0.18">
+      <path d="M 370 402 L 525 1316" stroke="#f0d060" stroke-width="2"/>
+      <path d="M 805 392 L 885 1316" stroke="#8a8bdd" stroke-width="2"/>
+      <path d="M 1210 392 L 1214 1316" stroke="#efeaff" stroke-width="2"/>
+      <path d="M 1600 392 L 1538 1316" stroke="#8a8bdd" stroke-width="2"/>
+      <path d="M 1992 392 L 1814 1316" stroke="#f0d060" stroke-width="2"/>
+    </g>
+    <g opacity="0.28">
+      <path d="M 260 556 L 2144 556" stroke="#efeaff" stroke-width="2"/>
+      <path d="M 245 748 L 2114 748" stroke="#efeaff" stroke-width="2"/>
+      <path d="M 245 948 L 2082 948" stroke="#efeaff" stroke-width="2"/>
+      <path d="M 268 1160 L 2049 1160" stroke="#efeaff" stroke-width="2"/>
+    </g>
+  </g>
+
+  <path d="M 534 837 C 690 558 1004 456 1326 468 C 1712 482 2000 674 1998 930 C 1994 1186 1672 1335 1238 1283 C 772 1228 404 1057 534 837 Z" fill="none" stroke="#f0d060" stroke-opacity="0.42" stroke-width="6" stroke-linecap="round" stroke-dasharray="24 28" filter="url(#lineGlow)"/>
+  <path d="M 552 846 C 714 596 1022 508 1322 522 C 1664 538 1910 696 1900 914 C 1888 1166 1550 1270 1218 1228 C 824 1178 432 1050 552 846 Z" fill="none" stroke="#8a8bdd" stroke-opacity="0.18" stroke-width="3"/>
+
+  <g opacity="0.68">
+    <circle cx="1218" cy="962" r="6" fill="#f0d060" opacity="0.28"/>
+    <circle cx="1450" cy="714" r="4" fill="#b7b8ff" opacity="0.36"/>
+    <circle cx="780" cy="1035" r="4" fill="#e8845a" opacity="0.42"/>
+    <circle cx="1688" cy="1128" r="5" fill="#67d9b0" opacity="0.46"/>
+  </g>
+
+  <g font-family="Sora, Work Sans, Avenir Next, Segoe UI, sans-serif" font-weight="800" font-size="54" fill="#0b1120" text-anchor="middle">
+    <g filter="url(#nodeShadow)">
+      <rect x="330" y="574" width="416" height="168" rx="84" fill="#5f491a" opacity="0.40" transform="translate(18 34)"/>
+      <rect x="320" y="548" width="416" height="168" rx="84" fill="url(#goldNode)"/>
+      <path d="M 373 570 C 460 542 608 544 690 570" fill="none" stroke="#fff7ca" stroke-width="3" stroke-opacity="0.36"/>
+      <text x="528" y="655">Intake</text>
+    </g>
+    <g filter="url(#nodeShadow)">
+      <rect x="1637" y="725" width="418" height="170" rx="85" fill="#34367a" opacity="0.42" transform="translate(18 34)"/>
+      <rect x="1624" y="700" width="418" height="170" rx="85" fill="url(#violetNode)"/>
+      <path d="M 1678 724 C 1764 694 1902 696 1990 724" fill="none" stroke="#fff" stroke-width="3" stroke-opacity="0.30"/>
+      <text x="1833" y="808">Safety</text>
+    </g>
+    <g filter="url(#nodeShadow)">
+      <rect x="442" y="1091" width="424" height="174" rx="87" fill="#74314e" opacity="0.44" transform="translate(18 34)"/>
+      <rect x="428" y="1066" width="424" height="174" rx="87" fill="url(#coralNode)"/>
+      <path d="M 484 1090 C 572 1060 712 1062 800 1090" fill="none" stroke="#ffe6d6" stroke-width="3" stroke-opacity="0.32"/>
+      <text x="640" y="1171">Follow-up</text>
+    </g>
+    <g filter="url(#mintGlow)">
+      <rect x="1600" y="1114" width="416" height="174" rx="87" fill="#1e614f" opacity="0.42" transform="translate(18 34)"/>
+      <rect x="1586" y="1088" width="416" height="174" rx="87" fill="url(#mintNode)"/>
+      <path d="M 1640 1112 C 1728 1082 1868 1084 1954 1112" fill="none" stroke="#d9ffef" stroke-width="3" stroke-opacity="0.34"/>
+      <text x="1794" y="1195">Review</text>
+    </g>
+  </g>
+
+  <g opacity="0.42" fill="none" stroke-linecap="round">
+    <path d="M 690 630 C 922 458 1164 414 1406 480" stroke="#f0d060" stroke-width="4" stroke-dasharray="2 18"/>
+    <path d="M 1816 858 C 1826 1004 1744 1088 1652 1136" stroke="#67d9b0" stroke-width="4" stroke-dasharray="2 18"/>
+    <path d="M 860 1162 C 1068 1242 1294 1262 1540 1184" stroke="#e8845a" stroke-width="4" stroke-dasharray="2 18"/>
+  </g>
+
+  <path d="M 260 1412 L 2140 1412" stroke="#f0d060" stroke-opacity="0.46" stroke-width="3"/>
+  <g font-family="Sora, Work Sans, Avenir Next, Segoe UI, sans-serif">
+    <text x="260" y="1530" fill="#fff4be" font-size="66" font-weight="850">One useful workflow first.</text>
+    <text x="260" y="1618" fill="#efeaff" fill-opacity="0.88" font-size="48" font-weight="500">No giant transformation pitch. Start with the daily work that is already slipping.</text>
+  </g>
+
+  <g opacity="0.28">
+    <rect x="144" y="112" width="2112" height="1576" rx="118" fill="none" stroke="#f0d060" stroke-width="2"/>
+    <rect x="196" y="164" width="2008" height="1472" rx="90" fill="none" stroke="#c4456a" stroke-width="2" stroke-opacity="0.42"/>
+  </g>
+</svg>

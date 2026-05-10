@@ -1,9 +1,8 @@
+# AIssisted Consulting robots policy.
+# Publishing or changing live crawler rules is a separate review step.
+
 User-agent: *
 Allow: /
-
-# Keep transactional pages out of search when reintroduced.
-Disallow: /pay
-Disallow: /pay-success
 Disallow: /thank-you
 
 Sitemap: https://aissistedconsulting.com/sitemap.xml

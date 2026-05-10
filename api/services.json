@@ -1,0 +1,223 @@
+{
+  "business": "AIssisted Consulting",
+  "public_brand": "AIssisted Consulting",
+  "source_boundary": "Public support file derived from visible pages and AVOS source truth.",
+  "services": [
+    {
+      "id": "small_business_workflow_help",
+      "name": "Small-business workflow help",
+      "audience": "Small service businesses",
+      "status": "active",
+      "description": "Practical AI help that starts with one workflow already causing friction.",
+      "workflow_focus": [
+        "Intake",
+        "Scheduling",
+        "Follow-up",
+        "Reporting",
+        "Owner visibility",
+        "Admin handoffs"
+      ],
+      "best_fit": [
+        "Owners who can name one real workflow that is slipping.",
+        "Teams that want a reviewable process instead of a giant transformation.",
+        "Service businesses that want privacy and human review to stay visible."
+      ],
+      "not_a_fit": [
+        "Standing in for staff.",
+        "Running customer relationships unattended.",
+        "Removing human review from sensitive or high-trust decisions."
+      ],
+      "related_pages": [
+        "https://aissistedconsulting.com/small-business-ai-help/",
+        "https://aissistedconsulting.com/services/",
+        "https://aissistedconsulting.com/guides/ai-workflow-checklist/"
+      ],
+      "recommended_next_action": "Bring one workflow to the contact page."
+    },
+    {
+      "id": "intake_and_missed_calls",
+      "name": "Intake and missed-call review",
+      "audience": "Small service businesses",
+      "status": "active",
+      "description": "Review what happens when a call or inquiry comes in, who sees it, how the next step is tracked, and where follow-up needs human review.",
+      "workflow_focus": [
+        "Missed calls",
+        "Lead intake",
+        "Callback tracking",
+        "Customer updates",
+        "Human review points"
+      ],
+      "best_fit": [
+        "Businesses losing visibility when calls, messages, or handoffs pile up.",
+        "Owners who want a clearer way to see what needs response."
+      ],
+      "not_a_fit": [
+        "Unreviewed customer commitments.",
+        "Systems that pretend every call can be handled the same way."
+      ],
+      "related_pages": [
+        "https://aissistedconsulting.com/guides/missed-calls-follow-up/",
+        "https://aissistedconsulting.com/small-business-ai-help/"
+      ],
+      "recommended_next_action": "Use the missed-calls guide, then ask about one intake workflow."
+    },
+    {
+      "id": "founder_led_consult_reservation",
+      "name": "Founder-led consult reservation",
+      "audience": "Small service businesses",
+      "status": "active",
+      "description": "A 60-minute appointment with PJ to review one AI workflow, with a $225 reservation deposit handled through Stripe Checkout when the same-origin booking backend and Stripe credentials are configured.",
+      "reservation": {
+        "duration_minutes": 60,
+        "deposit_usd": 225,
+        "deposit_policy": "Non-refundable reservation deposit, credited once toward service if the visitor becomes a customer.",
+        "confirmation_boundary": "The slot is not confirmed until Stripe payment succeeds and the booking backend finalizes the record."
+      },
+      "workflow_focus": [
+        "Workflow review",
+        "Intake context",
+        "Practical next steps",
+        "Privacy and human review boundaries"
+      ],
+      "best_fit": [
+        "Owners who already know the workflow they want to review.",
+        "Visitors who want a scheduled founder-led consult instead of starting with general contact."
+      ],
+      "not_a_fit": [
+        "Booking or payment without visitor approval.",
+        "Direct card collection on the website.",
+        "Unsupported outcome promises."
+      ],
+      "related_pages": [
+        "https://aissistedconsulting.com/book/",
+        "https://aissistedconsulting.com/contact/",
+        "https://aissistedconsulting.com/small-business-ai-help/"
+      ],
+      "recommended_next_action": "Use the booking page when ready to reserve a paid consult, or use contact first for a manual handoff."
+    },
+    {
+      "id": "scheduling_and_follow_up",
+      "name": "Scheduling and follow-up support",
+      "audience": "Small service businesses",
+      "status": "active",
+      "description": "Help make appointment reminders, quote follow-up, recurring service communication, and owner review easier to see.",
+      "workflow_focus": [
+        "Scheduling support",
+        "Quote follow-up",
+        "Recurring follow-up",
+        "Reminder drafts",
+        "Customer communication review"
+      ],
+      "best_fit": [
+        "Businesses where follow-up is inconsistent or hard to track.",
+        "Teams that want drafts, summaries, or reminders while people keep control."
+      ],
+      "not_a_fit": [
+        "Letting AI make commitments without review.",
+        "Treating customer trust as a fully automated task."
+      ],
+      "related_pages": [
+        "https://aissistedconsulting.com/services/",
+        "https://aissistedconsulting.com/industries/",
+        "https://aissistedconsulting.com/industries/hvac/",
+        "https://aissistedconsulting.com/industries/pest-control/",
+        "https://aissistedconsulting.com/industries/plumbing/"
+      ],
+      "recommended_next_action": "Ask about the follow-up point that most often gets delayed."
+    },
+    {
+      "id": "reporting_and_owner_visibility",
+      "name": "Reporting and owner visibility",
+      "audience": "Small service businesses",
+      "status": "active",
+      "description": "Support clearer summaries, handoffs, review points, and owner visibility without hiding how decisions are made.",
+      "workflow_focus": [
+        "Owner reports",
+        "Work summaries",
+        "Reviewable handoffs",
+        "Exception tracking",
+        "Decision visibility"
+      ],
+      "best_fit": [
+        "Owners who cannot easily see what happened today.",
+        "Teams that need clearer handoffs before adding more tools."
+      ],
+      "not_a_fit": [
+        "Opaque automation.",
+        "Removing the owner or team from decisions that need context."
+      ],
+      "related_pages": [
+        "https://aissistedconsulting.com/services/",
+        "https://aissistedconsulting.com/guides/ai-workflow-checklist/"
+      ],
+      "recommended_next_action": "Name the report or handoff that would make the day easier to review."
+    },
+    {
+      "id": "privacy_and_control_guidance",
+      "name": "Privacy and control guidance",
+      "audience": "Small businesses and families",
+      "status": "active",
+      "description": "Plain-English help deciding what data belongs in a workflow, what should stay manual, and where human review must remain.",
+      "workflow_focus": [
+        "Sensitive data boundaries",
+        "Human review",
+        "Manual exceptions",
+        "Tool selection questions",
+        "Owner and household control"
+      ],
+      "best_fit": [
+        "Visitors who want to slow down and understand privacy before adding AI.",
+        "Small businesses and families deciding what not to share."
+      ],
+      "not_a_fit": [
+        "Bypassing professional advice.",
+        "Claiming a tool is safe for every situation.",
+        "Moving sensitive decisions out of human review."
+      ],
+      "related_pages": [
+        "https://aissistedconsulting.com/privacy-and-control/",
+        "https://aissistedconsulting.com/guides/what-not-to-share-with-ai/",
+        "https://aissistedconsulting.com/guides/family-ai-safety-basics/"
+      ],
+      "recommended_next_action": "Read the privacy page before adding a new workflow."
+    },
+    {
+      "id": "family_ai_guidance",
+      "name": "Family AI guidance",
+      "audience": "Families and households",
+      "status": "guidance",
+      "description": "Plain-English guidance for household AI setup questions, privacy boundaries, everyday examples, and human judgment.",
+      "workflow_focus": [
+        "Family setup questions",
+        "What not to share",
+        "Household admin examples",
+        "Drafting and organizing",
+        "Human decision boundaries"
+      ],
+      "best_fit": [
+        "Families asking how to use AI tools more carefully.",
+        "Households that want examples for drafting, organizing, summarizing, or planning while people keep decisions."
+      ],
+      "not_a_fit": [
+        "Replacing parents, caregivers, teachers, or professionals.",
+        "Using AI for every family decision.",
+        "Treating AI output as professional advice."
+      ],
+      "related_pages": [
+        "https://aissistedconsulting.com/family-ai-help/",
+        "https://aissistedconsulting.com/guides/family-ai-safety-basics/",
+        "https://aissistedconsulting.com/guides/what-not-to-share-with-ai/",
+        "https://aissistedconsulting.com/guides/ai-tools-for-household-admin/"
+      ],
+      "recommended_next_action": "Ask one family AI question through the contact page."
+    }
+  ],
+  "global_boundaries": [
+    "The public booking page is the direct reservation path and uses the same-origin booking backend plus Stripe Checkout when deployment credentials are configured.",
+    "Declared agent write/payment commands require human approval, Idempotency-Key, duplicate or slot-conflict protection, audit records, and server-side validation.",
+    "The website does not collect card details; payment happens on Stripe Checkout.",
+    "No service entry removes human judgment or professional review.",
+    "Family AI guidance remains plain-English setup and privacy guidance with human judgment in charge."
+  ],
+  "last_reviewed": "2026-05-06"
+}

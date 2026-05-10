@@ -1,0 +1,71 @@
+# AIssisted Consulting
+
+AIssisted Consulting provides practical, privacy-aware AI help for small service businesses and plain-English guidance for family AI questions. The business is based in Ocala, Florida and is founder-led by PJ.
+
+This support file summarizes public site facts and declared agent-surface capabilities. It does not report live AVOS results, crawler changes, private credentials, authenticated workflows, CRM/email writes, analytics writes, destructive actions, or direct card collection.
+
+## Contact Facts
+
+- Business: AIssisted Consulting
+- Public brand: AIssisted Consulting
+- Founder/operator: PJ
+- Phone: (352) 817-3567
+- Email: pj@aissistedconsulting.com
+- Base location: Ocala, Florida
+- Service area: Central Florida, North Central Florida, and remote clients across the United States
+- Contact page: https://aissistedconsulting.com/contact/
+
+## Best Reading Paths
+
+For small-business owners, start with the Small Business AI Help page, then read Services, Privacy And Control, and the guide pages for missed calls and the AI workflow checklist. The preferred first step is one real workflow: intake, scheduling, follow-up, reporting, owner visibility, or another handoff that is already slipping.
+
+For families and households, start with Family AI Help, then read Family AI Safety Basics, What Not To Share With AI, and AI Tools For Household Admin. The family path is plain-English setup guidance, privacy guidance, and everyday examples with human judgment in charge.
+
+## Public Pages
+
+- Home: https://aissistedconsulting.com/
+- Small Business AI Help: https://aissistedconsulting.com/small-business-ai-help/
+- Services: https://aissistedconsulting.com/services/
+- Privacy And Control: https://aissistedconsulting.com/privacy-and-control/
+- About: https://aissistedconsulting.com/about/
+- Contact: https://aissistedconsulting.com/contact/
+- Book: https://aissistedconsulting.com/book/
+- Family AI Help: https://aissistedconsulting.com/family-ai-help/
+- Industry Examples: https://aissistedconsulting.com/industries/
+- HVAC Examples: https://aissistedconsulting.com/industries/hvac/
+- Pest Control Examples: https://aissistedconsulting.com/industries/pest-control/
+- Plumbing Examples: https://aissistedconsulting.com/industries/plumbing/
+
+## Guides
+
+- Missed Calls And Follow-Up: https://aissistedconsulting.com/guides/missed-calls-follow-up/
+- AI Workflow Checklist: https://aissistedconsulting.com/guides/ai-workflow-checklist/
+- Family AI Safety Basics: https://aissistedconsulting.com/guides/family-ai-safety-basics/
+- What Not To Share With AI: https://aissistedconsulting.com/guides/what-not-to-share-with-ai/
+- AI Tools For Household Admin: https://aissistedconsulting.com/guides/ai-tools-for-household-admin/
+
+## Machine-Readable Support Files
+
+- Business profile: https://aissistedconsulting.com/api/business-profile.json
+- Services: https://aissistedconsulting.com/api/services.json
+- Service areas: https://aissistedconsulting.com/api/service-areas.json
+- Small-business knowledge: https://aissistedconsulting.com/knowledge/small-business-ai-help.md
+- Family knowledge: https://aissistedconsulting.com/knowledge/family-ai-help.md
+- Sitemap: https://aissistedconsulting.com/sitemap.xml
+- Robots policy: https://aissistedconsulting.com/robots.txt
+- Agent manifest: https://aissistedconsulting.com/.well-known/agent.json
+- Agent skills index: https://aissistedconsulting.com/.well-known/agent-skills/index.json
+
+## Agent-Surface Capabilities
+
+The agent manifest exposes read-only public fact commands, draft-only contact preparation, contact inquiry submission, and booking checkout creation.
+
+Contact inquiry submission requires human approval, consent, an Idempotency-Key header, duplicate suppression, and audit records. It does not write to CRM, email, analytics, booking, or payment systems.
+
+Booking checkout creation requires human approval, policy acceptance, checkout consent, exact amount/currency/policy confirmation, an Idempotency-Key header, slot conflict checks, audit records, and Stripe Checkout. The website does not collect card details.
+
+## Boundaries
+
+AIssisted Consulting is a fit for practical AI workflow review, small-business operations help, plain-English setup questions, privacy and control planning, and careful first steps. It is not presented as a fit for removing human judgment, standing in for staff, standing in for parents or caregivers, bypassing professional review, making decisions without people, or promising outcomes from AI systems.
+
+The public booking route describes a 60-minute founder-led consult reservation with a $225 deposit. Booking confirmation depends on the same-origin booking backend and Stripe Checkout. Agent-facing files do not add private-system access, CRM/email writes, analytics writes, crawler-policy changes, destructive actions, or direct card collection.

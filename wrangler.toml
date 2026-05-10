@@ -2,20 +2,16 @@ name = "aissisted-website"
 compatibility_date = "2026-03-10"
 pages_build_output_dir = "."
 
-# NOTE ON SECRETS: Do NOT add STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET,
-# or any other credential here. `[vars]` is committed to git and also
-# overwrites the Cloudflare Pages dashboard env vars on every
-# `wrangler pages deploy`. Use `npx wrangler pages secret put NAME
-# --project-name=aissisted-website` for secrets. Secrets are stored
-# separately from [vars] and survive deploys.
-#
-# Current Pages secrets (do not duplicate here):
-#   - STRIPE_SECRET_KEY        (set 2026-04-18, source ~/.openclaw/secrets/stripe.env)
-#   - STRIPE_WEBHOOK_SECRET    (set 2026-04-18, source ~/.openclaw/secrets/stripe.env
-#                               webhook endpoint: we_1TNWTsP3Zy09i3ccDXp1XSKD
-#                               url: https://aissistedconsulting.com/api/book/webhook)
-#
-# Non-secret config that IS safe to live here:
+# Production deploy config for AIssisted Consulting V11.11.
+# Do NOT put credentials in this file. Set secrets through Cloudflare Pages:
+#   STRIPE_SECRET_KEY
+#   STRIPE_WEBHOOK_SECRET
+#   GOOGLE_CALENDAR_ID
+#   GOOGLE_OAUTH_CLIENT_ID
+#   GOOGLE_OAUTH_CLIENT_SECRET
+#   GOOGLE_OAUTH_REFRESH_TOKEN
+# Optional notification webhooks can also be set as secrets if used.
+
 [vars]
 PUBLIC_SITE_ORIGIN = "https://aissistedconsulting.com"
 BOOKING_BUSINESS_TITLE = "AIssisted Consulting"
@@ -23,7 +19,9 @@ BOOKING_SUPPORT_EMAIL = "pj@aissistedconsulting.com"
 BOOKING_CURRENCY = "usd"
 BOOKING_TIMEZONE = "America/New_York"
 BOOKING_HOLD_MINUTES = "30"
+BOOKING_MINIMUM_LEAD_HOURS = "48"
 BOOKING_LOOKAHEAD_DAYS = "21"
+BOOKING_REQUIRE_GOOGLE_CALENDAR = "true"
 BOOKING_POLICY_VERSION = "2026-04-06"
 BOOKING_RESERVATION_AMOUNT_CENTS = "22500"
 STRIPE_BOOKING_PRICE_ID = "price_1TNNnxP3Zy09i3cc3B8yErot"

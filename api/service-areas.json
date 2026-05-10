@@ -1,0 +1,39 @@
+{
+  "business": "AIssisted Consulting",
+  "base_city": "Ocala",
+  "base_region": "North Central Florida",
+  "base_state": "Florida",
+  "base_country": "United States",
+  "local_service_area": [
+    {
+      "name": "Central Florida",
+      "type": "regional service area",
+      "notes": "Listed on the site as part of the local help area."
+    },
+    {
+      "name": "North Central Florida",
+      "type": "regional service area",
+      "notes": "Listed on the site as part of the local help area."
+    }
+  ],
+  "remote_service_area": {
+    "name": "United States",
+    "type": "remote client support",
+    "notes": "The site describes remote help for clients across the United States."
+  },
+  "audience_fit": [
+    "Small service businesses with practical AI workflow questions.",
+    "Families and households with AI setup, privacy, and everyday use questions."
+  ],
+  "notes": [
+    "This feed intentionally does not list extra cities, counties, neighborhoods, or states beyond the visible source facts.",
+    "Local presence means AIssisted Consulting is based in Ocala, Florida.",
+    "Contact submission and booking checkout are declared separately in the agent manifest and require human approval, idempotency, audit records, and server-side validation."
+  ],
+  "contact": {
+    "phone_display": "(352) 817-3567",
+    "email": "pj@aissistedconsulting.com",
+    "contact_page": "https://aissistedconsulting.com/contact/"
+  },
+  "last_reviewed": "2026-05-06"
+}
