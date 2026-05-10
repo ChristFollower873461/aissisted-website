@@ -1228,20 +1228,26 @@ address strong {
 
 @media (max-width: 760px) {
   .container {
-    width: min(100% - 30px, 1160px);
+    width: min(100% - 32px, 1160px);
   }
 
   .nav-wrap {
     min-height: 74px;
+    gap: 12px;
   }
 
   .brand img {
-    width: 48px;
-    height: 38px;
+    width: 46px;
+    height: 36px;
   }
 
   .brand strong {
-    font-size: 1.08rem;
+    font-size: clamp(1rem, 5.2vw, 1.22rem);
+    line-height: 0.98;
+  }
+
+  .brand small {
+    font-size: 0.72rem;
   }
 
   .menu-toggle {
@@ -1290,10 +1296,16 @@ address strong {
   }
 
   .hero h1 {
-    font-size: clamp(2.35rem, 15vw, 4.2rem);
+    font-size: clamp(2.35rem, 12.5vw, 3.75rem);
+    overflow-wrap: anywhere;
   }
 
-  .hero-actions,
+  .hero-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .hero-actions .btn,
   .btn {
     width: 100%;
   }
@@ -1903,11 +1915,30 @@ address,
   }
 
   [data-page="home"] .hero {
-    padding: 48px 0 46px;
+    padding: 48px 0 54px;
+    background:
+      linear-gradient(180deg, rgba(8, 13, 26, 0.88) 0%, rgba(8, 13, 26, 0.86) 44%, rgba(8, 13, 26, 0.94) 100%),
+      linear-gradient(90deg, rgba(8, 13, 26, 0.96) 0%, rgba(8, 13, 26, 0.72) 100%),
+      url("assets/photography/business-computer-team.webp"),
+      linear-gradient(135deg, #080d1a 0%, #151230 52%, #251149 100%);
+    background-position: center right 42%;
+    background-size: cover;
   }
 
   [data-page="home"] .hero h1 {
-    font-size: clamp(2.45rem, 12.2vw, 3.8rem);
+    max-width: 100%;
+    font-size: clamp(2.42rem, 11.5vw, 3.45rem);
+    line-height: 1.02;
+    text-wrap: balance;
+  }
+
+  [data-page="home"] .hero-lede {
+    max-width: 100%;
+    font-size: 1.05rem;
+  }
+
+  [data-page="home"] .hero-actions {
+    margin-top: 26px;
   }
 
   .process-grid {
@@ -1915,7 +1946,7 @@ address,
   }
 
   .hero-baseline {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: 1fr;
     margin-top: 28px;
   }
 
@@ -1928,7 +1959,7 @@ address,
   }
 
   .hero-brand-details {
-    max-width: 240px;
+    max-width: min(100%, 320px);
     padding: 9px 10px;
   }
 
@@ -1937,17 +1968,17 @@ address,
   }
 
   .hero-baseline div {
-    padding: 12px 8px 12px 0;
+    padding: 14px 16px;
   }
 
   .hero-baseline div + div {
-    border-left: 1px solid rgba(240, 208, 96, 0.14);
-    border-top: 0;
-    padding-left: 10px;
+    border-left: 0;
+    border-top: 1px solid rgba(240, 208, 96, 0.14);
+    padding-left: 16px;
   }
 
   .hero-baseline dd {
-    font-size: 0.88rem;
+    font-size: 1rem;
     line-height: 1.25;
   }
 
