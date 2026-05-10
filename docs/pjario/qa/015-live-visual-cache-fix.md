@@ -62,6 +62,38 @@ home-desktop-1440-post-full-versioning.png
 home-mobile-390-post-full-versioning.png
 ```
 
+## Preview Deploy Gate
+
+Preview deploy completed after this fix:
+
+```text
+https://8a2d84f9.aissisted-website.pages.dev
+https://v11-11-live-integration.aissisted-website.pages.dev
+```
+
+Preview route checks returned HTTP 200 for:
+
+```text
+/
+/book/
+/contact/
+/openclaw
+/reserve
+/thank-you
+/agent.json
+/.well-known/agent.json
+```
+
+Preview HTML confirmed versioned references for `styles.css`, `main.js`, `contact/contact.js`, `components/header.js`, and `components/footer.js`.
+
+Preview screenshot gate artifacts:
+
+```text
+docs/pjario/qa/artifacts/preview-gate-2026-05-09/home-desktop-1440.png
+docs/pjario/qa/artifacts/preview-gate-2026-05-09/home-mobile-390.png
+docs/pjario/qa/artifacts/preview-gate-2026-05-09/book-desktop-1440.png
+```
+
 ## Remaining
 
-This fix is local until the next approved production deploy. A real production screenshot gate should be run after deploy before calling the site visually launch-ready.
+This fix is not on the production domain until the next approved production deploy. A real production screenshot gate must be run after production deploy before calling the site visually launch-ready.
