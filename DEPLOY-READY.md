@@ -58,7 +58,7 @@ All files have been audited and fixed. The website is ready for immediate deploy
 - [x] **No TODO/FIXME comments** - None found
 - [x] **Contact info correct**:
   - Email: pjaissist@icloud.com ✓
-  - Phone: (352) 817-3567 ✓
+  - Phone: (352) 619-0690 ✓
 - [x] **No references to Mac Mini, specific hardware, or Lockheed Martin**
 
 ### Pricing Consistency
@@ -173,7 +173,7 @@ X-XSS-Protection: 1; mode=block
 - [ ] Navigation works on all pages
 - [ ] Mobile responsive design works
 - [ ] Contact email link works (mailto:pjaissist@icloud.com)
-- [ ] Contact phone link works (tel:+13528173567)
+- [ ] Contact phone link works (tel:+13526190690)
 - [ ] All industry pages load
 - [ ] All blog posts load
 - [ ] Pricing displayed consistently

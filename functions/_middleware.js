@@ -19,6 +19,10 @@ const BLOCKED_PATHS = new Set([
 ]);
 
 function isBlockedPath(pathname) {
+  if (pathname === "/docs/mcp" || pathname === "/docs/mcp/" || pathname === "/docs/mcp.html") {
+    return false;
+  }
+
   return BLOCKED_PATHS.has(pathname) || BLOCKED_PREFIXES.some((prefix) => pathname.startsWith(prefix));
 }
 

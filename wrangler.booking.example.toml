@@ -19,6 +19,8 @@ BOOKING_REQUIRE_GOOGLE_CALENDAR = "false"
 BOOKING_POLICY_VERSION = "2026-04-06"
 BOOKING_RESERVATION_AMOUNT_CENTS = "22500"
 STRIPE_BOOKING_PRICE_ID = ""
+AIC_CRM_INTAKE_URL = "https://AICCRM.aissistedconsulting.com/intake/website"
+# Set AIC_CRM_INTAKE_TOKEN as a Cloudflare secret, not in this file.
 
 [[d1_databases]]
 binding = "BOOKING_DB"

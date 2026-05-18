@@ -8,6 +8,7 @@ import {
   unsupportedMediaType,
   readJson
 } from "../_lib/http.js";
+import { relayWebsiteIntakeToAicCrm } from "../_lib/aic-crm.js";
 import { getBookingStore } from "../_lib/storage.js";
 import {
   TransactionSafetyError,
@@ -304,7 +305,21 @@ export async function onRequest(context) {
       deliveryStatus: "local_record_only",
       idempotencyRecordId: idempotencyRecord.id
     });
+    const crmRelay = await relayWebsiteIntakeToAicCrm(context.env, {
+      name: normalized.name,
+      email: normalized.email,
+      phone: normalized.phone,
+      companyName: normalized.company,
+      inquiryType: normalized.audience || "send_inquiry",
+      message: normalized.message,
+      sourceUrl: `https://aissistedconsulting.com${normalized.sourcePage || "/contact/"}`,
+      consent: true,
+      websiteLeaveBlank: ""
+    });
     const body = inquiryResponse(inquiry);
+    if (!crmRelay.ok && !crmRelay.skipped) {
+      console.warn("[contact] CRM relay failed.");
+    }
     await store.markIdempotencySucceeded(idempotencyRecord.id, {
       targetType: "contact_inquiry",
       targetId: inquiry.id,

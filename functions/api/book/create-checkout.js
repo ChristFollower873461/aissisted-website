@@ -1,4 +1,5 @@
 import { listAvailableSlots } from "../_lib/availability.js";
+import { relayWebsiteIntakeToAicCrm } from "../_lib/aic-crm.js";
 import { getBookingConfig, isStripeConfigured } from "../_lib/config.js";
 import {
   forbidden,
@@ -435,6 +436,28 @@ export async function onRequest(context) {
       holdExpiresAt,
       sessionId: session.id
     };
+    const crmRelay = await relayWebsiteIntakeToAicCrm(context.env, {
+      name: normalized.contact.name,
+      email: normalized.contact.email,
+      phone: normalized.contact.phone,
+      companyName: normalized.contact.company,
+      inquiryType: "booking_request",
+      message: [
+        `Booking checkout started for ${slot.startsAt} to ${slot.endsAt} ${slot.timezone}.`,
+        normalized.intake.primaryGoal ? `Primary goal: ${normalized.intake.primaryGoal}` : "",
+        normalized.intake.industry ? `Industry: ${normalized.intake.industry}` : "",
+        normalized.intake.companyWebsite ? `Website: ${normalized.intake.companyWebsite}` : "",
+        normalized.intake.notes ? `Notes: ${normalized.intake.notes}` : "",
+        `Booking ID: ${booking.id}`,
+        `Stripe checkout session: ${session.id}`
+      ].filter(Boolean).join("\n"),
+      sourceUrl: "https://aissistedconsulting.com/book/",
+      consent: true,
+      websiteLeaveBlank: ""
+    });
+    if (!crmRelay.ok && !crmRelay.skipped) {
+      console.warn("[booking] CRM relay failed.");
+    }
     await store.markIdempotencySucceeded(idempotencyRecord.id, {
       targetType: "booking",
       targetId: booking.id,
@@ -484,7 +507,7 @@ export async function onRequest(context) {
     let responseStatus = 500;
     let responseBody = {
       ok: false,
-      error: error instanceof Error ? error.message : "Unexpected server error.",
+      error: "Unexpected server error.",
       code: "internal_error"
     };
 
@@ -502,6 +525,8 @@ export async function onRequest(context) {
         error: error.message,
         code: "validation_failed"
       };
+    } else {
+      console.error("[booking] Checkout creation failed.", error);
     }
 
     if (idempotencyRecord && store) {

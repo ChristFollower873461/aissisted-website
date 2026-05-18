@@ -182,6 +182,7 @@ test("booking checkout creates audited replay-safe Stripe checkout", async () =>
 
     assert.equal(first.response.status, 200);
     assert.equal(first.payload.ok, true);
+    assert.equal(Object.hasOwn(first.payload, "crmDelivery"), false);
     assert.equal(second.response.status, 200);
     assert.equal(second.payload.replayed, true);
     assert.equal(second.payload.bookingId, first.payload.bookingId);
@@ -194,6 +195,46 @@ test("booking checkout creates audited replay-safe Stripe checkout", async () =>
     assert.equal(stripe.calls[1].headers["idempotency-key"].startsWith("aic-checkout-"), true);
   } finally {
     stripe.restore();
+  }
+});
+
+test("booking checkout hides internal provider errors from the browser", async () => {
+  resetMemoryStore();
+  const env = testEnv();
+  const slot = await firstAvailableSlot(env);
+  const originalFetch = global.fetch;
+  const originalConsoleError = console.error;
+  global.fetch = async (url) => {
+    if (String(url).endsWith("/customers")) {
+      return Response.json({ id: "cus_test_local" });
+    }
+
+    if (String(url).endsWith("/checkout/sessions")) {
+      return Response.json(
+        { error: { message: "Stripe secret failure should stay server-side." } },
+        { status: 500 }
+      );
+    }
+
+    return Response.json({ ok: true });
+  };
+  console.error = () => {};
+
+  try {
+    const { response, payload } = await callCheckout({
+      env,
+      key: "checkout-provider-error-01",
+      body: validCheckoutPayload(slot.slotId)
+    });
+
+    assert.equal(response.status, 500);
+    assert.equal(payload.ok, false);
+    assert.equal(payload.error, "Unexpected server error.");
+    assert.equal(payload.code, "internal_error");
+    assert.equal(response.headers.get("x-content-type-options"), "nosniff");
+  } finally {
+    global.fetch = originalFetch;
+    console.error = originalConsoleError;
   }
 });
 

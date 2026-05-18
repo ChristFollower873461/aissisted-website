@@ -1,7 +1,17 @@
+const DEFAULT_JSON_LIMIT_BYTES = 16 * 1024;
+
+const SECURITY_HEADERS = {
+  "x-content-type-options": "nosniff",
+  "referrer-policy": "strict-origin-when-cross-origin",
+  "permissions-policy": "camera=(), microphone=(), geolocation=()",
+  "x-frame-options": "SAMEORIGIN"
+};
+
 export function json(data, status = 200, extraHeaders = {}) {
   return new Response(JSON.stringify(data), {
     status,
     headers: {
+      ...SECURITY_HEADERS,
       "cache-control": "no-store",
       "content-type": "application/json; charset=utf-8",
       ...extraHeaders
@@ -45,14 +55,23 @@ export function unavailable(message) {
 }
 
 export function serverError(error) {
-  const message = error instanceof Error ? error.message : "Unexpected server error.";
-  return json({ ok: false, error: message }, 500);
+  console.error("[api] Unexpected server error.", error);
+  return json({ ok: false, error: "Unexpected server error." }, 500);
 }
 
-export async function readJson(request) {
+export async function readJson(request, limitBytes = DEFAULT_JSON_LIMIT_BYTES) {
+  const contentLength = Number.parseInt(request.headers.get("content-length") || "", 10);
+  if (Number.isInteger(contentLength) && contentLength > limitBytes) {
+    throw new Error("Request body is too large.");
+  }
+
   const body = await request.text();
   if (!body) {
     return {};
+  }
+
+  if (new TextEncoder().encode(body).length > limitBytes) {
+    throw new Error("Request body is too large.");
   }
 
   try {
