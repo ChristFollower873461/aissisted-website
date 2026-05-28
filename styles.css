@@ -1459,6 +1459,16 @@ address,
   max-width: 730px;
 }
 
+.hero-pretitle {
+  max-width: 720px;
+  margin: 0 0 14px;
+  color: #fff4cf;
+  font-family: "Sora", "Trebuchet MS", system-ui, sans-serif;
+  font-size: clamp(1.1rem, 1.7vw, 1.42rem);
+  font-weight: 800;
+  line-height: 1.08;
+}
+
 [data-page="home"] .hero h1 {
   max-width: 720px;
   font-size: clamp(3rem, 5.8vw, 5.25rem);
@@ -1931,6 +1941,12 @@ address,
     line-height: 1.05;
     overflow-wrap: normal;
     text-wrap: wrap;
+  }
+
+  .hero-pretitle {
+    max-width: min(100%, 22rem);
+    margin-bottom: 12px;
+    font-size: 1.08rem;
   }
 
   [data-page="home"] .hero-lede {
