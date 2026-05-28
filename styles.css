@@ -1461,12 +1461,13 @@ address,
 
 .hero-pretitle {
   max-width: 720px;
-  margin: 0 0 14px;
+  margin: 0 0 18px;
   color: #fff4cf;
   font-family: "Sora", "Trebuchet MS", system-ui, sans-serif;
-  font-size: clamp(1.1rem, 1.7vw, 1.42rem);
-  font-weight: 800;
-  line-height: 1.08;
+  font-size: clamp(2rem, 3.4vw, 3.45rem);
+  font-weight: 850;
+  line-height: 1;
+  text-wrap: balance;
 }
 
 [data-page="home"] .hero h1 {
@@ -1945,8 +1946,8 @@ address,
 
   .hero-pretitle {
     max-width: min(100%, 22rem);
-    margin-bottom: 12px;
-    font-size: 1.08rem;
+    margin-bottom: 14px;
+    font-size: clamp(1.8rem, 8.2vw, 2.45rem);
   }
 
   [data-page="home"] .hero-lede {
