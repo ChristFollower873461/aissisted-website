@@ -1,0 +1,717 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>UnRealtor | Real Estate Deal Coach and Jargon Glossary</title>
+    <meta name="description" content="UnRealtor helps buyers understand listings, reports, deal math, credits, contingencies, and real estate jargon without needing an agent to translate every sentence.">
+    <link rel="canonical" href="https://aissistedconsulting.com/unrealtor">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="UnRealtor | Real Estate Terms Made Simple">
+    <meta property="og:description" content="A buyer-side deal coach and plain-English real estate jargon glossary for people who want the walls torn down.">
+    <meta property="og:url" content="https://aissistedconsulting.com/unrealtor">
+    <meta property="og:image" content="https://aissistedconsulting.com/assets/unrealtor/icon-1024.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="icon" href="/assets/unrealtor/icon-1024.png">
+    <link rel="stylesheet" href="/styles.css?v=11.11.4">
+    <style>
+      :root {
+        --ur-bg: #090a0f;
+        --ur-ink: #f8f7ff;
+        --ur-muted: rgba(248, 247, 255, 0.74);
+        --ur-dim: rgba(248, 247, 255, 0.58);
+        --ur-line: rgba(248, 247, 255, 0.15);
+        --ur-cyan: #00f0ff;
+        --ur-pink: #ff2a6d;
+        --ur-red: #d94a27;
+        --ur-gold: #f0d060;
+      }
+
+      body.unrealtor-body {
+        background:
+          repeating-linear-gradient(180deg, rgba(255,255,255,.045) 0 2px, transparent 2px 31px),
+          radial-gradient(circle at 76% 10%, rgba(255, 42, 109, .22), transparent 30%),
+          radial-gradient(circle at 12% 8%, rgba(0, 240, 255, .18), transparent 28%),
+          linear-gradient(180deg, #090a0f 0%, #160914 52%, #0b1120 100%);
+      }
+
+      .ur-page {
+        color: var(--ur-ink);
+        overflow: hidden;
+      }
+
+      .ur-page .container {
+        width: min(1160px, calc(100% - 40px));
+      }
+
+      .ur-hero {
+        position: relative;
+        padding: 86px 0 74px;
+        border-bottom: 1px solid rgba(217, 74, 39, .42);
+      }
+
+      .ur-hero::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 55%;
+        height: 2px;
+        background: rgba(217, 74, 39, .62);
+        box-shadow: 0 0 18px rgba(217, 74, 39, .32);
+      }
+
+      .ur-hero-grid {
+        position: relative;
+        z-index: 1;
+        display: grid;
+        grid-template-columns: minmax(0, 1.12fr) minmax(260px, .88fr);
+        gap: 44px;
+        align-items: center;
+      }
+
+      .ur-kicker {
+        color: var(--ur-cyan);
+        font-weight: 900;
+        letter-spacing: .08em;
+        margin: 0 0 12px;
+        text-transform: uppercase;
+      }
+
+      .ur-hero h1,
+      .ur-section h2,
+      .ur-footer-cta h2 {
+        color: var(--ur-ink);
+        font-size: clamp(2.45rem, 6.3vw, 5.75rem);
+        line-height: .95;
+      }
+
+      .ur-hero h1 {
+        max-width: 870px;
+        margin-bottom: 22px;
+      }
+
+      .ur-lede {
+        color: var(--ur-muted);
+        font-size: clamp(1.04rem, 2vw, 1.24rem);
+        line-height: 1.58;
+        max-width: 720px;
+      }
+
+      .ur-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 28px;
+      }
+
+      .ur-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 48px;
+        padding: 0 20px;
+        border: 1px solid var(--ur-line);
+        border-radius: 999px;
+        font-weight: 900;
+      }
+
+      .ur-btn-primary {
+        background: var(--ur-ink);
+        color: #090a0f;
+      }
+
+      .ur-btn-secondary {
+        background: rgba(248, 247, 255, .08);
+        color: var(--ur-ink);
+      }
+
+      .ur-app-card {
+        justify-self: center;
+        width: min(380px, 86vw);
+        padding: 14px;
+        border: 1px solid var(--ur-line);
+        border-radius: 28px;
+        background: rgba(248, 247, 255, .045);
+        box-shadow: 0 28px 70px rgba(0,0,0,.48);
+      }
+
+      .ur-app-card img {
+        border-radius: 20px;
+      }
+
+      .ur-proof {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+        margin-top: 30px;
+        max-width: 760px;
+      }
+
+      .ur-proof div,
+      .ur-card,
+      .ur-step,
+      .ur-term {
+        border: 1px solid var(--ur-line);
+        background: linear-gradient(180deg, rgba(248,247,255,.072), rgba(248,247,255,.026));
+      }
+
+      .ur-proof div {
+        min-height: 78px;
+        padding: 14px 16px;
+        border-radius: 14px;
+      }
+
+      .ur-proof strong {
+        display: block;
+        color: var(--ur-ink);
+        margin-bottom: 4px;
+      }
+
+      .ur-proof span {
+        display: block;
+        color: var(--ur-dim);
+        font-size: .86rem;
+        line-height: 1.35;
+      }
+
+      .ur-section {
+        padding: 78px 0;
+      }
+
+      .ur-section h2,
+      .ur-footer-cta h2 {
+        max-width: 860px;
+        margin-bottom: 18px;
+      }
+
+      .ur-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 16px;
+        margin-top: 32px;
+      }
+
+      .ur-card {
+        border-radius: 18px;
+        padding: 24px;
+      }
+
+      .ur-card h3,
+      .ur-step strong,
+      .ur-term dt {
+        color: var(--ur-ink);
+        font-family: "Sora", "Trebuchet MS", system-ui, sans-serif;
+        font-weight: 900;
+      }
+
+      .ur-card p,
+      .ur-step p,
+      .ur-term dd {
+        color: var(--ur-muted);
+        margin-bottom: 0;
+      }
+
+      .ur-card:nth-child(1) { border-top-color: var(--ur-cyan); }
+      .ur-card:nth-child(2) { border-top-color: var(--ur-pink); }
+      .ur-card:nth-child(3) { border-top-color: var(--ur-red); }
+
+      .ur-screens {
+        margin-top: 34px;
+        padding: 10px;
+        border: 1px solid var(--ur-line);
+        border-radius: 18px;
+        background: rgba(248, 247, 255, .06);
+      }
+
+      .ur-screens img {
+        width: 100%;
+        border-radius: 10px;
+      }
+
+      .ur-flow {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 12px;
+        margin-top: 30px;
+      }
+
+      .ur-step {
+        min-height: 198px;
+        padding: 18px;
+        border-radius: 16px;
+      }
+
+      .ur-step span {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 30px;
+        height: 30px;
+        margin-bottom: 16px;
+        border-radius: 10px;
+        background: var(--ur-cyan);
+        color: #090a0f;
+        font-weight: 900;
+      }
+
+      .ur-step:nth-child(2) span { background: var(--ur-pink); color: #fff; }
+      .ur-step:nth-child(3) span { background: var(--ur-red); color: #fff; }
+      .ur-step:nth-child(4) span { background: var(--ur-gold); color: #090a0f; }
+
+      .ur-band {
+        margin-top: 26px;
+        padding: 24px;
+        border: 1px solid rgba(0,240,255,.28);
+        border-radius: 18px;
+        background:
+          linear-gradient(90deg, rgba(0,240,255,.12), transparent 38%),
+          rgba(9,10,15,.72);
+      }
+
+      .ur-band h3 {
+        color: var(--ur-ink);
+        margin-bottom: 8px;
+      }
+
+      .ur-glossary {
+        display: grid;
+        grid-template-columns: minmax(245px, .72fr) minmax(0, 1.28fr);
+        gap: 28px;
+        align-items: start;
+      }
+
+      .ur-glossary-intro {
+        position: sticky;
+        top: 104px;
+      }
+
+      .ur-glossary-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .ur-term {
+        border-radius: 14px;
+        padding: 18px;
+      }
+
+      .ur-term dt {
+        margin-bottom: 8px;
+      }
+
+      .ur-term dd {
+        margin-left: 0;
+        line-height: 1.46;
+        overflow-wrap: anywhere;
+      }
+
+      .ur-math-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+        margin-top: 32px;
+      }
+
+      .ur-cap-row {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 12px;
+        margin-top: 24px;
+      }
+
+      .ur-cap {
+        padding: 16px;
+        border: 1px solid rgba(240, 208, 96, .24);
+        border-radius: 14px;
+        background: rgba(240, 208, 96, .06);
+      }
+
+      .ur-cap strong {
+        display: block;
+        color: var(--ur-gold);
+        margin-bottom: 6px;
+      }
+
+      .ur-cap span {
+        color: var(--ur-muted);
+        font-size: .92rem;
+        line-height: 1.42;
+      }
+
+      .ur-equation {
+        min-height: 218px;
+        padding: 20px;
+        border: 1px solid var(--ur-line);
+        border-radius: 16px;
+        background:
+          linear-gradient(180deg, rgba(0, 240, 255, .075), rgba(255, 42, 109, .035)),
+          rgba(248, 247, 255, .035);
+      }
+
+      .ur-equation strong {
+        display: block;
+        color: var(--ur-ink);
+        font-family: "Sora", "Trebuchet MS", system-ui, sans-serif;
+        font-size: 1.02rem;
+        margin-bottom: 10px;
+      }
+
+      .ur-formula {
+        display: block;
+        margin: 0 0 12px;
+        padding: 12px;
+        border-radius: 12px;
+        background: rgba(9, 10, 15, .72);
+        color: var(--ur-cyan);
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        font-size: .88rem;
+        line-height: 1.45;
+        overflow-wrap: anywhere;
+      }
+
+      .ur-equation p {
+        color: var(--ur-muted);
+        margin: 0;
+      }
+
+      .ur-source-note {
+        margin-top: 20px;
+        color: var(--ur-dim);
+        font-size: .92rem;
+      }
+
+      .ur-footer-cta {
+        padding: 78px 0 96px;
+        text-align: center;
+      }
+
+      .ur-footer-cta h2 {
+        max-width: 930px;
+        margin-left: auto;
+        margin-right: auto;
+        text-wrap: balance;
+      }
+
+      .ur-footer-cta .ur-lede {
+        max-width: 720px;
+        margin-left: auto;
+        margin-right: auto;
+        text-wrap: balance;
+      }
+
+      .ur-footer-cta .ur-actions {
+        justify-content: center;
+      }
+
+      .ur-link-row {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 16px;
+        margin-top: 18px;
+      }
+
+      .ur-link-row a {
+        color: var(--ur-muted);
+        text-decoration: underline;
+        text-underline-offset: 4px;
+      }
+
+      @media (max-width: 880px) {
+        .ur-hero-grid,
+        .ur-proof,
+        .ur-grid,
+        .ur-flow,
+        .ur-glossary,
+        .ur-glossary-grid,
+        .ur-math-grid,
+        .ur-cap-row {
+          grid-template-columns: 1fr;
+        }
+
+        .ur-hero {
+          padding-top: 60px;
+        }
+
+        .ur-hero h1,
+        .ur-section h2,
+        .ur-footer-cta h2 {
+          max-width: 340px;
+          font-size: clamp(1.7rem, 7.6vw, 2.25rem);
+          line-height: 1.06;
+          overflow-wrap: normal;
+        }
+
+        .ur-page .container {
+          width: min(100% - 40px, 1160px);
+        }
+
+        .ur-actions {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .ur-glossary-intro {
+          position: static;
+        }
+      }
+    </style>
+  </head>
+  <body class="unrealtor-body" data-page="unrealtor">
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <header class="site-header">
+      <div class="container nav-wrap">
+        <a class="brand" href="/" aria-label="AIssisted Consulting home">
+          <img src="/assets/logo.png" alt="AIssisted Consulting logo" width="58" height="44">
+          <span>
+            <strong>AIssisted Consulting</strong>
+            <small>Ocala AI help</small>
+          </span>
+        </a>
+
+        <button class="menu-toggle" type="button" data-menu-toggle aria-expanded="false" aria-controls="site-nav">Menu</button>
+
+        <nav class="nav-links" id="site-nav" data-nav-links aria-label="Primary navigation">
+          <a href="/small-business-ai-help/">Small business</a>
+          <a href="/services/">Services</a>
+          <a href="/family-ai-help/">Family</a>
+          <a href="/privacy-and-control/">Privacy</a>
+          <a href="/unrealtor" aria-current="page">UnRealtor</a>
+          <a href="/book/">Book</a>
+          <a href="/contact/">Contact</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main" class="ur-page">
+      <section class="ur-hero">
+        <div class="container ur-hero-grid">
+          <div>
+            <p class="ur-kicker">Real estate deal coach</p>
+            <h1>Real estate terms are not magic. They are leverage.</h1>
+            <p class="ur-lede">UnRealtor helps buyers understand listings, disclosures, inspection reports, seller credits, loan limits, and contract pressure without needing an agent to translate every sentence.</p>
+            <div class="ur-actions">
+              <a class="ur-btn ur-btn-primary" href="https://apps.apple.com/us/app/unrealtor/id6762566315">Download on the App Store</a>
+              <a class="ur-btn ur-btn-secondary" href="#glossary">Open the glossary</a>
+            </div>
+            <div class="ur-proof" aria-label="UnRealtor proof points">
+              <div><strong>No gatekeeping</strong><span>Plain English for the words people use to make deals feel harder.</span></div>
+              <div><strong>Numbers first</strong><span>Credits, repairs, concessions, and walk-away posture stay visible.</span></div>
+              <div><strong>Built for buyers</strong><span>Especially buyers who do not want to default into agent dependency.</span></div>
+            </div>
+          </div>
+          <div class="ur-app-card" aria-label="UnRealtor app icon">
+            <img src="/assets/unrealtor/icon-1024.png" alt="UnRealtor glitch-house app icon">
+          </div>
+        </div>
+      </section>
+
+      <section class="ur-section">
+        <div class="container">
+          <p class="ur-kicker">What the app does</p>
+          <h2>A calm second brain for the messy part of buying a house.</h2>
+          <p class="ur-lede">The app gives you a buyer-side way to organize property targets, decode reports, pressure-test asks, and understand what a counteroffer actually means.</p>
+          <div class="ur-grid">
+            <article class="ur-card">
+              <h3>Property search companion</h3>
+              <p>Save a listing link, rough address, or pasted listing text. UnRealtor turns missing facts into next questions instead of confusion.</p>
+            </article>
+            <article class="ur-card">
+              <h3>Deal Lab</h3>
+              <p>Model seller credits, price cuts, closing costs, loan type, repairs, and local concession assumptions before you make the ask.</p>
+            </article>
+            <article class="ur-card">
+              <h3>Reports and playbooks</h3>
+              <p>Use inspection findings, disclosures, and contract topics to find leverage, risk, and the right next step before you sign.</p>
+            </article>
+          </div>
+          <div class="ur-screens">
+            <img src="/assets/unrealtor/current-iphone-screens.png" alt="UnRealtor app screens showing deal math, reports, Deal Lab, knowledge base, and analysis">
+          </div>
+        </div>
+      </section>
+
+      <section class="ur-section">
+        <div class="container">
+          <p class="ur-kicker">For buyers without an agent</p>
+          <h2>Find the house anywhere. Bring the decision into UnRealtor.</h2>
+          <p class="ur-lede">Use Zillow, Redfin, Realtor.com, Homes.com, builder pages, FSBO posts, or a sign in a yard. UnRealtor is the decision layer after you find the target.</p>
+          <div class="ur-flow" aria-label="Buyer workflow">
+            <article class="ur-step"><span>1</span><strong>Save the target</strong><p>Address, price, listing URL, or pasted copy is enough to start.</p></article>
+            <article class="ur-step"><span>2</span><strong>Decode the setup</strong><p>Seller, listing agent, builder rep, FSBO, flat-fee broker, or unknown.</p></article>
+            <article class="ur-step"><span>3</span><strong>Ask better questions</strong><p>Get disclosure requests, tour prompts, risk notes, and document gaps.</p></article>
+            <article class="ur-step"><span>4</span><strong>Move to the ask</strong><p>Send the deal into math when credits, repairs, or offer posture matter.</p></article>
+          </div>
+          <div class="ur-band">
+            <h3>We are tearing down dumb walls.</h3>
+            <p class="ur-lede">Real estate does not need to feel like a private language. Most of the scary words are just deadlines, money, permission, risk, or proof. Once you see which one it is, the room gets smaller.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="ur-section" id="glossary">
+        <div class="container ur-glossary">
+          <div class="ur-glossary-intro">
+            <p class="ur-kicker">Real estate jargon glossary</p>
+            <h2>Simple words for the terms that hide the money.</h2>
+            <p class="ur-lede">An alphabetized buyer-side decoder for listing copy, agent texts, FSBO conversations, builder offers, loan documents, contract counters, and inspection negotiations.</p>
+            <div class="ur-band">
+              <h3>How to use this</h3>
+              <p>If a term changes your deadline, cash to close, cancellation right, or risk of losing earnest money, treat it like a decision point. Ask for the written version.</p>
+            </div>
+          </div>
+          <dl class="ur-glossary-grid" aria-label="Common real estate jargon translated">
+            <div class="ur-term"><dt>Appraisal gap</dt><dd>The cash gap you may cover if the appraisal is lower than the price. The cap is the important part.</dd></div>
+            <div class="ur-term"><dt>As-is</dt><dd>Often means the seller prefers not to repair. It does not automatically erase every inspection right. The contract controls.</dd></div>
+            <div class="ur-term"><dt>Builder incentive</dt><dd>A credit, upgrade, buydown, or discount from a builder. Ask what lender, title, deposit, and cancellation strings are attached.</dd></div>
+            <div class="ur-term"><dt>Buyer agency agreement</dt><dd>A contract that can make you responsible for paying an agent. Check exclusivity, duration, cancellation, and compensation before touring.</dd></div>
+            <div class="ur-term"><dt>Cash to close</dt><dd>The money you need at closing after down payment, costs, prepaids, credits, deposits, and adjustments are counted.</dd></div>
+            <div class="ur-term"><dt>Clear to close</dt><dd>Lender language meaning underwriting conditions are mostly satisfied. It is not the same as “you own the house.”</dd></div>
+            <div class="ur-term"><dt>Closing Disclosure</dt><dd>The final mortgage disclosure you normally receive at least three business days before closing. Compare it to the Loan Estimate line by line.</dd></div>
+            <div class="ur-term"><dt>Comps / CMA</dt><dd>Comparable sales and a comparative market analysis. Translation: the evidence people use to argue what the house is worth.</dd></div>
+            <div class="ur-term"><dt>Contingency</dt><dd>A condition that protects you if inspection, financing, appraisal, title, insurance, or another core issue fails.</dd></div>
+            <div class="ur-term"><dt>Discount points</dt><dd>Upfront money paid for a lower rate. The question is not “lower rate good?” It is “how many months until I break even?”</dd></div>
+            <div class="ur-term"><dt>DOM / CDOM</dt><dd>Days on market and cumulative days on market. Long time on market may mean leverage, bad pricing, condition issues, or stale listing strategy.</dd></div>
+            <div class="ur-term"><dt>DTI</dt><dd>Debt-to-income ratio. Monthly debt payments divided by gross monthly income. It can decide whether the loan survives underwriting.</dd></div>
+            <div class="ur-term"><dt>Dual agency</dt><dd>One brokerage sits near both sides of the transaction. Get duties, conflicts, and consent in writing.</dd></div>
+            <div class="ur-term"><dt>Due diligence period</dt><dd>Your window to investigate the property and decide whether to proceed, renegotiate, or cancel under the contract.</dd></div>
+            <div class="ur-term"><dt>Earnest money</dt><dd>Your good-faith deposit. It can be protected inside contingencies and at risk after missed deadlines.</dd></div>
+            <div class="ur-term"><dt>Escalation clause</dt><dd>A clause that raises your offer above competing offers up to a cap. It needs proof rules and a firm ceiling.</dd></div>
+            <div class="ur-term"><dt>Escrow holdback</dt><dd>Money held after closing for specific work. It needs scope, amount, deadline, release rules, and lender/title approval.</dd></div>
+            <div class="ur-term"><dt>FSBO</dt><dd>For Sale By Owner. The seller is not using a listing agent, so paperwork, deadlines, access, title, and negotiation need extra structure.</dd></div>
+            <div class="ur-term"><dt>Inspection contingency</dt><dd>Your right to inspect, object, renegotiate, or cancel if the contract allows it. The deadline and notice method matter.</dd></div>
+            <div class="ur-term"><dt>IPC limit</dt><dd>Interested party contribution limit. The lender's cap on seller, builder, or agent-paid credits.</dd></div>
+            <div class="ur-term"><dt>Leaseback / rent-back</dt><dd>The seller stays after closing. It needs rent, deposit, insurance, deadline, damage rules, and lender approval.</dd></div>
+            <div class="ur-term"><dt>List-to-sale ratio</dt><dd>Sale price divided by list price. It helps you see whether homes are closing above, at, or below asking in that micro-market.</dd></div>
+            <div class="ur-term"><dt>Listing agent</dt><dd>The agent marketing the property for the seller. Unless something else is signed, they do not represent your interests.</dd></div>
+            <div class="ur-term"><dt>Loan Estimate</dt><dd>The lender's early official cost estimate. Use it as the baseline for comparing rate, costs, credits, and cash to close.</dd></div>
+            <div class="ur-term"><dt>LTV / CLTV</dt><dd>Loan-to-value and combined loan-to-value. Loan amount compared with property value, often using the lower of price or appraisal.</dd></div>
+            <div class="ur-term"><dt>MLS</dt><dd>Multiple Listing Service. The broker database that feeds many public portals. Public listing copy can lag behind MLS changes.</dd></div>
+            <div class="ur-term"><dt>Net sheet</dt><dd>A seller-side estimate of proceeds after payoff, closing costs, taxes, credits, and fees. FSBO sellers should understand their real net, not just your offer price.</dd></div>
+            <div class="ur-term"><dt>Option fee / due diligence fee</dt><dd>State-specific money paid for a review window. In some places it may be nonrefundable even if you walk away.</dd></div>
+            <div class="ur-term"><dt>PITI</dt><dd>Principal, interest, taxes, and insurance. Add mortgage insurance and HOA dues to get closer to your real monthly carrying cost.</dd></div>
+            <div class="ur-term"><dt>Prepaids and escrows</dt><dd>Upfront taxes, insurance, interest, and reserve deposits. They are not junk fees, but they can move cash to close hard.</dd></div>
+            <div class="ur-term"><dt>Procuring cause</dt><dd>Brokerage language about who caused the sale. If you tour through an agent, understand whether that creates commission drama later.</dd></div>
+            <div class="ur-term"><dt>Proration</dt><dd>A split of taxes, dues, rent, or fees by date. Tiny-looking prorations can move real cash at closing.</dd></div>
+            <div class="ur-term"><dt>Rate buydown</dt><dd>Money paid to lower your mortgage rate. Compare the monthly savings against the cost and how long you expect to keep the loan.</dd></div>
+            <div class="ur-term"><dt>Repair credit</dt><dd>Seller money in place of repairs. Cleaner than seller-managed repairs when allowed, but it must fit lender limits.</dd></div>
+            <div class="ur-term"><dt>Seller concession</dt><dd>Money the seller contributes toward buyer costs. Useful, but lenders cap how much can be credited.</dd></div>
+            <div class="ur-term"><dt>Seller credit vs price cut</dt><dd>A credit helps cash to close. A price cut lowers the loan math. They are not interchangeable if cash is your constraint.</dd></div>
+            <div class="ur-term"><dt>Survey exception</dt><dd>Title language that can leave boundary, encroachment, easement, or improvement-location risk on you if not cleared.</dd></div>
+            <div class="ur-term"><dt>Time is of the essence</dt><dd>A deadline phrase with teeth. If the contract says it, being late can mean losing rights, leverage, or money.</dd></div>
+            <div class="ur-term"><dt>Title commitment</dt><dd>The title company's promise with exceptions. Read the exceptions: easements, restrictions, liens, and survey issues live there.</dd></div>
+            <div class="ur-term"><dt>Title issue</dt><dd>A problem with ownership, liens, boundaries, easements, or claims. Do not treat title language as decoration.</dd></div>
+            <div class="ur-term"><dt>Transaction broker</dt><dd>A limited-role broker model in some states. It is not the same as having a fiduciary buyer advocate.</dd></div>
+            <div class="ur-term"><dt>Walk-away posture</dt><dd>Your willingness to leave if the numbers or risk get bad. It is leverage because it is real, not because you threaten it.</dd></div>
+          </dl>
+        </div>
+      </section>
+
+      <section class="ur-section" id="buyer-math">
+        <div class="container">
+          <p class="ur-kicker">Simple buyer math</p>
+          <h2>The numbers people actually want to know.</h2>
+          <p class="ur-lede">You do not need to become a lender. You need fast checks for monthly payment, cash to close, credit value, gap risk, repair leverage, and whether a “deal” actually helps you.</p>
+          <div class="ur-cap-row" aria-label="Common concession cap reminders">
+            <div class="ur-cap"><strong>Conventional IPCs</strong><span>Common Fannie Mae caps: 3%, 6%, or 9% for primary/second homes depending on LTV; 2% for investment property.</span></div>
+            <div class="ur-cap"><strong>FHA concessions</strong><span>Seller or interested-party contributions are commonly capped at 6% of the lesser of price or value.</span></div>
+            <div class="ur-cap"><strong>VA concessions</strong><span>Seller concessions above 4% of reasonable value are generally treated as excessive for VA-guaranteed loans.</span></div>
+            <div class="ur-cap"><strong>The buyer trap</strong><span>A credit can be capped by loan rules, actual costs, appraisal value, or whether the item is allowed at all.</span></div>
+          </div>
+          <div class="ur-math-grid" aria-label="Real estate math formulas for buyers">
+            <article class="ur-equation">
+              <strong>What will I really pay each month?</strong>
+              <code class="ur-formula">real monthly = P&I + taxes + insurance + MI + HOA + maintenance buffer</code>
+              <p>Principal and interest alone is the pretty number. Carrying cost is the number you live with.</p>
+            </article>
+            <article class="ur-equation">
+              <strong>How much cash do I need?</strong>
+              <code class="ur-formula">cash to close = down payment + closing costs + prepaids - earnest money - credits</code>
+              <p>This is the number to protect if you are cash constrained. Compare the Loan Estimate and Closing Disclosure.</p>
+            </article>
+            <article class="ur-equation">
+              <strong>How much of the credit can I actually use?</strong>
+              <code class="ur-formula">usable credit = min(requested credit, allowed lender cap, actual closing costs/prepaids)</code>
+              <p>A $15,000 credit is not useful if your loan program or costs only allow part of it.</p>
+            </article>
+            <article class="ur-equation">
+              <strong>Is a credit better than a price cut?</strong>
+              <code class="ur-formula">rough monthly savings ≈ price cut × rate / 12</code>
+              <p>A $10,000 price cut may only save a small monthly amount. A $10,000 credit may matter more if closing cash is the bottleneck.</p>
+            </article>
+            <article class="ur-equation">
+              <strong>What is my appraisal-gap risk?</strong>
+              <code class="ur-formula">gap exposure = purchase price - appraised value - gap cap</code>
+              <p>If the number is above zero, the deal needs a price change, more cash, seller movement, or a cancellation path.</p>
+            </article>
+            <article class="ur-equation">
+              <strong>Can the loan still qualify?</strong>
+              <code class="ur-formula">DTI = monthly debt payments / gross monthly income</code>
+              <p>New debts, HOA dues, insurance jumps, or rate changes can push an approval into trouble.</p>
+            </article>
+            <article class="ur-equation">
+              <strong>Is the rate buydown worth it?</strong>
+              <code class="ur-formula">months to break even = upfront buydown cost / monthly savings</code>
+              <p>If you might refinance or sell before the break-even point, the lower rate may be less valuable than a credit.</p>
+            </article>
+            <article class="ur-equation">
+              <strong>What does the seller actually net?</strong>
+              <code class="ur-formula">seller net = price - credits - payoff - seller closing costs - taxes/fees</code>
+              <p>FSBO sellers care about net. A lower price with fewer credits can beat a higher price with messy concessions.</p>
+            </article>
+            <article class="ur-equation">
+              <strong>How much should I ask for repairs?</strong>
+              <code class="ur-formula">repair ask = contractor quote + urgency/risk buffer - items you accept</code>
+              <p>Anchor repair asks to written quotes. Unsupported round numbers invite weak counters.</p>
+            </article>
+            <article class="ur-equation">
+              <strong>How much room is in the list price?</strong>
+              <code class="ur-formula">list-to-sale % = sale price / list price</code>
+              <p>If similar homes close at 96% of list, a full-price offer may need a reason beyond vibes.</p>
+            </article>
+            <article class="ur-equation">
+              <strong>How much cash is tied up if I walk late?</strong>
+              <code class="ur-formula">deposit at risk = earnest money + nonrefundable fees + inspection/appraisal spend</code>
+              <p>This is the pain number. Know it before contingency deadlines expire.</p>
+            </article>
+            <article class="ur-equation">
+              <strong>How much loan risk does a low appraisal create?</strong>
+              <code class="ur-formula">LTV = loan amount / lower of price or appraised value</code>
+              <p>If appraisal value drops, LTV can rise. That can affect approval, mortgage insurance, or required cash.</p>
+            </article>
+          </div>
+          <p class="ur-source-note">Rule-of-thumb examples are not underwriting approval. Conventional IPC caps can vary by occupancy and LTV, FHA and VA have their own concession rules, and your lender/title company controls final treatment.</p>
+        </div>
+      </section>
+
+      <section class="ur-footer-cta">
+        <div class="container">
+          <p class="ur-kicker">Free sample workflow</p>
+          <h2>Open the app before the next counteroffer.</h2>
+          <p class="ur-lede">Start with the sample. Unlock live deal work when there is a real property, report, contract, or negotiation on the table.</p>
+          <div class="ur-actions">
+            <a class="ur-btn ur-btn-primary" href="https://apps.apple.com/us/app/unrealtor/id6762566315">Download UnRealtor</a>
+            <a class="ur-btn ur-btn-secondary" href="/privacy/unrealtor">Privacy policy</a>
+          </div>
+          <div class="ur-link-row">
+            <a href="/">AIssisted Consulting</a>
+            <a href="https://www.apple.com/legal/internet-services/itunes/dev/stdeula/">Apple Standard EULA</a>
+            <a href="/contact/">Contact support</a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container footer-layout">
+        <p>&copy; <span data-year>2026</span> AIssisted Consulting. Ocala, FL.</p>
+        <p>UnRealtor is buyer-side software, not legal advice or brokerage representation.</p>
+      </div>
+    </footer>
+
+    <script src="/main.js?v=11.11.4"></script>
+  </body>
+</html>
