@@ -19,7 +19,7 @@ This support file summarizes public site facts and declared agent-surface capabi
 
 For small-business owners, start with the Small Business AI Help page, then read Services, Privacy And Control, and the guide pages for missed calls and the AI workflow checklist. The preferred first step is one real workflow: intake, scheduling, follow-up, reporting, owner visibility, or another handoff that is already slipping.
 
-For families and households, start with Family AI Help, then read Family AI Safety Basics, What Not To Share With AI, and AI Tools For Household Admin. The family path is plain-English setup guidance, privacy guidance, and everyday examples with human judgment in charge.
+For families and households, start with Family AI Help, then read Family AI Safety Basics, What Not To Share With AI, and AI Tools For Household Admin. The family path is caring, plain-English guidance for parents preparing children for an AI-shaped future with privacy, judgment, courage, and human care in charge.
 
 ## Public Pages
 
@@ -66,6 +66,6 @@ Booking checkout creation requires human approval, policy acceptance, checkout c
 
 ## Boundaries
 
-AIssisted Consulting is a fit for practical AI workflow review, small-business operations help, plain-English setup questions, privacy and control planning, and careful first steps. It is not presented as a fit for removing human judgment, standing in for staff, standing in for parents or caregivers, bypassing professional review, making decisions without people, or promising outcomes from AI systems.
+AIssisted Consulting is a fit for practical AI workflow review, small-business operations help, plain-English AI questions, privacy and control planning, caring family guidance, and careful first steps. It is not presented as a fit for removing human judgment, standing in for staff, standing in for parents or caregivers, bypassing professional review, making decisions without people, or promising outcomes from AI systems.
 
 The public booking route describes a 60-minute founder-led consult reservation with a $225 deposit. Booking confirmation depends on the same-origin booking backend and Stripe Checkout. Agent-facing files do not add private-system access, CRM/email writes, analytics writes, crawler-policy changes, destructive actions, or direct card collection.

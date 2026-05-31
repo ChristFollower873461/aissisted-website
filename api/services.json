@@ -186,17 +186,18 @@
       "name": "Family AI guidance",
       "audience": "Families and households",
       "status": "guidance",
-      "description": "Plain-English guidance for household AI setup questions, privacy boundaries, everyday examples, and human judgment.",
+      "description": "Heartfelt, plain-English guidance for parents preparing children for an AI-shaped future with courage, privacy, judgment, and care.",
       "workflow_focus": [
-        "Family setup questions",
+        "Parent and child AI conversations",
+        "Preparing children for an AI-shaped workforce",
+        "Privacy and permission habits",
+        "Curiosity, judgment, and human voice",
         "What not to share",
-        "Household admin examples",
-        "Drafting and organizing",
         "Human decision boundaries"
       ],
       "best_fit": [
-        "Families asking how to use AI tools more carefully.",
-        "Households that want examples for drafting, organizing, summarizing, or planning while people keep decisions."
+        "Parents who want caring guidance around children, AI, privacy, and the future of work.",
+        "Families that want children to use powerful tools without losing judgment, kindness, creativity, or their own voice."
       ],
       "not_a_fit": [
         "Replacing parents, caregivers, teachers, or professionals.",
@@ -217,7 +218,7 @@
     "Declared agent write/payment commands require human approval, Idempotency-Key, duplicate or slot-conflict protection, audit records, and server-side validation.",
     "The website does not collect card details; payment happens on Stripe Checkout.",
     "No service entry removes human judgment or professional review.",
-    "Family AI guidance remains plain-English setup and privacy guidance with human judgment in charge."
+    "Family AI guidance remains caring, plain-English parent support for child readiness, privacy, and human judgment."
   ],
   "last_reviewed": "2026-05-06"
 }

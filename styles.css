@@ -1101,6 +1101,67 @@ address strong {
   font-size: 0.94rem;
 }
 
+.family-letter-section {
+  position: relative;
+  padding: 86px 0;
+  border-top: 1px solid rgba(240, 208, 96, 0.16);
+  border-bottom: 1px solid rgba(240, 208, 96, 0.16);
+  background:
+    linear-gradient(135deg, rgba(12, 19, 36, 0.96) 0%, rgba(25, 23, 59, 0.9) 48%, rgba(62, 33, 69, 0.86) 100%),
+    linear-gradient(180deg, rgba(11, 17, 32, 0.92), rgba(11, 17, 32, 0.96));
+  overflow: hidden;
+}
+
+.family-letter-section::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(240, 208, 96, 0.1), transparent 38%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent 42%);
+  pointer-events: none;
+}
+
+.family-letter-layout {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.18fr);
+  gap: 36px;
+  align-items: start;
+}
+
+.family-letter-layout h2 {
+  margin: 0;
+  color: #f7f4ff;
+  font-size: clamp(2rem, 3.8vw, 3.15rem);
+  line-height: 1.04;
+}
+
+.family-letter {
+  border: 1px solid rgba(240, 208, 96, 0.18);
+  border-left: 4px solid rgba(240, 208, 96, 0.72);
+  border-radius: var(--radius);
+  background: rgba(8, 13, 26, 0.66);
+  box-shadow: var(--shadow-soft);
+  padding: 26px;
+}
+
+.family-letter p {
+  margin: 0 0 16px;
+  color: rgba(248, 247, 255, 0.86);
+  font-size: 1.04rem;
+  line-height: 1.78;
+}
+
+.family-letter p:last-child {
+  margin-bottom: 0;
+}
+
+.family-letter strong {
+  color: #fff4cf;
+  font-weight: 850;
+}
+
 .site-footer {
   padding: 32px 0;
   border-top: 1px solid rgba(240, 208, 96, 0.18);
@@ -1134,6 +1195,7 @@ address strong {
   .workflow-layout,
   .founder-layout,
   .contact-layout,
+  .family-letter-layout,
   .footer-layout {
     grid-template-columns: 1fr;
   }
@@ -1286,7 +1348,8 @@ address strong {
 
   .page-hero,
   .content-section,
-  .boundary-band {
+  .boundary-band,
+  .family-letter-section {
     padding: 64px 0;
   }
 
@@ -1360,6 +1423,10 @@ address strong {
 
   .step-card span {
     margin-bottom: 28px;
+  }
+
+  .family-letter {
+    padding: 20px;
   }
 }
 
