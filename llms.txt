@@ -2,7 +2,7 @@
 
 AIssisted Consulting provides practical, privacy-aware AI help for small service businesses and plain-English guidance for family AI questions. The business is based in Ocala, Florida and is founder-led by PJ.
 
-This support file summarizes public site facts and declared agent-surface capabilities. It does not report live AVOS results, crawler changes, private credentials, authenticated workflows, CRM/email writes, analytics writes, destructive actions, or direct card collection.
+This support file summarizes public site facts and declared agent-surface capabilities. It does not report live AVOS results, crawler changes, private credentials, authenticated workflows, direct CRM administration, email writes, analytics writes, destructive actions, or direct card collection.
 
 ## Contact Facts
 
@@ -64,7 +64,7 @@ For real estate buyers, FSBO sellers, and deal-review users, start with UnRealto
 
 The agent manifest exposes read-only public fact commands, draft-only contact preparation, contact inquiry submission, and booking checkout creation.
 
-Contact inquiry submission requires human approval, consent, an Idempotency-Key header, duplicate suppression, and audit records. It does not write to CRM, email, analytics, booking, or payment systems.
+Contact inquiry submission requires human approval, consent, an Idempotency-Key header, duplicate suppression, and audit records. On deployed environments with AICCRM secrets configured, the same-origin endpoint relays approved website intake into AICCRM. It does not write to email, analytics, booking, or payment systems.
 
 Booking checkout creation requires human approval, policy acceptance, checkout consent, exact amount/currency/policy confirmation, an Idempotency-Key header, slot conflict checks, audit records, and Stripe Checkout. The website does not collect card details.
 
@@ -72,4 +72,4 @@ Booking checkout creation requires human approval, policy acceptance, checkout c
 
 AIssisted Consulting is a fit for practical AI workflow review, small-business operations help, plain-English AI questions, privacy and control planning, caring family guidance, and careful first steps. It is not presented as a fit for removing human judgment, standing in for staff, standing in for parents or caregivers, bypassing professional review, making decisions without people, or promising outcomes from AI systems.
 
-The public booking route describes a 60-minute founder-led consult reservation with a $225 deposit. Booking confirmation depends on the same-origin booking backend and Stripe Checkout. Agent-facing files do not add private-system access, CRM/email writes, analytics writes, crawler-policy changes, destructive actions, or direct card collection.
+The public booking route describes a 60-minute founder-led consult reservation with a $225 deposit. Booking confirmation depends on the same-origin booking backend and Stripe Checkout. Agent-facing files do not add private-system access, direct CRM administration, email writes, analytics writes, crawler-policy changes, destructive actions, or direct card collection.

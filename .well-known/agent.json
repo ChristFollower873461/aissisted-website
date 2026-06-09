@@ -15,7 +15,7 @@
     "agentSkills": {
       "index": "/.well-known/agent-skills/index.json",
       "profile": "static_companion_index",
-      "capabilityBoundary": "References public read commands, draft helpers, a same-origin contact submission endpoint, and a Stripe Checkout creation endpoint. Write and financial commands require human approval, Idempotency-Key, duplicate protection, and server-side validation. It does not expose destructive, auth, CRM/email, storage-browser, or direct card-collection commands."
+      "capabilityBoundary": "References public read commands, draft helpers, a same-origin contact submission endpoint with AICCRM intake relay when configured, and a Stripe Checkout creation endpoint. Write and financial commands require human approval, Idempotency-Key, duplicate protection, and server-side validation. It does not expose destructive, auth, direct CRM administration, email, storage-browser, or direct card-collection commands."
     }
   },
   "commands": [
@@ -423,7 +423,7 @@
       "requiresHumanApproval": true,
       "method": "POST",
       "endpoint": "/api/contact/submit",
-      "unauthenticatedJustification": "This is a public contact endpoint with same-origin checks, explicit consent, honeypot, idempotency, duplicate suppression, and audit records. It does not write to CRM, email, booking, payment, or analytics systems.",
+      "unauthenticatedJustification": "This is a public contact endpoint with same-origin checks, explicit consent, honeypot, idempotency, duplicate suppression, audit records, and AICCRM intake relay when deployment secrets are configured. It does not write to email, booking, payment, or analytics systems.",
       "idempotency": {
         "required": true,
         "header": "Idempotency-Key"
@@ -643,6 +643,6 @@
     "familyGuidanceScope": "Family AI guidance is plain-English setup and privacy guidance with human judgment in charge.",
     "financialActionsRequireStrongConfirmation": true,
     "destructiveActionsRequireStrongConfirmation": true,
-    "contactPolicy": "Contact submission is an external_write command that requires user approval, consent, Idempotency-Key, duplicate suppression, and audit logging. It does not write to CRM, email, analytics, booking, or payment systems."
+    "contactPolicy": "Contact submission is an external_write command that requires user approval, consent, Idempotency-Key, duplicate suppression, and audit logging. On deployed environments with AICCRM secrets configured, approved website intake relays into AICCRM. It does not write to email, analytics, booking, or payment systems."
   }
 }
