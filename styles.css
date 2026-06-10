@@ -2350,6 +2350,44 @@ address,
   text-transform: uppercase;
 }
 
+.integration-board {
+  display: grid;
+  border: 1px solid rgba(136, 136, 187, 0.22);
+  border-radius: var(--radius);
+  background: rgba(8, 13, 26, 0.54);
+  overflow: hidden;
+}
+
+.integration-row {
+  display: grid;
+  grid-template-columns: minmax(190px, 0.38fr) repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  align-items: center;
+  min-height: 64px;
+  border-bottom: 1px solid rgba(136, 136, 187, 0.16);
+  padding: 12px;
+}
+
+.integration-row:last-child {
+  border-bottom: 0;
+}
+
+.integration-row strong {
+  color: rgba(240, 208, 96, 0.9);
+  font-size: 0.84rem;
+  text-transform: uppercase;
+}
+
+.integration-row span {
+  border: 1px solid rgba(136, 136, 187, 0.22);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(248, 247, 255, 0.9);
+  padding: 9px 12px;
+  font-weight: 850;
+  text-align: center;
+}
+
 .path-card {
   --path-image: linear-gradient(135deg, rgba(16, 27, 52, 0.94), rgba(37, 17, 73, 0.82));
 }
@@ -3269,6 +3307,27 @@ body[data-page="home"] .service-integrations p {
   color: #7d5a14;
 }
 
+body[data-page="home"] .integration-board {
+  border-color: rgba(23, 27, 36, 0.12);
+  background:
+    linear-gradient(180deg, rgba(17, 24, 39, 0.96), rgba(23, 32, 51, 0.94));
+  box-shadow: var(--home-shadow);
+}
+
+body[data-page="home"] .integration-row {
+  border-bottom-color: rgba(255, 253, 247, 0.1);
+}
+
+body[data-page="home"] .integration-row strong {
+  color: var(--home-gold-soft);
+}
+
+body[data-page="home"] .integration-row span {
+  border-color: rgba(255, 253, 247, 0.14);
+  background: rgba(255, 253, 247, 0.08);
+  color: #fffdf7;
+}
+
 body[data-page="home"] .route-board {
   background: var(--home-paper);
 }
@@ -3502,6 +3561,16 @@ body[data-page="home"] address a {
     grid-template-columns: 54px minmax(0, 1fr);
     min-height: auto;
     padding: 16px;
+  }
+
+  body[data-page="home"] .integration-row {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    padding: 16px;
+  }
+
+  body[data-page="home"] .integration-row span {
+    text-align: left;
   }
 
   body[data-page="home"] .process-card h3,
