@@ -21,8 +21,6 @@ For small-business owners, start with the Small Business AI Help page, then read
 
 For families and households, start with Family AI Help, then read Family AI Safety Basics, What Not To Share With AI, and AI Tools For Household Admin. The family path is caring, plain-English guidance for parents preparing children for an AI-shaped future with privacy, judgment, courage, and human care in charge.
 
-For real estate buyers, FSBO sellers, and deal-review users, start with UnRealtor. It explains listing, contract, inspection, appraisal, lending, closing, and negotiation jargon in plain English and includes simple protective math such as LTV, DTI, seller net, repair asks, list-to-sale percentage, and rate-buydown break-even.
-
 ## Public Pages
 
 - Home: https://aissistedconsulting.com/
@@ -33,7 +31,6 @@ For real estate buyers, FSBO sellers, and deal-review users, start with UnRealto
 - Contact: https://aissistedconsulting.com/contact/
 - Book: https://aissistedconsulting.com/book/
 - Family AI Help: https://aissistedconsulting.com/family-ai-help/
-- UnRealtor: https://aissistedconsulting.com/unrealtor/
 - UnRealtor Privacy Policy: https://aissistedconsulting.com/privacy/unrealtor/
 - Industry Examples: https://aissistedconsulting.com/industries/
 - HVAC Examples: https://aissistedconsulting.com/industries/hvac/

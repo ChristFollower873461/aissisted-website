@@ -18,6 +18,12 @@ const BLOCKED_PATHS = new Set([
   "/wrangler.toml"
 ]);
 
+const GONE_PATHS = new Set([
+  "/unrealtor",
+  "/unrealtor/",
+  "/unrealtor.html"
+]);
+
 function isBlockedPath(pathname) {
   if (pathname === "/docs/mcp" || pathname === "/docs/mcp/" || pathname === "/docs/mcp.html") {
     return false;
@@ -29,6 +35,16 @@ function isBlockedPath(pathname) {
 function notFound() {
   return new Response("Not found", {
     status: 404,
+    headers: {
+      "content-type": "text/plain; charset=UTF-8",
+      "x-robots-tag": "noindex, nofollow"
+    }
+  });
+}
+
+function gone() {
+  return new Response("Gone", {
+    status: 410,
     headers: {
       "content-type": "text/plain; charset=UTF-8",
       "x-robots-tag": "noindex, nofollow"
@@ -50,6 +66,10 @@ export async function onRequest(context) {
 
   if (isBlockedPath(url.pathname)) {
     return notFound();
+  }
+
+  if (GONE_PATHS.has(url.pathname)) {
+    return gone();
   }
 
   return context.next();
