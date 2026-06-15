@@ -20,10 +20,10 @@ function createContactRequest(body, key = "contact-test-key-0001") {
   });
 }
 
-async function submitContact(body, key) {
+async function submitContact(body, key, env = {}) {
   const response = await onRequest({
     request: createContactRequest(body, key),
-    env: {}
+    env
   });
   const payload = await response.json();
   return { response, payload };
@@ -70,6 +70,44 @@ test("contact submit creates a local inquiry and audit record", async () => {
     assert.equal(audits.length, 1);
     assert.equal(audits[0].result, "accepted");
     assert.equal(fetchCalls, 0);
+  } finally {
+    global.fetch = originalFetch;
+  }
+});
+
+test("contact submit relays structured attribution to AICCRM", async () => {
+  resetMemoryStore();
+  const originalFetch = global.fetch;
+  let crmPayload = null;
+  global.fetch = async (_url, options = {}) => {
+    crmPayload = JSON.parse(String(options.body || "{}"));
+    return Response.json({ ok: true, submission: { id: "intake_contact_test" } });
+  };
+
+  try {
+    const { response, payload } = await submitContact(
+      validPayload({
+        sourcePage:
+          "/contact/?utm_source=codex&utm_medium=production_smoke&utm_campaign=aiccrm_relay&gclid=gclid-contact"
+      }),
+      "contact-crm-relay-key-0001",
+      {
+        AIC_CRM_INTAKE_URL: "https://aiccrm.aissistedconsulting.com/intake/website",
+        AIC_CRM_INTAKE_TOKEN: "test-token"
+      }
+    );
+
+    assert.equal(response.status, 200);
+    assert.equal(payload.ok, true);
+    assert.equal(crmPayload.sourceUrl, "https://aissistedconsulting.com/contact/?utm_source=codex&utm_medium=production_smoke&utm_campaign=aiccrm_relay&gclid=gclid-contact");
+    assert.equal(crmPayload.sourcePage, "/contact/?utm_source=codex&utm_medium=production_smoke&utm_campaign=aiccrm_relay&gclid=gclid-contact");
+    assert.equal(crmPayload.sourceChannel, "website");
+    assert.equal(crmPayload.formName, "contact-page");
+    assert.equal(crmPayload.utmSource, "codex");
+    assert.equal(crmPayload.utmMedium, "production_smoke");
+    assert.equal(crmPayload.utmCampaign, "aiccrm_relay");
+    assert.equal(crmPayload.gclid, "gclid-contact");
+    assert.match(crmPayload.qualifiedSourceEventId, /^website-contact-inq_/);
   } finally {
     global.fetch = originalFetch;
   }

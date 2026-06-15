@@ -9,6 +9,7 @@ import {
   readJson
 } from "../_lib/http.js";
 import { relayWebsiteIntakeToAicCrm } from "../_lib/aic-crm.js";
+import { buildCrmAttribution } from "../_lib/crm-attribution.js";
 import { getBookingStore } from "../_lib/storage.js";
 import {
   TransactionSafetyError,
@@ -305,6 +306,13 @@ export async function onRequest(context) {
       deliveryStatus: "local_record_only",
       idempotencyRecordId: idempotencyRecord.id
     });
+    const crmAttribution = buildCrmAttribution({
+      sourcePage: normalized.sourcePage,
+      fallbackPath: "/contact/",
+      sourceChannel: "website",
+      formName: "contact-page",
+      qualifiedSourceEventId: `website-contact-${inquiry.id}`
+    });
     const crmRelay = await relayWebsiteIntakeToAicCrm(context.env, {
       name: normalized.name,
       email: normalized.email,
@@ -312,7 +320,7 @@ export async function onRequest(context) {
       companyName: normalized.company,
       inquiryType: normalized.audience || "send_inquiry",
       message: normalized.message,
-      sourceUrl: `https://aissistedconsulting.com${normalized.sourcePage || "/contact/"}`,
+      ...crmAttribution,
       consent: true,
       websiteLeaveBlank: ""
     });

@@ -52,6 +52,7 @@ function validCheckoutPayload(slotId, overrides = {}) {
       primaryGoal: "Follow up with missed calls",
       notes: "Need a practical workflow."
     },
+    sourcePage: "/book/",
     ...overrides
   };
 }
@@ -195,6 +196,63 @@ test("booking checkout creates audited replay-safe Stripe checkout", async () =>
     assert.equal(stripe.calls[1].headers["idempotency-key"].startsWith("aic-checkout-"), true);
   } finally {
     stripe.restore();
+  }
+});
+
+test("booking checkout relays structured attribution to AICCRM", async () => {
+  resetMemoryStore();
+  const env = testEnv({
+    AIC_CRM_INTAKE_URL: "https://aiccrm.aissistedconsulting.com/intake/website",
+    AIC_CRM_INTAKE_TOKEN: "test-token"
+  });
+  const slot = await firstAvailableSlot(env);
+  const originalFetch = global.fetch;
+  let crmPayload = null;
+  global.fetch = async (url, options = {}) => {
+    if (String(url).includes("aiccrm.aissistedconsulting.com")) {
+      crmPayload = JSON.parse(String(options.body || "{}"));
+      return Response.json({ ok: true, submission: { id: "intake_booking_test" } });
+    }
+
+    if (String(url).endsWith("/customers")) {
+      return Response.json({ id: "cus_test_local" });
+    }
+
+    if (String(url).endsWith("/checkout/sessions")) {
+      return Response.json({
+        id: "cs_test_local",
+        url: "https://checkout.stripe.com/c/pay/cs_test_local",
+        customer: "cus_test_local",
+        expires_at: Math.floor(Date.now() / 1000) + 1800
+      });
+    }
+
+    return Response.json({ error: { message: "Unexpected fetch path" } }, { status: 404 });
+  };
+
+  try {
+    const { response, payload } = await callCheckout({
+      env,
+      key: "checkout-crm-relay-key-0001",
+      body: validCheckoutPayload(slot.slotId, {
+        sourcePage:
+          "/book/?utm_source=codex&utm_medium=production_smoke&utm_campaign=aiccrm_relay&fbclid=fbclid-booking"
+      })
+    });
+
+    assert.equal(response.status, 200);
+    assert.equal(payload.ok, true);
+    assert.equal(crmPayload.sourceUrl, "https://aissistedconsulting.com/book/?utm_source=codex&utm_medium=production_smoke&utm_campaign=aiccrm_relay&fbclid=fbclid-booking");
+    assert.equal(crmPayload.sourcePage, "/book/?utm_source=codex&utm_medium=production_smoke&utm_campaign=aiccrm_relay&fbclid=fbclid-booking");
+    assert.equal(crmPayload.sourceChannel, "booking");
+    assert.equal(crmPayload.formName, "booking-page");
+    assert.equal(crmPayload.utmSource, "codex");
+    assert.equal(crmPayload.utmMedium, "production_smoke");
+    assert.equal(crmPayload.utmCampaign, "aiccrm_relay");
+    assert.equal(crmPayload.fbclid, "fbclid-booking");
+    assert.match(crmPayload.qualifiedSourceEventId, /^website-booking-book_/);
+  } finally {
+    global.fetch = originalFetch;
   }
 });
 

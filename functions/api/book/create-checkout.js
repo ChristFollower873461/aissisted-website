@@ -1,5 +1,6 @@
 import { listAvailableSlots } from "../_lib/availability.js";
 import { relayWebsiteIntakeToAicCrm } from "../_lib/aic-crm.js";
+import { buildCrmAttribution } from "../_lib/crm-attribution.js";
 import { getBookingConfig, isStripeConfigured } from "../_lib/config.js";
 import {
   forbidden,
@@ -26,6 +27,7 @@ import {
   getIdempotencyKey,
   hashIdempotencyKey,
   normalizeEmail,
+  normalizeRelativePath,
   normalizeWhitespace
 } from "../_lib/transaction-safety.js";
 
@@ -42,6 +44,7 @@ const FIELD_LIMITS = {
   industry: 80,
   primaryGoal: 120,
   notes: 2000,
+  sourcePage: 500,
   honeypot: 120
 };
 
@@ -160,6 +163,9 @@ function normalizeCheckoutPayload(payload, config) {
     limitString(intake.primaryGoal, "Primary goal", FIELD_LIMITS.primaryGoal)
   );
   const notes = normalizeWhitespace(limitString(intake.notes, "Notes", FIELD_LIMITS.notes));
+  const sourcePage = normalizeRelativePath(
+    limitString(payload.sourcePage, "Source page", FIELD_LIMITS.sourcePage)
+  ) || "/book/";
 
   if (!slotId || !name || !email) {
     throw new ValidationError("Name, email, and an appointment window are required.");
@@ -213,7 +219,8 @@ function normalizeCheckoutPayload(payload, config) {
       industry,
       primaryGoal,
       notes
-    }
+    },
+    sourcePage
   };
 }
 
@@ -436,6 +443,13 @@ export async function onRequest(context) {
       holdExpiresAt,
       sessionId: session.id
     };
+    const crmAttribution = buildCrmAttribution({
+      sourcePage: normalized.sourcePage,
+      fallbackPath: "/book/",
+      sourceChannel: "booking",
+      formName: "booking-page",
+      qualifiedSourceEventId: `website-booking-${booking.id}`
+    });
     const crmRelay = await relayWebsiteIntakeToAicCrm(context.env, {
       name: normalized.contact.name,
       email: normalized.contact.email,
@@ -451,7 +465,7 @@ export async function onRequest(context) {
         `Booking ID: ${booking.id}`,
         `Stripe checkout session: ${session.id}`
       ].filter(Boolean).join("\n"),
-      sourceUrl: "https://aissistedconsulting.com/book/",
+      ...crmAttribution,
       consent: true,
       websiteLeaveBlank: ""
     });
