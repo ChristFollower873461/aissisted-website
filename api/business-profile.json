@@ -3,7 +3,7 @@
   "public_brand": "AIssisted Consulting",
   "founder_operator": {
     "name": "PJ",
-    "role": "Founder/operator and practical AI implementation partner"
+    "role": "Founder/operator of the AIssisted Consulting AI operations lab"
   },
   "contact": {
     "phone_display": "(352) 619-0690",
@@ -41,7 +41,9 @@
     }
   ],
   "positioning": [
-    "Local, founder-led AI help.",
+    "Founder-led AI operations lab for small businesses.",
+    "Practical AI systems, real results, and control over the work.",
+    "One useful workflow first instead of a broad AI transformation.",
     "Plain-English implementation for one useful workflow first.",
     "Softer sales posture with practical guides, examples, and clear next steps.",
     "Small-business workflow help and conservative family AI guidance.",
@@ -49,7 +51,7 @@
   ],
   "booking": {
     "page": "https://aissistedconsulting.com/book/",
-    "offer": "60-minute founder-led AI workflow consult",
+    "offer": "60-minute founder-led AI operations consult",
     "reservation_deposit_usd": 225,
     "policy": "The reservation deposit is non-refundable and credited once toward service if the visitor becomes a customer.",
     "confirmation_boundary": "A slot is not confirmed until Stripe payment succeeds and the booking backend finalizes the record."

@@ -1,12 +1,12 @@
 # Small-Business AI Help
 
-AIssisted Consulting helps small service businesses start with one useful workflow instead of a broad AI transformation. The work is founder-led by PJ from Ocala, Florida.
+AIssisted Consulting is a founder-led AI operations lab for small businesses that want practical AI systems, real results, and control over the work. The work starts with one useful workflow instead of a broad AI transformation.
 
 ## Who This Helps
 
 This path is for service-business owners who can point to one part of the day that is already slipping. Common examples include intake, missed calls, scheduling support, quote follow-up, customer updates, admin handoffs, reporting, and owner visibility.
 
-AIssisted Consulting is especially aligned with HVAC, pest control, plumbing, and similar service businesses where calls, recurring follow-up, urgent details, and customer trust matter.
+AIssisted Consulting is especially aligned with pool service, HVAC, pest control, roofing, painting, plumbing, and similar service businesses where calls, recurring follow-up, urgent details, and customer trust matter.
 
 ## Common Workflow Problems
 
@@ -49,7 +49,7 @@ Sensitive customer details, owner decisions, and final judgment need clear bound
 
 ## Next Action
 
-Bring one workflow to AIssisted Consulting. The contact path is intentionally low pressure: describe the daily work that is slipping, the people involved, and the decision point that should stay human.
+Bring one useful workflow to AIssisted Consulting. The contact path is intentionally low pressure: describe the daily work that is slipping, the people involved, and the decision point that should stay human.
 
 Contact: https://aissistedconsulting.com/contact/
 

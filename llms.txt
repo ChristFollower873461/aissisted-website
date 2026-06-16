@@ -1,6 +1,6 @@
 # AIssisted Consulting
 
-AIssisted Consulting provides practical, privacy-aware AI help for small service businesses and plain-English guidance for family AI questions. The business is based in Ocala, Florida and is founder-led by PJ.
+AIssisted Consulting is a founder-led AI operations lab for small businesses that want practical AI systems, real results, and control over the work. The work starts with one useful workflow instead of a broad AI transformation. The business is based in Ocala, Florida and is founder-led by PJ.
 
 This support file summarizes public site facts and declared agent-surface capabilities. It does not report live AVOS results, crawler changes, private credentials, authenticated workflows, direct CRM administration, email writes, analytics writes, destructive actions, or direct card collection.
 
@@ -17,7 +17,7 @@ This support file summarizes public site facts and declared agent-surface capabi
 
 ## Best Reading Paths
 
-For small-business owners, start with the Small Business AI Help page, then read Services, Privacy And Control, and the guide pages for missed calls and the AI workflow checklist. The preferred first step is one real workflow: intake, scheduling, follow-up, reporting, owner visibility, or another handoff that is already slipping.
+For small-business owners, start with the Small Business AI Help page, then read Services, Privacy And Control, and the guide pages for missed calls and the AI workflow checklist. The preferred first step is one useful workflow: intake, scheduling, follow-up, reporting, owner visibility, or another handoff that is already slipping.
 
 For families and households, start with Family AI Help, then read Family AI Safety Basics, What Not To Share With AI, and AI Tools For Household Admin. The family path is caring, plain-English guidance for parents preparing children for an AI-shaped future with privacy, judgment, courage, and human care in charge.
 

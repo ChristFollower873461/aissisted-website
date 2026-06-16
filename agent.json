@@ -4,7 +4,7 @@
   "site": {
     "name": "AIssisted Consulting",
     "domain": "aissistedconsulting.com",
-    "intent": "Public website for practical small-business AI workflow help, conservative family AI guidance, real contact inquiry submission, and Stripe Checkout booking with privacy, control, human approval, idempotency, and audit boundaries."
+    "intent": "Public website for a founder-led AI operations lab serving small businesses that want practical AI systems, real results, and control over the work. The public site also supports conservative family AI guidance, real contact inquiry submission, and Stripe Checkout booking with privacy, control, human approval, idempotency, and audit boundaries."
   },
   "discovery": {
     "sitemap": "/sitemap.xml",
