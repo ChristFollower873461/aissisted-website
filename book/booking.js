@@ -205,7 +205,7 @@
       renderAvailability();
     } catch (error) {
       if (!isLocalPreview) {
-        availabilityRoot.innerHTML = '<p class="loading-copy">Availability is temporarily unavailable. Call 352-619-0690 or email pj@aissistedconsulting.com while the booking service is being checked.</p>';
+        availabilityRoot.innerHTML = '<p class="loading-copy">Availability is temporarily unavailable. Call 352-817-3567 or email pj@aissistedconsulting.com while the booking service is being checked.</p>';
         showStatus(error.message, "error");
         syncSummary();
         return;
