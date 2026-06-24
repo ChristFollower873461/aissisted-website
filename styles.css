@@ -988,6 +988,117 @@ address strong {
   color: var(--muted);
 }
 
+.credentials-section {
+  border-top: 1px solid rgba(240, 208, 96, 0.16);
+}
+
+.credential-intro {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 0.42fr);
+  gap: 24px;
+  align-items: end;
+  margin-bottom: 24px;
+}
+
+.credentials-section .section-kicker p:not(.eyebrow) {
+  max-width: 720px;
+  margin: 14px 0 0;
+  color: var(--muted);
+  font-size: 1.08rem;
+}
+
+.credential-note {
+  display: grid;
+  gap: 8px;
+  border: 1px solid var(--line-soft);
+  border-radius: 16px;
+  background: rgba(11, 17, 32, 0.54);
+  padding: 18px;
+}
+
+.credential-note strong {
+  color: #fff4cf;
+  font-size: 1.02rem;
+}
+
+.credential-note span {
+  color: var(--muted);
+  font-size: 0.94rem;
+  line-height: 1.55;
+}
+
+.credential-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.credential-card {
+  overflow: hidden;
+  border: 1px solid var(--line-soft);
+  border-radius: 18px;
+  background: linear-gradient(160deg, rgba(21, 35, 68, 0.92), rgba(16, 27, 52, 0.82));
+  box-shadow: var(--shadow-soft);
+}
+
+.credential-preview {
+  margin: 0;
+  aspect-ratio: 849 / 600;
+  background: #f6f7f9;
+}
+
+.credential-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: #f6f7f9;
+}
+
+.credential-meta {
+  padding: 20px;
+}
+
+.credential-meta h3 {
+  color: #f4f2ff;
+  font-size: 1.24rem;
+}
+
+.credential-meta dl {
+  display: grid;
+  gap: 10px;
+  margin: 16px 0 0;
+}
+
+.credential-meta dl div {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px 14px;
+  border-top: 1px solid var(--line-soft);
+  padding-top: 10px;
+}
+
+.credential-meta dt {
+  color: var(--muted);
+  font-size: 0.84rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0;
+}
+
+.credential-meta dd {
+  margin: 0;
+  color: #f4f2ff;
+  font-weight: 750;
+}
+
+.credential-meta a {
+  display: inline-flex;
+  margin-top: 14px;
+  border-bottom: 1px solid rgba(240, 208, 96, 0.42);
+  font-weight: 850;
+}
+
 .contact-card {
   background: rgba(11, 17, 32, 0.72);
 }
@@ -1197,6 +1308,15 @@ address strong {
   .contact-layout,
   .family-letter-layout,
   .footer-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .credential-intro {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+
+  .credential-grid {
     grid-template-columns: 1fr;
   }
 
@@ -3734,8 +3854,27 @@ body:not([data-page="home"]):not([data-page="book"]) .content-section:nth-of-typ
   background: #fffaf1;
 }
 
+body:not([data-page="home"]):not([data-page="book"]) .credentials-section .section-kicker p:not(.eyebrow) {
+  color: var(--site-muted);
+}
+
+body:not([data-page="home"]):not([data-page="book"]) .credential-note {
+  border-color: rgba(23, 27, 36, 0.12);
+  background: rgba(255, 253, 247, 0.9);
+  box-shadow: var(--site-shadow);
+}
+
+body:not([data-page="home"]):not([data-page="book"]) .credential-note strong {
+  color: var(--site-ink);
+}
+
+body:not([data-page="home"]):not([data-page="book"]) .credential-note span {
+  color: var(--site-muted);
+}
+
 body:not([data-page="home"]):not([data-page="book"]) .info-card,
-body:not([data-page="home"]):not([data-page="book"]) .step-card {
+body:not([data-page="home"]):not([data-page="book"]) .step-card,
+body:not([data-page="home"]):not([data-page="book"]) .credential-card {
   position: relative;
   border: 1px solid rgba(23, 27, 36, 0.12);
   background: rgba(255, 253, 247, 0.92);
@@ -3744,7 +3883,8 @@ body:not([data-page="home"]):not([data-page="book"]) .step-card {
 }
 
 body:not([data-page="home"]):not([data-page="book"]) .info-card::before,
-body:not([data-page="home"]):not([data-page="book"]) .step-card::before {
+body:not([data-page="home"]):not([data-page="book"]) .step-card::before,
+body:not([data-page="home"]):not([data-page="book"]) .credential-card::before {
   content: "";
   position: absolute;
   inset: 0 0 auto;
@@ -3754,11 +3894,29 @@ body:not([data-page="home"]):not([data-page="book"]) .step-card::before {
 }
 
 body:not([data-page="home"]):not([data-page="book"]) .info-card h3,
-body:not([data-page="home"]):not([data-page="book"]) .step-card h3 {
+body:not([data-page="home"]):not([data-page="book"]) .step-card h3,
+body:not([data-page="home"]):not([data-page="book"]) .credential-meta h3 {
   color: var(--site-ink);
 }
 
-body:not([data-page="home"]):not([data-page="book"]) .info-card a {
+body:not([data-page="home"]):not([data-page="book"]) .credential-card img {
+  border-bottom: 1px solid var(--site-line);
+}
+
+body:not([data-page="home"]):not([data-page="book"]) .credential-meta dt {
+  color: var(--site-muted);
+}
+
+body:not([data-page="home"]):not([data-page="book"]) .credential-meta dl div {
+  border-top-color: var(--site-line);
+}
+
+body:not([data-page="home"]):not([data-page="book"]) .credential-meta dd {
+  color: var(--site-ink);
+}
+
+body:not([data-page="home"]):not([data-page="book"]) .info-card a,
+body:not([data-page="home"]):not([data-page="book"]) .credential-meta a {
   color: #7d5a14;
   border-bottom-color: rgba(200, 149, 45, 0.5);
 }
