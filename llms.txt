@@ -44,6 +44,7 @@ For families and households, start with Family AI Help, then read Family AI Safe
 - Family AI Safety Basics: https://aissistedconsulting.com/guides/family-ai-safety-basics/
 - What Not To Share With AI: https://aissistedconsulting.com/guides/what-not-to-share-with-ai/
 - AI Tools For Household Admin: https://aissistedconsulting.com/guides/ai-tools-for-household-admin/
+- Workflow Automation With Control: https://aissistedconsulting.com/guides/workflow-automation-with-control/
 
 ## Machine-Readable Support Files
 
