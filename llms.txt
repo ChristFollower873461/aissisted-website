@@ -46,6 +46,7 @@ For families and households, start with Family AI Help, then read Family AI Safe
 - AI Tools For Household Admin: https://aissistedconsulting.com/guides/ai-tools-for-household-admin/
 - Workflow Automation With Control: https://aissistedconsulting.com/guides/workflow-automation-with-control/
 - Business System Integration: https://aissistedconsulting.com/guides/business-system-integration/
+- Crm And Intake Systems: https://aissistedconsulting.com/guides/crm-and-intake-systems/
 
 ## Machine-Readable Support Files
 
