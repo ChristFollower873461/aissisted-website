@@ -52,6 +52,7 @@ For families and households, start with Family AI Help, then read Family AI Safe
 - Local Service Proof: https://aissistedconsulting.com/guides/local-service-proof/
 - Local And On Prem AI: https://aissistedconsulting.com/guides/local-and-on-prem-ai/
 - Security Privacy And Guardrails: https://aissistedconsulting.com/guides/security-privacy-and-guardrails/
+- Training And Support: https://aissistedconsulting.com/guides/training-and-support/
 
 ## Machine-Readable Support Files
 
