@@ -50,6 +50,7 @@ For families and households, start with Family AI Help, then read Family AI Safe
 - Public Evidence Aissisted Consulting Blog: https://aissistedconsulting.com/guides/public-evidence-aissisted-consulting-blog/
 - Public Evidence Contact Aissisted Consulting: https://aissistedconsulting.com/guides/public-evidence-contact-aissisted-consulting/
 - Local Service Proof: https://aissistedconsulting.com/guides/local-service-proof/
+- Local And On Prem AI: https://aissistedconsulting.com/guides/local-and-on-prem-ai/
 
 ## Machine-Readable Support Files
 
