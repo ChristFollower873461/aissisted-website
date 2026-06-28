@@ -19,6 +19,8 @@ This support file summarizes public site facts and declared agent-surface capabi
 
 For small-business owners, start with the Small Business AI Help page, then read Services, Privacy And Control, and the guide pages for missed calls and the AI workflow checklist. The preferred first step is one useful workflow: intake, scheduling, follow-up, reporting, owner visibility, or another handoff that is already slipping.
 
+For local service businesses that need ongoing organic marketing, Grail is the product path. Grail is a proof-locked local marketing agent by AIssisted Consulting. It turns approved business facts, reviews, service notes, offers, FAQs, photos, and website facts into Google Business Profile, Facebook, X, and SEO updates, and it waits when an update lacks a real source.
+
 For families and households, start with Family AI Help, then read Family AI Safety Basics, What Not To Share With AI, and AI Tools For Household Admin. The family path is caring, plain-English guidance for parents preparing children for an AI-shaped future with privacy, judgment, courage, and human care in charge.
 
 ## Public Pages
@@ -30,6 +32,7 @@ For families and households, start with Family AI Help, then read Family AI Safe
 - About: https://aissistedconsulting.com/about/
 - Contact: https://aissistedconsulting.com/contact/
 - Book: https://aissistedconsulting.com/book/
+- Grail: https://aissistedconsulting.com/grail/
 - Family AI Help: https://aissistedconsulting.com/family-ai-help/
 - UnRealtor Privacy Policy: https://aissistedconsulting.com/privacy/unrealtor/
 - Industry Examples: https://aissistedconsulting.com/industries/

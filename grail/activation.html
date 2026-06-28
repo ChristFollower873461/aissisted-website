@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Set Up Grail | Founding Beta</title>
+    <meta name="description" content="Finish Grail setup after joining the founding beta.">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="canonical" href="https://aissistedconsulting.com/grail/activation.html">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Marcellus&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --ink: #111827;
+        --muted: #a4afc1;
+        --canvas: #0b1020;
+        --surface: #121a2c;
+        --line: rgba(255, 236, 188, 0.18);
+        --proof: #f4d58d;
+        --teal: #63f4e5;
+        --text: #fff7df;
+        --forest: #090d19;
+        --blue: #3157d5;
+        --display: "Marcellus", "Times New Roman", serif;
+        --body: "Manrope", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        background: var(--canvas);
+        color: var(--text);
+        font-family: var(--body);
+      }
+
+      main {
+        width: min(980px, calc(100% - 28px));
+        margin: 0 auto;
+        padding: 48px 0;
+      }
+
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 42px;
+      }
+
+      .mark {
+        width: 34px;
+        height: 34px;
+        border: 1px solid rgba(244, 213, 141, 0.28);
+        border-radius: 999px;
+        object-fit: cover;
+        object-position: center 42%;
+      }
+
+      .brand-word {
+        width: 104px;
+        height: auto;
+        display: block;
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: 1.05fr 0.95fr;
+        gap: 22px;
+        align-items: start;
+      }
+
+      section,
+      .panel {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: rgba(18, 26, 44, 0.86);
+      }
+
+      section {
+        padding: 28px;
+      }
+
+      h1 {
+        margin: 0 0 16px;
+        font-family: var(--display);
+        font-size: clamp(36px, 7vw, 62px);
+        font-weight: 400;
+        line-height: 1.04;
+      }
+
+      h2 {
+        margin: 0 0 12px;
+        font-size: 21px;
+      }
+
+      p,
+      li {
+        color: var(--muted);
+        line-height: 1.55;
+      }
+
+      .steps {
+        display: grid;
+        gap: 12px;
+        margin: 24px 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .steps li {
+        display: grid;
+        grid-template-columns: 34px 1fr;
+        gap: 12px;
+        padding: 14px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.04);
+      }
+
+      .num {
+        display: grid;
+        place-items: center;
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        background: var(--proof);
+        color: #111827;
+        font-weight: 900;
+      }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      a.button,
+      button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 44px;
+        padding: 0 16px;
+        border: 1px solid transparent;
+        border-radius: 999px;
+        background: var(--proof);
+        color: #111827;
+        font: inherit;
+        font-weight: 800;
+        text-decoration: none;
+        cursor: pointer;
+      }
+
+      a.button.secondary {
+        color: var(--text);
+        border-color: var(--line);
+        background: rgba(255, 255, 255, 0.06);
+      }
+
+      form {
+        display: grid;
+        gap: 12px;
+        padding: 22px;
+      }
+
+      label {
+        display: grid;
+        gap: 6px;
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 800;
+        text-transform: uppercase;
+      }
+
+      input {
+        min-height: 42px;
+        padding: 10px 11px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--text);
+        font: inherit;
+        text-transform: none;
+      }
+
+      pre {
+        min-height: 86px;
+        margin: 0;
+        padding: 12px;
+        overflow: auto;
+        border-top: 1px solid var(--line);
+        background: var(--forest);
+        color: #f7f5ef;
+        white-space: pre-wrap;
+      }
+
+      @media (max-width: 820px) {
+        .hero {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <a class="brand" href="./index.html">
+        <img class="mark" src="assets/grail-grok-instrument-mark.png" alt="" aria-hidden="true">
+        <img class="brand-word" src="assets/grail-grok-wordmark-transparent.png" alt="Grail">
+      </a>
+
+      <div class="hero">
+        <section>
+          <h1>Give Grail the proof it needs to start posting.</h1>
+          <p>Thanks for joining the founding beta. Grail works best when it knows your services, offers, voice, proof, and channel rules before it writes anything public.</p>
+
+          <ol class="steps">
+            <li><span class="num">1</span><span><strong>Share your business context.</strong><br>Add services, offers, service areas, voice rules, reviews, FAQs, photos, and source URLs.</span></li>
+            <li><span class="num">2</span><span><strong>Connect the channels you want active.</strong><br>Prepare Google Business Profile, Facebook and X, and website/SEO access at the review level you choose.</span></li>
+            <li><span class="num">3</span><span><strong>Get the first marketing readout.</strong><br>Grail shows what is ready to publish, what was blocked, and what proof would help next.</span></li>
+          </ol>
+
+          <div class="actions">
+            <a class="button" href="mailto:pj@aissistedconsulting.com?subject=Grail%20setup%20after%20checkout&amp;body=I%20joined%20Grail%20and%20am%20ready%20for%20setup.%0A%0ABusiness%20name:%0AWebsite:%0AGoogle%20Business%20Profile%20URL:%0AFacebook%20page:%0AX%20profile:%0A">Email setup details</a>
+            <a class="button secondary" href="/book/?utm_source=grail&amp;utm_medium=post_checkout&amp;utm_campaign=activation">Book setup call</a>
+          </div>
+        </section>
+
+        <div class="panel">
+          <form id="welcomeForm">
+            <h2>Send your setup context</h2>
+            <p>Use the email from checkout. This opens a ready-to-send setup email with the basics Grail needs.</p>
+            <label>Email <input name="email" type="email" placeholder="owner@example.com" required></label>
+            <label>Business name <input name="business_name" placeholder="Example Service Co"></label>
+            <button type="submit">Email setup context</button>
+          </form>
+          <pre id="result">Ready.</pre>
+        </div>
+      </div>
+    </main>
+
+    <script>
+      const form = document.getElementById("welcomeForm");
+      const result = document.getElementById("result");
+
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const payload = Object.fromEntries(new FormData(form).entries());
+        payload.plan = "local-agent";
+        payload.source = "stripe_payment_link";
+        const body = [
+          "I joined Grail and am ready for setup.",
+          "",
+          `Checkout email: ${payload.email || ""}`,
+          `Business name: ${payload.business_name || ""}`,
+          "Website:",
+          "Google Business Profile URL:",
+          "Facebook page:",
+          "X profile:",
+          "",
+          "Services/offers to prioritize:",
+          "Proof we can use: reviews, photos, FAQs, job notes, public source URLs",
+        ].join("\n");
+        const mailto = `mailto:pj@aissistedconsulting.com?subject=${encodeURIComponent("Grail setup after checkout")}&body=${encodeURIComponent(body)}`;
+        window.location.href = mailto;
+        result.textContent = "Opening your email app with the setup context. If it does not open, email pj@aissistedconsulting.com with your business name and checkout email.";
+      });
+    </script>
+  </body>
+</html>
