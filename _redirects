@@ -15,6 +15,7 @@
 /book/success /book/success/ 301
 /book/cancel /book/cancel/ 301
 /grail /grail/ 301
+/grail/activation.html /grail/activation 301
 /docs/mcp /docs/mcp.html 200
 /docs/mcp/ /docs/mcp.html 200
 /family-ai-help /family-ai-help/ 301
