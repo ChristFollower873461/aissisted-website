@@ -24,6 +24,13 @@ const GONE_PATHS = new Set([
   "/unrealtor.html"
 ]);
 
+const REDIRECTS = new Map([
+  ["/grail", "/grail/"],
+  ["/grail/index.html", "/grail/"],
+  ["/grail/activation.html", "/grail/activation"],
+  ["/grail/activation/", "/grail/activation"]
+]);
+
 function isBlockedPath(pathname) {
   if (pathname === "/docs/mcp" || pathname === "/docs/mcp/" || pathname === "/docs/mcp.html") {
     return false;
@@ -62,6 +69,11 @@ export async function onRequest(context) {
 
   if (hostname === "www.aissistedconsulting.com") {
     return Response.redirect(`${PRIMARY_ORIGIN}${url.pathname}${url.search}`, 301);
+  }
+
+  const redirectPath = REDIRECTS.get(url.pathname);
+  if (redirectPath) {
+    return Response.redirect(`${PRIMARY_ORIGIN}${redirectPath}${url.search}`, 301);
   }
 
   if (isBlockedPath(url.pathname)) {
