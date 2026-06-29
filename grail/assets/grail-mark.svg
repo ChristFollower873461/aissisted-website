@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title desc">
+  <title id="title">Grail mark</title>
+  <desc id="desc">A refined compact G silhouette holding a central green proof-stone with a small gold source point.</desc>
+  <rect x="4" y="4" width="56" height="56" rx="14" fill="#f6f5f0"/>
+  <path d="M45.8 18.8c-5.1-4.8-14.4-5.1-21.1.4-7.6 6.3-8.7 17.6-2.4 25.2 6.4 7.7 17.8 8.6 25.4 2 3.5-3 5.3-6.9 5.3-11.5H38.3" fill="none" stroke="#202420" stroke-width="7.4" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M38.7 34.9h14.1v10.8" fill="none" stroke="#202420" stroke-width="7.4" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M27.7 24.6h12.9l6.4 7.4-6.4 7.4H27.7L21.4 32z" fill="#b6f36b" stroke="#202420" stroke-width="2.4" stroke-linejoin="round"/>
+  <path d="M27.7 24.6 34.1 39.4 40.6 24.6M21.4 32h25.6" fill="none" stroke="#6f963e" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="46.1" cy="18.8" r="4.1" fill="#b99449" stroke="#202420" stroke-width="1.5"/>
+</svg>
