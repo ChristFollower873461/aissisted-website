@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import { getBookingConfig } from "../functions/api/_lib/config.js";
+import { createGoogleCalendarBookingEvent } from "../functions/api/_lib/google-calendar.js";
 import { listAvailableSlots } from "../functions/api/_lib/availability.js";
 import { getBookingStore } from "../functions/api/_lib/storage.js";
 
@@ -108,6 +109,69 @@ test("required Google Calendar availability fails closed instead of exposing fal
       }),
     /Google Calendar availability is required but is not configured/
   );
+});
+
+test("confirmed paid bookings can create customer-visible Google Calendar events", async () => {
+  const originalFetch = global.fetch;
+  const privateKeyPem = await createTestPrivateKeyPem();
+  const calls = [];
+  global.fetch = async (url, options = {}) => {
+    calls.push({
+      url: String(url),
+      method: options.method || "GET",
+      body: String(options.body || "")
+    });
+
+    if (String(url).includes("oauth2.googleapis.com/token")) {
+      return Response.json({ access_token: "ya29.test-token" });
+    }
+
+    if (String(url).includes("/calendar/v3/calendars/primary/events")) {
+      return Response.json({
+        id: "event_test_123",
+        htmlLink: "https://calendar.google.com/calendar/event?eid=test"
+      });
+    }
+
+    return Response.json({ error: { message: "Unexpected request" } }, { status: 404 });
+  };
+
+  try {
+    const config = getBookingConfig({
+      GOOGLE_CALENDAR_ID: "primary",
+      GOOGLE_SERVICE_ACCOUNT_EMAIL: "service@example.com",
+      GOOGLE_PRIVATE_KEY: privateKeyPem
+    }, "https://aissistedconsulting.com");
+    const event = await createGoogleCalendarBookingEvent({
+      config,
+      booking: {
+        id: "book_test_google",
+        prospectName: "Pat Owner",
+        prospectEmail: "pat@example.com",
+        prospectPhone: "352-555-0199",
+        prospectCompany: "Pat's Services",
+        selectedTimeWindowStart: "2026-07-01T14:00:00.000Z",
+        selectedTimeWindowEnd: "2026-07-01T15:00:00.000Z",
+        selectedTimeZone: "America/New_York",
+        reservationAmount: 22500,
+        currency: "usd",
+        intakeSummary: "Goal: Follow up with missed calls",
+        stripeCheckoutSessionId: "cs_test_calendar"
+      }
+    });
+    const calendarCall = calls.find((call) => call.url.includes("/calendar/v3/calendars/primary/events"));
+    const body = JSON.parse(calendarCall.body);
+
+    assert.equal(event.eventId, "event_test_123");
+    assert.equal(calendarCall.method, "POST");
+    assert.match(calendarCall.url, /sendUpdates=all/);
+    assert.equal(body.start.timeZone, "America/New_York");
+    assert.equal(body.end.timeZone, "America/New_York");
+    assert.equal(body.attendees[0].email, "pat@example.com");
+    assert.equal(body.extendedProperties.private.aissistedBookingId, "book_test_google");
+  } finally {
+    global.fetch = originalFetch;
+  }
 });
 
 test("expired holds move paid checkouts into manual review instead of auto-confirming", async () => {
