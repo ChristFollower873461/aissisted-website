@@ -35,6 +35,44 @@
       "recommended_next_action": "Bring one workflow to the contact page."
     },
     {
+      "id": "grail_local_marketing_agent",
+      "name": "Grail local marketing agent",
+      "audience": "Local service businesses",
+      "status": "founding_beta",
+      "description": "A proof-locked local marketing agent by AIssisted Consulting that turns real business activity into Google Business Profile, major social channels, and SEO updates.",
+      "pricing": {
+        "local_agent_monthly_usd": 129,
+        "growth_monthly_usd": 199,
+        "managed_monthly_usd_starting_at": 750,
+        "checkout_boundary": "Checkout is handled through Stripe Payment Links. Grail setup starts after the customer supplies business context and channel access."
+      },
+      "workflow_focus": [
+        "Google Business Profile updates",
+        "Facebook and X scheduling",
+        "Instagram, TikTok, LinkedIn, YouTube Shorts, Pinterest, and newsletter channel expansion when the plan, connector access, and proof supply support it",
+        "SEO and AI visibility pages",
+        "Source-backed post generation",
+        "Proof requests",
+        "Weekly owner reporting"
+      ],
+      "best_fit": [
+        "Local service businesses with real work, reviews, service notes, offers, FAQs, or photos that can become useful marketing.",
+        "Owners who want regular organic marketing without generic filler.",
+        "Businesses that want a system to wait when an update lacks enough proof."
+      ],
+      "not_a_fit": [
+        "Fabricated testimonials, fake reviews, or unsupported performance claims.",
+        "Paid ad spend without explicit owner approval.",
+        "Unsupervised replies, DMs, or sensitive customer communication."
+      ],
+      "related_pages": [
+        "https://aissistedconsulting.com/grail/",
+        "https://aissistedconsulting.com/guides/local-service-proof/",
+        "https://aissistedconsulting.com/guides/workflow-automation-with-control/"
+      ],
+      "recommended_next_action": "Review the Grail page and start with Local Agent or Growth when the business has real proof to use."
+    },
+    {
       "id": "intake_and_missed_calls",
       "name": "Intake and missed-call review",
       "audience": "Small service businesses",
@@ -220,5 +258,5 @@
     "No service entry removes human judgment or professional review.",
     "Family AI guidance remains caring, plain-English parent support for child readiness, privacy, and human judgment."
   ],
-  "last_reviewed": "2026-05-06"
+  "last_reviewed": "2026-06-28"
 }

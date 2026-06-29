@@ -1,0 +1,974 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Grail | Finds the marketing worth publishing</title>
+    <meta name="description" content="Grail is a proof-locked local marketing agent that turns real business activity into Google Business Profile, major social channels, and SEO updates.">
+    <link rel="canonical" href="https://aissistedconsulting.com/grail/">
+    <meta property="og:title" content="Grail | Finds the marketing worth publishing">
+    <meta property="og:description" content="A proof-locked local marketing agent by AIssisted Consulting. Grail turns real business proof into GBP, major social, and SEO updates without filler.">
+    <meta property="og:url" content="https://aissistedconsulting.com/grail/">
+    <meta property="og:image" content="https://aissistedconsulting.com/grail/assets/grail-hero-instrument-wide.png">
+    <meta property="og:site_name" content="AIssisted Consulting">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Grail | Finds the marketing worth publishing">
+    <meta name="twitter:description" content="A proof-locked local marketing agent by AIssisted Consulting.">
+    <meta name="twitter:image" content="https://aissistedconsulting.com/grail/assets/grail-hero-instrument-wide.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Marcellus&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --midnight: #0b1020;
+        --ink: #111827;
+        --panel: #121a2c;
+        --panel-soft: #172238;
+        --line: rgba(255, 236, 188, 0.18);
+        --line-strong: rgba(255, 236, 188, 0.32);
+        --gold: #f4d58d;
+        --gold-soft: #d9b66c;
+        --teal: #63f4e5;
+        --text: #fff7df;
+        --muted: #9da8bb;
+        --warning: #ffb077;
+        --success: #a7f38b;
+        --display: "Marcellus", "Times New Roman", serif;
+        --body: "Manrope", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+        color: var(--text);
+        background: var(--midnight);
+        font-family: var(--body);
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .page {
+        min-height: 100vh;
+        overflow-x: hidden;
+        background:
+          linear-gradient(180deg, rgba(8, 12, 25, 0.2), #0b1020 760px),
+          #0b1020;
+      }
+
+      .nav {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        border-bottom: 1px solid rgba(255, 236, 188, 0.12);
+        background: rgba(11, 16, 32, 0.76);
+        backdrop-filter: blur(18px);
+      }
+
+      .nav-inner,
+      .section-inner {
+        width: min(1160px, calc(100% - 32px));
+        margin: 0 auto;
+      }
+
+      .nav-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        min-height: 68px;
+        gap: 18px;
+      }
+
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        min-width: 0;
+      }
+
+      .brand-mark {
+        width: 38px;
+        height: 38px;
+        border: 1px solid rgba(244, 213, 141, 0.28);
+        border-radius: 999px;
+        object-fit: cover;
+        object-position: center 42%;
+        background: rgba(255, 255, 255, 0.04);
+        box-shadow: 0 0 24px rgba(99, 244, 229, 0.12);
+      }
+
+      .brand-word {
+        width: 118px;
+        height: auto;
+        display: block;
+        filter: drop-shadow(0 0 10px rgba(244, 213, 141, 0.1));
+      }
+
+      .brand-byline {
+        color: rgba(244, 213, 141, 0.78);
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+      }
+
+      .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        color: rgba(255, 247, 223, 0.66);
+        font-size: 14px;
+      }
+
+      .nav-links a {
+        padding: 9px 12px;
+        border-radius: 999px;
+      }
+
+      .nav-links a:hover {
+        color: var(--text);
+        background: rgba(255, 255, 255, 0.06);
+      }
+
+      .button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 44px;
+        padding: 0 18px;
+        border: 1px solid var(--line-strong);
+        border-radius: 999px;
+        font-size: 14px;
+        font-weight: 800;
+        white-space: nowrap;
+      }
+
+      .button.primary {
+        color: #111827;
+        border-color: transparent;
+        background: var(--gold);
+      }
+
+      .button.secondary {
+        color: var(--text);
+        background: rgba(255, 255, 255, 0.06);
+      }
+
+      .hero {
+        position: relative;
+        display: flex;
+        align-items: center;
+        min-height: 86svh;
+        isolation: isolate;
+        overflow: hidden;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .hero::before {
+        position: absolute;
+        inset: 0;
+        z-index: -2;
+        content: "";
+        background-image: url("assets/grail-hero-instrument-wide.png");
+        background-position: center right;
+        background-size: cover;
+        filter: saturate(1.08) contrast(1.04) brightness(1.08);
+      }
+
+      .hero::after {
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        content: "";
+        background:
+          linear-gradient(90deg, rgba(8, 12, 25, 0.96) 0%, rgba(8, 12, 25, 0.78) 34%, rgba(8, 12, 25, 0.06) 72%, rgba(8, 12, 25, 0.44) 100%),
+          linear-gradient(180deg, rgba(8, 12, 25, 0.04) 0%, rgba(8, 12, 25, 0.84) 100%);
+      }
+
+      .hero-content {
+        width: min(1160px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 76px 0 92px;
+      }
+
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+        margin: 0 0 18px;
+        color: rgba(255, 247, 223, 0.72);
+        font-size: 13px;
+        font-weight: 800;
+        text-transform: uppercase;
+      }
+
+      .hero-wordmark {
+        display: block;
+        width: min(236px, 52vw);
+        height: auto;
+        margin: 0 0 24px;
+        filter: drop-shadow(0 0 20px rgba(244, 213, 141, 0.22));
+      }
+
+      .signal-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 999px;
+        background: var(--teal);
+        box-shadow: 0 0 22px rgba(99, 244, 229, 0.82);
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin-top: 0;
+      }
+
+      h1 {
+        max-width: 710px;
+        margin-bottom: 22px;
+        font-family: var(--display);
+        font-size: clamp(48px, 7vw, 86px);
+        font-weight: 400;
+        line-height: 1;
+        text-wrap: balance;
+      }
+
+      .hero-copy {
+        max-width: 610px;
+        margin-bottom: 30px;
+        color: rgba(255, 247, 223, 0.74);
+        font-size: clamp(18px, 2vw, 21px);
+        line-height: 1.55;
+        text-wrap: pretty;
+      }
+
+      .cta-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        align-items: center;
+      }
+
+      .source-strip {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 36px;
+      }
+
+      .source-pill {
+        padding: 8px 11px;
+        color: rgba(255, 247, 223, 0.76);
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: rgba(18, 26, 44, 0.58);
+        font-size: 12px;
+        font-weight: 800;
+      }
+
+      section {
+        padding: 86px 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .section-head {
+        display: grid;
+        grid-template-columns: minmax(0, 0.86fr) minmax(280px, 0.56fr);
+        gap: 48px;
+        align-items: end;
+        margin-bottom: 30px;
+      }
+
+      .section-head h2 {
+        margin-bottom: 0;
+        font-family: var(--display);
+        font-size: clamp(34px, 5vw, 58px);
+        font-weight: 400;
+        line-height: 1.03;
+        text-wrap: balance;
+      }
+
+      .section-head p,
+      .lead {
+        color: var(--muted);
+        font-size: 17px;
+        line-height: 1.6;
+        text-wrap: pretty;
+      }
+
+      .signal-flow {
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        gap: 18px;
+        align-items: stretch;
+      }
+
+      .panel {
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        background: linear-gradient(180deg, rgba(23, 34, 56, 0.92), rgba(18, 26, 44, 0.76));
+        box-shadow: 0 28px 80px rgba(0, 0, 0, 0.26);
+      }
+
+      .signal-panel {
+        padding: 22px;
+      }
+
+      .signal-panel h3,
+      .card h3,
+      .console-row h3,
+      .price-card h3 {
+        margin-bottom: 8px;
+        font-size: 20px;
+      }
+
+      .signal-panel p,
+      .card p,
+      .console-row p,
+      .price-card p,
+      li {
+        color: var(--muted);
+        line-height: 1.56;
+      }
+
+      .price-card .button {
+        margin-top: 12px;
+      }
+
+      .flow-arrow {
+        display: grid;
+        place-items: center;
+        min-width: 72px;
+        color: var(--gold);
+        font-size: 38px;
+      }
+
+      .mini-list {
+        display: grid;
+        gap: 10px;
+        margin-top: 18px;
+      }
+
+      .mini-item {
+        display: flex;
+        justify-content: space-between;
+        gap: 18px;
+        padding: 12px 0;
+        border-top: 1px solid rgba(255, 236, 188, 0.12);
+        color: rgba(255, 247, 223, 0.88);
+        font-size: 14px;
+      }
+
+      .mini-item span {
+        color: var(--teal);
+        font-weight: 800;
+      }
+
+      .problem-grid,
+      .proof-grid,
+      .pricing-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 16px;
+      }
+
+      .channel-board {
+        display: grid;
+        grid-template-columns: minmax(0, 0.72fr) minmax(0, 1fr);
+        gap: 16px;
+      }
+
+      .channel-copy {
+        padding: 24px;
+      }
+
+      .channel-copy h3 {
+        margin-bottom: 10px;
+        font-size: 22px;
+      }
+
+      .channel-copy p {
+        color: var(--muted);
+        line-height: 1.6;
+      }
+
+      .channel-cloud {
+        display: flex;
+        flex-wrap: wrap;
+        align-content: center;
+        gap: 10px;
+        padding: 22px;
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        background: rgba(18, 26, 44, 0.56);
+      }
+
+      .channel-cloud span {
+        padding: 9px 12px;
+        border: 1px solid rgba(99, 244, 229, 0.22);
+        border-radius: 999px;
+        color: rgba(255, 247, 223, 0.82);
+        background: rgba(99, 244, 229, 0.07);
+        font-size: 12px;
+        font-weight: 800;
+      }
+
+      .card,
+      .price-card {
+        padding: 24px;
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        background: rgba(18, 26, 44, 0.72);
+      }
+
+      .card.accent {
+        background: linear-gradient(180deg, rgba(244, 213, 141, 0.12), rgba(18, 26, 44, 0.78));
+        border-color: rgba(244, 213, 141, 0.34);
+      }
+
+      .instrument-section {
+        padding: 0;
+      }
+
+      .instrument {
+        display: grid;
+        grid-template-columns: minmax(0, 0.9fr) minmax(340px, 0.72fr);
+        gap: 44px;
+        align-items: center;
+        min-height: 680px;
+        padding: 86px 0;
+      }
+
+      .instrument-art {
+        position: relative;
+        min-height: 560px;
+        overflow: hidden;
+        border: 1px solid rgba(244, 213, 141, 0.3);
+        border-radius: 28px;
+        background: #0f1424;
+      }
+
+      .instrument-art img {
+        width: 100%;
+        height: 100%;
+        min-height: 560px;
+        object-fit: cover;
+        object-position: center;
+        display: block;
+      }
+
+      .instrument-copy h2 {
+        margin-bottom: 20px;
+        font-family: var(--display);
+        font-size: clamp(36px, 5vw, 64px);
+        font-weight: 400;
+        line-height: 1.02;
+        text-wrap: balance;
+      }
+
+      .console-wrap {
+        display: grid;
+        grid-template-columns: minmax(0, 0.85fr) minmax(360px, 1fr);
+        gap: 18px;
+        align-items: start;
+      }
+
+      .console {
+        padding: 16px;
+      }
+
+      .console-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        padding: 16px 18px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 7px 10px;
+        border: 1px solid rgba(99, 244, 229, 0.34);
+        border-radius: 999px;
+        color: var(--teal);
+        background: rgba(99, 244, 229, 0.08);
+        font-size: 12px;
+        font-weight: 800;
+      }
+
+      .console-row {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 20px;
+        align-items: center;
+        padding: 16px 18px;
+        border-bottom: 1px solid rgba(255, 236, 188, 0.12);
+      }
+
+      .console-row:last-child {
+        border-bottom: 0;
+      }
+
+      .status {
+        min-width: 104px;
+        padding: 8px 10px;
+        border-radius: 999px;
+        text-align: center;
+        font-size: 12px;
+        font-weight: 800;
+      }
+
+      .status.ready {
+        color: #13230d;
+        background: var(--success);
+      }
+
+      .status.blocked {
+        color: #33190a;
+        background: var(--warning);
+      }
+
+      .status.queue {
+        color: #082724;
+        background: var(--teal);
+      }
+
+      .proof-list {
+        margin: 0;
+        padding-left: 18px;
+      }
+
+      .quote {
+        margin: 0;
+        padding: 34px;
+        border: 1px solid rgba(244, 213, 141, 0.34);
+        border-radius: 24px;
+        background: linear-gradient(180deg, rgba(244, 213, 141, 0.12), rgba(18, 26, 44, 0.78));
+        font-family: var(--display);
+        font-size: clamp(28px, 4vw, 48px);
+        font-weight: 400;
+        line-height: 1.12;
+        text-wrap: balance;
+      }
+
+      .price {
+        display: flex;
+        gap: 8px;
+        align-items: baseline;
+        margin: 18px 0 12px;
+      }
+
+      .price strong {
+        color: var(--gold);
+        font-size: 46px;
+        line-height: 1;
+      }
+
+      .featured {
+        border-color: rgba(99, 244, 229, 0.44);
+        background: linear-gradient(180deg, rgba(99, 244, 229, 0.12), rgba(18, 26, 44, 0.8));
+      }
+
+      .footer {
+        padding: 36px 0;
+      }
+
+      .footer-inner {
+        display: flex;
+        justify-content: space-between;
+        gap: 18px;
+        color: rgba(255, 247, 223, 0.58);
+        font-size: 14px;
+      }
+
+      @media (max-width: 920px) {
+        .nav-links {
+          display: none;
+        }
+
+        .hero {
+          min-height: auto;
+        }
+
+        .hero::before {
+          opacity: 0.82;
+          background-position: 66% center;
+        }
+
+        .hero::after {
+          background:
+            linear-gradient(180deg, rgba(8, 12, 25, 0.86) 0%, rgba(8, 12, 25, 0.9) 100%),
+            linear-gradient(90deg, rgba(8, 12, 25, 0.94), rgba(8, 12, 25, 0.3));
+        }
+
+        .hero-content {
+          padding: 72px 0 86px;
+        }
+
+        .section-head,
+        .signal-flow,
+        .instrument,
+        .console-wrap,
+        .problem-grid,
+        .proof-grid,
+        .pricing-grid,
+        .channel-board {
+          grid-template-columns: 1fr;
+        }
+
+        .flow-arrow {
+          min-height: 44px;
+          transform: rotate(90deg);
+        }
+
+        .instrument {
+          min-height: auto;
+        }
+      }
+
+      @media (max-width: 560px) {
+        .nav-inner,
+        .section-inner,
+        .hero-content {
+          width: min(100% - 22px, 1160px);
+        }
+
+        .brand-byline {
+          display: none;
+        }
+
+        .brand-word {
+          width: 98px;
+        }
+
+        .brand-mark {
+          width: 34px;
+          height: 34px;
+        }
+
+        .nav .button {
+          min-height: 38px;
+          padding: 0 12px;
+        }
+
+        h1 {
+          font-size: 44px;
+        }
+
+        section,
+        .instrument {
+          padding: 64px 0;
+        }
+
+        .instrument-art,
+        .instrument-art img {
+          min-height: 420px;
+        }
+
+        .console-row {
+          grid-template-columns: 1fr;
+        }
+
+        .status {
+          width: fit-content;
+        }
+
+        .footer-inner {
+          flex-direction: column;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <header class="nav">
+        <div class="nav-inner">
+          <a class="brand" href="./">
+            <img class="brand-mark" src="assets/grail-grok-instrument-mark.png" alt="" aria-hidden="true">
+            <img class="brand-word" src="assets/grail-grok-wordmark-transparent.png" alt="Grail">
+            <span class="brand-byline">by AIssisted</span>
+          </a>
+          <nav class="nav-links" aria-label="Primary">
+            <a href="#signal">How it works</a>
+            <a href="#instrument">What you get</a>
+            <a href="#proof">Proof Lock</a>
+            <a href="#pricing">Pricing</a>
+          </nav>
+          <a class="button secondary" href="https://buy.stripe.com/28E7sN6EiddJagWadH00006">Join beta</a>
+        </div>
+      </header>
+
+      <main>
+        <section class="hero">
+          <div class="hero-content">
+            <img class="hero-wordmark" src="assets/grail-grok-wordmark-transparent.png" alt="Grail">
+            <p class="eyebrow"><span class="signal-dot"></span> Proof-locked local marketing agent</p>
+            <h1>Local marketing that only posts when there is something real to say.</h1>
+            <p class="hero-copy">Grail turns reviews, service notes, offers, FAQs, photos, and website facts into source-backed Google Business Profile, major social channels, and SEO updates.</p>
+            <div class="cta-row">
+              <a class="button primary" href="https://buy.stripe.com/28E7sN6EiddJagWadH00006">Start the $129 beta</a>
+              <a class="button secondary" href="#signal">See how it works</a>
+            </div>
+            <div class="source-strip" aria-label="Grail channels and inputs">
+              <span class="source-pill">Reviews</span>
+              <span class="source-pill">Service notes</span>
+              <span class="source-pill">Offers</span>
+              <span class="source-pill">FAQs</span>
+              <span class="source-pill">Google Business Profile</span>
+              <span class="source-pill">Facebook</span>
+              <span class="source-pill">X</span>
+              <span class="source-pill">Instagram</span>
+              <span class="source-pill">TikTok</span>
+              <span class="source-pill">LinkedIn</span>
+              <span class="source-pill">YouTube Shorts</span>
+              <span class="source-pill">SEO</span>
+            </div>
+          </div>
+        </section>
+
+        <section id="signal">
+          <div class="section-inner">
+            <div class="section-head">
+              <h2>Your business already creates the raw material. Grail turns it into useful visibility.</h2>
+              <p>Reviews, job notes, questions, offers, and service details should not sit unused while your channels go quiet. Grail finds the usable proof and turns it into updates customers can trust.</p>
+            </div>
+            <div class="signal-flow">
+              <article class="panel signal-panel">
+                <h3>Real proof in</h3>
+                <p>Connect the everyday business material you already trust.</p>
+                <div class="mini-list">
+                  <div class="mini-item">Review mentions <span>trust</span></div>
+                  <div class="mini-item">Job note <span>service</span></div>
+                  <div class="mini-item">Seasonal offer <span>intent</span></div>
+                  <div class="mini-item">FAQ answer <span>buyer question</span></div>
+                </div>
+              </article>
+              <div class="flow-arrow" aria-hidden="true">→</div>
+              <article class="panel signal-panel">
+                <h3>Public updates out</h3>
+                <p>Grail shapes each update for the channel where it belongs.</p>
+                <div class="mini-list">
+                  <div class="mini-item">Google Business Profile <span>posted</span></div>
+                  <div class="mini-item">Major social channels <span>scheduled</span></div>
+                  <div class="mini-item">Website SEO improvement <span>prepared</span></div>
+                  <div class="mini-item">Weekly report <span>delivered</span></div>
+                </div>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <section>
+          <div class="section-inner">
+            <div class="section-head">
+              <h2>Link the channels your customers actually check.</h2>
+              <p>Grail can start with the core local stack, then add larger social and search surfaces as your plan, proof supply, and account access are ready.</p>
+            </div>
+            <div class="channel-board">
+              <article class="panel channel-copy">
+                <h3>Core first. More channels when they can carry real posts.</h3>
+                <p>Most service businesses begin with Google Business Profile, Facebook, X, and website/SEO. Growth plans can add supported scheduler and direct-connected channels such as Instagram, TikTok, LinkedIn, YouTube Shorts, Pinterest, and email/newsletter surfaces.</p>
+              </article>
+              <div class="channel-cloud" aria-label="Supported Grail channel examples">
+                <span>Google Business Profile</span>
+                <span>Facebook</span>
+                <span>X</span>
+                <span>Instagram</span>
+                <span>TikTok</span>
+                <span>LinkedIn</span>
+                <span>YouTube Shorts</span>
+                <span>Pinterest</span>
+                <span>Website SEO</span>
+                <span>Email and newsletter</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section>
+          <div class="section-inner">
+            <div class="problem-grid">
+              <article class="card accent">
+                <h3>No more filler just to fill the calendar.</h3>
+                <p>Generic posts train customers to ignore you. Grail blocks thin updates before they reach your public channels.</p>
+              </article>
+              <article class="card">
+                <h3>Your channels stay alive for the right reasons.</h3>
+                <p>Grail keeps Google Business Profile, social, and website pages moving when there is source-backed material to publish.</p>
+              </article>
+              <article class="card">
+                <h3>You decide what Grail can do.</h3>
+                <p>Choose which channels need review, scheduling, or publishing. Grail reports what shipped, what was blocked, and why.</p>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <section id="instrument" class="instrument-section">
+          <div class="section-inner instrument">
+            <div class="instrument-art" aria-label="Grail source-backed marketing visual">
+              <img src="assets/grail-instrument-hero.png" alt="Grail visual showing data bars, signal dots, and a message bubble.">
+            </div>
+            <div class="instrument-copy">
+              <p class="eyebrow"><span class="signal-dot"></span> Source-backed marketing</p>
+              <h2>Show up online in a real way.</h2>
+              <p class="lead">Grail writes from approved business facts, customer-safe proof, and channel rules. If an update does not have enough proof, it waits instead of posting filler.</p>
+            </div>
+          </div>
+        </section>
+
+        <section>
+          <div class="section-inner console-wrap">
+            <div class="section-head" style="display:block; margin-bottom:0;">
+              <h2>Every week, you know exactly what happened.</h2>
+              <p>Grail keeps a plain record of updates shipped, posts blocked, proof needed, and channel work waiting for you.</p>
+            </div>
+            <div class="panel">
+              <div class="console-top">
+                <strong>Your marketing readout</strong>
+                <span class="badge"><span class="signal-dot"></span> Proof Lock active</span>
+              </div>
+              <div class="console">
+                <div class="console-row">
+                  <div>
+                    <h3>Google Business Profile update</h3>
+                    <p>Built from a recent review and a service note.</p>
+                  </div>
+                  <span class="status ready">Ready</span>
+                </div>
+                <div class="console-row">
+                  <div>
+                    <h3>Social channel post</h3>
+                    <p>Scheduled for the connected channel after duplicate, proof, and voice checks passed.</p>
+                  </div>
+                  <span class="status queue">Queued</span>
+                </div>
+                <div class="console-row">
+                  <div>
+                    <h3>Thin advice post</h3>
+                    <p>Blocked because it sounded useful but had no business proof.</p>
+                  </div>
+                  <span class="status blocked">Blocked</span>
+                </div>
+                <div class="console-row">
+                  <div>
+                    <h3>Service page improvement</h3>
+                    <p>FAQ and offer detail prepared for your website.</p>
+                  </div>
+                  <span class="status ready">Ready</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="proof">
+          <div class="section-inner">
+            <div class="section-head">
+              <h2>Proof Lock keeps weak posts away from your customers.</h2>
+              <p>Every update needs a trusted source: a service detail, review, offer, FAQ, photo, website fact, or owner-approved proof.</p>
+            </div>
+            <div class="proof-grid">
+              <article class="card">
+                <h3>It blocks</h3>
+                <ul class="proof-list">
+                  <li>Generic advice with no service detail.</li>
+                  <li>Unsupported claims or guarantees.</li>
+                  <li>Duplicate future copy.</li>
+                  <li>Off-brand or risky public information.</li>
+                </ul>
+              </article>
+              <article class="card">
+                <h3>It shows</h3>
+                <ul class="proof-list">
+                  <li>The customer-safe source behind each update.</li>
+                  <li>Whether it is ready, scheduled, or blocked.</li>
+                  <li>The exact reason when something is blocked.</li>
+                  <li>What proof would make the next update stronger.</li>
+                </ul>
+              </article>
+              <article class="card">
+                <h3>It asks for</h3>
+                <ul class="proof-list">
+                  <li>Recent job notes.</li>
+                  <li>Approved customer-safe photos.</li>
+                  <li>Reviews, FAQs, and offers.</li>
+                  <li>Your confirmation before changing channel permissions.</li>
+                </ul>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <section>
+          <div class="section-inner">
+            <blockquote class="quote">Your business keeps doing real work. Grail makes sure your customers see it.</blockquote>
+          </div>
+        </section>
+
+        <section id="pricing">
+          <div class="section-inner">
+            <div class="section-head">
+              <h2>Start with one business and get your organic channels moving.</h2>
+              <p>The founding beta is for service businesses with real work, stale channels, and an owner who wants useful marketing without babysitting another tool.</p>
+            </div>
+            <div class="pricing-grid">
+              <article class="price-card featured">
+                <h3>Local Agent</h3>
+                <div class="price"><strong>$129</strong><span>/mo</span></div>
+                <p>One business or location. Core local stack with Google Business Profile, Facebook, X, Proof Lock, weekly report, and requests for better proof when needed.</p>
+                <a class="button primary" href="https://buy.stripe.com/28E7sN6EiddJagWadH00006">Start Local Agent</a>
+              </article>
+              <article class="price-card">
+                <h3>Growth</h3>
+                <div class="price"><strong>$199</strong><span>/mo</span></div>
+                <p>More SEO work, monthly visibility review, expanded cadence, and add-on channels such as Instagram, TikTok, LinkedIn, YouTube Shorts, or Pinterest when proof supports them.</p>
+                <a class="button secondary" href="https://buy.stripe.com/dRm00l5Ae7Tpbl01Hb00007">Start Growth</a>
+              </article>
+              <article class="price-card">
+                <h3>Managed</h3>
+                <div class="price"><strong>$750+</strong><span>/mo</span></div>
+                <p>Hands-on setup, gathering usable proof, multi-channel connector help, and weekly support for businesses that want more than software.</p>
+                <a class="button secondary" href="mailto:pj@aissistedconsulting.com?subject=Grail%20managed%20setup">Ask about Managed</a>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <section id="beta">
+          <div class="section-inner">
+            <div class="section-head">
+              <h2>Founding beta: 10 service businesses.</h2>
+              <p>A good fit has real customer work, active services to talk about, and channels that should be showing more signs of life.</p>
+            </div>
+            <div class="cta-row">
+              <a class="button primary" href="https://buy.stripe.com/28E7sN6EiddJagWadH00006">Start the $129 beta</a>
+              <a class="button secondary" href="mailto:pj@aissistedconsulting.com?subject=Grail%20founding%20beta">Ask before joining</a>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer class="footer">
+        <div class="section-inner footer-inner">
+          <span>Grail by AIssisted Consulting</span>
+          <span>Finds the marketing worth publishing.</span>
+        </div>
+      </footer>
+    </div>
+  </body>
+</html>
