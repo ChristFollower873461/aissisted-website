@@ -112,6 +112,8 @@ export function getBookingConfig(env, origin) {
     googleOAuthClientSecret: env.GOOGLE_OAUTH_CLIENT_SECRET || "",
     googleOAuthRefreshToken: env.GOOGLE_OAUTH_REFRESH_TOKEN || "",
     googleCalendarRequired: parseBoolean(env.BOOKING_REQUIRE_GOOGLE_CALENDAR, false),
+    googleCalendarCreateEvents: parseBoolean(env.BOOKING_CREATE_GOOGLE_CALENDAR_EVENT, true),
+    googleCalendarSendUpdates: String(env.GOOGLE_CALENDAR_SEND_UPDATES || "all"),
     internalNotificationWebhook: env.BOOKING_NOTIFICATION_WEBHOOK_URL || "",
     customerNotificationWebhook: env.BOOKING_CONFIRMATION_WEBHOOK_URL || ""
   };

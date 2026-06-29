@@ -1,7 +1,9 @@
 import {
   getBookingConfig,
+  isGoogleCalendarConfigured,
   isStripeWebhookConfigured
 } from "../_lib/config.js";
+import { createGoogleCalendarBookingEvent } from "../_lib/google-calendar.js";
 import { json, methodNotAllowed, unavailable } from "../_lib/http.js";
 import {
   sendBookingNotifications,
@@ -27,8 +29,41 @@ async function handleCompletedCheckout(store, event, config) {
         metadata: session.metadata || {}
       }
     });
-    return json({ ok: true, ignored: true });
+  return json({ ok: true, ignored: true });
+}
+
+async function createCalendarEventAfterPayment(store, config, booking) {
+  if (!config.googleCalendarCreateEvents || !isGoogleCalendarConfigured(config)) {
+    return null;
   }
+
+  try {
+    const event = await createGoogleCalendarBookingEvent({ config, booking });
+    await store.logEvent({
+      bookingId: booking.id,
+      eventType: "google_calendar.event_created",
+      payload: {
+        eventId: event.eventId,
+        htmlLink: event.htmlLink
+      }
+    });
+    return event;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error || "Unknown Google Calendar error");
+    await store.logEvent({
+      bookingId: booking.id,
+      eventType: "google_calendar.event_failed",
+      payload: { message }
+    });
+    await sendManualReviewNotification({
+      config,
+      booking,
+      reason: `Google Calendar event was not created: ${message}`,
+      eventId: ""
+    });
+    return null;
+  }
+}
 
   const confirmationResult = await store.confirmBookingFromCheckout({
     bookingId: booking.id,
@@ -62,6 +97,7 @@ async function handleCompletedCheckout(store, event, config) {
   });
 
   if (confirmationResult.state === "confirmed") {
+    await createCalendarEventAfterPayment(store, config, booking);
     await sendBookingNotifications({ config, booking });
   } else if (confirmationResult.state === "manual_review") {
     await sendManualReviewNotification({

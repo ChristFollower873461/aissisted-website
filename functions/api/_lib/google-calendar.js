@@ -1,5 +1,6 @@
 const GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token";
 const GOOGLE_FREE_BUSY_URL = "https://www.googleapis.com/calendar/v3/freeBusy";
+const GOOGLE_CALENDAR_SCOPE = "https://www.googleapis.com/auth/calendar";
 
 function pemToArrayBuffer(pem) {
   const normalized = String(pem || "")
@@ -53,7 +54,7 @@ async function getServiceAccountAccessToken(config) {
   const header = { alg: "RS256", typ: "JWT" };
   const claim = {
     iss: config.googleServiceAccountEmail,
-    scope: "https://www.googleapis.com/auth/calendar.readonly",
+    scope: GOOGLE_CALENDAR_SCOPE,
     aud: GOOGLE_TOKEN_URL,
     iat: issuedAt,
     exp: issuedAt + 3600
@@ -138,4 +139,81 @@ export async function getGoogleCalendarBusyIntervals({ config, startIso, endIso 
     startIso: new Date(item.start).toISOString(),
     endIso: new Date(item.end).toISOString()
   }));
+}
+
+function sanitizeCalendarText(value) {
+  return String(value || "").trim();
+}
+
+function buildEventDescription(booking, config) {
+  const lines = [
+    "Paid AIssisted Consulting reservation confirmed through Stripe.",
+    "",
+    `Booking ID: ${booking.id}`,
+    booking.prospectName ? `Name: ${booking.prospectName}` : "",
+    booking.prospectEmail ? `Email: ${booking.prospectEmail}` : "",
+    booking.prospectPhone ? `Phone: ${booking.prospectPhone}` : "",
+    booking.prospectCompany ? `Company: ${booking.prospectCompany}` : "",
+    booking.intakeSummary ? `Intake: ${booking.intakeSummary}` : "",
+    "",
+    `Reservation deposit: ${(booking.reservationAmount / 100).toLocaleString("en-US", {
+      style: "currency",
+      currency: booking.currency || config.currency || "usd"
+    })}`
+  ];
+
+  return lines.filter(Boolean).join("\n");
+}
+
+export async function createGoogleCalendarBookingEvent({ config, booking }) {
+  const accessToken = await getGoogleAccessToken(config);
+  const sendUpdates = ["all", "externalOnly", "none"].includes(config.googleCalendarSendUpdates)
+    ? config.googleCalendarSendUpdates
+    : "all";
+  const calendarId = encodeURIComponent(config.googleCalendarId);
+  const url = `https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events?sendUpdates=${encodeURIComponent(sendUpdates)}`;
+  const attendeeEmail = sanitizeCalendarText(booking.prospectEmail);
+  const attendees = attendeeEmail
+    ? [{
+        email: attendeeEmail,
+        displayName: sanitizeCalendarText(booking.prospectName)
+      }]
+    : [];
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      authorization: `Bearer ${accessToken}`,
+      "content-type": "application/json"
+    },
+    body: JSON.stringify({
+      summary: `AIssisted consult - ${sanitizeCalendarText(booking.prospectName || booking.prospectCompany || "Paid booking")}`,
+      description: buildEventDescription(booking, config),
+      start: {
+        dateTime: booking.selectedTimeWindowStart,
+        timeZone: booking.selectedTimeZone || config.timezone
+      },
+      end: {
+        dateTime: booking.selectedTimeWindowEnd,
+        timeZone: booking.selectedTimeZone || config.timezone
+      },
+      attendees,
+      extendedProperties: {
+        private: {
+          aissistedBookingId: booking.id,
+          stripeCheckoutSessionId: booking.stripeCheckoutSessionId || "",
+          source: "aissisted-website-booking"
+        }
+      }
+    })
+  });
+  const payload = await response.json();
+
+  if (!response.ok) {
+    throw new Error(payload.error?.message || "Google Calendar event creation failed.");
+  }
+
+  return {
+    eventId: payload.id || "",
+    htmlLink: payload.htmlLink || ""
+  };
 }
