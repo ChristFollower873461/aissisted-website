@@ -39,7 +39,7 @@
       "name": "Grail local marketing agent",
       "audience": "Local service businesses",
       "status": "founding_beta",
-      "description": "A proof-locked local marketing agent by AIssisted Consulting that turns real business activity into Google Business Profile, Facebook, X, and SEO updates.",
+      "description": "A proof-locked local marketing agent by AIssisted Consulting that turns real business activity into Google Business Profile, major social channels, and SEO updates.",
       "pricing": {
         "local_agent_monthly_usd": 129,
         "growth_monthly_usd": 199,
@@ -49,6 +49,7 @@
       "workflow_focus": [
         "Google Business Profile updates",
         "Facebook and X scheduling",
+        "Instagram, TikTok, LinkedIn, YouTube Shorts, Pinterest, and newsletter channel expansion when the plan, connector access, and proof supply support it",
         "SEO and AI visibility pages",
         "Source-backed post generation",
         "Proof requests",

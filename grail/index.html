@@ -4,10 +4,10 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Grail | Finds the marketing worth publishing</title>
-    <meta name="description" content="Grail is a proof-locked local marketing agent that turns real business activity into Google Business Profile, social, and SEO updates.">
+    <meta name="description" content="Grail is a proof-locked local marketing agent that turns real business activity into Google Business Profile, major social channels, and SEO updates.">
     <link rel="canonical" href="https://aissistedconsulting.com/grail/">
     <meta property="og:title" content="Grail | Finds the marketing worth publishing">
-    <meta property="og:description" content="A proof-locked local marketing agent by AIssisted Consulting. Grail turns real business proof into GBP, social, and SEO updates without filler.">
+    <meta property="og:description" content="A proof-locked local marketing agent by AIssisted Consulting. Grail turns real business proof into GBP, major social, and SEO updates without filler.">
     <meta property="og:url" content="https://aissistedconsulting.com/grail/">
     <meta property="og:image" content="https://aissistedconsulting.com/grail/assets/grail-hero-instrument-wide.png">
     <meta property="og:site_name" content="AIssisted Consulting">
@@ -383,6 +383,47 @@
         gap: 16px;
       }
 
+      .channel-board {
+        display: grid;
+        grid-template-columns: minmax(0, 0.72fr) minmax(0, 1fr);
+        gap: 16px;
+      }
+
+      .channel-copy {
+        padding: 24px;
+      }
+
+      .channel-copy h3 {
+        margin-bottom: 10px;
+        font-size: 22px;
+      }
+
+      .channel-copy p {
+        color: var(--muted);
+        line-height: 1.6;
+      }
+
+      .channel-cloud {
+        display: flex;
+        flex-wrap: wrap;
+        align-content: center;
+        gap: 10px;
+        padding: 22px;
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        background: rgba(18, 26, 44, 0.56);
+      }
+
+      .channel-cloud span {
+        padding: 9px 12px;
+        border: 1px solid rgba(99, 244, 229, 0.22);
+        border-radius: 999px;
+        color: rgba(255, 247, 223, 0.82);
+        background: rgba(99, 244, 229, 0.07);
+        font-size: 12px;
+        font-weight: 800;
+      }
+
       .card,
       .price-card {
         padding: 24px;
@@ -584,7 +625,8 @@
         .console-wrap,
         .problem-grid,
         .proof-grid,
-        .pricing-grid {
+        .pricing-grid,
+        .channel-board {
           grid-template-columns: 1fr;
         }
 
@@ -676,7 +718,7 @@
             <img class="hero-wordmark" src="assets/grail-grok-wordmark-transparent.png" alt="Grail">
             <p class="eyebrow"><span class="signal-dot"></span> Proof-locked local marketing agent</p>
             <h1>Local marketing that only posts when there is something real to say.</h1>
-            <p class="hero-copy">Grail turns reviews, service notes, offers, FAQs, photos, and website facts into source-backed Google Business Profile, social, and SEO updates.</p>
+            <p class="hero-copy">Grail turns reviews, service notes, offers, FAQs, photos, and website facts into source-backed Google Business Profile, major social channels, and SEO updates.</p>
             <div class="cta-row">
               <a class="button primary" href="https://buy.stripe.com/28E7sN6EiddJagWadH00006">Start the $129 beta</a>
               <a class="button secondary" href="#signal">See how it works</a>
@@ -687,7 +729,12 @@
               <span class="source-pill">Offers</span>
               <span class="source-pill">FAQs</span>
               <span class="source-pill">Google Business Profile</span>
-              <span class="source-pill">Facebook and X</span>
+              <span class="source-pill">Facebook</span>
+              <span class="source-pill">X</span>
+              <span class="source-pill">Instagram</span>
+              <span class="source-pill">TikTok</span>
+              <span class="source-pill">LinkedIn</span>
+              <span class="source-pill">YouTube Shorts</span>
               <span class="source-pill">SEO</span>
             </div>
           </div>
@@ -716,11 +763,38 @@
                 <p>Grail shapes each update for the channel where it belongs.</p>
                 <div class="mini-list">
                   <div class="mini-item">Google Business Profile <span>posted</span></div>
-                  <div class="mini-item">Facebook and X <span>scheduled</span></div>
+                  <div class="mini-item">Major social channels <span>scheduled</span></div>
                   <div class="mini-item">Website SEO improvement <span>prepared</span></div>
                   <div class="mini-item">Weekly report <span>delivered</span></div>
                 </div>
               </article>
+            </div>
+          </div>
+        </section>
+
+        <section>
+          <div class="section-inner">
+            <div class="section-head">
+              <h2>Link the channels your customers actually check.</h2>
+              <p>Grail can start with the core local stack, then add larger social and search surfaces as your plan, proof supply, and account access are ready.</p>
+            </div>
+            <div class="channel-board">
+              <article class="panel channel-copy">
+                <h3>Core first. More channels when they can carry real posts.</h3>
+                <p>Most service businesses begin with Google Business Profile, Facebook, X, and website/SEO. Growth plans can add supported scheduler and direct-connected channels such as Instagram, TikTok, LinkedIn, YouTube Shorts, Pinterest, and email/newsletter surfaces.</p>
+              </article>
+              <div class="channel-cloud" aria-label="Supported Grail channel examples">
+                <span>Google Business Profile</span>
+                <span>Facebook</span>
+                <span>X</span>
+                <span>Instagram</span>
+                <span>TikTok</span>
+                <span>LinkedIn</span>
+                <span>YouTube Shorts</span>
+                <span>Pinterest</span>
+                <span>Website SEO</span>
+                <span>Email and newsletter</span>
+              </div>
             </div>
           </div>
         </section>
@@ -778,8 +852,8 @@
                 </div>
                 <div class="console-row">
                   <div>
-                    <h3>Facebook and X post</h3>
-                    <p>Scheduled after duplicate, proof, and voice checks passed.</p>
+                    <h3>Social channel post</h3>
+                    <p>Scheduled for the connected channel after duplicate, proof, and voice checks passed.</p>
                   </div>
                   <span class="status queue">Queued</span>
                 </div>
@@ -856,19 +930,19 @@
               <article class="price-card featured">
                 <h3>Local Agent</h3>
                 <div class="price"><strong>$129</strong><span>/mo</span></div>
-                <p>One business or location. Google Business Profile, Facebook and X, Proof Lock, weekly report, and requests for better proof when needed.</p>
+                <p>One business or location. Core local stack with Google Business Profile, Facebook, X, Proof Lock, weekly report, and requests for better proof when needed.</p>
                 <a class="button primary" href="https://buy.stripe.com/28E7sN6EiddJagWadH00006">Start Local Agent</a>
               </article>
               <article class="price-card">
                 <h3>Growth</h3>
                 <div class="price"><strong>$199</strong><span>/mo</span></div>
-                <p>More SEO work, monthly visibility review, and expanded posting cadence when your business has enough proof to support it.</p>
+                <p>More SEO work, monthly visibility review, expanded cadence, and add-on channels such as Instagram, TikTok, LinkedIn, YouTube Shorts, or Pinterest when proof supports them.</p>
                 <a class="button secondary" href="https://buy.stripe.com/dRm00l5Ae7Tpbl01Hb00007">Start Growth</a>
               </article>
               <article class="price-card">
                 <h3>Managed</h3>
                 <div class="price"><strong>$750+</strong><span>/mo</span></div>
-                <p>Hands-on setup, gathering usable proof, channel setup help, and weekly support for businesses that want more than software.</p>
+                <p>Hands-on setup, gathering usable proof, multi-channel connector help, and weekly support for businesses that want more than software.</p>
                 <a class="button secondary" href="mailto:pj@aissistedconsulting.com?subject=Grail%20managed%20setup">Ask about Managed</a>
               </article>
             </div>
