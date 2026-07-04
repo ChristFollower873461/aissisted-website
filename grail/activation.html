@@ -10,6 +10,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Marcellus&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="assets/grail-launch-tracking.js" defer></script>
     <style>
       :root {
         --ink: #111827;
@@ -221,18 +222,18 @@
           </ol>
 
           <div class="actions">
-            <a class="button" href="mailto:pj@aissistedconsulting.com?subject=Grail%20setup%20after%20checkout&amp;body=I%20joined%20Grail%20and%20am%20ready%20for%20setup.%0A%0ABusiness%20name:%0AWebsite:%0AGoogle%20Business%20Profile%20URL:%0AFacebook%20page:%0AX%20profile:%0AInstagram%20profile:%0ATikTok%20profile:%0ALinkedIn%20page:%0AYouTube%20channel:%0APinterest%20profile:%0A">Email setup details</a>
-            <a class="button secondary" href="/book/?utm_source=grail&amp;utm_medium=post_checkout&amp;utm_campaign=activation">Book setup call</a>
+            <a class="button" href="mailto:pj@aissistedconsulting.com?subject=Grail%20setup%20after%20checkout&amp;body=I%20joined%20Grail%20and%20am%20ready%20for%20setup.%0A%0ABusiness%20name:%0AWebsite:%0AGoogle%20Business%20Profile%20URL:%0AFacebook%20page:%0AX%20profile:%0AInstagram%20profile:%0ATikTok%20profile:%0ALinkedIn%20page:%0AYouTube%20channel:%0APinterest%20profile:%0A" data-grail-event="grail_activation_email_setup_click" data-grail-plan="post_checkout" data-grail-cta="activation_email_setup">Email setup details</a>
+            <a class="button secondary" href="/book/?utm_source=grail&amp;utm_medium=post_checkout&amp;utm_campaign=activation" data-grail-event="grail_book_click" data-grail-plan="post_checkout" data-grail-cta="activation_book_setup">Book setup call</a>
           </div>
         </section>
 
         <div class="panel">
-          <form id="welcomeForm">
+          <form id="welcomeForm" data-grail-form="grail_activation_submit" data-grail-plan="post_checkout">
             <h2>Send your setup context</h2>
             <p>Use the email from checkout. This opens a ready-to-send setup email with the basics Grail needs.</p>
             <label>Email <input name="email" type="email" placeholder="owner@example.com" required></label>
             <label>Business name <input name="business_name" placeholder="Example Service Co"></label>
-            <button type="submit">Email setup context</button>
+            <button type="submit" data-grail-event="grail_activation_submit_click" data-grail-plan="post_checkout" data-grail-cta="activation_form_submit">Email setup context</button>
           </form>
           <pre id="result">Ready.</pre>
         </div>
