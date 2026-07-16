@@ -16,6 +16,11 @@
 /book/cancel /book/cancel/ 301
 /grail /grail/ 301
 /grail/activation.html /grail/activation 301
+/grail/support /grail/support/ 301
+/grail/privacy /privacy/grail/ 301
+/grail/privacy/ /privacy/grail/ 301
+/grail/terms /grail/terms/ 301
+/privacy/grail /privacy/grail/ 301
 /docs/mcp /docs/mcp.html 200
 /docs/mcp/ /docs/mcp.html 200
 /family-ai-help /family-ai-help/ 301
