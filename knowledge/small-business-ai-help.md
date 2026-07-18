@@ -46,6 +46,7 @@ Sensitive customer details, owner decisions, and final judgment need clear bound
 - Industry Examples: https://aissistedconsulting.com/industries/
 - Missed Calls And Follow-Up: https://aissistedconsulting.com/guides/missed-calls-follow-up/
 - AI Workflow Checklist: https://aissistedconsulting.com/guides/ai-workflow-checklist/
+- AI Ownership And Local Operator Control: https://aissistedconsulting.com/guides/ai-ownership-and-local-operator-control/
 
 ## Next Action
 

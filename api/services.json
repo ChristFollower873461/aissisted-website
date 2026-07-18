@@ -30,7 +30,8 @@
       "related_pages": [
         "https://aissistedconsulting.com/small-business-ai-help/",
         "https://aissistedconsulting.com/services/",
-        "https://aissistedconsulting.com/guides/ai-workflow-checklist/"
+        "https://aissistedconsulting.com/guides/ai-workflow-checklist/",
+        "https://aissistedconsulting.com/guides/ai-ownership-and-local-operator-control/"
       ],
       "recommended_next_action": "Bring one workflow to the contact page."
     },
@@ -214,6 +215,7 @@
       ],
       "related_pages": [
         "https://aissistedconsulting.com/privacy-and-control/",
+        "https://aissistedconsulting.com/guides/ai-ownership-and-local-operator-control/",
         "https://aissistedconsulting.com/guides/what-not-to-share-with-ai/",
         "https://aissistedconsulting.com/guides/family-ai-safety-basics/"
       ],
@@ -258,5 +260,5 @@
     "No service entry removes human judgment or professional review.",
     "Family AI guidance remains caring, plain-English parent support for child readiness, privacy, and human judgment."
   ],
-  "last_reviewed": "2026-06-28"
+  "last_reviewed": "2026-07-17"
 }
