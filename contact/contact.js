@@ -82,6 +82,10 @@
       }
 
       setStatus("Inquiry received. AIssisted Consulting will reply directly.", "success");
+      globalThis.aissistedAxon?.trackGenerateLead({
+        currency: "USD",
+        value: 25
+      });
       form.reset();
     } catch (error) {
       const message = error instanceof Error ? error.message : "The inquiry could not be sent.";
