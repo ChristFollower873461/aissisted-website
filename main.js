@@ -1,4 +1,15 @@
 (function () {
+  function initAxonPixel() {
+    if (window.__aissistedAxonPixelRequested || document.querySelector("script[data-axon-pixel]")) return;
+
+    window.__aissistedAxonPixelRequested = true;
+    const script = document.createElement("script");
+    script.src = "/axon-pixel.js?v=20260718";
+    script.async = true;
+    script.dataset.axonPixel = "true";
+    document.head.appendChild(script);
+  }
+
   function initMenu() {
     const toggle = document.querySelector("[data-menu-toggle]");
     const nav = document.querySelector("[data-nav-links]");
@@ -32,6 +43,7 @@
   }
 
   function init() {
+    initAxonPixel();
     initMenu();
     initYear();
     initFocusMode();

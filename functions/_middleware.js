@@ -31,6 +31,43 @@ const REDIRECTS = new Map([
   ["/grail/activation/", "/grail/activation"]
 ]);
 
+const AXON_COOKIE_MAX_AGE_MS = 365 * 24 * 60 * 60 * 1000;
+const AXON_COOKIE_VALUE = /^[A-Za-z0-9_-]{1,256}$/;
+
+function readCookie(request, name) {
+  const cookieHeader = request.headers.get("cookie") || "";
+
+  for (const part of cookieHeader.split(";")) {
+    const separator = part.indexOf("=");
+    if (separator === -1) continue;
+
+    const cookieName = part.slice(0, separator).trim();
+    if (cookieName !== name) continue;
+
+    return part.slice(separator + 1).trim();
+  }
+
+  return "";
+}
+
+function mirrorAxonCookie(request, response) {
+  const value = readCookie(request, "_axwrt");
+  if (!AXON_COOKIE_VALUE.test(value)) return response;
+
+  const headers = new Headers(response.headers);
+  const expires = new Date(Date.now() + AXON_COOKIE_MAX_AGE_MS).toUTCString();
+  headers.append(
+    "set-cookie",
+    `axwrt=${value}; Expires=${expires}; Domain=.aissistedconsulting.com; Path=/; SameSite=Lax; Secure`
+  );
+
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers
+  });
+}
+
 function isBlockedPath(pathname) {
   if (pathname === "/docs/mcp" || pathname === "/docs/mcp/" || pathname === "/docs/mcp.html") {
     return false;
@@ -84,5 +121,6 @@ export async function onRequest(context) {
     return gone();
   }
 
-  return context.next();
+  const response = await context.next();
+  return mirrorAxonCookie(context.request, response);
 }
