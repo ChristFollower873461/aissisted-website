@@ -2,6 +2,16 @@
   "use strict";
 
   var STORAGE_KEY = "grail_last_touch";
+  var GOOGLE_ADS_TAG_ID = "AW-17956049177";
+  var DEFAULT_GOOGLE_ADS_CONVERSIONS = {
+    grail_activation_submit: {
+      eventName: "ads_conversion_Thanks_Page_1"
+    },
+    grail_book_click: "",
+    grail_checkout_click_local_agent: "",
+    grail_checkout_click_growth: "",
+    grail_checkout_click_premium: ""
+  };
   var UTM_KEYS = [
     "utm_source",
     "utm_medium",
@@ -68,6 +78,72 @@
     return "grail_primary";
   }
 
+  function conversionLabels() {
+    return Object.assign(
+      {},
+      DEFAULT_GOOGLE_ADS_CONVERSIONS,
+      window.GRAIL_GOOGLE_ADS_CONVERSIONS || {}
+    );
+  }
+
+  function normalizedConversionLabel(label) {
+    var value = String(label || "").trim();
+    if (!value) {
+      return "";
+    }
+
+    if (value.indexOf("/") >= 0) {
+      return value;
+    }
+
+    return GOOGLE_ADS_TAG_ID + "/" + value;
+  }
+
+  function normalizedConversionConfig(eventName, explicitLabel, payload) {
+    var configured = explicitLabel || (payload || {}).google_ads_conversion_label || conversionLabels()[eventName];
+    if (!configured) {
+      return {};
+    }
+
+    if (typeof configured === "string") {
+      if (configured.indexOf("ads_conversion_") === 0) {
+        return { eventName: configured };
+      }
+      return { sendTo: normalizedConversionLabel(configured) };
+    }
+
+    if (typeof configured === "object") {
+      return {
+        eventName: String(configured.eventName || configured.event_name || "").trim(),
+        sendTo: normalizedConversionLabel(configured.sendTo || configured.send_to || configured.label || "")
+      };
+    }
+
+    return {};
+  }
+
+  function recordGoogleAdsConversion(eventName, payload, explicitLabel) {
+    if (typeof window.gtag !== "function") {
+      return false;
+    }
+
+    var conversion = normalizedConversionConfig(eventName, explicitLabel, payload);
+    if (!conversion.eventName && !conversion.sendTo) {
+      return false;
+    }
+
+    var conversionPayload = Object.assign({}, payload || {}, {
+      event_category: "grail",
+      event_label: eventName
+    });
+    if (conversion.sendTo) {
+      conversionPayload.send_to = conversion.sendTo;
+    }
+
+    window.gtag("event", conversion.eventName || "conversion", conversionPayload);
+    return true;
+  }
+
   function emit(eventName, detail) {
     var touch = getCurrentTouch();
     var payload = Object.assign(
@@ -93,6 +169,8 @@
     if (typeof window.gtag === "function") {
       window.gtag("event", eventName, payload);
     }
+
+    recordGoogleAdsConversion(eventName, payload);
 
     if (typeof window.fbq === "function") {
       window.fbq("trackCustom", eventName, payload);
@@ -146,6 +224,7 @@
           href_path: target.pathname || "",
           channel: target.getAttribute("data-grail-channel") || "website",
           creative_angle: target.getAttribute("data-grail-angle") || "site_cta",
+          google_ads_conversion_label: target.getAttribute("data-google-ads-conversion-label") || "",
         });
       },
       true
@@ -180,4 +259,9 @@
     bindClicks();
     trackPricingView();
   });
+
+  window.GrailLaunchTracking = {
+    emit: emit,
+    recordGoogleAdsConversion: recordGoogleAdsConversion
+  };
 })();

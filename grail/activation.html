@@ -11,6 +11,13 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Marcellus&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="../axon-pixel.js?v=20260718" defer></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=AW-17956049177"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag("js", new Date());
+      gtag("config", "AW-17956049177");
+    </script>
     <script src="assets/grail-launch-tracking.js" defer></script>
     <style>
       :root {
@@ -231,9 +238,9 @@
         <div class="panel">
           <form id="welcomeForm" data-grail-form="grail_activation_submit" data-grail-plan="post_checkout">
             <h2>Send your setup context</h2>
-            <p>Use the email from checkout. This opens a ready-to-send setup email with the basics Grail needs.</p>
+            <p>Use the email from checkout. This saves the setup signal and opens a ready-to-send email with the basics Grail needs.</p>
             <label>Email <input name="email" type="email" placeholder="owner@example.com" required></label>
-            <label>Business name <input name="business_name" placeholder="Example Service Co"></label>
+            <label>Business name <input name="business_name" placeholder="Example Service Co" required></label>
             <button type="submit" data-grail-event="grail_activation_submit_click" data-grail-plan="post_checkout" data-grail-cta="activation_form_submit">Email setup context</button>
           </form>
           <pre id="result">Ready.</pre>
@@ -250,11 +257,13 @@
         const payload = Object.fromEntries(new FormData(form).entries());
         payload.plan = "local-agent";
         payload.source = "stripe_payment_link";
+        const businessName = (payload.business_name || "").trim();
+        const checkoutEmail = (payload.email || "").trim();
         const body = [
           "I joined Grail and am ready for setup.",
           "",
-          `Checkout email: ${payload.email || ""}`,
-          `Business name: ${payload.business_name || ""}`,
+          `Checkout email: ${checkoutEmail}`,
+          `Business name: ${businessName}`,
           "Website:",
           "Google Business Profile URL:",
           "Facebook page:",
@@ -268,9 +277,38 @@
           "Services/offers to prioritize:",
           "Proof we can use: reviews, photos, FAQs, job notes, public source URLs",
         ].join("\n");
+        result.textContent = "Saving setup signal...";
+        try {
+          const idempotencyKey = `grail-activation-${Date.now()}-${Math.random().toString(36).slice(2, 12)}`;
+          const response = await fetch("/api/contact/submit", {
+            method: "POST",
+            headers: {
+              "content-type": "application/json",
+              "idempotency-key": idempotencyKey
+            },
+            body: JSON.stringify({
+              name: businessName || checkoutEmail,
+              email: checkoutEmail,
+              company: businessName,
+              audience: "booking_or_consult",
+              message: body,
+              sourcePage: "/grail/activation",
+              consentToSubmit: true,
+              websiteLeaveBlank: ""
+            })
+          });
+          if (!response.ok && response.status !== 409) {
+            throw new Error(`Activation relay responded with ${response.status}.`);
+          }
+          result.textContent = response.status === 409
+            ? "Setup signal was already received. Opening your email app..."
+            : "Setup signal saved. Opening your email app...";
+        } catch (error) {
+          console.warn("[grail-activation] Setup relay failed; falling back to email.", error);
+          result.textContent = "Opening your email app. If it does not open, email pj@aissistedconsulting.com with your business name and checkout email.";
+        }
         const mailto = `mailto:pj@aissistedconsulting.com?subject=${encodeURIComponent("Grail setup after checkout")}&body=${encodeURIComponent(body)}`;
         window.location.href = mailto;
-        result.textContent = "Opening your email app with the setup context. If it does not open, email pj@aissistedconsulting.com with your business name and checkout email.";
       });
     </script>
   </body>
