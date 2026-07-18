@@ -1,5 +1,8 @@
 # AIssisted Consulting robots policy.
-# Publishing or changing live crawler rules is a separate review step.
+# Public content is crawlable; private confirmation routes stay excluded.
+
+User-agent: OAI-SearchBot
+Allow: /
 
 User-agent: *
 Allow: /

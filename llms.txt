@@ -57,6 +57,7 @@ For families and households, start with Family AI Help, then read Family AI Safe
 - Security Privacy And Guardrails: https://aissistedconsulting.com/guides/security-privacy-and-guardrails/
 - Training And Support: https://aissistedconsulting.com/guides/training-and-support/
 - Small Business Control: https://aissistedconsulting.com/guides/small-business-control/
+- AI Ownership And Local Operator Control: https://aissistedconsulting.com/guides/ai-ownership-and-local-operator-control/
 
 ## Machine-Readable Support Files
 
