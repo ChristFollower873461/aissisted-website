@@ -19,6 +19,7 @@
       gtag("config", "AW-17956049177");
     </script>
     <script src="assets/grail-launch-tracking.js" defer></script>
+    <script src="assets/grail-activation.js?v=20260718" defer></script>
     <style>
       :root {
         --ink: #111827;
@@ -255,7 +256,8 @@
       form.addEventListener("submit", async (event) => {
         event.preventDefault();
         const payload = Object.fromEntries(new FormData(form).entries());
-        payload.plan = "local-agent";
+        const verifiedCheckout = window.GrailActivation?.getVerifiedCheckout();
+        payload.plan = verifiedCheckout?.plan || "not_verified";
         payload.source = "stripe_payment_link";
         const businessName = (payload.business_name || "").trim();
         const checkoutEmail = (payload.email || "").trim();

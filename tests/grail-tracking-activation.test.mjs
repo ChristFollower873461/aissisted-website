@@ -75,6 +75,7 @@ test("Grail pages retain live purchase, activation, social, and Ads wiring", () 
 
   for (const required of [
     "AW-17956049177",
+    "assets/grail-activation.js?v=20260718",
     'fetch("/api/contact/submit"',
     'audience: "booking_or_consult"',
     'sourcePage: "/grail/activation"',

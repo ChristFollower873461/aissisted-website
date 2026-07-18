@@ -5,6 +5,7 @@ import {
 } from "../_lib/config.js";
 import { relayWebsiteIntakeToAicCrm } from "../_lib/aic-crm.js";
 import { buildCrmAttribution } from "../_lib/crm-attribution.js";
+import { getGrailPaymentLinkPlan } from "../_lib/grail.js";
 import { createGoogleCalendarBookingEvent } from "../_lib/google-calendar.js";
 import { json, methodNotAllowed, unavailable } from "../_lib/http.js";
 import {
@@ -21,31 +22,8 @@ import {
   sha256Hex
 } from "../_lib/transaction-safety.js";
 
-const GRAIL_PAYMENT_LINKS = {
-  plink_1TnH36P3Zy09i3ccRpajeOKT: {
-    plan: "local_agent",
-    planName: "Grail Local Agent"
-  },
-  plink_1TnH37P3Zy09i3ccsUxHzWZD: {
-    plan: "growth",
-    planName: "Grail Growth"
-  },
-  plink_1TuZOKP3Zy09i3ccKKJklwAy: {
-    plan: "premium",
-    planName: "Grail Premium"
-  }
-};
-
 function cleanString(value, limit = 500) {
   return String(value || "").trim().slice(0, limit);
-}
-
-function getGrailPaymentLinkPlan(session) {
-  const paymentLinkId =
-    typeof session.payment_link === "string" ? session.payment_link : "";
-  const knownPlan = GRAIL_PAYMENT_LINKS[paymentLinkId];
-  if (!knownPlan) return null;
-  return { ...knownPlan, paymentLinkId };
 }
 
 async function handleGrailPaymentLinkCheckout(store, event, env, session, plan) {
