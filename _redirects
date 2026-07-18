@@ -15,6 +15,9 @@
 /book/success /book/success/ 301
 /book/cancel /book/cancel/ 301
 /grail /grail/ 301
+/grail/fit-check /grail/ 301
+/grail/fit-check/ /grail/ 301
+/grail/fit-check/* /grail/ 301
 /grail/activation.html /grail/activation 301
 /grail/support /grail/support/ 301
 /grail/privacy /privacy/grail/ 301
