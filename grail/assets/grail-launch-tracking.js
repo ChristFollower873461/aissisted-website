@@ -4,6 +4,7 @@
   var STORAGE_KEY = "grail_last_touch";
   var GOOGLE_ADS_TAG_ID = "AW-17956049177";
   var DEFAULT_GOOGLE_ADS_CONVERSIONS = {
+    grail_purchase_verified: "RF8hCNjF2tIcEJmijvJC",
     grail_activation_submit: {
       eventName: "ads_conversion_Thanks_Page_1"
     },

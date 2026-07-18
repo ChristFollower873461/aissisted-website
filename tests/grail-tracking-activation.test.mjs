@@ -75,7 +75,8 @@ test("Grail pages retain live purchase, activation, social, and Ads wiring", () 
 
   for (const required of [
     "AW-17956049177",
-    "assets/grail-activation.js?v=20260718",
+    "assets/grail-launch-tracking.js?v=20260718-2",
+    "assets/grail-activation.js?v=20260718-2",
     'fetch("/api/contact/submit"',
     'audience: "booking_or_consult"',
     'sourcePage: "/grail/activation"',
@@ -110,4 +111,28 @@ test("Grail activation records the configured Google Ads conversion", () => {
     ),
     false
   );
+});
+
+test("verified Grail purchases send revenue and a transaction ID to Google Ads", () => {
+  const run = runTrackingScript();
+  const recorded = run.window.GrailLaunchTracking.recordGoogleAdsConversion(
+    "grail_purchase_verified",
+    {
+      pricing_plan: "growth",
+      value: 199,
+      currency: "USD",
+      transaction_id: "cs_test_paidgrail123"
+    }
+  );
+  const conversion = run.gtagCalls.find(
+    (call) => call[0] === "event" && call[1] === "conversion"
+  );
+
+  assert.equal(recorded, true);
+  assert.ok(conversion);
+  assert.equal(conversion[2].send_to, "AW-17956049177/RF8hCNjF2tIcEJmijvJC");
+  assert.equal(conversion[2].value, 199);
+  assert.equal(conversion[2].currency, "USD");
+  assert.equal(conversion[2].transaction_id, "cs_test_paidgrail123");
+  assert.equal(conversion[2].event_label, "grail_purchase_verified");
 });

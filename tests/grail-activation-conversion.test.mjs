@@ -90,6 +90,7 @@ test("paid Grail checkout emits exactly one Axon conversion", async () => {
   assert.equal(run.fetchCalls.length, 1);
   assert.equal(run.grailEvents[0].eventName, "grail_purchase_verified");
   assert.equal(run.grailEvents[0].payload.pricing_plan, "growth");
+  assert.equal(run.grailEvents[0].payload.transaction_id, "cs_test_paidgrail123");
   assert.equal(run.formAttributes.get("data-grail-plan"), "growth");
   assert.equal(run.window.GrailActivation.getVerifiedCheckout().plan, "growth");
 });

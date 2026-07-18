@@ -89,6 +89,7 @@
         creative_angle: "purchase",
         currency: checkout.currency,
         value: checkout.value,
+        transaction_id: sessionId,
         axon_conversion: "generate_lead"
       });
     }
