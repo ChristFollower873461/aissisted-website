@@ -6,6 +6,8 @@ pages_build_output_dir = "."
 # Do NOT put credentials in this file. Set secrets through Cloudflare Pages:
 #   STRIPE_SECRET_KEY
 #   STRIPE_WEBHOOK_SECRET
+#   GRAIL_WORKSPACE_SIGNING_SECRET
+#   GRAIL_EMAIL_API_KEY
 #   GOOGLE_CALENDAR_ID
 #   GOOGLE_OAUTH_CLIENT_ID
 #   GOOGLE_OAUTH_CLIENT_SECRET
@@ -25,6 +27,8 @@ BOOKING_REQUIRE_GOOGLE_CALENDAR = "true"
 BOOKING_POLICY_VERSION = "2026-04-06"
 BOOKING_RESERVATION_AMOUNT_CENTS = "22500"
 STRIPE_BOOKING_PRICE_ID = "price_1TNNnxP3Zy09i3cc3B8yErot"
+GRAIL_EMAIL_PROVIDER = "resend"
+GRAIL_EMAIL_FROM = "Grail <hello@aissistedconsulting.com>"
 
 [[d1_databases]]
 binding = "BOOKING_DB"

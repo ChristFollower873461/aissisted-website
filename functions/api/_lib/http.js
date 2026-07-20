@@ -35,6 +35,14 @@ export function forbidden(message, details) {
   return json({ ok: false, error: message || "Forbidden.", details: details || null }, 403);
 }
 
+export function unauthorized(message) {
+  return json(
+    { ok: false, error: message || "Unauthorized." },
+    401,
+    { "www-authenticate": "Bearer" }
+  );
+}
+
 export function conflict(message, details) {
   return json({ ok: false, error: message, details: details || null }, 409);
 }

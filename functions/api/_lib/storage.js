@@ -445,6 +445,15 @@ function createMemoryStore() {
       return normalizeContactInquiry(state.contactInquiries.get(id));
     },
 
+    async updateContactInquiryDeliveryStatus(id, deliveryStatus) {
+      const inquiry = state.contactInquiries.get(id);
+      if (!inquiry) return null;
+      inquiry.deliveryStatus = deliveryStatus;
+      inquiry.updatedAt = nowIso();
+      state.contactInquiries.set(id, inquiry);
+      return normalizeContactInquiry(inquiry);
+    },
+
     async findRecentContactInquiryByDuplicateFingerprint(input) {
       const ids =
         state.contactInquiryIdsByDuplicateFingerprint.get(input.duplicateFingerprint) || [];
@@ -1168,6 +1177,21 @@ function createD1Store(db) {
         .bind(id)
         .first();
       return normalizeContactInquiry(record);
+    },
+
+    async updateContactInquiryDeliveryStatus(id, deliveryStatus) {
+      await db
+        .prepare(
+          `
+            UPDATE contact_inquiries
+            SET delivery_status = ?2,
+                updated_at = ?3
+            WHERE id = ?1
+          `
+        )
+        .bind(id, deliveryStatus, nowIso())
+        .run();
+      return this.getContactInquiryById(id);
     },
 
     async findRecentContactInquiryByDuplicateFingerprint(input) {

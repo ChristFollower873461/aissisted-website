@@ -7,8 +7,8 @@
   "scripts": {
     "serve": "python3 -m http.server 4173",
     "check:site": "node --check axon-pixel.js && node --check main.js && node --check contact/contact.js && node --check book/booking.js && node --check book/status.js && node --check grail/assets/grail-activation.js",
-    "check:booking-functions": "for f in functions/_middleware.js functions/.well-known/*.js functions/mcp/*.js functions/api/_lib/*.js functions/api/book/*.js functions/api/contact/*.js functions/api/grail/*.js; do node --check \"$f\" || exit 1; done",
-    "test:booking": "node --test tests/booking-hardening.test.mjs tests/transaction-safety.test.mjs tests/contact-submit.test.mjs tests/booking-checkout.test.mjs tests/grail-payment-webhook.test.mjs tests/grail-checkout-status.test.mjs tests/grail-activation-conversion.test.mjs tests/grail-tracking-activation.test.mjs",
+    "check:booking-functions": "for f in functions/_middleware.js functions/.well-known/*.js functions/mcp/*.js functions/api/_lib/*.js functions/api/book/*.js functions/api/contact/*.js functions/api/grail/*.js functions/api/workspaces/*.js; do node --check \"$f\" || exit 1; done",
+    "test:booking": "node --test tests/booking-hardening.test.mjs tests/transaction-safety.test.mjs tests/contact-submit.test.mjs tests/booking-checkout.test.mjs tests/grail-payment-webhook.test.mjs tests/grail-checkout-status.test.mjs tests/grail-activation-conversion.test.mjs tests/grail-tracking-activation.test.mjs tests/grail-workspaces.test.mjs tests/grail-workspace-webhook.test.mjs",
     "test:seo-agent": "node --test tests/seo-agent-readiness.test.mjs"
   },
   "dependencies": {

@@ -114,6 +114,9 @@ export function getBookingConfig(env, origin) {
     googleCalendarRequired: parseBoolean(env.BOOKING_REQUIRE_GOOGLE_CALENDAR, false),
     googleCalendarCreateEvents: parseBoolean(env.BOOKING_CREATE_GOOGLE_CALENDAR_EVENT, true),
     googleCalendarSendUpdates: String(env.GOOGLE_CALENDAR_SEND_UPDATES || "all"),
+    emailProvider: String(env.GRAIL_EMAIL_PROVIDER || "").trim().toLowerCase(),
+    emailApiKey: env.GRAIL_EMAIL_API_KEY || "",
+    emailFrom: env.GRAIL_EMAIL_FROM || "",
     internalNotificationWebhook: env.BOOKING_NOTIFICATION_WEBHOOK_URL || "",
     customerNotificationWebhook: env.BOOKING_CONFIRMATION_WEBHOOK_URL || ""
   };

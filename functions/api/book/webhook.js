@@ -7,9 +7,14 @@ import { relayWebsiteIntakeToAicCrm } from "../_lib/aic-crm.js";
 import { buildCrmAttribution } from "../_lib/crm-attribution.js";
 import { getGrailPaymentLinkPlan } from "../_lib/grail.js";
 import { createGoogleCalendarBookingEvent } from "../_lib/google-calendar.js";
+import {
+  provisionGrailWorkspace,
+  syncGrailWorkspaceSubscriptionStatus
+} from "../_lib/grail-workspaces.js";
 import { json, methodNotAllowed, unavailable } from "../_lib/http.js";
 import {
   sendBookingNotifications,
+  sendGrailWorkspaceAccessEmail,
   sendManualReviewNotification
 } from "../_lib/notifications.js";
 import { verifyStripeWebhook } from "../_lib/stripe.js";
@@ -26,13 +31,90 @@ function cleanString(value, limit = 500) {
   return String(value || "").trim().slice(0, limit);
 }
 
-async function handleGrailPaymentLinkCheckout(store, event, env, session, plan) {
+async function provisionAndNotifyGrailWorkspace({
+  store,
+  event,
+  config,
+  env,
+  session,
+  plan,
+  contact,
+  inquiry
+}) {
+  let workspaceProvision;
+  try {
+    workspaceProvision = await provisionGrailWorkspace({ env, session, plan, contact });
+    await store.logEvent({
+      eventType: workspaceProvision.ok
+        ? "grail.workspace.provisioned"
+        : "grail.workspace.provision_skipped",
+      payload: {
+        eventId: event.id,
+        inquiryId: inquiry.id,
+        workspaceId: workspaceProvision.workspaceId || "",
+        created: workspaceProvision.created === true,
+        reason: workspaceProvision.reason || ""
+      }
+    });
+  } catch (error) {
+    workspaceProvision = {
+      ok: false,
+      skipped: false,
+      reason: error instanceof Error ? error.message : "workspace_provision_failed"
+    };
+    await store.logEvent({
+      eventType: "grail.workspace.provision_failed",
+      payload: {
+        eventId: event.id,
+        inquiryId: inquiry.id,
+        reason: workspaceProvision.reason
+      }
+    });
+  }
+
+  if (workspaceProvision.ok && workspaceProvision.accessCode) {
+    const workspaceEmail = await sendGrailWorkspaceAccessEmail({
+      config,
+      eventId: event.id,
+      contact,
+      plan,
+      accessCode: workspaceProvision.accessCode
+    });
+    await store.logEvent({
+      eventType: `notification.grail_workspace_access.${workspaceEmail.status}`,
+      payload: {
+        eventId: event.id,
+        inquiryId: inquiry.id,
+        workspaceId: workspaceProvision.workspaceId || "",
+        provider: workspaceEmail.provider,
+        providerMessageId: workspaceEmail.providerMessageId || "",
+        reason: workspaceEmail.reason || ""
+      }
+    });
+  }
+
+  return workspaceProvision;
+}
+
+async function handleGrailPaymentLinkCheckout(store, event, config, env, session, plan) {
   const customer = session.customer_details || {};
   const metadata = session.metadata || {};
   const email = normalizeEmail(customer.email || session.customer_email || "");
-  const name = cleanString(customer.name || metadata.customer_name || "Grail customer", 120);
+  const fitCheckReference = cleanString(session.client_reference_id, 200);
+  const fitCheckInquiry = /^inq_[A-Za-z0-9_-]+$/.test(fitCheckReference)
+    ? await store.getContactInquiryById(fitCheckReference)
+    : null;
+  const linkedFitCheck =
+    fitCheckInquiry && fitCheckInquiry.emailNormalized === email ? fitCheckInquiry : null;
+  const name = cleanString(
+    customer.name || linkedFitCheck?.name || metadata.customer_name || "Grail customer",
+    120
+  );
   const phone = cleanString(customer.phone || metadata.customer_phone || "", 40);
-  const company = cleanString(metadata.company || metadata.company_name || "", 120);
+  const company = cleanString(
+    linkedFitCheck?.company || metadata.company || metadata.company_name || "",
+    120
+  );
   const sessionId = cleanString(session.id, 160);
   const audience = normalizeContactAudience("small_business_workflow");
   const message = [
@@ -46,6 +128,23 @@ async function handleGrailPaymentLinkCheckout(store, event, env, session, plan) 
   const sourcePage =
     `/grail/activation?utm_source=stripe&utm_medium=payment_link&utm_campaign=grail_first_sales_202607&utm_content=${encodeURIComponent(plan.plan)}`;
   const createdAt = new Date().toISOString();
+  const webhookIdempotency = await store.startIdempotencyRecord({
+    commandId: "stripe.grail_payment_link.checkout",
+    risk: "external_financial_signal",
+    idempotencyKeyHash: await sha256Hex(`stripe-event:${event.id}`),
+    requestFingerprint: await sha256Hex(
+      `stripe-event:${event.id}:${sessionId}:${plan.plan}`
+    ),
+    requestSummaryJson: JSON.stringify({
+      eventId: event.id,
+      sessionId,
+      plan: plan.plan
+    }),
+    targetType: "stripe_event",
+    targetId: event.id,
+    createdAt,
+    expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
+  });
   const normalized = {
     name,
     email,
@@ -65,6 +164,16 @@ async function handleGrailPaymentLinkCheckout(store, event, env, session, plan) 
   });
 
   if (duplicate) {
+    const workspaceProvision = await provisionAndNotifyGrailWorkspace({
+      store,
+      event,
+      config,
+      env,
+      session,
+      plan,
+      contact: normalized,
+      inquiry: duplicate
+    });
     await store.logEvent({
       eventType: "stripe.grail_payment_link.duplicate_contact_signal",
       payload: {
@@ -75,15 +184,22 @@ async function handleGrailPaymentLinkCheckout(store, event, env, session, plan) 
         paymentLinkId: plan.paymentLinkId
       }
     });
+    await store.markIdempotencySucceeded(webhookIdempotency.id, {
+      targetType: "contact_inquiry",
+      targetId: duplicate.id,
+      responseStatus: 200,
+      completedAt: new Date().toISOString()
+    });
     return json({
       ok: true,
       grailCustomerSignal: true,
       duplicate: true,
-      inquiryId: duplicate.id
+      inquiryId: duplicate.id,
+      workspaceProvisioned: workspaceProvision.ok === true
     });
   }
 
-  const inquiry = await store.createContactInquiry({
+  let inquiry = await store.createContactInquiry({
     ...normalized,
     messageHash: await sha256Hex(normalizeContactMessage(message)),
     duplicateFingerprint,
@@ -91,7 +207,7 @@ async function handleGrailPaymentLinkCheckout(store, event, env, session, plan) 
     createdAt,
     status: "received",
     deliveryStatus: "local_record_only",
-    idempotencyRecordId: null
+    idempotencyRecordId: webhookIdempotency.id
   });
   const crmAttribution = buildCrmAttribution({
     sourcePage,
@@ -111,11 +227,28 @@ async function handleGrailPaymentLinkCheckout(store, event, env, session, plan) 
     consent: true,
     websiteLeaveBlank: ""
   });
-  const deliveryStatus = crmRelay.ok
-    ? "crm_relay_delivered"
-    : crmRelay.skipped
-      ? "local_record_only"
-      : "crm_relay_failed";
+  if (crmRelay.ok) {
+    inquiry =
+      (await store.updateContactInquiryDeliveryStatus(
+        inquiry.id,
+        "crm_relay_delivered"
+      )) || inquiry;
+  } else if (!crmRelay.skipped) {
+    inquiry =
+      (await store.updateContactInquiryDeliveryStatus(inquiry.id, "crm_relay_failed")) ||
+      inquiry;
+  }
+
+  const workspaceProvision = await provisionAndNotifyGrailWorkspace({
+    store,
+    event,
+    config,
+    env,
+    session,
+    plan,
+    contact: normalized,
+    inquiry
+  });
 
   await store.logEvent({
     eventType: "stripe.grail_payment_link.customer_signal",
@@ -123,18 +256,26 @@ async function handleGrailPaymentLinkCheckout(store, event, env, session, plan) 
       eventId: event.id,
       sessionId,
       inquiryId: inquiry.id,
-      deliveryStatus,
+      deliveryStatus: inquiry.deliveryStatus,
       plan: plan.plan,
       planName: plan.planName,
       paymentLinkId: plan.paymentLinkId
     }
   });
 
+  await store.markIdempotencySucceeded(webhookIdempotency.id, {
+    targetType: "contact_inquiry",
+    targetId: inquiry.id,
+    responseStatus: 200,
+    completedAt: new Date().toISOString()
+  });
+
   return json({
     ok: true,
     grailCustomerSignal: true,
     inquiryId: inquiry.id,
-    deliveryStatus
+    deliveryStatus: inquiry.deliveryStatus,
+    workspaceProvisioned: workspaceProvision.ok === true
   });
 }
 
@@ -149,7 +290,7 @@ async function handleCompletedCheckout(store, event, config, env) {
   if (!booking) {
     const grailPlan = getGrailPaymentLinkPlan(session);
     if (grailPlan) {
-      return handleGrailPaymentLinkCheckout(store, event, env, session, grailPlan);
+      return handleGrailPaymentLinkCheckout(store, event, config, env, session, grailPlan);
     }
     await store.logEvent({
       eventType: "stripe.checkout.completed.unmatched",
@@ -267,6 +408,60 @@ async function handleSessionOutcome(store, event, bookingStatus, paymentStatus) 
   return json({ ok: true, bookingId: booking?.id || null });
 }
 
+function subscriptionIdFromEvent(event) {
+  const object = event.data?.object || {};
+  if (event.type.startsWith("customer.subscription.")) {
+    return cleanString(object.id, 160);
+  }
+
+  const subscription =
+    object.subscription || object.parent?.subscription_details?.subscription || "";
+  return cleanString(
+    typeof subscription === "string" ? subscription : subscription?.id,
+    160
+  );
+}
+
+async function handleGrailSubscriptionStatusEvent(store, event, env) {
+  const object = event.data?.object || {};
+  const subscriptionId = subscriptionIdFromEvent(event);
+  const subscriptionStatus =
+    event.type === "customer.subscription.deleted"
+      ? "canceled"
+      : event.type === "invoice.payment_failed"
+        ? "past_due"
+        : event.type === "invoice.paid"
+          ? "active"
+          : cleanString(object.status, 80);
+  const result = await syncGrailWorkspaceSubscriptionStatus({
+    env,
+    subscriptionId,
+    subscriptionStatus
+  });
+
+  if (!result.ok) {
+    return json({
+      ok: true,
+      ignored: true,
+      reason: result.reason || "workspace_not_found"
+    });
+  }
+
+  await store.logEvent({
+    eventType: "grail.workspace.subscription_status_changed",
+    payload: {
+      eventId: event.id,
+      workspaceId: result.workspaceId,
+      workspaceStatus: result.status
+    }
+  });
+  return json({
+    ok: true,
+    workspaceUpdated: true,
+    workspaceStatus: result.status
+  });
+}
+
 export async function onRequest(context) {
   if (context.request.method !== "POST") {
     return methodNotAllowed(["POST"]);
@@ -303,6 +498,11 @@ export async function onRequest(context) {
       return handleSessionOutcome(store, event, "expired", "expired");
     case "checkout.session.async_payment_failed":
       return handleSessionOutcome(store, event, "payment_failed", "failed");
+    case "customer.subscription.updated":
+    case "customer.subscription.deleted":
+    case "invoice.payment_failed":
+    case "invoice.paid":
+      return handleGrailSubscriptionStatusEvent(store, event, context.env);
     default:
       return json({ ok: true, ignored: true, type: event.type });
   }
