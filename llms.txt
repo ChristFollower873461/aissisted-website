@@ -59,6 +59,7 @@ For families and households, start with Family AI Help, then read Family AI Safe
 - Small Business Control: https://aissistedconsulting.com/guides/small-business-control/
 - AI Ownership And Local Operator Control: https://aissistedconsulting.com/guides/ai-ownership-and-local-operator-control/
 - Plain English AI Help: https://aissistedconsulting.com/guides/plain-english-ai-help/
+- First Workflow Map: https://aissistedconsulting.com/guides/first-workflow-map/
 
 ## Machine-Readable Support Files
 
