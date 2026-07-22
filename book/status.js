@@ -59,6 +59,17 @@
       switch (payload.confirmationState) {
         case "confirmed":
           setState("Confirmed", "Your appointment is reserved.", "Payment is confirmed, the calendar booking is being placed on PJ's schedule, and the booking record carries a one-time $225 deposit credit for future service.");
+          if (window.AicAdsTracking) {
+            const conversionKey = `aic_booking_confirmed:${bookingId || sessionId}`;
+            if (window.sessionStorage.getItem(conversionKey) !== "sent") {
+              window.AicAdsTracking.emit("aic_booking_confirmed", {
+                channel: "booking",
+                creative_angle: "paid_consult",
+                confirmation_state: "confirmed"
+              });
+              window.sessionStorage.setItem(conversionKey, "sent");
+            }
+          }
           return;
         case "awaiting_webhook":
           setState("Processing", "Payment received. Final confirmation is still syncing.", "Stripe has completed checkout, but the backend is still waiting for the webhook to mark the slot as confirmed.");
