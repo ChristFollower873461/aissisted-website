@@ -86,6 +86,13 @@
         currency: "USD",
         value: 25
       });
+      if (globalThis.AicAdsTracking) {
+        globalThis.AicAdsTracking.emit("aic_contact_submit", {
+          channel: "website_contact",
+          creative_angle: "local_ai_implementation",
+          inquiry_topic: payload.audience || "not_selected"
+        });
+      }
       form.reset();
     } catch (error) {
       const message = error instanceof Error ? error.message : "The inquiry could not be sent.";

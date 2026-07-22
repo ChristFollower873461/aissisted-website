@@ -281,6 +281,13 @@
       }
 
       showStatus("Redirecting to Stripe checkout...", "success", true);
+      if (window.AicAdsTracking) {
+        window.AicAdsTracking.emit("aic_booking_checkout_start", {
+          channel: "booking",
+          creative_angle: "paid_consult",
+          booking_goal: formData.get("primaryGoal") || "not_selected"
+        });
+      }
       window.location.href = payload.checkoutUrl;
     } catch (error) {
       showStatus(error.message, "error", true);
