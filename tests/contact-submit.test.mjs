@@ -108,6 +108,37 @@ test("contact submit relays structured attribution to AICCRM", async () => {
     assert.equal(crmPayload.utmCampaign, "aiccrm_relay");
     assert.equal(crmPayload.gclid, "gclid-contact");
     assert.match(crmPayload.qualifiedSourceEventId, /^website-contact-inq_/);
+    assert.equal(payload.inquiry.deliveryStatus, "crm_relay_delivered");
+    const store = getBookingStore({});
+    const inquiry = await store.getContactInquiryById(payload.inquiry.id);
+    assert.equal(inquiry.deliveryStatus, "crm_relay_delivered");
+  } finally {
+    global.fetch = originalFetch;
+  }
+});
+
+test("contact submit records a CRM relay failure without losing the local inquiry", async () => {
+  resetMemoryStore();
+  const originalFetch = global.fetch;
+  global.fetch = async () =>
+    Response.json({ ok: false, error: "Temporary CRM failure." }, { status: 503 });
+
+  try {
+    const { response, payload } = await submitContact(
+      validPayload(),
+      "contact-crm-failure-key-0001",
+      {
+        AIC_CRM_INTAKE_URL: "https://aiccrm.aissistedconsulting.com/intake/website",
+        AIC_CRM_INTAKE_TOKEN: "test-token"
+      }
+    );
+    const store = getBookingStore({});
+    const inquiry = await store.getContactInquiryById(payload.inquiry.id);
+
+    assert.equal(response.status, 200);
+    assert.equal(payload.ok, true);
+    assert.equal(payload.inquiry.deliveryStatus, "crm_relay_failed");
+    assert.equal(inquiry.deliveryStatus, "crm_relay_failed");
   } finally {
     global.fetch = originalFetch;
   }

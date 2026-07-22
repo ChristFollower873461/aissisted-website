@@ -324,10 +324,17 @@ export async function onRequest(context) {
       consent: true,
       websiteLeaveBlank: ""
     });
-    const body = inquiryResponse(inquiry);
     if (!crmRelay.ok && !crmRelay.skipped) {
       console.warn("[contact] CRM relay failed.");
     }
+    const deliveryStatus = crmRelay.ok
+      ? "crm_relay_delivered"
+      : crmRelay.skipped
+        ? "local_record_only"
+        : "crm_relay_failed";
+    const updatedInquiry =
+      (await store.updateContactInquiryDeliveryStatus(inquiry.id, deliveryStatus)) || inquiry;
+    const body = inquiryResponse(updatedInquiry);
     await store.markIdempotencySucceeded(idempotencyRecord.id, {
       targetType: "contact_inquiry",
       targetId: inquiry.id,
