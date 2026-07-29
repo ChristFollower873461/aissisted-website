@@ -315,14 +315,14 @@ a {
   font-weight: 700;
 }
 
-.beta-callout {
+.availability-callout {
   display: grid;
   grid-template-columns: 1fr auto;
   align-items: end;
   gap: 32px;
 }
 
-.beta-callout h2 {
+.availability-callout h2 {
   margin: 0;
   max-width: 760px;
   font-size: 42px;
@@ -330,7 +330,7 @@ a {
   font-weight: 900;
 }
 
-.beta-callout p {
+.availability-callout p {
   margin: 16px 0 0;
   max-width: 720px;
   color: rgba(255, 255, 255, 0.78);
@@ -686,7 +686,7 @@ th {
     border-bottom: 0;
   }
 
-  .beta-callout,
+  .availability-callout,
   .contact-grid {
     grid-template-columns: 1fr;
     align-items: start;
@@ -742,7 +742,7 @@ th {
 
   .hero p,
   .section-heading p,
-  .beta-callout p,
+  .availability-callout p,
   .utility-hero p {
     font-size: 17px;
   }
@@ -752,7 +752,7 @@ th {
   }
 
   .section-heading h2,
-  .beta-callout h2,
+  .availability-callout h2,
   .contact-grid h2 {
     font-size: 34px;
   }
