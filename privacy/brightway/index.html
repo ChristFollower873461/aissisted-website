@@ -93,7 +93,7 @@
                     </tr>
                     <tr>
                       <td data-label="Information">Usage and security</td>
-                      <td data-label="Examples">Daily question totals, workshop time, short-lived login and rate-limit counters</td>
+                      <td data-label="Examples">Daily question totals, workshop time, and short-lived login and network rate-limit counters keyed with a cryptographic hash</td>
                       <td data-label="Purpose">Limits, account summaries, abuse prevention, and reliability</td>
                     </tr>
                     <tr>
@@ -110,6 +110,9 @@
 
               <h3>Local device storage</h3>
               <p>Recent questions, answers, mission state, and selected preferences may be stored in the app's private website data on the device so the family can continue the workshop. BrightWay's application database does not keep raw question and answer logs in the current beta.</p>
+
+              <h3>Network abuse prevention</h3>
+              <p>BrightWay derives a short-lived security token from the client network identifier using a keyed cryptographic hash. The raw network address is not retained in BrightWay's rate-limit records, and the token is not used for advertising or cross-service tracking.</p>
 
               <h3>Billing</h3>
               <p>Billing is disabled in the current private beta and the iOS app does not collect payment information. If paid service is introduced later, this policy and the App Store privacy disclosures will be updated before that collection begins.</p>
