@@ -1,0 +1,39 @@
+name: Site CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v5
+
+      - name: Set up Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install from lockfile
+        run: npm ci
+
+      - name: Check browser and worker source
+        run: |
+          npm run check:site
+          npm run check:booking-functions
+
+      - name: Run regression suites
+        run: |
+          npm run test:brightway-store
+          npm run test:booking
+          npm run test:seo-agent
