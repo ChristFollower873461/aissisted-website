@@ -1,6 +1,6 @@
 # AIssisted Consulting
 
-AIssisted Consulting is a founder-led AI operations lab for small businesses that want practical AI systems, real results, and control over the work. The work starts with one useful workflow instead of a broad AI transformation. The business is based in Ocala, Florida and is founder-led by PJ.
+AIssisted Consulting provides local, trusted AI help for small businesses that want practical systems, clear guardrails, and control over the work. The work starts with one useful workflow instead of a broad AI transformation. The business is based in Ocala, Florida and is founder-led by PJ.
 
 This support file summarizes public site facts and declared agent-surface capabilities. It does not report live AVOS results, crawler changes, private credentials, authenticated workflows, direct CRM administration, email writes, analytics writes, destructive actions, or direct card collection.
 
