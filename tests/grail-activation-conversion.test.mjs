@@ -27,7 +27,7 @@ function runActivationScript(options = {}) {
       fetchCalls.push({ url, fetchOptions });
       return options.response || Response.json({ ok: false }, { status: 404 });
     },
-    aissistedAxon: {
+    aissistedAxon: options.withoutAxon ? undefined : {
       trackGenerateLead(payload) {
         axonCalls.push(payload);
       }
@@ -39,6 +39,7 @@ function runActivationScript(options = {}) {
     }
   };
   const document = {
+    readyState: "loading",
     addEventListener() {},
     getElementById(id) {
       if (id !== "welcomeForm") return null;
@@ -62,7 +63,7 @@ function runActivationScript(options = {}) {
   return { window, axonCalls, grailEvents, fetchCalls, formAttributes };
 }
 
-test("paid Grail checkout emits exactly one Axon conversion", async () => {
+test("paid Grail checkout emits exactly one conversion per provider", async () => {
   const run = runActivationScript({
     url: "https://aissistedconsulting.com/grail/activation?session_id=cs_test_paidgrail123",
     response: Response.json({
@@ -82,6 +83,8 @@ test("paid Grail checkout emits exactly one Axon conversion", async () => {
   const second = await run.window.GrailActivation.verifyAndTrackPurchase();
 
   assert.equal(first.tracked, true);
+  assert.equal(first.axonTracked, true);
+  assert.equal(first.googleTracked, true);
   assert.equal(second.tracked, false);
   assert.equal(second.reason, "already_reported");
   assert.equal(run.axonCalls.length, 1);
@@ -93,6 +96,30 @@ test("paid Grail checkout emits exactly one Axon conversion", async () => {
   assert.equal(run.grailEvents[0].payload.transaction_id, "cs_test_paidgrail123");
   assert.equal(run.formAttributes.get("data-grail-plan"), "growth");
   assert.equal(run.window.GrailActivation.getVerifiedCheckout().plan, "growth");
+});
+
+test("verified purchase reaches Google when Axon is unavailable", async () => {
+  const run = runActivationScript({
+    url: "https://aissistedconsulting.com/grail/activation?session_id=cs_test_paidgrail456",
+    withoutAxon: true,
+    response: Response.json({
+      ok: true,
+      checkout: {
+        verified: true,
+        plan: "growth",
+        currency: "USD",
+        value: 199
+      }
+    })
+  });
+
+  const result = await run.window.GrailActivation.verifyAndTrackPurchase();
+
+  assert.equal(result.tracked, true);
+  assert.equal(result.axonTracked, false);
+  assert.equal(result.googleTracked, true);
+  assert.equal(run.axonCalls.length, 0);
+  assert.equal(run.grailEvents.length, 1);
 });
 
 test("direct and unverified activation visits never emit an Axon conversion", async () => {

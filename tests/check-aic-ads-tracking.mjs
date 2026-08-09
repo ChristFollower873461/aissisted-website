@@ -182,7 +182,7 @@ assertIncludes("book/index.html", ["assets/aic-google-ads-tracking.js"]);
 assertIncludes("book/success/index.html", ["assets/aic-google-ads-tracking.js"]);
 assertIncludes("contact/contact.js", ["aic_contact_submit", "AicAdsTracking.emit", "aissistedAxon"]);
 assertIncludes("book/booking.js", ["aic_booking_checkout_start", "AicAdsTracking.emit"]);
-assertIncludes("book/status.js", ["aic_booking_confirmed", "AicAdsTracking.emit", "sessionStorage"]);
+assertIncludes("book/status.js", ["aic_booking_confirmed", "AicAdsTracking.emit", "localStorage", "transaction_id"]);
 assertIncludes("assets/aic-google-ads-tracking.js", [
   "AW-17956049177",
   "BxPjCKTg9swcEJmijvJC",
