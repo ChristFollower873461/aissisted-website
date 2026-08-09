@@ -2,7 +2,8 @@
   "use strict";
 
   var SESSION_ID_PATTERN = /^cs_(?:live|test)_[A-Za-z0-9_-]{8,220}$/;
-  var REPORTED_PREFIX = "grail_axon_checkout_reported:";
+  var AXON_REPORTED_PREFIX = "grail_axon_checkout_reported:";
+  var GOOGLE_REPORTED_PREFIX = "grail_google_checkout_reported:";
   var verifiedCheckout = null;
 
   function checkoutSessionId() {
@@ -10,17 +11,17 @@
     return SESSION_ID_PATTERN.test(sessionId) ? sessionId : "";
   }
 
-  function wasReported(sessionId) {
+  function wasReported(prefix, sessionId) {
     try {
-      return window.localStorage.getItem(REPORTED_PREFIX + sessionId) === "1";
+      return window.localStorage.getItem(prefix + sessionId) === "1";
     } catch (_error) {
       return false;
     }
   }
 
-  function markReported(sessionId) {
+  function markReported(prefix, sessionId) {
     try {
-      window.localStorage.setItem(REPORTED_PREFIX + sessionId, "1");
+      window.localStorage.setItem(prefix + sessionId, "1");
     } catch (_error) {
       // Conversion reporting must not interfere with customer activation.
     }
@@ -31,10 +32,12 @@
     if (!sessionId) {
       return { tracked: false, reason: "missing_or_invalid_session" };
     }
-    if (wasReported(sessionId)) {
+    if (
+      wasReported(AXON_REPORTED_PREFIX, sessionId) &&
+      wasReported(GOOGLE_REPORTED_PREFIX, sessionId)
+    ) {
       return { tracked: false, reason: "already_reported" };
     }
-
     var response;
     try {
       response = await window.fetch(
@@ -60,26 +63,29 @@
     if (!checkout || checkout.verified !== true) {
       return { tracked: false, reason: "checkout_not_verified" };
     }
-    if (
-      !window.aissistedAxon ||
-      typeof window.aissistedAxon.trackGenerateLead !== "function"
-    ) {
-      return { tracked: false, reason: "axon_unavailable" };
-    }
-
     verifiedCheckout = checkout;
-    window.aissistedAxon.trackGenerateLead({
-      currency: checkout.currency,
-      value: checkout.value
-    });
-    markReported(sessionId);
-
     var form = document.getElementById("welcomeForm");
     if (form) {
       form.setAttribute("data-grail-plan", checkout.plan);
     }
 
+    var axonTracked = false;
     if (
+      !wasReported(AXON_REPORTED_PREFIX, sessionId) &&
+      window.aissistedAxon &&
+      typeof window.aissistedAxon.trackGenerateLead === "function"
+    ) {
+      window.aissistedAxon.trackGenerateLead({
+        currency: checkout.currency,
+        value: checkout.value
+      });
+      markReported(AXON_REPORTED_PREFIX, sessionId);
+      axonTracked = true;
+    }
+
+    var googleTracked = false;
+    if (
+      !wasReported(GOOGLE_REPORTED_PREFIX, sessionId) &&
       window.GrailLaunchTracking &&
       typeof window.GrailLaunchTracking.emit === "function"
     ) {
@@ -92,9 +98,20 @@
         transaction_id: sessionId,
         axon_conversion: "generate_lead"
       });
+      markReported(GOOGLE_REPORTED_PREFIX, sessionId);
+      googleTracked = true;
     }
 
-    return { tracked: true, checkout: checkout };
+    if (!axonTracked && !googleTracked) {
+      return { tracked: false, reason: "already_reported", checkout: checkout };
+    }
+
+    return {
+      tracked: true,
+      axonTracked: axonTracked,
+      googleTracked: googleTracked,
+      checkout: checkout
+    };
   }
 
   window.GrailActivation = Object.freeze({
@@ -104,7 +121,13 @@
     verifyAndTrackPurchase: verifyAndTrackPurchase
   });
 
-  document.addEventListener("DOMContentLoaded", function () {
+  function initialize() {
     verifyAndTrackPurchase();
-  }, { once: true });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initialize, { once: true });
+  } else {
+    initialize();
+  }
 }(window, document));

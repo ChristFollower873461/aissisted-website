@@ -90,3 +90,23 @@ test("ownership guide is connected across human and agent discovery paths", () =
   const services = JSON.parse(read("api/services.json"));
   assert.ok(services.services.some((service) => service.related_pages?.includes(guideUrl)));
 });
+
+test("local and private AI signals connect service, privacy, and discovery paths", () => {
+  const localGuideUrl = `${ORIGIN}/guides/local-and-on-prem-ai/`;
+  assert.ok(sitemapUrls().includes(localGuideUrl));
+  assert.match(read("llms.txt"), new RegExp(localGuideUrl));
+  assert.match(read("small-business-ai-help/index.html"), /guides\/local-and-on-prem-ai\//);
+  assert.match(read("privacy-and-control/index.html"), /guides\/local-and-on-prem-ai\//);
+  assert.match(read("small-business-ai-help/index.html"), /Small Business AI Help in Ocala/);
+});
+
+test("Grail exposes truthful software and offer schema", () => {
+  const html = read("grail/index.html");
+  const schemas = [...html.matchAll(/<script[^>]+type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)]
+    .map((match) => JSON.parse(match[1]));
+  const grail = schemas.find((schema) => schema["@type"] === "SoftwareApplication");
+
+  assert.ok(grail, "Grail SoftwareApplication schema is missing");
+  assert.equal(grail.name, "Grail");
+  assert.deepEqual(grail.offers.map((offer) => offer.name), ["Local Agent", "Growth", "Premium"]);
+});

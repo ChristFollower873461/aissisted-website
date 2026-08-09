@@ -9,6 +9,27 @@
   const query = new URLSearchParams(window.location.search);
   const bookingId = query.get("booking_id") || "";
   const sessionId = query.get("session_id") || "";
+  const conversionId = sessionId || bookingId;
+
+  function conversionStorageKey() {
+    return `aic_booking_confirmed:${conversionId}`;
+  }
+
+  function wasConversionReported() {
+    try {
+      return window.localStorage.getItem(conversionStorageKey()) === "sent";
+    } catch (_error) {
+      return false;
+    }
+  }
+
+  function markConversionReported() {
+    try {
+      window.localStorage.setItem(conversionStorageKey(), "sent");
+    } catch (_error) {
+      // Google also deduplicates the stable transaction_id when storage is unavailable.
+    }
+  }
 
   function escapeHtml(value) {
     return String(value || "")
@@ -59,16 +80,14 @@
       switch (payload.confirmationState) {
         case "confirmed":
           setState("Confirmed", "Your appointment is reserved.", "Payment is confirmed, the calendar booking is being placed on PJ's schedule, and the booking record carries a one-time $225 deposit credit for future service.");
-          if (window.AicAdsTracking) {
-            const conversionKey = `aic_booking_confirmed:${bookingId || sessionId}`;
-            if (window.sessionStorage.getItem(conversionKey) !== "sent") {
-              window.AicAdsTracking.emit("aic_booking_confirmed", {
-                channel: "booking",
-                creative_angle: "paid_consult",
-                confirmation_state: "confirmed"
-              });
-              window.sessionStorage.setItem(conversionKey, "sent");
-            }
+          if (window.AicAdsTracking && !wasConversionReported()) {
+            window.AicAdsTracking.emit("aic_booking_confirmed", {
+              channel: "booking",
+              creative_angle: "paid_consult",
+              confirmation_state: "confirmed",
+              transaction_id: conversionId
+            });
+            markConversionReported();
           }
           return;
         case "awaiting_webhook":
