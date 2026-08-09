@@ -10,6 +10,14 @@
 /book/cancel/
   X-Robots-Tag: noindex, nofollow
 
+/grail/activation*
+  X-Robots-Tag: noindex, nofollow
+  Cache-Control: no-store
+
+/grail/thank-you/*
+  X-Robots-Tag: noindex, nofollow
+  Cache-Control: no-store
+
 /book/
   Cache-Control: no-store
 

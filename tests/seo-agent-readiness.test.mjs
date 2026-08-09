@@ -34,6 +34,40 @@ function sitemapUrls() {
   return [...read("sitemap.xml").matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => match[1]);
 }
 
+function robotRules(robots, requestedAgent) {
+  const groups = [];
+  let current = null;
+  let acceptingAgents = false;
+
+  for (const rawLine of robots.split(/\r?\n/)) {
+    const line = rawLine.replace(/#.*/, "").trim();
+    if (!line || !line.includes(":")) continue;
+    const [rawKey, ...valueParts] = line.split(":");
+    const key = rawKey.trim().toLowerCase();
+    const value = valueParts.join(":").trim();
+
+    if (key === "user-agent") {
+      if (!current || !acceptingAgents) {
+        current = { agents: [], rules: [] };
+        groups.push(current);
+      }
+      current.agents.push(value.toLowerCase());
+      acceptingAgents = true;
+      continue;
+    }
+
+    acceptingAgents = false;
+    if (current && (key === "allow" || key === "disallow")) {
+      current.rules.push(`${key}:${value}`);
+    }
+  }
+
+  const agent = requestedAgent.toLowerCase();
+  const exact = groups.filter((group) => group.agents.includes(agent));
+  return (exact.length ? exact : groups.filter((group) => group.agents.includes("*")))
+    .flatMap((group) => group.rules);
+}
+
 test("every sitemap page resolves locally with core SEO metadata", () => {
   const urls = sitemapUrls();
   assert.ok(urls.length >= 38, "sitemap unexpectedly lost public pages");
@@ -54,10 +88,53 @@ test("every sitemap page resolves locally with core SEO metadata", () => {
   }
 });
 
-test("OpenAI search crawling and public discovery files remain enabled", () => {
+test("frontier search crawling stays open while training and private routes stay closed", () => {
   const robots = read("robots.txt");
-  assert.match(robots, /User-agent:\s*OAI-SearchBot\s+[\s\S]*?Allow:\s*\//i);
+  const allowedAgents = [
+    "OAI-SearchBot",
+    "ChatGPT-User",
+    "Claude-SearchBot",
+    "Claude-User",
+    "PerplexityBot",
+    "Perplexity-User",
+    "Googlebot",
+    "bingbot",
+    "Twitterbot",
+  ];
+  const blockedTrainingAgents = [
+    "GPTBot",
+    "ClaudeBot",
+    "Google-Extended",
+    "Applebot-Extended",
+    "meta-externalagent",
+    "Amazonbot",
+    "Bytespider",
+    "CCBot",
+  ];
+  const privateRoutes = [
+    "/api/",
+    "/thank-you",
+    "/book/success/",
+    "/grail/activation",
+    "/grail/thank-you/",
+  ];
+
+  for (const agent of allowedAgents) {
+    const rules = robotRules(robots, agent);
+    assert.ok(rules.includes("allow:/"), `${agent} lost public crawl access`);
+    for (const route of privateRoutes) {
+      assert.ok(rules.includes(`disallow:${route}`), `${agent} can crawl ${route}`);
+    }
+  }
+
+  for (const agent of blockedTrainingAgents) {
+    assert.ok(robotRules(robots, agent).includes("disallow:/"), `${agent} training access is not blocked`);
+  }
+
   assert.match(robots, /Sitemap:\s*https:\/\/aissistedconsulting\.com\/sitemap\.xml/i);
+  const headers = read("_headers");
+  assert.match(headers, /\/grail\/activation\*[\s\S]*?X-Robots-Tag:\s*noindex, nofollow/i);
+  assert.match(headers, /\/grail\/thank-you\/\*[\s\S]*?X-Robots-Tag:\s*noindex, nofollow/i);
 
   const manifest = JSON.parse(read(".well-known/agent.json"));
   const skills = JSON.parse(read(".well-known/agent-skills/index.json"));
