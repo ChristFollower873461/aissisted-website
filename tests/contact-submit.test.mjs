@@ -20,6 +20,14 @@ function createContactRequest(body, key = "contact-test-key-0001") {
   });
 }
 
+function isAicCrmIntakeUrl(value) {
+  const url = new URL(value instanceof Request ? value.url : String(value));
+  return (
+    url.origin === "https://aiccrm.aissistedconsulting.com" &&
+    url.pathname === "/intake/website"
+  );
+}
+
 async function submitContact(body, key, env = {}, options = {}) {
   const backgroundTasks = [];
   const response = await onRequest({
@@ -165,7 +173,7 @@ test("contact submit emails the owner through Resend after CRM relay", async () 
   const originalFetch = global.fetch;
   let resendRequest = null;
   global.fetch = async (url, options = {}) => {
-    if (String(url).includes("aiccrm.aissistedconsulting.com")) {
+    if (isAicCrmIntakeUrl(url)) {
       return Response.json({ ok: true, submission: { id: "intake_owner_email" } });
     }
     if (String(url) === "https://api.resend.com/emails") {
@@ -228,7 +236,7 @@ test("contact submit does not wait for owner email delivery", async () => {
     finishResend = resolve;
   });
   global.fetch = async (url) => {
-    if (String(url).includes("aiccrm.aissistedconsulting.com")) {
+    if (isAicCrmIntakeUrl(url)) {
       return Response.json({ ok: true, submission: { id: "intake_background_email" } });
     }
     if (String(url) === "https://api.resend.com/emails") {
@@ -283,7 +291,7 @@ test("contact submit keeps the lead when the owner email fails", async () => {
   resetMemoryStore();
   const originalFetch = global.fetch;
   global.fetch = async (url) => {
-    if (String(url).includes("aiccrm.aissistedconsulting.com")) {
+    if (isAicCrmIntakeUrl(url)) {
       return Response.json({ ok: true, submission: { id: "intake_email_failure" } });
     }
     if (String(url) === "https://api.resend.com/emails") {
