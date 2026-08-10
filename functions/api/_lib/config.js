@@ -114,6 +114,16 @@ export function getBookingConfig(env, origin) {
     googleCalendarRequired: parseBoolean(env.BOOKING_REQUIRE_GOOGLE_CALENDAR, false),
     googleCalendarCreateEvents: parseBoolean(env.BOOKING_CREATE_GOOGLE_CALENDAR_EVENT, true),
     googleCalendarSendUpdates: String(env.GOOGLE_CALENDAR_SEND_UPDATES || "all"),
+    emailProvider: String(
+      env.AIC_EMAIL_PROVIDER || env.GRAIL_EMAIL_PROVIDER || ""
+    ).trim().toLowerCase(),
+    emailApiKey: env.AIC_EMAIL_API_KEY || env.GRAIL_EMAIL_API_KEY || "",
+    emailFrom: env.AIC_EMAIL_FROM || env.GRAIL_EMAIL_FROM || "",
+    ownerAlertEmail:
+      env.AIC_OWNER_ALERT_EMAIL ||
+      env.GRAIL_OWNER_ALERT_EMAIL ||
+      env.BOOKING_SUPPORT_EMAIL ||
+      "pj@aissistedconsulting.com",
     internalNotificationWebhook: env.BOOKING_NOTIFICATION_WEBHOOK_URL || "",
     customerNotificationWebhook: env.BOOKING_CONFIRMATION_WEBHOOK_URL || ""
   };

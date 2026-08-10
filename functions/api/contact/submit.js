@@ -10,6 +10,8 @@ import {
 } from "../_lib/http.js";
 import { relayWebsiteIntakeToAicCrm } from "../_lib/aic-crm.js";
 import { buildCrmAttribution } from "../_lib/crm-attribution.js";
+import { getBookingConfig } from "../_lib/config.js";
+import { sendContactInquiryNotification } from "../_lib/notifications.js";
 import { getBookingStore } from "../_lib/storage.js";
 import {
   TransactionSafetyError,
@@ -39,7 +41,7 @@ const FIELD_LIMITS = {
   phone: 40,
   company: 120,
   message: 2000,
-  sourcePage: 160,
+  sourcePage: 500,
   honeypot: 120
 };
 
@@ -124,6 +126,23 @@ async function writeAudit(store, input) {
   }
 }
 
+async function writeNotificationEvent(store, inquiryId, result) {
+  try {
+    await store.logEvent({
+      eventType: `contact.owner_email_${result.email.status}`,
+      payload: {
+        inquiryId,
+        provider: result.email.provider || "none",
+        providerMessageId: result.email.providerMessageId || "",
+        reason: result.email.reason || "",
+        webhookStatus: result.webhook.status
+      }
+    });
+  } catch (error) {
+    console.warn("[contact] Notification event logging failed.", error);
+  }
+}
+
 function normalizePayload(payload) {
   const honeypot = limitString(
     payload.websiteLeaveBlank || payload.botField,
@@ -145,7 +164,8 @@ function normalizePayload(payload) {
     limitString(payload.message, "Message", FIELD_LIMITS.message)
   );
   const sourcePage = normalizeRelativePath(
-    limitString(payload.sourcePage, "Source page", FIELD_LIMITS.sourcePage)
+    limitString(payload.sourcePage, "Source page", FIELD_LIMITS.sourcePage),
+    FIELD_LIMITS.sourcePage
   );
 
   if (!name || !email || !message) {
@@ -181,6 +201,7 @@ export async function onRequest(context) {
 
   const requestUrl = new URL(context.request.url);
   const store = getBookingStore(context.env);
+  const config = getBookingConfig(context.env, requestUrl.origin);
   let idempotencyKeyHash = "";
   let requestFingerprint = "";
   let idempotencyRecord = null;
@@ -334,6 +355,12 @@ export async function onRequest(context) {
         : "crm_relay_failed";
     const updatedInquiry =
       (await store.updateContactInquiryDeliveryStatus(inquiry.id, deliveryStatus)) || inquiry;
+    const notificationResult = await sendContactInquiryNotification({
+      config,
+      inquiry: updatedInquiry,
+      contact: normalized
+    });
+    await writeNotificationEvent(store, updatedInquiry.id, notificationResult);
     const body = inquiryResponse(updatedInquiry);
     await store.markIdempotencySucceeded(idempotencyRecord.id, {
       targetType: "contact_inquiry",

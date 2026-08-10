@@ -40,6 +40,11 @@
 
   function buildPayload() {
     const formData = new FormData(form);
+    const fallbackSourcePage = formData.get("sourcePage") || "/contact/";
+    const sourcePage =
+      globalThis.AicAdsTracking?.attributionSourcePage?.(fallbackSourcePage) ||
+      fallbackSourcePage;
+
     return {
       name: formData.get("name"),
       email: formData.get("email"),
@@ -47,7 +52,7 @@
       company: formData.get("company"),
       audience: formData.get("audience"),
       message: formData.get("message"),
-      sourcePage: formData.get("sourcePage") || "/contact/",
+      sourcePage,
       websiteLeaveBlank: formData.get("websiteLeaveBlank"),
       consentToSubmit: formData.get("consentToSubmit") === "on"
     };
