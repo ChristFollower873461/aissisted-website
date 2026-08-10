@@ -30,6 +30,18 @@
     "wbraid",
     "msclkid"
   ];
+  var ATTRIBUTION_QUERY_KEYS = [
+    "gclid",
+    "gbraid",
+    "wbraid",
+    "utm_source",
+    "utm_medium",
+    "utm_campaign",
+    "utm_content",
+    "utm_term",
+    "msclkid"
+  ];
+  var MAX_ATTRIBUTION_SOURCE_LENGTH = 500;
 
   function safeJsonParse(value) {
     try {
@@ -99,9 +111,43 @@
     return readStoredTouch();
   }
 
+  function safeRelativePath(value, fallbackPath) {
+    var path = String(value || "").trim();
+    if (!path || path.indexOf("/") !== 0 || path.indexOf("//") === 0) {
+      return fallbackPath;
+    }
+    return path.split("?")[0].slice(0, 200);
+  }
+
+  function attributionSourcePage(fallbackPath) {
+    var fallback = safeRelativePath(fallbackPath, "/contact/") || "/contact/";
+    var touch = currentTouch();
+    var landingPath = safeRelativePath(touch.landing_path, fallback);
+    var params = new URLSearchParams();
+
+    ATTRIBUTION_QUERY_KEYS.forEach(function (key) {
+      var value = String(touch[key] || "").trim();
+      if (!value) return;
+
+      var candidate = new URLSearchParams(params.toString());
+      candidate.set(key, value);
+      var sourcePage = landingPath + "?" + candidate.toString();
+      if (sourcePage.length <= MAX_ATTRIBUTION_SOURCE_LENGTH) {
+        params = candidate;
+      }
+    });
+
+    var query = params.toString();
+    return query ? landingPath + "?" + query : fallback;
+  }
+
   function pageVariant() {
     if (window.location.pathname.indexOf("/small-business-ai-help") === 0) {
       return "small_business_ai_help";
+    }
+
+    if (window.location.pathname.indexOf("/family-ai-help") === 0) {
+      return "family_ai_help";
     }
 
     if (window.location.pathname.indexOf("/book") === 0) {
@@ -110,6 +156,10 @@
 
     if (window.location.pathname.indexOf("/contact") === 0) {
       return "contact";
+    }
+
+    if (window.location.pathname === "/") {
+      return "home";
     }
 
     return "aic_site";
@@ -247,10 +297,12 @@
   function initialize() {
     ensureGoogleTag();
 
-    if (pageVariant() === "small_business_ai_help") {
+    var variant = pageVariant();
+    if (["home", "small_business_ai_help", "family_ai_help"].indexOf(variant) >= 0) {
       emit("aic_ad_landing_page_view", {
         channel: "google_search",
-        creative_angle: "local_ai_implementation"
+        creative_angle:
+          variant === "family_ai_help" ? "family_ai_help" : "local_ai_implementation"
       });
     }
 
@@ -264,6 +316,7 @@
   }
 
   window.AicAdsTracking = {
+    attributionSourcePage: attributionSourcePage,
     emit: emit,
     recordGoogleAdsConversion: recordGoogleAdsConversion,
     ensureGoogleTag: ensureGoogleTag

@@ -172,15 +172,43 @@ function assertConfiguredGoogleAdsLabels() {
   pass("Configured AIC Google Ads conversion labels verified");
 }
 
+function assertAttributionSourcePage() {
+  const run = runTrackingScript();
+  const sourcePage = run.window.AicAdsTracking.attributionSourcePage("/contact/");
+  const sourceUrl = new URL(sourcePage, "https://aissistedconsulting.com");
+
+  if (sourceUrl.pathname !== "/small-business-ai-help/") {
+    fail("AIC bridge did not preserve the paid landing path");
+  }
+  if (sourceUrl.searchParams.get("utm_source") !== "google") {
+    fail("AIC bridge did not preserve utm_source");
+  }
+  if (sourceUrl.searchParams.get("utm_campaign") !== "aic_local_ai_202607") {
+    fail("AIC bridge did not preserve utm_campaign");
+  }
+  if (sourceUrl.searchParams.get("gclid") !== "test-gclid") {
+    fail("AIC bridge did not preserve gclid");
+  }
+
+  pass("AIC paid attribution source page verified");
+}
+
 assertFile("assets/aic-google-ads-tracking.js");
+assertIncludes("index.html", ["assets/aic-google-ads-tracking.js"]);
 assertIncludes("small-business-ai-help/index.html", [
   "assets/aic-google-ads-tracking.js",
   "aic_contact_click"
 ]);
+assertIncludes("family-ai-help/index.html", ["assets/aic-google-ads-tracking.js"]);
 assertIncludes("contact/index.html", ["assets/aic-google-ads-tracking.js"]);
 assertIncludes("book/index.html", ["assets/aic-google-ads-tracking.js"]);
 assertIncludes("book/success/index.html", ["assets/aic-google-ads-tracking.js"]);
-assertIncludes("contact/contact.js", ["aic_contact_submit", "AicAdsTracking.emit", "aissistedAxon"]);
+assertIncludes("contact/contact.js", [
+  "aic_contact_submit",
+  "AicAdsTracking.emit",
+  "AicAdsTracking?.attributionSourcePage",
+  "aissistedAxon"
+]);
 assertIncludes("book/booking.js", ["aic_booking_checkout_start", "AicAdsTracking.emit"]);
 assertIncludes("book/status.js", ["aic_booking_confirmed", "AicAdsTracking.emit", "localStorage", "transaction_id"]);
 assertIncludes("assets/aic-google-ads-tracking.js", [
@@ -189,6 +217,7 @@ assertIncludes("assets/aic-google-ads-tracking.js", [
   "k5PuCKfg9swcEJmijvJC",
   "AIC_GOOGLE_ADS_CONVERSIONS",
   "recordGoogleAdsConversion",
+  "attributionSourcePage",
   "aic_ad_landing_page_view",
   "aic_contact_submit",
   "aic_booking_confirmed"
@@ -196,6 +225,7 @@ assertIncludes("assets/aic-google-ads-tracking.js", [
 
 assertConversionBridge();
 assertConfiguredGoogleAdsLabels();
+assertAttributionSourcePage();
 
 if (process.exitCode) {
   process.exit(process.exitCode);

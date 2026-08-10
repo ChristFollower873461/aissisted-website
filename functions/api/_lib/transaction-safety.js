@@ -22,12 +22,12 @@ export function normalizeEmail(value) {
   return cleanString(value).toLowerCase();
 }
 
-export function normalizeRelativePath(value) {
+export function normalizeRelativePath(value, maximumLength = 160) {
   const path = cleanString(value);
   if (!path) return "";
   if (!path.startsWith("/") || path.startsWith("//")) return "";
   if (/^[a-z][a-z0-9+.-]*:/i.test(path)) return "";
-  return path.slice(0, 160);
+  return path.slice(0, maximumLength);
 }
 
 export function validateIdempotencyKey(value) {
