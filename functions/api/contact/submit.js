@@ -143,6 +143,28 @@ async function writeNotificationEvent(store, inquiryId, result) {
   }
 }
 
+async function deliverContactNotification({ config, store, inquiry, contact }) {
+  try {
+    const result = await sendContactInquiryNotification({
+      config,
+      inquiry,
+      contact
+    });
+    await writeNotificationEvent(store, inquiry.id, result);
+  } catch (error) {
+    console.warn("[contact] Background notification failed.", error);
+  }
+}
+
+function scheduleContactNotification(context, input) {
+  const task = deliverContactNotification(input);
+  if (typeof context.waitUntil === "function") {
+    context.waitUntil(task);
+  } else {
+    console.warn("[contact] waitUntil is unavailable; notification delivery is best effort.");
+  }
+}
+
 function normalizePayload(payload) {
   const honeypot = limitString(
     payload.websiteLeaveBlank || payload.botField,
@@ -355,12 +377,6 @@ export async function onRequest(context) {
         : "crm_relay_failed";
     const updatedInquiry =
       (await store.updateContactInquiryDeliveryStatus(inquiry.id, deliveryStatus)) || inquiry;
-    const notificationResult = await sendContactInquiryNotification({
-      config,
-      inquiry: updatedInquiry,
-      contact: normalized
-    });
-    await writeNotificationEvent(store, updatedInquiry.id, notificationResult);
     const body = inquiryResponse(updatedInquiry);
     await store.markIdempotencySucceeded(idempotencyRecord.id, {
       targetType: "contact_inquiry",
@@ -380,6 +396,12 @@ export async function onRequest(context) {
       result: "accepted",
       responseStatus: 200,
       safeSummaryJson: idempotencyRecord.requestSummaryJson
+    });
+    scheduleContactNotification(context, {
+      config,
+      store,
+      inquiry: updatedInquiry,
+      contact: normalized
     });
 
     return json(body);
