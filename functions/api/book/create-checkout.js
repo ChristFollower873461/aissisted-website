@@ -43,6 +43,7 @@ const FIELD_LIMITS = {
   companyWebsite: 200,
   industry: 80,
   primaryGoal: 120,
+  routeId: 80,
   notes: 2000,
   sourcePage: 500,
   honeypot: 120
@@ -106,6 +107,7 @@ function isAllowedOrigin(request, url, config) {
 
 function summarizeIntake(intake) {
   const parts = [
+    intake.routeId ? `Route: ${intake.routeId}` : "",
     intake.industry ? `Industry: ${intake.industry}` : "",
     intake.companyWebsite ? `Website: ${intake.companyWebsite}` : "",
     intake.primaryGoal ? `Goal: ${intake.primaryGoal}` : "",
@@ -138,7 +140,7 @@ async function writeAudit(store, input) {
   }
 }
 
-function normalizeCheckoutPayload(payload, config) {
+export function normalizeCheckoutPayload(payload, config) {
   const contact = payload.contact || {};
   const intake = payload.intake || {};
   const honeypot = limitString(
@@ -162,6 +164,7 @@ function normalizeCheckoutPayload(payload, config) {
   const primaryGoal = normalizeWhitespace(
     limitString(intake.primaryGoal, "Primary goal", FIELD_LIMITS.primaryGoal)
   );
+  const routeId = normalizeWhitespace(limitString(intake.routeId, "Project route", FIELD_LIMITS.routeId));
   const notes = normalizeWhitespace(limitString(intake.notes, "Notes", FIELD_LIMITS.notes));
   const sourcePage = normalizeRelativePath(
     limitString(payload.sourcePage, "Source page", FIELD_LIMITS.sourcePage)
@@ -176,29 +179,52 @@ function normalizeCheckoutPayload(payload, config) {
   }
 
   if (payload.policyAccepted !== true) {
-    throw new ValidationError("The reservation policy must be accepted before checkout.");
+    throw new ValidationError("The booking terms must be accepted before checkout.");
   }
 
   if (payload.checkoutConsent !== true) {
-    throw new ValidationError("Confirm the Stripe reservation payment before checkout.");
+    throw new ValidationError("Confirm the Stripe payment before checkout.");
   }
 
-  const confirmedReservationAmountCents = Number(payload.confirmedReservationAmountCents);
+  const release = config.activeRelease;
+  if (!config.checkoutEnabled || !release) {
+    throw new ValidationError("Online checkout is temporarily unavailable.");
+  }
+
+  const confirmedReservationAmountCents = Number(
+    payload.confirmedAmountCents ?? payload.confirmedReservationAmountCents
+  );
   if (
     !Number.isInteger(confirmedReservationAmountCents) ||
     confirmedReservationAmountCents !== config.reservationAmountCents
   ) {
-    throw new ValidationError("Confirm the current reservation amount before checkout.");
+    throw new ValidationError("Confirm the current booking amount before checkout.");
   }
 
   const confirmedCurrency = cleanString(payload.confirmedCurrency).toLowerCase();
   if (confirmedCurrency !== config.currency) {
-    throw new ValidationError("Confirm the current reservation currency before checkout.");
+    throw new ValidationError("Confirm the current booking currency before checkout.");
   }
 
-  const confirmedPolicyVersion = cleanString(payload.confirmedPolicyVersion);
+  const confirmedPolicyVersion = cleanString(
+    payload.confirmedTermsVersion || payload.confirmedPolicyVersion
+  );
   if (confirmedPolicyVersion !== config.policyVersion) {
-    throw new ValidationError("Confirm the current reservation policy before checkout.");
+    throw new ValidationError("Confirm the current booking terms before checkout.");
+  }
+
+  if (release.offerVersion >= 2) {
+    if (
+      cleanString(payload.confirmedReleaseId) !== release.releaseId ||
+      cleanString(payload.confirmedOfferId) !== release.offerId ||
+      Number(payload.confirmedOfferVersion) !== release.offerVersion ||
+      cleanString(payload.confirmedTermsSha256) !== release.termsSha256
+    ) {
+      throw new ValidationError("The booking offer changed. Refresh and accept the current terms.");
+    }
+    if (!release.intakeRouteIds.includes(routeId)) {
+      throw new ValidationError("Choose whether you want to improve a workflow or build something new.");
+    }
   }
 
   return {
@@ -208,6 +234,10 @@ function normalizeCheckoutPayload(payload, config) {
     confirmedReservationAmountCents,
     confirmedCurrency,
     confirmedPolicyVersion,
+    confirmedReleaseId: release.releaseId,
+    confirmedOfferId: release.offerId,
+    confirmedOfferVersion: release.offerVersion,
+    confirmedTermsSha256: release.termsSha256,
     contact: {
       name,
       email,
@@ -218,6 +248,7 @@ function normalizeCheckoutPayload(payload, config) {
       companyWebsite,
       industry,
       primaryGoal,
+      routeId,
       notes
     },
     sourcePage
@@ -240,6 +271,9 @@ export async function onRequest(context) {
   let normalized = null;
 
   try {
+    if (!config.checkoutEnabled || !config.activeRelease) {
+      return unavailable("Online checkout is temporarily unavailable. Please use the contact page.");
+    }
     if (!isStripeConfigured(config)) {
       return unavailable(
         "Stripe checkout is not configured yet. Add the Stripe environment values and try again."
@@ -324,7 +358,11 @@ export async function onRequest(context) {
         email: normalized.contact.email,
         amountCents: normalized.confirmedReservationAmountCents,
         currency: normalized.confirmedCurrency,
-        policyVersion: normalized.confirmedPolicyVersion
+        policyVersion: normalized.confirmedPolicyVersion,
+        releaseId: normalized.confirmedReleaseId,
+        offerId: normalized.confirmedOfferId,
+        offerVersion: normalized.confirmedOfferVersion,
+        termsSha256: normalized.confirmedTermsSha256
       }),
       expiresAt: createIdempotencyExpiry({ retentionHours: 7 * 24 })
     });
@@ -347,10 +385,16 @@ export async function onRequest(context) {
 
     const createdAt = new Date().toISOString();
     const holdExpiresAt = addMinutes(createdAt, config.holdMinutes);
+    const stripeCheckoutIdempotencyKey = createStripeIdempotencyKey(
+      "aic-checkout",
+      idempotencyKeyHash,
+      config.activeRelease.releaseId
+    );
     const intakeJson = JSON.stringify({
       industry: normalized.intake.industry,
       companyWebsite: normalized.intake.companyWebsite,
       primaryGoal: normalized.intake.primaryGoal,
+      routeId: normalized.intake.routeId,
       notes: normalized.intake.notes
     });
     const prospect = await store.upsertProspect({
@@ -373,7 +417,13 @@ export async function onRequest(context) {
       policyVersion: config.policyVersion,
       policyAcceptedAt: createdAt,
       checkoutIdempotencyRecordId: idempotencyRecord.id,
-      intakeSummary: summarizeIntake(JSON.parse(intakeJson))
+      intakeSummary: summarizeIntake(JSON.parse(intakeJson)),
+      contractInput: {
+        release: config.activeRelease,
+        acceptedAt: createdAt,
+        termsSnapshot: config.termsSnapshot
+      },
+      stripeCheckoutIdempotencyKey
     });
     bookingId = booking.id;
 
@@ -411,11 +461,7 @@ export async function onRequest(context) {
       ...prospect,
       stripeCustomerId
     }, {
-      idempotencyKey: createStripeIdempotencyKey(
-        "aic-checkout",
-        idempotencyKeyHash,
-        booking.id
-      )
+      idempotencyKey: stripeCheckoutIdempotencyKey
     });
     createdSessionId = session.id;
 

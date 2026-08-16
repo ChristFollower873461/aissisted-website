@@ -84,47 +84,58 @@ export async function onRequest(context) {
       }
     }
 
+    const isVersionedPlan = Number(booking.offerVersion) >= 2;
+    const bookingPayload = {
+      id: booking.id,
+      bookingStatus: booking.bookingStatus,
+      paymentStatus: booking.paymentStatus,
+      holdExpiresAt: booking.temporaryHoldExpiresAt,
+      confirmedAt: booking.confirmedAt,
+      offer: {
+        releaseId: booking.releaseId || "legacy_v1_2026_04_06",
+        offerId: booking.offerId || "legacy_consult_reservation_225",
+        offerVersion: booking.offerVersion || 1,
+        termsVersion: booking.termsVersion || booking.policyVersion
+      },
+      feeAmountCents: booking.reservationAmount,
+      feeAmountFormatted: formatCurrency(booking.reservationAmount, booking.currency),
+      slot: {
+        startsAt: booking.selectedTimeWindowStart,
+        endsAt: booking.selectedTimeWindowEnd,
+        timezone: booking.selectedTimeZone,
+        label: formatSlotLabel(
+          booking.selectedTimeWindowStart,
+          booking.selectedTimeWindowEnd,
+          booking.selectedTimeZone
+        )
+      },
+      prospect: {
+        name: booking.prospectName,
+        emailMasked: maskEmail(booking.prospectEmail),
+        company: booking.prospectCompany
+      }
+    };
+    if (isVersionedPlan) {
+      bookingPayload.delivery = {
+        status: booking.deliverableStatus || "awaiting_payment_confirmation",
+        dueAt: booking.deliverableDueAt,
+        deliveredAt: booking.deliverableDeliveredAt
+      };
+    } else {
+      bookingPayload.depositCredit = {
+        available: booking.depositCreditAvailable,
+        amountCents: booking.depositCreditAmount,
+        amountFormatted: formatCurrency(booking.depositCreditAmount, booking.currency),
+        applied: booking.depositCreditApplied,
+        appliedAt: booking.depositCreditAppliedAt,
+        invoiceReference: booking.depositCreditAppliedInvoiceReference
+      };
+    }
+
     return json({
       ok: true,
       confirmationState: getConfirmationState(booking, stripeSession),
-      booking: {
-        id: booking.id,
-        bookingStatus: booking.bookingStatus,
-        paymentStatus: booking.paymentStatus,
-        holdExpiresAt: booking.temporaryHoldExpiresAt,
-        confirmedAt: booking.confirmedAt,
-        reservationAmountCents: booking.reservationAmount,
-        reservationAmountFormatted: formatCurrency(
-          booking.reservationAmount,
-          booking.currency
-        ),
-        slot: {
-          startsAt: booking.selectedTimeWindowStart,
-          endsAt: booking.selectedTimeWindowEnd,
-          timezone: booking.selectedTimeZone,
-          label: formatSlotLabel(
-            booking.selectedTimeWindowStart,
-            booking.selectedTimeWindowEnd,
-            booking.selectedTimeZone
-          )
-        },
-        prospect: {
-          name: booking.prospectName,
-          emailMasked: maskEmail(booking.prospectEmail),
-          company: booking.prospectCompany
-        },
-        depositCredit: {
-          available: booking.depositCreditAvailable,
-          amountCents: booking.depositCreditAmount,
-          amountFormatted: formatCurrency(
-            booking.depositCreditAmount,
-            booking.currency
-          ),
-          applied: booking.depositCreditApplied,
-          appliedAt: booking.depositCreditAppliedAt,
-          invoiceReference: booking.depositCreditAppliedInvoiceReference
-        }
-      },
+      booking: bookingPayload,
       stripeSession: stripeSession
         ? {
             id: stripeSession.id,

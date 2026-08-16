@@ -1,3 +1,6 @@
+import { resolveBookingControls, resolveFitCallControls } from "./booking-releases.js";
+import { getTermsSnapshotForRelease } from "./booking-terms.js";
+
 export const RESERVATION_POLICY_TEXT =
   "This payment reserves your 60-minute appointment window. If you move forward as a customer, the $225 will be credited toward your service. If you do not move forward, the reservation payment is non-refundable.";
 export const STRIPE_MINIMUM_SESSION_MINUTES = 30;
@@ -52,6 +55,12 @@ function parseBoolean(value, fallback = false) {
   return fallback;
 }
 
+function parseStrictBoolean(value) {
+  if (value === true || value === "true" || value === "1") return true;
+  if (value === false || value === "false" || value === "0") return false;
+  return null;
+}
+
 function clamp(value, minimum, maximum) {
   return Math.min(Math.max(value, minimum), maximum);
 }
@@ -84,12 +93,25 @@ function parseWeeklyAvailability(value) {
 
 export function getBookingConfig(env, origin) {
   const requestedHoldMinutes = parsePositiveInteger(env.BOOKING_HOLD_MINUTES, 20);
+  const bookingControls = resolveBookingControls(env);
+  const fitCallControls = resolveFitCallControls(env);
+  const activeRelease = bookingControls.release;
+  const termsSnapshot = activeRelease
+    ? getTermsSnapshotForRelease(activeRelease.releaseId)
+    : null;
 
   return {
     businessTitle: env.BOOKING_BUSINESS_TITLE || "AIssisted Consulting",
     siteOrigin: normalizeOrigin(env.PUBLIC_SITE_ORIGIN, origin),
-    reservationAmountCents: parsePositiveInteger(env.BOOKING_RESERVATION_AMOUNT_CENTS, 22500),
-    currency: String(env.BOOKING_CURRENCY || "usd").toLowerCase(),
+    checkoutEnabled: bookingControls.checkoutEnabled,
+    checkoutDisabledReason: bookingControls.reason,
+    activeRelease,
+    termsSnapshot,
+    fitCallEnabled: fitCallControls.enabled,
+    fitCallDisabledReason: fitCallControls.reason,
+    reservationAmountCents:
+      activeRelease?.amountCents || parsePositiveInteger(env.BOOKING_RESERVATION_AMOUNT_CENTS, 22500),
+    currency: activeRelease?.currency || String(env.BOOKING_CURRENCY || "usd").toLowerCase(),
     timezone: env.BOOKING_TIMEZONE || "America/New_York",
     holdMinutes: clamp(
       requestedHoldMinutes,
@@ -99,12 +121,19 @@ export function getBookingConfig(env, origin) {
     minimumLeadHours: parsePositiveInteger(env.BOOKING_MINIMUM_LEAD_HOURS, 48),
     lookaheadDays: parsePositiveInteger(env.BOOKING_LOOKAHEAD_DAYS, 21),
     weeklyAvailability: parseWeeklyAvailability(env.BOOKING_WEEKLY_AVAILABILITY_JSON),
-    policyVersion: env.BOOKING_POLICY_VERSION || "2026-04-06",
-    policyText: RESERVATION_POLICY_TEXT,
+    policyVersion: activeRelease?.termsVersion || env.BOOKING_POLICY_VERSION || "2026-04-06",
+    policySha256: activeRelease?.termsSha256 || "",
+    policyText:
+      termsSnapshot?.renderedTerms || termsSnapshot?.customerPolicyText || RESERVATION_POLICY_TEXT,
+    policyHeading: termsSnapshot?.policyHeading || "Reservation policy",
+    policyAcceptanceText: termsSnapshot?.customerAcceptanceText || "",
     supportEmail: env.BOOKING_SUPPORT_EMAIL || "pj@aissistedconsulting.com",
     stripeSecretKey: env.STRIPE_SECRET_KEY || "",
     stripeWebhookSecret: env.STRIPE_WEBHOOK_SECRET || "",
-    stripePriceId: env.STRIPE_BOOKING_PRICE_ID || "",
+    stripeExpectedLivemode: parseStrictBoolean(env.STRIPE_EXPECTED_LIVEMODE),
+    stripeApiVersion: env.STRIPE_API_VERSION || "2026-06-24.dahlia",
+    stripePriceId: activeRelease?.stripePriceRef || "",
+    stripeProductId: activeRelease?.stripeProductRef || "",
     googleCalendarId: env.GOOGLE_CALENDAR_ID || "primary",
     googleServiceAccountEmail: env.GOOGLE_SERVICE_ACCOUNT_EMAIL || "",
     googlePrivateKey: env.GOOGLE_PRIVATE_KEY || "",

@@ -14,6 +14,9 @@ function resetMemoryStore() {
 function testEnv(overrides = {}) {
   return {
     STRIPE_SECRET_KEY: "sk_test_local",
+    BOOKING_CHECKOUT_ENABLED: "true",
+    ACTIVE_BOOKING_RELEASE: "legacy_v1_2026_04_06",
+    STRIPE_BOOKING_PRICE_ID: "price_legacy_test",
     PUBLIC_SITE_ORIGIN: ORIGIN,
     ...overrides
   };

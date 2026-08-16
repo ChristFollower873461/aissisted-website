@@ -1,264 +1,70 @@
 {
+  "schema_version": 2,
+  "registry_version": "2026-08-15.2",
   "business": "AIssisted Consulting",
-  "public_brand": "AIssisted Consulting",
-  "source_boundary": "Public support file derived from visible pages and AVOS source truth.",
+  "category": "Founder-led AI and software implementation company",
   "services": [
     {
-      "id": "small_business_workflow_help",
-      "name": "Small-business workflow help",
-      "audience": "Small service businesses",
+      "id": "workflow_improvement",
+      "name": "Fix how something works",
+      "audience": ["small_business"],
       "status": "active",
-      "description": "Practical AI help that starts with one workflow already causing friction.",
-      "workflow_focus": [
-        "Intake",
-        "Scheduling",
-        "Follow-up",
-        "Reporting",
-        "Owner visibility",
-        "Admin handoffs"
-      ],
-      "best_fit": [
-        "Owners who can name one real workflow that is slipping.",
-        "Teams that want a reviewable process instead of a giant transformation.",
-        "Service businesses that want privacy and human review to stay visible."
-      ],
-      "not_a_fit": [
-        "Standing in for staff.",
-        "Running customer relationships unattended.",
-        "Removing human review from sensitive or high-trust decisions."
-      ],
-      "related_pages": [
-        "https://aissistedconsulting.com/small-business-ai-help/",
-        "https://aissistedconsulting.com/services/",
-        "https://aissistedconsulting.com/guides/ai-workflow-checklist/",
-        "https://aissistedconsulting.com/guides/ai-ownership-and-local-operator-control/"
-      ],
-      "recommended_next_action": "Bring one workflow to the contact page."
+      "description": "Improve intake, scheduling, follow-up, reporting, handoffs, or another workflow that is costing time and attention.",
+      "examples": ["AI agents", "workflow automation", "CRM and intake", "business system integration", "owner visibility"],
+      "recommended_next_action": "Book the Workflow Map & First-Build Plan."
     },
     {
-      "id": "grail_local_marketing_agent",
-      "name": "Grail local marketing agent",
-      "audience": "Local service businesses",
-      "status": "founding_beta",
-      "description": "A proof-locked local marketing agent by AIssisted Consulting that turns real business activity into Google Business Profile, major social channels, and SEO updates.",
-      "pricing": {
-        "local_agent_monthly_usd": 129,
-        "growth_monthly_usd": 199,
-        "managed_monthly_usd_starting_at": 750,
-        "checkout_boundary": "Checkout is handled through Stripe Payment Links. Grail setup starts after the customer supplies business context and channel access."
-      },
-      "workflow_focus": [
-        "Google Business Profile updates",
-        "Facebook and X scheduling",
-        "Instagram, TikTok, LinkedIn, YouTube Shorts, Pinterest, and newsletter channel expansion when the plan, connector access, and proof supply support it",
-        "SEO and AI visibility pages",
-        "Source-backed post generation",
-        "Proof requests",
-        "Weekly owner reporting"
-      ],
-      "best_fit": [
-        "Local service businesses with real work, reviews, service notes, offers, FAQs, or photos that can become useful marketing.",
-        "Owners who want regular organic marketing without generic filler.",
-        "Businesses that want a system to wait when an update lacks enough proof."
-      ],
-      "not_a_fit": [
-        "Fabricated testimonials, fake reviews, or unsupported performance claims.",
-        "Paid ad spend without explicit owner approval.",
-        "Unsupervised replies, DMs, or sensitive customer communication."
-      ],
-      "related_pages": [
-        "https://aissistedconsulting.com/grail/",
-        "https://aissistedconsulting.com/guides/local-service-proof/",
-        "https://aissistedconsulting.com/guides/workflow-automation-with-control/"
-      ],
-      "recommended_next_action": "Review the Grail page and start with Local Agent or Growth when the business has real proof to use."
-    },
-    {
-      "id": "intake_and_missed_calls",
-      "name": "Intake and missed-call review",
-      "audience": "Small service businesses",
+      "id": "custom_development",
+      "name": "Build something new",
+      "audience": ["small_business", "individual"],
       "status": "active",
-      "description": "Review what happens when a call or inquiry comes in, who sees it, how the next step is tracked, and where follow-up needs human review.",
-      "workflow_focus": [
-        "Missed calls",
-        "Lead intake",
-        "Callback tracking",
-        "Customer updates",
-        "Human review points"
-      ],
-      "best_fit": [
-        "Businesses losing visibility when calls, messages, or handoffs pile up.",
-        "Owners who want a clearer way to see what needs response."
-      ],
-      "not_a_fit": [
-        "Unreviewed customer commitments.",
-        "Systems that pretend every call can be handled the same way."
-      ],
-      "related_pages": [
-        "https://aissistedconsulting.com/guides/missed-calls-follow-up/",
-        "https://aissistedconsulting.com/small-business-ai-help/"
-      ],
-      "recommended_next_action": "Use the missed-calls guide, then ask about one intake workflow."
+      "description": "Build an app, internal tool, customer experience, integration, prototype, or AI-assisted system around a concrete need.",
+      "examples": ["web applications", "internal tools", "mobile experiences", "integrations", "AI-assisted software"],
+      "recommended_next_action": "Book the Workflow Map & First-Build Plan."
     },
     {
-      "id": "founder_led_consult_reservation",
-      "name": "Founder-led consult reservation",
-      "audience": "Small service businesses",
-      "status": "active",
-      "description": "A 60-minute appointment with PJ to review one AI workflow, with a $225 reservation deposit handled through Stripe Checkout when the same-origin booking backend and Stripe credentials are configured.",
-      "reservation": {
-        "duration_minutes": 60,
-        "deposit_usd": 225,
-        "deposit_policy": "Non-refundable reservation deposit, credited once toward service if the visitor becomes a customer.",
-        "confirmation_boundary": "The slot is not confirmed until Stripe payment succeeds and the booking backend finalizes the record."
-      },
-      "workflow_focus": [
-        "Workflow review",
-        "Intake context",
-        "Practical next steps",
-        "Privacy and human review boundaries"
+      "id": "workflow_map_build_discovery_225",
+      "name": "Workflow Map & First-Build Plan",
+      "audience": ["small_business", "individual_with_software_build"],
+      "status": "approved_not_effective",
+      "price_usd": 225,
+      "session_minutes": 60,
+      "deliverable": "One founder-reviewed, one-page plan",
+      "public_outcomes": [
+        "Problem or build goal",
+        "Recommended direction and material known constraints",
+        "Smallest useful first build",
+        "Next decision and validation needed before a reliable implementation quote"
       ],
-      "best_fit": [
-        "Owners who already know the workflow they want to review.",
-        "Visitors who want a scheduled founder-led consult instead of starting with general contact."
-      ],
-      "not_a_fit": [
-        "Booking or payment without visitor approval.",
-        "Direct card collection on the website.",
-        "Unsupported outcome promises."
-      ],
-      "related_pages": [
-        "https://aissistedconsulting.com/book/",
-        "https://aissistedconsulting.com/contact/",
-        "https://aissistedconsulting.com/small-business-ai-help/"
-      ],
-      "recommended_next_action": "Use the booking page when ready to reserve a paid consult, or use contact first for a manual handoff."
+      "delivery": "By 5:00 PM Eastern on the second qualifying business day after the completed session.",
+      "implementation_credit": false,
+      "booking_url": "https://aissistedconsulting.com/book/"
     },
     {
-      "id": "scheduling_and_follow_up",
-      "name": "Scheduling and follow-up support",
-      "audience": "Small service businesses",
-      "status": "active",
-      "description": "Help make appointment reminders, quote follow-up, recurring service communication, and owner review easier to see.",
-      "workflow_focus": [
-        "Scheduling support",
-        "Quote follow-up",
-        "Recurring follow-up",
-        "Reminder drafts",
-        "Customer communication review"
-      ],
-      "best_fit": [
-        "Businesses where follow-up is inconsistent or hard to track.",
-        "Teams that want drafts, summaries, or reminders while people keep control."
-      ],
-      "not_a_fit": [
-        "Letting AI make commitments without review.",
-        "Treating customer trust as a fully automated task."
-      ],
-      "related_pages": [
-        "https://aissistedconsulting.com/services/",
-        "https://aissistedconsulting.com/industries/",
-        "https://aissistedconsulting.com/industries/hvac/",
-        "https://aissistedconsulting.com/industries/pest-control/",
-        "https://aissistedconsulting.com/industries/plumbing/"
-      ],
-      "recommended_next_action": "Ask about the follow-up point that most often gets delayed."
+      "id": "fit_call_15",
+      "name": "15-Minute Fit Call",
+      "audience": ["not_sure_yet"],
+      "status": "request_only",
+      "price_usd": 0,
+      "session_minutes": 15,
+      "stripe_bookable": false,
+      "initial_weekly_capacity": 2,
+      "recommended_next_action": "Request a manual fit review through the booking page."
     },
     {
-      "id": "reporting_and_owner_visibility",
-      "name": "Reporting and owner visibility",
-      "audience": "Small service businesses",
-      "status": "active",
-      "description": "Support clearer summaries, handoffs, review points, and owner visibility without hiding how decisions are made.",
-      "workflow_focus": [
-        "Owner reports",
-        "Work summaries",
-        "Reviewable handoffs",
-        "Exception tracking",
-        "Decision visibility"
-      ],
-      "best_fit": [
-        "Owners who cannot easily see what happened today.",
-        "Teams that need clearer handoffs before adding more tools."
-      ],
-      "not_a_fit": [
-        "Opaque automation.",
-        "Removing the owner or team from decisions that need context."
-      ],
-      "related_pages": [
-        "https://aissistedconsulting.com/services/",
-        "https://aissistedconsulting.com/guides/ai-workflow-checklist/"
-      ],
-      "recommended_next_action": "Name the report or handoff that would make the day easier to review."
-    },
-    {
-      "id": "privacy_and_control_guidance",
-      "name": "Privacy and control guidance",
-      "audience": "Small businesses and families",
-      "status": "active",
-      "description": "Plain-English help deciding what data belongs in a workflow, what should stay manual, and where human review must remain.",
-      "workflow_focus": [
-        "Sensitive data boundaries",
-        "Human review",
-        "Manual exceptions",
-        "Tool selection questions",
-        "Owner and household control"
-      ],
-      "best_fit": [
-        "Visitors who want to slow down and understand privacy before adding AI.",
-        "Small businesses and families deciding what not to share."
-      ],
-      "not_a_fit": [
-        "Bypassing professional advice.",
-        "Claiming a tool is safe for every situation.",
-        "Moving sensitive decisions out of human review."
-      ],
-      "related_pages": [
-        "https://aissistedconsulting.com/privacy-and-control/",
-        "https://aissistedconsulting.com/guides/ai-ownership-and-local-operator-control/",
-        "https://aissistedconsulting.com/guides/what-not-to-share-with-ai/",
-        "https://aissistedconsulting.com/guides/family-ai-safety-basics/"
-      ],
-      "recommended_next_action": "Read the privacy page before adding a new workflow."
-    },
-    {
-      "id": "family_ai_guidance",
-      "name": "Family AI guidance",
-      "audience": "Families and households",
-      "status": "guidance",
-      "description": "Heartfelt, plain-English guidance for parents preparing children for an AI-shaped future with courage, privacy, judgment, and care.",
-      "workflow_focus": [
-        "Parent and child AI conversations",
-        "Preparing children for an AI-shaped workforce",
-        "Privacy and permission habits",
-        "Curiosity, judgment, and human voice",
-        "What not to share",
-        "Human decision boundaries"
-      ],
-      "best_fit": [
-        "Parents who want caring guidance around children, AI, privacy, and the future of work.",
-        "Families that want children to use powerful tools without losing judgment, kindness, creativity, or their own voice."
-      ],
-      "not_a_fit": [
-        "Replacing parents, caregivers, teachers, or professionals.",
-        "Using AI for every family decision.",
-        "Treating AI output as professional advice."
-      ],
-      "related_pages": [
-        "https://aissistedconsulting.com/family-ai-help/",
-        "https://aissistedconsulting.com/guides/family-ai-safety-basics/",
-        "https://aissistedconsulting.com/guides/what-not-to-share-with-ai/",
-        "https://aissistedconsulting.com/guides/ai-tools-for-household-admin/"
-      ],
-      "recommended_next_action": "Ask one family AI question through the contact page."
+      "id": "products_and_r_and_d",
+      "name": "Products & R&D",
+      "audience": ["interested_visitors"],
+      "status": "secondary",
+      "description": "Grail and other experiments are capability examples, not consulting customer or revenue claims.",
+      "related_pages": ["https://aissistedconsulting.com/grail/"]
     }
   ],
   "global_boundaries": [
-    "The public booking page is the direct reservation path and uses the same-origin booking backend plus Stripe Checkout when deployment credentials are configured.",
-    "Declared agent write/payment commands require human approval, Idempotency-Key, duplicate or slot-conflict protection, audit records, and server-side validation.",
-    "The website does not collect card details; payment happens on Stripe Checkout.",
-    "No service entry removes human judgment or professional review.",
-    "Family AI guidance remains caring, plain-English parent support for child readiness, privacy, and human judgment."
+    "Implementation, production code or design, vendor setup, paid-access research, and ongoing support are separately scoped and priced.",
+    "The website does not collect card details; payment is processed through Stripe Checkout.",
+    "Customer claims and aggregate customer metrics are not part of this public projection.",
+    "AI does not remove human judgment from sensitive or high-trust decisions."
   ],
-  "last_reviewed": "2026-07-17"
+  "last_reviewed": "2026-08-15"
 }

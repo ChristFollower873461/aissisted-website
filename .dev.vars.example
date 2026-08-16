@@ -1,5 +1,10 @@
 STRIPE_SECRET_KEY=sk_test_replace_me
 STRIPE_WEBHOOK_SECRET=whsec_replace_me
+STRIPE_EXPECTED_LIVEMODE=false
+STRIPE_API_VERSION=2026-06-24.dahlia
+BOOKING_V2_STRIPE_PRODUCT_ID=prod_replace_me
+BOOKING_V2_STRIPE_PRICE_ID=price_replace_me
+BOOKING_V2_PAYMENT_METHOD_CONFIGURATION_ID=pmc_replace_me
 GOOGLE_CALENDAR_ID=replace_me@group.calendar.google.com
 GOOGLE_SERVICE_ACCOUNT_EMAIL=service-account@project.iam.gserviceaccount.com
 GOOGLE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nreplace_me\n-----END PRIVATE KEY-----"

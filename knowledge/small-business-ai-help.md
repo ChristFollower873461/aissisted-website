@@ -1,6 +1,6 @@
 # Small-Business AI Help
 
-AIssisted Consulting is a founder-led AI operations lab for small businesses that want practical AI systems, real results, and control over the work. The work starts with one useful workflow instead of a broad AI transformation.
+AIssisted Consulting is a founder-led AI and software implementation company. For small businesses, the work starts with one useful workflow instead of a broad transformation.
 
 ## Who This Helps
 
@@ -50,7 +50,7 @@ Sensitive customer details, owner decisions, and final judgment need clear bound
 
 ## Next Action
 
-Bring one useful workflow to AIssisted Consulting. The contact path is intentionally low pressure: describe the daily work that is slipping, the people involved, and the decision point that should stay human.
+Bring one useful workflow to AIssisted Consulting. The primary paid starting point is the $225 Workflow Map & First-Build Plan: one 60-minute working session and one founder-reviewed, one-page plan. If you are not sure it fits, request a manually reviewed 15-minute Fit Call.
 
 Contact: https://aissistedconsulting.com/contact/
 

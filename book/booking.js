@@ -8,6 +8,8 @@
   const selectedSlotMeta = document.getElementById("selected-slot-meta");
   const reservationAmount = document.getElementById("reservation-amount");
   const policyText = document.getElementById("policy-text");
+  const policyTitle = document.getElementById("policy-title");
+  const policyAcceptanceText = document.getElementById("policy-acceptance-text");
 
   if (!availabilityRoot || !bookingForm || !submitButton) return;
 
@@ -21,6 +23,10 @@
     currency: "usd",
     reservationAmountFormatted: "$225.00",
     policyVersion: "2026-04-06",
+    policySha256: "",
+    releaseId: "",
+    offerId: "",
+    offerVersion: 0,
     submitting: false,
     usingPreviewSlots: false
   };
@@ -200,8 +206,16 @@
       state.currency = payload.currency || state.currency;
       state.reservationAmountFormatted = payload.reservationAmountFormatted || state.reservationAmountFormatted;
       state.policyVersion = payload.policyVersion || state.policyVersion;
+      state.policySha256 = payload.policySha256 || "";
+      state.releaseId = payload.releaseId || "";
+      state.offerId = payload.offerId || "";
+      state.offerVersion = Number(payload.offerVersion || 0);
       state.usingPreviewSlots = false;
       if (payload.policyText) policyText.textContent = payload.policyText;
+      if (payload.policyHeading && policyTitle) policyTitle.textContent = payload.policyHeading;
+      if (payload.policyAcceptanceText && policyAcceptanceText) {
+        policyAcceptanceText.textContent = payload.policyAcceptanceText;
+      }
       renderAvailability();
     } catch (error) {
       if (!isLocalPreview) {
@@ -230,7 +244,7 @@
     const formData = new FormData(bookingForm);
     const policyAccepted = formData.get("policyAccepted") === "on";
     if (!policyAccepted) {
-      showStatus("Accept the reservation policy before checkout.", "error", true);
+      showStatus("Accept the booking terms before checkout.", "error", true);
       return;
     }
 
@@ -259,8 +273,14 @@
           policyAccepted,
           checkoutConsent: true,
           confirmedReservationAmountCents: state.reservationAmountCents,
+          confirmedAmountCents: state.reservationAmountCents,
           confirmedCurrency: state.currency,
           confirmedPolicyVersion: state.policyVersion,
+          confirmedTermsVersion: state.policyVersion,
+          confirmedTermsSha256: state.policySha256,
+          confirmedReleaseId: state.releaseId,
+          confirmedOfferId: state.offerId,
+          confirmedOfferVersion: state.offerVersion,
           contact: {
             name: formData.get("name"),
             email: formData.get("email"),
@@ -271,6 +291,7 @@
             companyWebsite: formData.get("companyWebsite"),
             industry: formData.get("industry"),
             primaryGoal: formData.get("primaryGoal"),
+            routeId: formData.get("routeId"),
             notes: formData.get("notes")
           }
         })
@@ -292,7 +313,7 @@
     } catch (error) {
       showStatus(error.message, "error", true);
       submitButton.disabled = false;
-      submitButton.textContent = "Reserve with $225 deposit";
+      submitButton.textContent = "Continue to Stripe";
       state.submitting = false;
       await loadAvailability();
     }

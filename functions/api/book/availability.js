@@ -12,6 +12,9 @@ export async function onRequest(context) {
   try {
     const url = new URL(context.request.url);
     const config = getBookingConfig(context.env, url.origin);
+    if (!config.checkoutEnabled || !config.activeRelease) {
+      return unavailable("Online checkout is temporarily unavailable. Please use the contact page.");
+    }
     const days = Number.parseInt(url.searchParams.get("days") || "", 10) || 14;
     const store = getBookingStore(context.env);
 
@@ -34,7 +37,16 @@ export async function onRequest(context) {
         config.currency
       ),
       policyVersion: config.policyVersion,
+      policySha256: config.policySha256,
       policyText: config.policyText,
+      policyHeading: config.policyHeading,
+      policyAcceptanceText: config.policyAcceptanceText,
+      releaseId: config.activeRelease.releaseId,
+      offerId: config.activeRelease.offerId,
+      offerVersion: config.activeRelease.offerVersion,
+      offerTitle: config.activeRelease.title,
+      implementationCreditEnabled: config.activeRelease.implementationCreditEnabled,
+      intakeRouteIds: config.activeRelease.intakeRouteIds,
       slots
     });
   } catch (error) {

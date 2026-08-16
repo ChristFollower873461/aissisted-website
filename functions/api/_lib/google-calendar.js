@@ -146,8 +146,11 @@ function sanitizeCalendarText(value) {
 }
 
 function buildEventDescription(booking, config) {
+  const isPlan = Number(booking.offerVersion || 1) >= 2;
   const lines = [
-    "Paid AIssisted Consulting reservation confirmed through Stripe.",
+    isPlan
+      ? "Paid AIssisted Consulting Workflow Map & First-Build Plan session confirmed through Stripe."
+      : "Paid AIssisted Consulting legacy reservation confirmed through Stripe.",
     "",
     `Booking ID: ${booking.id}`,
     booking.prospectName ? `Name: ${booking.prospectName}` : "",
@@ -156,7 +159,7 @@ function buildEventDescription(booking, config) {
     booking.prospectCompany ? `Company: ${booking.prospectCompany}` : "",
     booking.intakeSummary ? `Intake: ${booking.intakeSummary}` : "",
     "",
-    `Reservation deposit: ${(booking.reservationAmount / 100).toLocaleString("en-US", {
+    `${isPlan ? "Session and plan fee" : "Reservation deposit"}: ${(booking.reservationAmount / 100).toLocaleString("en-US", {
       style: "currency",
       currency: booking.currency || config.currency || "usd"
     })}`
@@ -173,6 +176,7 @@ export async function createGoogleCalendarBookingEvent({ config, booking }) {
   const calendarId = encodeURIComponent(config.googleCalendarId);
   const url = `https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events?sendUpdates=${encodeURIComponent(sendUpdates)}`;
   const attendeeEmail = sanitizeCalendarText(booking.prospectEmail);
+  const deterministicEventId = `aic${String(booking.id || "").toLowerCase().replace(/[^a-f0-9]/g, "").slice(0, 60)}`;
   const attendees = attendeeEmail
     ? [{
         email: attendeeEmail,
@@ -186,7 +190,8 @@ export async function createGoogleCalendarBookingEvent({ config, booking }) {
       "content-type": "application/json"
     },
     body: JSON.stringify({
-      summary: `AIssisted consult - ${sanitizeCalendarText(booking.prospectName || booking.prospectCompany || "Paid booking")}`,
+      id: deterministicEventId,
+      summary: `${Number(booking.offerVersion || 1) >= 2 ? "AIssisted working session" : "AIssisted consult"} - ${sanitizeCalendarText(booking.prospectName || booking.prospectCompany || "Paid booking")}`,
       description: buildEventDescription(booking, config),
       start: {
         dateTime: booking.selectedTimeWindowStart,
@@ -208,12 +213,16 @@ export async function createGoogleCalendarBookingEvent({ config, booking }) {
   });
   const payload = await response.json();
 
+  if (response.status === 409) {
+    return { eventId: deterministicEventId, htmlLink: "", deduplicated: true };
+  }
   if (!response.ok) {
     throw new Error(payload.error?.message || "Google Calendar event creation failed.");
   }
 
   return {
     eventId: payload.id || "",
-    htmlLink: payload.htmlLink || ""
+    htmlLink: payload.htmlLink || "",
+    deduplicated: false
   };
 }

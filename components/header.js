@@ -9,9 +9,8 @@ pricing:`${base}pricing`,
 compare:`${base}compare`,
 about:`${base}about`,
 caseStudies:`${base}case-studies`,
-tools:`${base}tools`,
 blog:`${base}blog/`,
-reserve:`${base}reserve`,
+book:`${base}book/`,
 contact:`${base}contact`
 };
 const headerHTML=`<nav id="nav">
@@ -26,10 +25,9 @@ const headerHTML=`<nav id="nav">
 <a href="${routes.compare}">Compare</a>
 <a href="${routes.about}">About</a>
 <a href="${routes.caseStudies}">Case Studies</a>
-<a href="${routes.tools}">Tools</a>
 <a href="${routes.blog}">Blog</a>
-<a href="${routes.reserve}" class="btn nav-reserve" style="background:transparent;border:2px solid var(--gold-mid);color:var(--gold-mid);padding:10px 20px;font-size:.85rem">Reserve</a>
-<a href="${routes.contact}" class="btn btn-primary nav-cta">Schedule a Demo</a>
+<a href="${routes.book}" class="btn nav-reserve" style="background:transparent;border:2px solid var(--gold-mid);color:var(--gold-mid);padding:10px 20px;font-size:.85rem">Book the $225 Plan</a>
+<a href="${routes.contact}" class="btn btn-primary nav-cta">Contact PJ</a>
 </div>
 <button class="hamburger" id="hamburger" aria-label="Toggle menu">
 <span></span><span></span><span></span>
