@@ -2839,6 +2839,7 @@ body[data-page="home"] {
   --home-line: #ddd2c0;
   --home-line-soft: rgba(52, 42, 28, 0.14);
   --home-gold: #c8952d;
+  --home-gold-text: #8a6817;
   --home-gold-soft: #f4dfae;
   --home-green: #2f7d5b;
   --home-blue: #2e5874;
@@ -2904,7 +2905,7 @@ body[data-page="home"] .nav-links a[aria-current="page"] {
 body[data-page="home"] .eyebrow,
 body[data-page="home"] .row-label,
 body[data-page="home"] .process-meta {
-  color: var(--home-gold);
+  color: var(--home-gold-text);
 }
 
 body[data-page="home"] .btn {
@@ -3073,7 +3074,7 @@ body[data-page="home"] .hero-baseline div + div {
 }
 
 body[data-page="home"] .hero-baseline dt {
-  color: var(--home-gold);
+  color: var(--home-gold-text);
 }
 
 body[data-page="home"] .hero-baseline dd {
@@ -3717,6 +3718,7 @@ body:not([data-page="home"]):not([data-page="book"]) {
   --site-line: #ddd2c0;
   --site-line-soft: rgba(52, 42, 28, 0.14);
   --site-gold: #c8952d;
+  --site-gold-text: #8a6817;
   --site-gold-soft: #f4dfae;
   --site-green: #2f7d5b;
   --site-dark: #111827;
@@ -3761,7 +3763,7 @@ body:not([data-page="home"]):not([data-page="book"]) .nav-links a[aria-current="
 
 body:not([data-page="home"]):not([data-page="book"]) .eyebrow,
 body:not([data-page="home"]):not([data-page="book"]) .row-label {
-  color: var(--site-gold);
+  color: var(--site-gold-text);
 }
 
 body:not([data-page="home"]):not([data-page="book"]) .btn {
