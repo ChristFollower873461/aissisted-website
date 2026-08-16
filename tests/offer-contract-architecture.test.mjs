@@ -137,6 +137,24 @@ test("isolated preview access gate blocks anonymous traffic and issues an HttpOn
   });
   assert.equal(signedWebhookPath.status, 400);
   assert.equal(await signedWebhookPath.text(), "webhook-handler");
+
+  for (const pathname of [
+    "/.dev.vars.example",
+    "/.gitignore",
+    "/.htaccess",
+    "/wrangler.preview.toml",
+    "/index.html.bak-certs"
+  ]) {
+    const blockedInternalFile = await applySiteMiddleware({
+      request: new Request(`https://aissisted-offer-v2-preview.pages.dev${pathname}`, {
+        headers: { authorization: "Bearer preview-test-token" }
+      }),
+      env,
+      next: async () => new Response("must not be public")
+    });
+    assert.equal(blockedInternalFile.status, 404, pathname);
+    assert.equal(await blockedInternalFile.text(), "Not found", pathname);
+  }
 });
 
 test("one release pointer selects complete v1 or v2 purchase semantics", () => {

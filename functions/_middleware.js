@@ -14,6 +14,10 @@ const BLOCKED_PREFIXES = [
 ];
 
 const BLOCKED_PATHS = new Set([
+  "/.dev.vars",
+  "/.dev.vars.example",
+  "/.gitignore",
+  "/.htaccess",
   "/package.json",
   "/package-lock.json",
   "/README.md",
@@ -21,6 +25,8 @@ const BLOCKED_PATHS = new Set([
   "/DEPLOY-READY.md",
   "/DESIGN.md",
   "/wrangler.booking.example.toml",
+  "/wrangler.preview.toml",
+  "/index.html.bak-certs",
   "/wrangler.toml"
 ]);
 
