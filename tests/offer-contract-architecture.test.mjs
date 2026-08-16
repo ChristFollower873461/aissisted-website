@@ -217,9 +217,35 @@ test("v2 checkout acceptance rejects stale or tampered offer fields and route ID
     confirmedTermsVersion: config.activeRelease.termsVersion,
     confirmedTermsSha256: config.activeRelease.termsSha256,
     contact: { name: "Test Buyer", email: "buyer@example.com" },
-    intake: { routeId: "custom_development" }
+    intake: { routeId: "custom_development" },
+    measurement: {
+      funnelId: "funnel_preview_measurement_001",
+      entryRoute: "services",
+      ctaId: "services_hero_paid_plan"
+    }
   };
-  assert.equal(normalizeCheckoutPayload(payload, config).intake.routeId, "custom_development");
+  const normalized = normalizeCheckoutPayload(payload, config);
+  assert.equal(normalized.intake.routeId, "custom_development");
+  assert.deepEqual(normalized.measurement, {
+    funnelId: "funnel_preview_measurement_001",
+    entryRoute: "services",
+    ctaId: "services_hero_paid_plan",
+    laneId: "custom_development"
+  });
+  const privacyFallback = normalizeCheckoutPayload({
+    ...payload,
+    measurement: {
+      funnelId: "customer@example.com",
+      entryRoute: "https://example.com/?private=yes",
+      ctaId: "free-form customer text"
+    }
+  }, config);
+  assert.deepEqual(privacyFallback.measurement, {
+    funnelId: "",
+    entryRoute: "book",
+    ctaId: "book_direct",
+    laneId: "custom_development"
+  });
   assert.throws(
     () => normalizeCheckoutPayload({ ...payload, confirmedAmountCents: 12500 }, config),
     /current booking amount/
@@ -830,6 +856,26 @@ test("public truth generator catches deliberate manifest and projection drift", 
     () => validatePublicProjection({ ...buildPublicProjection(manifest), company: { ...manifest.company, category: "AI operations lab" } }),
     /forbidden public output/
   );
+});
+
+test("paid-plan measurement is allowlisted, opaque, and expires on schedule", async () => {
+  const store = getBookingStore({});
+  await store.logEvent({
+    bookingId: "book_measurement_retention",
+    eventType: "paid_plan_start",
+    payload: {
+      funnelId: "funnel_measurement_retention_001",
+      entryRoute: "home",
+      ctaId: "home_hero_paid_plan",
+      laneId: "workflow_improvement",
+      retentionDeleteAfter: "2026-08-15T00:00:00.000Z"
+    }
+  });
+  const recorded = await store.getLatestEventByType("paid_plan_start");
+  assert.match(recorded.payloadJson, /funnel_measurement_retention_001/);
+  assert.doesNotMatch(recorded.payloadJson, /example\.com|private|customer text/i);
+  assert.equal(await store.deleteExpiredMeasurementEvents("2026-08-16T00:00:00.000Z"), 1);
+  assert.equal(await store.getLatestEventByType("paid_plan_start"), null);
 });
 
 function sqlite(databasePath, sql) {

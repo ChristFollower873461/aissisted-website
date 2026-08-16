@@ -946,6 +946,21 @@ function createMemoryStore() {
       });
     },
 
+    async deleteExpiredMeasurementEvents(at = nowIso()) {
+      const kept = state.events.filter((event) => {
+        if (event.eventType !== "paid_plan_start") return true;
+        try {
+          const deleteAfter = JSON.parse(event.payloadJson || "{}").retentionDeleteAfter;
+          return !deleteAfter || deleteAfter > at;
+        } catch (_error) {
+          return true;
+        }
+      });
+      const removed = state.events.length - kept.length;
+      state.events.splice(0, state.events.length, ...kept);
+      return removed;
+    },
+
     async getLatestEventByType(eventType) {
       return [...state.events]
         .filter((event) => event.eventType === eventType)
@@ -2305,6 +2320,19 @@ function createD1Store(db) {
           nowIso()
         )
         .run();
+    },
+
+    async deleteExpiredMeasurementEvents(at = nowIso()) {
+      const result = await db
+        .prepare(
+          `DELETE FROM booking_events
+           WHERE event_type='paid_plan_start'
+             AND json_extract(payload_json, '$.retentionDeleteAfter') IS NOT NULL
+             AND json_extract(payload_json, '$.retentionDeleteAfter') <= ?1`
+        )
+        .bind(at)
+        .run();
+      return Number(result.meta?.changes || 0);
     },
 
     async getLatestEventByType(eventType) {

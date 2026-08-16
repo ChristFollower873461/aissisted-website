@@ -10,6 +10,7 @@
   const policyText = document.getElementById("policy-text");
   const policyTitle = document.getElementById("policy-title");
   const policyAcceptanceText = document.getElementById("policy-acceptance-text");
+  const FUNNEL_STORAGE_KEY = "aic_paid_plan_funnel_v1";
 
   if (!availabilityRoot || !bookingForm || !submitButton) return;
 
@@ -46,6 +47,35 @@
 
     return `checkout-${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
   }
+
+  function createFunnelContext() {
+    const entryRoutes = new Set(["book", "home", "services", "navigation", "other"]);
+    const ctaIds = new Set([
+      "book_direct", "home_hero_paid_plan", "home_catalog_paid_plan",
+      "home_footer_paid_plan", "services_hero_paid_plan", "primary_nav_book", "other"
+    ]);
+    const params = new URLSearchParams(window.location.search);
+    const submittedEntryRoute = params.get("entry_route") || "";
+    const submittedCtaId = params.get("cta_id") || "";
+    let saved = {};
+    try { saved = JSON.parse(sessionStorage.getItem(FUNNEL_STORAGE_KEY) || "{}"); } catch (_error) { saved = {}; }
+    const funnelId = /^funnel_[A-Za-z0-9_-]{8,80}$/.test(saved.funnelId || "")
+      ? saved.funnelId
+      : `funnel_${globalThis.crypto?.randomUUID?.() || `${Date.now().toString(36)}_${Math.random().toString(36).slice(2)}`}`;
+    const context = {
+      funnelId,
+      entryRoute: entryRoutes.has(submittedEntryRoute)
+        ? submittedEntryRoute
+        : (entryRoutes.has(saved.entryRoute) ? saved.entryRoute : "book"),
+      ctaId: ctaIds.has(submittedCtaId)
+        ? submittedCtaId
+        : (ctaIds.has(saved.ctaId) ? saved.ctaId : "book_direct")
+    };
+    try { sessionStorage.setItem(FUNNEL_STORAGE_KEY, JSON.stringify(context)); } catch (_error) { /* best effort */ }
+    return context;
+  }
+
+  const funnelContext = createFunnelContext();
 
   function addDays(date, days) {
     const copy = new Date(date);
@@ -293,7 +323,8 @@
             primaryGoal: formData.get("primaryGoal"),
             routeId: formData.get("routeId"),
             notes: formData.get("notes")
-          }
+          },
+          measurement: funnelContext
         })
       });
       const payload = await response.json();

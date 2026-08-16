@@ -33,6 +33,18 @@ import {
 
 const COMMAND_ID = "create_booking_checkout";
 const RISK = "financial";
+const FUNNEL_ID = /^funnel_[A-Za-z0-9_-]{8,80}$/;
+const FUNNEL_RETENTION_DAYS = 180;
+const ENTRY_ROUTES = new Set(["book", "home", "services", "navigation", "other"]);
+const CTA_IDS = new Set([
+  "book_direct",
+  "home_hero_paid_plan",
+  "home_catalog_paid_plan",
+  "home_footer_paid_plan",
+  "services_hero_paid_plan",
+  "primary_nav_book",
+  "other"
+]);
 
 const FIELD_LIMITS = {
   slotId: 160,
@@ -169,6 +181,18 @@ export function normalizeCheckoutPayload(payload, config) {
   const sourcePage = normalizeRelativePath(
     limitString(payload.sourcePage, "Source page", FIELD_LIMITS.sourcePage)
   ) || "/book/";
+  const submittedMeasurement = payload.measurement || {};
+  const submittedFunnelId = limitString(
+    submittedMeasurement.funnelId,
+    "Funnel ID",
+    96
+  );
+  const entryRouteCandidate = limitString(
+    submittedMeasurement.entryRoute,
+    "Entry route",
+    40
+  );
+  const ctaIdCandidate = limitString(submittedMeasurement.ctaId, "CTA ID", 80);
 
   if (!slotId || !name || !email) {
     throw new ValidationError("Name, email, and an appointment window are required.");
@@ -251,6 +275,12 @@ export function normalizeCheckoutPayload(payload, config) {
       routeId,
       notes
     },
+    measurement: {
+      funnelId: FUNNEL_ID.test(submittedFunnelId) ? submittedFunnelId : "",
+      entryRoute: ENTRY_ROUTES.has(entryRouteCandidate) ? entryRouteCandidate : "book",
+      ctaId: CTA_IDS.has(ctaIdCandidate) ? ctaIdCandidate : "book_direct",
+      laneId: routeId
+    },
     sourcePage
   };
 }
@@ -294,6 +324,9 @@ export async function onRequest(context) {
 
     const payload = await readJson(context.request);
     normalized = normalizeCheckoutPayload(payload, config);
+    if (!normalized.measurement.funnelId) {
+      normalized.measurement.funnelId = `funnel_${idempotencyKeyHash.slice(0, 24)}`;
+    }
     requestFingerprint = await createRequestFingerprint({
       commandId: COMMAND_ID,
       risk: RISK,
@@ -301,6 +334,7 @@ export async function onRequest(context) {
     });
 
     store = getBookingStore(context.env);
+    await store.deleteExpiredMeasurementEvents(new Date().toISOString());
     const existing = await store.getIdempotencyRecord({
       commandId: COMMAND_ID,
       idempotencyKeyHash
@@ -435,6 +469,20 @@ export async function onRequest(context) {
         holdExpiresAt
       }
     });
+    await store.logEvent({
+      bookingId,
+      eventType: "paid_plan_start",
+      payload: {
+        funnelId: normalized.measurement.funnelId,
+        entryRoute: normalized.measurement.entryRoute,
+        ctaId: normalized.measurement.ctaId,
+        laneId: normalized.measurement.laneId,
+        releaseId: config.activeRelease.releaseId,
+        retentionDeleteAfter: new Date(
+          new Date(createdAt).getTime() + FUNNEL_RETENTION_DAYS * 24 * 60 * 60 * 1000
+        ).toISOString()
+      }
+    });
 
     let stripeCustomerId = prospect.stripeCustomerId || "";
     if (!stripeCustomerId) {
@@ -487,7 +535,8 @@ export async function onRequest(context) {
       bookingId: booking.id,
       checkoutUrl: session.url,
       holdExpiresAt,
-      sessionId: session.id
+      sessionId: session.id,
+      funnelId: normalized.measurement.funnelId
     };
     const crmAttribution = buildCrmAttribution({
       sourcePage: normalized.sourcePage,
