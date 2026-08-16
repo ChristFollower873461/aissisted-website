@@ -129,9 +129,12 @@
                 <dd>5 PM Eastern on the second qualifying business day after the completed session</dd>
               </div>
             </dl>
-            <p id="policy-text">
-              The $225 pays for the working session and plan. It is not an implementation deposit and creates no implementation credit. Later implementation is scoped and priced separately.
-            </p>
+            <details class="booking-terms-details" id="booking-terms">
+              <summary>Read the complete purchase, cancellation, delivery, correction, and plan-use terms</summary>
+              <p id="policy-text">
+                The $225 pays for the working session and plan. It is not an implementation deposit and creates no implementation credit. Later implementation is scoped and priced separately.
+              </p>
+            </details>
             <p class="booking-note">A slot is not confirmed until Stripe payment succeeds and the booking record is finalized.</p>
           </aside>
         </div>
@@ -229,6 +232,7 @@
                   <input id="policyAccepted" name="policyAccepted" type="checkbox">
                   <span id="policy-acceptance-text">I agree to the booking terms shown on this page.</span>
                 </label>
+                <a class="booking-terms-link" href="#booking-terms">Review the complete terms before payment</a>
 
                 <button id="booking-submit" class="btn btn-primary" type="submit">Continue to Stripe</button>
                 <div id="booking-submit-status" class="status-banner booking-submit-status" role="status" aria-live="polite"></div>
