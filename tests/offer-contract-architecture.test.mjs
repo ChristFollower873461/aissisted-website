@@ -23,6 +23,10 @@ import { normalizeCheckoutPayload } from "../functions/api/book/create-checkout.
 import { getBookingStore } from "../functions/api/_lib/storage.js";
 import { applyFulfillmentAction } from "../functions/api/_lib/booking-fulfillment.js";
 import { drainBookingOutbox } from "../functions/api/_lib/booking-outbox.js";
+import {
+  sendBookingNotifications,
+  sendManualReviewNotification
+} from "../functions/api/_lib/notifications.js";
 import { createCheckoutSession } from "../functions/api/_lib/stripe.js";
 import { onRequest as manageBooking } from "../functions/api/book/manage.js";
 import { onRequest as manageOpenCheckouts } from "../functions/api/book/checkout-rollback.js";
@@ -876,6 +880,44 @@ test("paid-plan measurement is allowlisted, opaque, and expires on schedule", as
   assert.doesNotMatch(recorded.payloadJson, /example\.com|private|customer text/i);
   assert.equal(await store.deleteExpiredMeasurementEvents("2026-08-16T00:00:00.000Z"), 1);
   assert.equal(await store.getLatestEventByType("paid_plan_start"), null);
+});
+
+test("booking operational logs exclude customer identity and contact fields", async () => {
+  const emitted = [];
+  const originalLog = console.log;
+  const originalError = console.error;
+  console.log = (...items) => emitted.push(items);
+  console.error = (...items) => emitted.push(items);
+  const booking = {
+    id: "book_log_privacy",
+    offerId: "workflow_map_first_build_plan",
+    offerVersion: 2,
+    prospectName: "Private Buyer",
+    prospectEmail: "private-buyer@example.com",
+    prospectPhone: "3525550199",
+    prospectCompany: "Private Company",
+    selectedTimeWindowStart: "2026-08-20T14:00:00.000Z",
+    selectedTimeWindowEnd: "2026-08-20T15:00:00.000Z",
+    selectedTimeZone: "America/New_York",
+    reservationAmount: 22500,
+    currency: "usd",
+    depositCreditAvailable: false
+  };
+  try {
+    await sendBookingNotifications({ config: {}, booking });
+    await sendManualReviewNotification({
+      config: {},
+      booking,
+      reason: "Synthetic preview monitor rehearsal.",
+      eventId: "evt_safe_monitor"
+    });
+  } finally {
+    console.log = originalLog;
+    console.error = originalError;
+  }
+  const serialized = JSON.stringify(emitted);
+  assert.match(serialized, /book_log_privacy/);
+  assert.doesNotMatch(serialized, /Private Buyer|private-buyer@example\.com|3525550199|Private Company/);
 });
 
 function sqlite(databasePath, sql) {

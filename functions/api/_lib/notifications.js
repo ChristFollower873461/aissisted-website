@@ -183,7 +183,11 @@ export async function sendBookingNotifications({ config, booking }) {
     depositCreditAvailable: Boolean(booking.depositCreditAvailable)
   };
 
-  console.log("[booking-confirmed]", summary);
+  console.log("[booking-confirmed]", {
+    bookingId: booking.id,
+    offerId: booking.offerId || "legacy",
+    offerVersion: booking.offerVersion || 1
+  });
 
   if (config.internalNotificationWebhook) {
     try {
@@ -257,7 +261,11 @@ export async function sendManualReviewNotification({ config, booking, reason, ev
     amount: formatCurrency(booking.reservationAmount, booking.currency)
   };
 
-  console.error("[booking-manual-review]", summary);
+  console.error("[booking-manual-review]", {
+    bookingId: booking.id,
+    reason,
+    eventId: eventId || ""
+  });
 
   if (config.internalNotificationWebhook) {
     try {
