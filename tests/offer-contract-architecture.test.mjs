@@ -126,6 +126,17 @@ test("isolated preview access gate blocks anonymous traffic and issues an HttpOn
   assert.equal(await authorized.text(), "private candidate");
   assert.equal(nextCalls, 1);
   assert.equal(authorized.headers.get("cache-control"), "private, no-store, max-age=0");
+
+  const signedWebhookPath = await applySiteMiddleware({
+    request: new Request("https://aissisted-offer-v2-preview.pages.dev/api/book/webhook", {
+      method: "POST",
+      body: "{}"
+    }),
+    env,
+    next: async () => new Response("webhook-handler", { status: 400 })
+  });
+  assert.equal(signedWebhookPath.status, 400);
+  assert.equal(await signedWebhookPath.text(), "webhook-handler");
 });
 
 test("one release pointer selects complete v1 or v2 purchase semantics", () => {

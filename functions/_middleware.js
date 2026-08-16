@@ -105,6 +105,12 @@ async function enforcePreviewAccess(context, url) {
   const secret = String(context.env.PREVIEW_ACCESS_TOKEN || "");
   if (!secret) return null;
 
+  // Stripe cannot carry the preview login cookie. This single machine endpoint
+  // remains protected by the webhook handler's required Stripe signature.
+  if (url.pathname === "/api/book/webhook" && context.request.method === "POST") {
+    return null;
+  }
+
   const expectedTokenHash = await sha256Hex(secret);
   const expectedSession = await sha256Hex(`aissisted-preview-session:${secret}`);
   const authorization = context.request.headers.get("authorization") || "";
