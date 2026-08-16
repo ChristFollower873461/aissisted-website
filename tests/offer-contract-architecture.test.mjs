@@ -749,6 +749,13 @@ test("Fit Call is a capacity-limited manual-review lane with no Stripe path", as
   assert.equal(payload.weeklyCapacity, 2);
   assert.equal(payload.scheduled, false);
   assert.equal(payload.paymentRequired, false);
+  const fitInquiry = await getBookingStore(env).getContactInquiryById(payload.inquiryId);
+  assert.match(fitInquiry.idempotencyRecordId, /^idem_/);
+  const fitIdempotency = await getBookingStore(env).getIdempotencyRecordById(
+    fitInquiry.idempotencyRecordId
+  );
+  assert.equal(fitIdempotency.status, "succeeded");
+  assert.equal(fitIdempotency.targetId, payload.inquiryId);
 
   const disposition = await setFitCallDisposition({
     request: new Request("https://aissistedconsulting.com/api/book/fit-call-disposition", {

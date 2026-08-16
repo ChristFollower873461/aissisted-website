@@ -5,6 +5,7 @@ import { conflict, forbidden, json, methodNotAllowed, readJson, unavailable, uns
 import { sendContactInquiryNotification } from "../_lib/notifications.js";
 import { getBookingStore } from "../_lib/storage.js";
 import {
+  createIdempotencyExpiry,
   createContactDuplicateFingerprint,
   normalizeContactAudience,
   normalizeContactMessage,
@@ -15,6 +16,8 @@ import {
 } from "../_lib/transaction-safety.js";
 
 const ROUTES = new Set(["workflow_improvement", "custom_development"]);
+const COMMAND_ID = "request_fit_call";
+const RISK = "external_write";
 
 function sameOrigin(request, url) {
   const origin = request.headers.get("origin");
@@ -73,6 +76,20 @@ export async function onRequest(context) {
     });
     if (duplicate) return conflict("A matching Fit Call request was already received recently.");
 
+    // Fit Call requests share the hardened contact-inquiry table, whose D1
+    // schema requires every inquiry to reference a durable idempotency record.
+    // Use the privacy-safe duplicate fingerprint as the stable request key so
+    // the browser never needs to expose or persist customer text in headers.
+    const idempotencyKeyHash = await sha256Hex(`fit-call:${duplicateFingerprint}`);
+    const idempotencyRecord = await store.startIdempotencyRecord({
+      commandId: COMMAND_ID,
+      risk: RISK,
+      idempotencyKeyHash,
+      requestFingerprint: duplicateFingerprint,
+      requestSummaryJson: JSON.stringify({ routeId, sourcePage }),
+      expiresAt: createIdempotencyExpiry({ retentionHours: 7 * 24 })
+    });
+
     const createdAt = new Date().toISOString();
     const inquiry = await store.createContactInquiry({
       ...normalized,
@@ -82,7 +99,7 @@ export async function onRequest(context) {
       createdAt,
       status: "fit_call_pending_review",
       deliveryStatus: "local_record_only",
-      idempotencyRecordId: null
+      idempotencyRecordId: idempotencyRecord.id
     });
     const attribution = buildCrmAttribution({
       sourcePage,
@@ -106,7 +123,7 @@ export async function onRequest(context) {
       eventType: "fit_call.requested",
       payload: { inquiryId: inquiry.id, routeId, weeklyCapacity: positiveInteger(context.env.FIT_CALL_WEEKLY_CAPACITY, 2) }
     });
-    return json({
+    const responseBody = {
       ok: true,
       inquiryId: inquiry.id,
       status: "pending_manual_review",
@@ -114,7 +131,15 @@ export async function onRequest(context) {
       weeklyCapacity: positiveInteger(context.env.FIT_CALL_WEEKLY_CAPACITY, 2),
       scheduled: false,
       paymentRequired: false
+    };
+    await store.markIdempotencySucceeded(idempotencyRecord.id, {
+      targetType: "contact_inquiry",
+      targetId: inquiry.id,
+      responseStatus: 200,
+      responseBodyJson: JSON.stringify(responseBody),
+      completedAt: new Date().toISOString()
     });
+    return json(responseBody);
   } catch (error) {
     return json({ ok: false, error: error instanceof Error ? error.message : "Fit Call request failed." }, 400);
   }
