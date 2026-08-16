@@ -35,6 +35,7 @@ const COMMAND_ID = "create_booking_checkout";
 const RISK = "financial";
 const FUNNEL_ID = /^funnel_[A-Za-z0-9_-]{8,80}$/;
 const FUNNEL_RETENTION_DAYS = 180;
+const MEASUREMENT_CONTRACT_ID = "aissisted_paid_plan_pilot_v1";
 const ENTRY_ROUTES = new Set(["book", "home", "services", "navigation", "other"]);
 const CTA_IDS = new Set([
   "book_direct",
@@ -478,6 +479,7 @@ export async function onRequest(context) {
         ctaId: normalized.measurement.ctaId,
         laneId: normalized.measurement.laneId,
         releaseId: config.activeRelease.releaseId,
+        measurementContractId: MEASUREMENT_CONTRACT_ID,
         retentionDeleteAfter: new Date(
           new Date(createdAt).getTime() + FUNNEL_RETENTION_DAYS * 24 * 60 * 60 * 1000
         ).toISOString()

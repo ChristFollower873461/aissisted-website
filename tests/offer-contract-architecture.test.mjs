@@ -44,6 +44,9 @@ import {
 const root = path.resolve(new URL("..", import.meta.url).pathname);
 const manifest = JSON.parse(readFileSync(path.join(root, "config/public-truth/manifest.v2.json"), "utf8"));
 const v2Terms = JSON.parse(readFileSync(path.join(root, "config/booking/terms/workflow-map-v2.json"), "utf8"));
+const measurementContract = JSON.parse(
+  readFileSync(path.join(root, "config/measurement/paid-plan-pilot-v1.json"), "utf8")
+);
 const calendar = {
   calendarId: manifest.offer.delivery.calendarId,
   timezone: manifest.offer.delivery.timezone,
@@ -880,6 +883,29 @@ test("paid-plan measurement is allowlisted, opaque, and expires on schedule", as
   assert.doesNotMatch(recorded.payloadJson, /example\.com|private|customer text/i);
   assert.equal(await store.deleteExpiredMeasurementEvents("2026-08-16T00:00:00.000Z"), 1);
   assert.equal(await store.getLatestEventByType("paid_plan_start"), null);
+});
+
+test("pilot measurement contract covers required decisions without private analytics fields", () => {
+  assert.equal(measurementContract.measurementContractId, "aissisted_paid_plan_pilot_v1");
+  assert.equal(measurementContract.analyticsRetentionDays, 180);
+  for (const field of [
+    "paid_plan_start", "entry_route", "cta_id", "lane", "funnel_id", "booking_id",
+    "payment_status", "session_completed_at", "delivery_due_at", "delivered_at",
+    "correction_event", "refund_or_dispute_state", "fit_call_disposition"
+  ]) {
+    assert.equal(measurementContract.automaticFields.includes(field), true, field);
+  }
+  for (const field of [
+    "intake_review_minutes", "session_minutes", "drafting_review_minutes",
+    "administration_minutes", "expectation_mismatch_category", "buyer_clarity_score",
+    "implementation_follow_on", "fit_call_scheduling_admin_minutes", "fit_call_minutes"
+  ]) {
+    assert.ok(measurementContract.ownerRecordedFields[field], field);
+  }
+  assert.deepEqual(
+    measurementContract.prohibitedAnalyticsFields,
+    ["name", "email", "phone", "ip_address", "raw_referrer", "raw_query_string", "free_text_intake", "plan_body", "payment_card_data"]
+  );
 });
 
 test("booking operational logs exclude customer identity and contact fields", async () => {
