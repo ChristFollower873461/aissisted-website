@@ -139,7 +139,7 @@ async function enforcePreviewAccess(context, url) {
     });
     response.headers.append(
       "set-cookie",
-      `${PREVIEW_COOKIE}=${expectedSession}; Max-Age=${PREVIEW_SESSION_HOURS * 60 * 60}; Path=/; HttpOnly; Secure; SameSite=Strict`
+      `${PREVIEW_COOKIE}=${expectedSession}; Max-Age=${PREVIEW_SESSION_HOURS * 60 * 60}; Path=/; HttpOnly; Secure; SameSite=Lax`
     );
     return previewHeaders(response);
   }

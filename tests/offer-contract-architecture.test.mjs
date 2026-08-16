@@ -110,7 +110,7 @@ test("isolated preview access gate blocks anonymous traffic and issues an HttpOn
   const cookie = login.headers.get("set-cookie");
   assert.match(cookie, /__Host-aic_preview=/);
   assert.match(cookie, /HttpOnly/);
-  assert.match(cookie, /SameSite=Strict/);
+  assert.match(cookie, /SameSite=Lax/);
 
   const authorized = await applySiteMiddleware({
     request: new Request("https://aissisted-offer-v2-preview.pages.dev/book/", {
