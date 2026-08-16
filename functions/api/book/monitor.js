@@ -19,6 +19,11 @@ function positiveInteger(value, fallback) {
   return Number.isInteger(parsed) && parsed > 0 ? parsed : fallback;
 }
 
+export function isPreviousMonitorRunStale({ previousCreatedAt, now, maxGapMinutes }) {
+  if (!previousCreatedAt) return false;
+  return new Date(now).getTime() - new Date(previousCreatedAt).getTime() > maxGapMinutes * 60 * 1000;
+}
+
 export async function onRequest(context) {
   if (context.request.method !== "POST") return methodNotAllowed(["POST"]);
   const secret = String(context.env.BOOKING_MONITOR_TOKEN || context.env.BOOKING_OWNER_ACTION_TOKEN || "");
@@ -31,9 +36,11 @@ export async function onRequest(context) {
   const config = getBookingConfig(context.env, new URL(context.request.url).origin);
   const previous = await store.getLatestEventByType("booking.fulfillment_monitor.completed");
   const maxGapMinutes = positiveInteger(context.env.BOOKING_MONITOR_MAX_GAP_MINUTES, 20);
-  const previousRunStale = Boolean(
-    previous?.createdAt && new Date(now).getTime() - new Date(previous.createdAt).getTime() > maxGapMinutes * 60 * 1000
-  );
+  const previousRunStale = isPreviousMonitorRunStale({
+    previousCreatedAt: previous?.createdAt,
+    now,
+    maxGapMinutes
+  });
   const watchItems = await store.listFulfillmentWatchItems({
     nowIso: now,
     awaitingGraceMinutes: 30,

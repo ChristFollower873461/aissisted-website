@@ -32,6 +32,7 @@ import { onRequest as manageBooking } from "../functions/api/book/manage.js";
 import { onRequest as manageOpenCheckouts } from "../functions/api/book/checkout-rollback.js";
 import { onRequest as requestFitCall } from "../functions/api/book/fit-call.js";
 import { onRequest as setFitCallDisposition } from "../functions/api/book/fit-call-disposition.js";
+import { isPreviousMonitorRunStale } from "../functions/api/book/monitor.js";
 import { onRequest as applySiteMiddleware } from "../functions/_middleware.js";
 import { calculateDeliveryDueAt } from "../functions/api/_lib/delivery-clock.js";
 import {
@@ -944,6 +945,19 @@ test("booking operational logs exclude customer identity and contact fields", as
   const serialized = JSON.stringify(emitted);
   assert.match(serialized, /book_log_privacy/);
   assert.doesNotMatch(serialized, /Private Buyer|private-buyer@example\.com|3525550199|Private Company/);
+});
+
+test("fulfillment monitor freshness threshold detects a synthetic missed run", () => {
+  assert.equal(isPreviousMonitorRunStale({
+    previousCreatedAt: "2026-08-15T20:00:00.000Z",
+    now: "2026-08-15T20:21:00.000Z",
+    maxGapMinutes: 20
+  }), true);
+  assert.equal(isPreviousMonitorRunStale({
+    previousCreatedAt: "2026-08-15T20:05:00.000Z",
+    now: "2026-08-15T20:21:00.000Z",
+    maxGapMinutes: 20
+  }), false);
 });
 
 function sqlite(databasePath, sql) {
