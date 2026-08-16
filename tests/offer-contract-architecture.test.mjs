@@ -678,6 +678,45 @@ test("late delivery records the customer refund choice and reconciliation", asyn
   assert.equal(reconciled.deliverable.status, "refunded");
 });
 
+for (const action of ["customer_canceled_with_notice_refund", "aissisted_canceled_refund"]) {
+  test(`${action} records and reconciles an approved pre-session refund`, async () => {
+    const { store, bookingId } = await createConfirmedV2Booking(action);
+    const requested = await applyFulfillmentAction({
+      store,
+      bookingId,
+      action,
+      actorRef: "pj_owner_action",
+      idempotencyKey: `${bookingId}:${action}:1`,
+      at: "2026-08-18T14:00:00.000Z"
+    });
+    assert.equal(requested.deliverable.status, "refund_requested");
+    assert.equal(requested.deliverable.remedyStatus, "refund_requested");
+    assert.equal(requested.event.eventType, "refund_requested");
+
+    const replay = await applyFulfillmentAction({
+      store,
+      bookingId,
+      action,
+      actorRef: "pj_owner_action",
+      idempotencyKey: `${bookingId}:${action}:1`,
+      at: "2026-08-18T14:00:00.000Z"
+    });
+    assert.equal(replay.replayed, true);
+
+    const reconciled = await applyFulfillmentAction({
+      store,
+      bookingId,
+      action: "refund_reconciled",
+      actorRef: "pj_owner_action",
+      idempotencyKey: `${bookingId}:refund-reconciled:1`,
+      at: "2026-08-18T14:05:00.000Z",
+      data: { refundReference: `re_test_${action}` }
+    });
+    assert.equal(reconciled.deliverable.status, "refunded");
+    assert.equal(reconciled.deliverable.remedyStatus, "refunded");
+  });
+}
+
 test("v2 integration outbox retries failures and drains configured skips exactly once", async () => {
   const first = await createConfirmedV2Booking("outbox_retry");
   const failingConfig = getBookingConfig({

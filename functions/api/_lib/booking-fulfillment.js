@@ -123,6 +123,18 @@ export async function applyFulfillmentAction({ store, bookingId, action, actorRe
       eventType = "refund_requested";
       safe = { choice: "refund" };
       break;
+    case "customer_canceled_with_notice_refund":
+    case "aissisted_canceled_refund":
+      patch = { status: "refund_requested", remedyStatus: "refund_requested" };
+      expectedStatuses = ["awaiting_session"];
+      eventType = "refund_requested";
+      safe = {
+        choice: "refund",
+        reason: action === "customer_canceled_with_notice_refund"
+          ? "customer_canceled_with_notice"
+          : "aissisted_canceled"
+      };
+      break;
     case "refund_reconciled":
       patch = {
         status: "refunded",
