@@ -4,6 +4,9 @@
 
 # Clean directory routes for legacy extensionless/live paths
 /small-business-ai-help /small-business-ai-help/ 301
+/workflow-automation /workflow-automation/ 301
+/guides/workflow-automation-with-control /workflow-automation/ 301
+/guides/workflow-automation-with-control/ /workflow-automation/ 301
 /services /services/ 301
 /services.html /services/ 301
 /privacy-and-control /privacy-and-control/ 301
