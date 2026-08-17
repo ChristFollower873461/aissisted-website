@@ -193,6 +193,26 @@ function assertAttributionSourcePage() {
   pass("AIC paid attribution source page verified");
 }
 
+function assertAnalyticsConfiguration() {
+  const run = runTrackingScript();
+  const configs = run.window.dataLayer.filter((call) => call[0] === "config");
+  const consent = run.window.dataLayer.find(
+    (call) => call[0] === "consent" && call[1] === "default"
+  );
+
+  if (!configs.some((call) => call[1] === "G-4PD9VYERRY")) {
+    fail("AIC bridge is missing the GA4 measurement destination");
+  }
+  if (!configs.some((call) => call[1] === "AW-17956049177")) {
+    fail("AIC bridge is missing the Google Ads destination");
+  }
+  if (!consent || consent[2].analytics_storage !== "denied" || !consent[2].region.includes("GB")) {
+    fail("AIC bridge is missing restricted-region consent defaults");
+  }
+
+  pass("AIC GA4 and restricted-region consent configuration verified");
+}
+
 assertFile("assets/aic-google-ads-tracking.js");
 assertIncludes("index.html", ["assets/aic-google-ads-tracking.js"]);
 assertIncludes("small-business-ai-help/index.html", [
@@ -213,6 +233,7 @@ assertIncludes("book/booking.js", ["aic_booking_checkout_start", "AicAdsTracking
 assertIncludes("book/status.js", ["aic_booking_confirmed", "AicAdsTracking.emit", "localStorage", "transaction_id"]);
 assertIncludes("assets/aic-google-ads-tracking.js", [
   "AW-17956049177",
+  "G-4PD9VYERRY",
   "BxPjCKTg9swcEJmijvJC",
   "k5PuCKfg9swcEJmijvJC",
   "AIC_GOOGLE_ADS_CONVERSIONS",
@@ -226,6 +247,7 @@ assertIncludes("assets/aic-google-ads-tracking.js", [
 assertConversionBridge();
 assertConfiguredGoogleAdsLabels();
 assertAttributionSourcePage();
+assertAnalyticsConfiguration();
 
 if (process.exitCode) {
   process.exit(process.exitCode);
