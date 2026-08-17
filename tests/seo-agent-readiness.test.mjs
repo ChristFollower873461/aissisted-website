@@ -174,7 +174,7 @@ test("local and private AI signals connect service, privacy, and discovery paths
   assert.match(read("llms.txt"), new RegExp(localGuideUrl));
   assert.match(read("small-business-ai-help/index.html"), /guides\/local-and-on-prem-ai\//);
   assert.match(read("privacy-and-control/index.html"), /guides\/local-and-on-prem-ai\//);
-  assert.match(read("small-business-ai-help/index.html"), /Small Business AI Help in Ocala/);
+  assert.match(read("small-business-ai-help/index.html"), /Ocala AI Help for Small Business/);
 });
 
 test("Grail exposes truthful software and offer schema", () => {
