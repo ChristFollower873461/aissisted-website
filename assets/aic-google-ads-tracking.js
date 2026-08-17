@@ -3,6 +3,12 @@
 
   var STORAGE_KEY = "aic_last_touch";
   var GOOGLE_ADS_TAG_ID = "AW-17956049177";
+  var GOOGLE_ANALYTICS_TAG_ID = "G-4PD9VYERRY";
+  var RESTRICTED_CONSENT_REGIONS = [
+    "AT", "BE", "BG", "CH", "CY", "CZ", "DE", "DK", "EE", "ES", "FI", "FR",
+    "GB", "GR", "HR", "HU", "IE", "IS", "IT", "LI", "LT", "LU", "LV", "MT",
+    "NL", "NO", "PL", "PT", "RO", "SE", "SI", "SK"
+  ];
   var DEFAULT_GOOGLE_ADS_CONVERSIONS = {
     aic_ad_landing_page_view: "",
     aic_contact_click: "",
@@ -77,12 +83,34 @@
       window.gtag("js", new Date());
     }
 
-    if (!window.__aicGoogleAdsConfigured) {
+    if (!window.__aicGoogleConsentConfigured) {
+      window.gtag("consent", "default", {
+        ad_storage: "denied",
+        analytics_storage: "denied",
+        ad_user_data: "denied",
+        ad_personalization: "denied",
+        region: RESTRICTED_CONSENT_REGIONS,
+        wait_for_update: 500
+      });
+      window.__aicGoogleConsentConfigured = true;
+    }
+
+    var existingGoogleAdsLoader = document.querySelector(
+      'script[src*="googletagmanager.com/gtag/js?id=' + GOOGLE_ADS_TAG_ID + '"]'
+    );
+    if (!window.__aicGoogleAdsConfigured && !existingGoogleAdsLoader) {
       window.gtag("config", GOOGLE_ADS_TAG_ID);
       window.__aicGoogleAdsConfigured = true;
     }
 
-    if (!document.querySelector('script[src*="googletagmanager.com/gtag/js?id=' + GOOGLE_ADS_TAG_ID + '"]')) {
+    if (!window.__aicGoogleAnalyticsConfigured) {
+      window.gtag("config", GOOGLE_ANALYTICS_TAG_ID, {
+        send_page_view: true
+      });
+      window.__aicGoogleAnalyticsConfigured = true;
+    }
+
+    if (!existingGoogleAdsLoader) {
       var script = document.createElement("script");
       script.async = true;
       script.src = "https://www.googletagmanager.com/gtag/js?id=" + encodeURIComponent(GOOGLE_ADS_TAG_ID);
