@@ -22,6 +22,10 @@ AI may help organize intake notes, draft reminders, summarize activity, surface 
 
 Useful AI support should make the next step clearer. It should not hide decisions, remove customer trust, or pretend every exception can be handled the same way.
 
+## Workflow Automation
+
+Workflow automation can connect forms, calendars, messages, spreadsheets, CRM records, booking, payment status, documents, and reporting. A useful automation has a known trigger, an expected result, a visible exception path, and a person responsible for review. It may use AI, but many improvements are better handled by a simple rule, integration, form, or checklist.
+
 ## What Should Stay Human
 
 People should review customer commitments, sensitive details, dispatch priorities, relationship decisions, and anything that affects trust. AIssisted Consulting frames AI as support for admin clarity and review, not a substitute for staff.
@@ -41,6 +45,7 @@ Sensitive customer details, owner decisions, and final judgment need clear bound
 ## Related Pages
 
 - Small Business AI Help: https://aissistedconsulting.com/small-business-ai-help/
+- Workflow Automation: https://aissistedconsulting.com/workflow-automation/
 - Services: https://aissistedconsulting.com/services/
 - Privacy And Control: https://aissistedconsulting.com/privacy-and-control/
 - Industry Examples: https://aissistedconsulting.com/industries/

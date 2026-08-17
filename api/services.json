@@ -29,11 +29,45 @@
       ],
       "related_pages": [
         "https://aissistedconsulting.com/small-business-ai-help/",
+        "https://aissistedconsulting.com/workflow-automation/",
         "https://aissistedconsulting.com/services/",
         "https://aissistedconsulting.com/guides/ai-workflow-checklist/",
         "https://aissistedconsulting.com/guides/ai-ownership-and-local-operator-control/"
       ],
       "recommended_next_action": "Bring one workflow to the contact page."
+    },
+    {
+      "id": "workflow_automation",
+      "name": "Workflow automation for small business",
+      "audience": "Small service businesses in Ocala, Central Florida, and across the United States",
+      "status": "active",
+      "description": "Founder-led workflow automation that connects repeated work while keeping review, exceptions, permissions, and owner control visible.",
+      "workflow_focus": [
+        "Intake and missed calls",
+        "Scheduling and reminders",
+        "Follow-up and CRM handoffs",
+        "Document routing",
+        "Reporting and owner visibility",
+        "Business system integration"
+      ],
+      "best_fit": [
+        "Businesses with a repeated handoff that already causes delay or missed work.",
+        "Owners who want the current process mapped before another tool is added.",
+        "Teams that need automation outcomes and exceptions to remain reviewable."
+      ],
+      "not_a_fit": [
+        "Unattended customer commitments or sensitive decisions.",
+        "Automation that hides permissions, failures, or source data.",
+        "Replacing human judgment where trust, safety, or professional review matters."
+      ],
+      "related_pages": [
+        "https://aissistedconsulting.com/workflow-automation/",
+        "https://aissistedconsulting.com/services/",
+        "https://aissistedconsulting.com/guides/ai-workflow-checklist/",
+        "https://aissistedconsulting.com/guides/business-system-integration/",
+        "https://aissistedconsulting.com/guides/crm-and-intake-systems/"
+      ],
+      "recommended_next_action": "Bring one repeated workflow to AIssisted Consulting for a practical map and first-build review."
     },
     {
       "id": "grail_local_marketing_agent",

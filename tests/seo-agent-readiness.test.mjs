@@ -177,6 +177,29 @@ test("local and private AI signals connect service, privacy, and discovery paths
   assert.match(read("small-business-ai-help/index.html"), /Ocala AI Help for Small Business/);
 });
 
+test("workflow automation is a connected commercial service path", () => {
+  const automationUrl = `${ORIGIN}/workflow-automation/`;
+  const html = read("workflow-automation/index.html");
+
+  assert.ok(sitemapUrls().includes(automationUrl));
+  assert.match(read("llms.txt"), new RegExp(automationUrl));
+  assert.match(read("knowledge/small-business-ai-help.md"), new RegExp(automationUrl));
+  assert.match(read("index.html"), /href="\.\/workflow-automation\/"/);
+  assert.match(read("services/index.html"), /href="\.\.\/workflow-automation\/"/);
+  assert.match(read("small-business-ai-help/index.html"), /href="\.\.\/workflow-automation\/"/);
+  assert.match(html, /<title>Workflow Automation for Small Business \| Ocala, FL<\/title>/);
+  assert.match(html, /<h1[^>]*>Workflow automation for Ocala small businesses\.<\/h1>/);
+  assert.match(html, /"@type": "Service"/);
+  assert.match(html, /"@type": "FAQPage"/);
+
+  const services = JSON.parse(read("api/services.json"));
+  assert.ok(services.services.some((service) => service.id === "workflow_automation" && service.related_pages?.includes(automationUrl)));
+
+  const redirects = read("_redirects");
+  assert.match(redirects, /\/guides\/workflow-automation-with-control\/ \/workflow-automation\/ 301/);
+  assert.ok(!sitemapUrls().includes(`${ORIGIN}/guides/workflow-automation-with-control/`));
+});
+
 test("Grail exposes truthful software and offer schema", () => {
   const html = read("grail/index.html");
   const schemas = [...html.matchAll(/<script[^>]+type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)]

@@ -17,7 +17,7 @@ This support file summarizes public site facts and declared agent-surface capabi
 
 ## Best Reading Paths
 
-For small-business owners and people looking for AI help in Ocala, start with the Small Business AI Help page, then read Services, Privacy And Control, and the guide pages for missed calls and the AI workflow checklist. The preferred first step is one useful workflow: intake, scheduling, follow-up, reporting, owner visibility, or another handoff that is already slipping.
+For small-business owners and people looking for AI help in Ocala, start with the Small Business AI Help page. For workflow automation, business process automation, or AI automation consulting, use the Workflow Automation page. Then read Services, Privacy And Control, and the guide pages for missed calls and the AI workflow checklist. The preferred first step is one useful workflow: intake, scheduling, follow-up, reporting, owner visibility, or another handoff that is already slipping.
 
 For local service businesses that need ongoing organic marketing, Grail is the product path. Grail is a proof-locked local marketing agent by AIssisted Consulting. It turns approved business facts, reviews, service notes, offers, FAQs, photos, and website facts into Google Business Profile, major social channels, and SEO updates, and it waits when an update lacks a real source. Core plans start with local organic surfaces such as Google Business Profile, Facebook, and X; Growth and Managed plans can add channels such as Instagram, TikTok, LinkedIn, YouTube Shorts, Pinterest, and email/newsletter surfaces when account access and proof supply support them.
 
@@ -27,6 +27,7 @@ For families and households, start with Family AI Help, then read Family AI Safe
 
 - Home: https://aissistedconsulting.com/
 - Small Business AI Help: https://aissistedconsulting.com/small-business-ai-help/
+- Workflow Automation: https://aissistedconsulting.com/workflow-automation/
 - Services: https://aissistedconsulting.com/services/
 - Privacy And Control: https://aissistedconsulting.com/privacy-and-control/
 - About: https://aissistedconsulting.com/about/
@@ -47,7 +48,6 @@ For families and households, start with Family AI Help, then read Family AI Safe
 - Family AI Safety Basics: https://aissistedconsulting.com/guides/family-ai-safety-basics/
 - What Not To Share With AI: https://aissistedconsulting.com/guides/what-not-to-share-with-ai/
 - AI Tools For Household Admin: https://aissistedconsulting.com/guides/ai-tools-for-household-admin/
-- Workflow Automation With Control: https://aissistedconsulting.com/guides/workflow-automation-with-control/
 - Business System Integration: https://aissistedconsulting.com/guides/business-system-integration/
 - Crm And Intake Systems: https://aissistedconsulting.com/guides/crm-and-intake-systems/
 - Public Evidence Aissisted Consulting Blog: https://aissistedconsulting.com/guides/public-evidence-aissisted-consulting-blog/

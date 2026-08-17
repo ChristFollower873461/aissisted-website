@@ -72,6 +72,7 @@
   "canonical_pages": {
     "home": "https://aissistedconsulting.com/",
     "small_business_ai_help": "https://aissistedconsulting.com/small-business-ai-help/",
+    "workflow_automation": "https://aissistedconsulting.com/workflow-automation/",
     "family_ai_help": "https://aissistedconsulting.com/family-ai-help/",
     "services": "https://aissistedconsulting.com/services/",
     "privacy_and_control": "https://aissistedconsulting.com/privacy-and-control/",
@@ -80,7 +81,7 @@
     "book": "https://aissistedconsulting.com/book/"
   },
   "publication_boundary": "This support file summarizes public site facts and declared local/deployable agent-surface capabilities. It does not represent live AVOS testing, crawler changes, credentialed private workflows, direct card collection, CRM/email writes, analytics writes, or destructive actions.",
-  "last_reviewed": "2026-05-06",
+  "last_reviewed": "2026-08-17",
   "agent_surface": {
     "manifest": "https://aissistedconsulting.com/.well-known/agent.json",
     "risk_tiers": [
