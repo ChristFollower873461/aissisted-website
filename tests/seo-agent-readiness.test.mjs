@@ -170,11 +170,15 @@ test("ownership guide is connected across human and agent discovery paths", () =
 
 test("local and private AI signals connect service, privacy, and discovery paths", () => {
   const localGuideUrl = `${ORIGIN}/guides/local-and-on-prem-ai/`;
+  const localPage = read("small-business-ai-help/index.html");
   assert.ok(sitemapUrls().includes(localGuideUrl));
   assert.match(read("llms.txt"), new RegExp(localGuideUrl));
-  assert.match(read("small-business-ai-help/index.html"), /guides\/local-and-on-prem-ai\//);
+  assert.match(localPage, /guides\/local-and-on-prem-ai\//);
   assert.match(read("privacy-and-control/index.html"), /guides\/local-and-on-prem-ai\//);
-  assert.match(read("small-business-ai-help/index.html"), /Ocala AI Help for Small Business/);
+  assert.match(localPage, /Ocala AI Help for Small Business/);
+  assert.match(localPage, /Florida AI help, grounded in a local operator\./);
+  assert.match(localPage, /AI help for Florida small businesses/);
+  assert.match(localPage, /"@type": "State",\s+"name": "Florida"/);
 });
 
 test("workflow automation is a connected commercial service path", () => {
