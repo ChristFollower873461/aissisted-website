@@ -8,6 +8,8 @@ This path is for service-business owners who can point to one part of the day th
 
 AIssisted Consulting is especially aligned with pool service, HVAC, pest control, roofing, painting, plumbing, and similar service businesses where calls, recurring follow-up, urgent details, and customer trust matter.
 
+AIssisted Consulting is based in Ocala and serves Marion County, Central Florida, and North Central Florida locally. Remote workflow mapping and implementation are available to small businesses across Florida.
+
 ## Common Workflow Problems
 
 - Calls, forms, or messages arrive but the next step is not clear.
