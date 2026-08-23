@@ -1,5 +1,10 @@
 const PRIMARY_ORIGIN = "https://aissistedconsulting.com";
 
+const SECURITY_HEADERS = {
+  "content-security-policy": "base-uri 'self'; object-src 'none'; frame-ancestors 'self'",
+  "strict-transport-security": "max-age=31536000"
+};
+
 const BLOCKED_PREFIXES = [
   "/backups/",
   "/docs/",
@@ -50,16 +55,20 @@ function readCookie(request, name) {
   return "";
 }
 
-function mirrorAxonCookie(request, response) {
-  const value = readCookie(request, "_axwrt");
-  if (!AXON_COOKIE_VALUE.test(value)) return response;
-
+function finalizeResponse(request, response) {
   const headers = new Headers(response.headers);
-  const expires = new Date(Date.now() + AXON_COOKIE_MAX_AGE_MS).toUTCString();
-  headers.append(
-    "set-cookie",
-    `axwrt=${value}; Expires=${expires}; Domain=.aissistedconsulting.com; Path=/; SameSite=Lax; Secure`
-  );
+  for (const [name, value] of Object.entries(SECURITY_HEADERS)) {
+    headers.set(name, value);
+  }
+
+  const value = readCookie(request, "_axwrt");
+  if (AXON_COOKIE_VALUE.test(value)) {
+    const expires = new Date(Date.now() + AXON_COOKIE_MAX_AGE_MS).toUTCString();
+    headers.append(
+      "set-cookie",
+      `axwrt=${value}; Expires=${expires}; Domain=.aissistedconsulting.com; Path=/; SameSite=Lax; Secure`
+    );
+  }
 
   return new Response(response.body, {
     status: response.status,
@@ -101,26 +110,35 @@ export async function onRequest(context) {
   const hostname = url.hostname.toLowerCase();
 
   if (hostname === "ocalaaiconsulting.com" || hostname === "www.ocalaaiconsulting.com") {
-    return Response.redirect(`${PRIMARY_ORIGIN}${url.pathname}${url.search}`, 301);
+    return finalizeResponse(
+      context.request,
+      Response.redirect(`${PRIMARY_ORIGIN}${url.pathname}${url.search}`, 301)
+    );
   }
 
   if (hostname === "www.aissistedconsulting.com") {
-    return Response.redirect(`${PRIMARY_ORIGIN}${url.pathname}${url.search}`, 301);
+    return finalizeResponse(
+      context.request,
+      Response.redirect(`${PRIMARY_ORIGIN}${url.pathname}${url.search}`, 301)
+    );
   }
 
   const redirectPath = REDIRECTS.get(url.pathname);
   if (redirectPath) {
-    return Response.redirect(`${PRIMARY_ORIGIN}${redirectPath}${url.search}`, 301);
+    return finalizeResponse(
+      context.request,
+      Response.redirect(`${PRIMARY_ORIGIN}${redirectPath}${url.search}`, 301)
+    );
   }
 
   if (isBlockedPath(url.pathname)) {
-    return notFound();
+    return finalizeResponse(context.request, notFound());
   }
 
   if (GONE_PATHS.has(url.pathname)) {
-    return gone();
+    return finalizeResponse(context.request, gone());
   }
 
   const response = await context.next();
-  return mirrorAxonCookie(context.request, response);
+  return finalizeResponse(context.request, response);
 }

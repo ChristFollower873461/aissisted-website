@@ -133,6 +133,11 @@ test("frontier search crawling stays open while training and private routes stay
 
   assert.match(robots, /Sitemap:\s*https:\/\/aissistedconsulting\.com\/sitemap\.xml/i);
   const headers = read("_headers");
+  assert.match(headers, /Strict-Transport-Security:\s*max-age=31536000/i);
+  assert.match(
+    headers,
+    /Content-Security-Policy:\s*base-uri 'self'; object-src 'none'; frame-ancestors 'self'/i
+  );
   assert.match(headers, /\/grail\/activation\*[\s\S]*?X-Robots-Tag:\s*noindex, nofollow/i);
   assert.match(headers, /\/grail\/thank-you\/\*[\s\S]*?X-Robots-Tag:\s*noindex, nofollow/i);
 
