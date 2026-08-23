@@ -165,6 +165,44 @@ test("middleware mirrors a valid Axon identifier into the recommended first-part
   assert.doesNotMatch(cookie, /HttpOnly/i);
 });
 
+test("middleware applies transport and content hardening to every response", async () => {
+  const cases = [
+    {
+      request: new Request("https://aissistedconsulting.com/api/contact/submit"),
+      next: async () => Response.json({ ok: true }),
+      status: 200
+    },
+    {
+      request: new Request("https://www.aissistedconsulting.com/contact/"),
+      next: async () => Response.json({ ok: true }),
+      status: 301
+    },
+    {
+      request: new Request("https://aissistedconsulting.com/docs/private.txt"),
+      next: async () => Response.json({ ok: true }),
+      status: 404
+    },
+    {
+      request: new Request("https://aissistedconsulting.com/unrealtor"),
+      next: async () => Response.json({ ok: true }),
+      status: 410
+    }
+  ];
+
+  for (const entry of cases) {
+    const response = await onRequest(entry);
+    assert.equal(response.status, entry.status);
+    assert.equal(
+      response.headers.get("strict-transport-security"),
+      "max-age=31536000"
+    );
+    assert.equal(
+      response.headers.get("content-security-policy"),
+      "base-uri 'self'; object-src 'none'; frame-ancestors 'self'"
+    );
+  }
+});
+
 test("middleware refuses malformed Axon cookie values", async () => {
   const request = new Request("https://aissistedconsulting.com/contact/", {
     headers: { cookie: "_axwrt=bad%0D%0Aset-cookie" }
