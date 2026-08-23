@@ -4,6 +4,8 @@ import { formatCurrency } from "../_lib/time.js";
 import { getBookingStore } from "../_lib/storage.js";
 import { listSlotsWithStatus } from "../_lib/availability.js";
 
+const CALENDAR_UNAVAILABLE_MESSAGE = "Booking availability is temporarily unavailable.";
+
 export async function onRequest(context) {
   if (context.request.method !== "GET") {
     return methodNotAllowed(["GET"]);
@@ -38,9 +40,12 @@ export async function onRequest(context) {
       slots
     });
   } catch (error) {
-    const message = error instanceof Error ? error.message : String(error || "");
-    if (message.startsWith("Google Calendar availability is required")) {
-      return unavailable(message);
+    if (
+      error instanceof Error &&
+      error.message.startsWith("Google Calendar availability is required")
+    ) {
+      console.error("[booking] Required Google Calendar availability failed.", error);
+      return unavailable(CALENDAR_UNAVAILABLE_MESSAGE);
     }
 
     return serverError(error);

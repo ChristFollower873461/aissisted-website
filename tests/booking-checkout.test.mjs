@@ -209,7 +209,7 @@ test("booking checkout relays structured attribution to AICCRM", async () => {
   const originalFetch = global.fetch;
   let crmPayload = null;
   global.fetch = async (url, options = {}) => {
-    if (String(url).includes("aiccrm.aissistedconsulting.com")) {
+    if (String(url) === env.AIC_CRM_INTAKE_URL) {
       crmPayload = JSON.parse(String(options.body || "{}"));
       return Response.json({ ok: true, submission: { id: "intake_booking_test" } });
     }

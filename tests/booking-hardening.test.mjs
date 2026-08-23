@@ -5,6 +5,7 @@ import { getBookingConfig } from "../functions/api/_lib/config.js";
 import { createGoogleCalendarBookingEvent } from "../functions/api/_lib/google-calendar.js";
 import { listAvailableSlots } from "../functions/api/_lib/availability.js";
 import { getBookingStore } from "../functions/api/_lib/storage.js";
+import { onRequest as getAvailability } from "../functions/api/book/availability.js";
 
 function resetMemoryStore() {
   delete globalThis.__aissistedBookingStore;
@@ -109,6 +110,29 @@ test("required Google Calendar availability fails closed instead of exposing fal
       }),
     /Google Calendar availability is required but is not configured/
   );
+});
+
+test("availability endpoint does not expose required-calendar failure details", async () => {
+  resetMemoryStore();
+  const originalConsoleError = console.error;
+  console.error = () => {};
+
+  try {
+    const response = await getAvailability({
+      request: new Request("https://aissistedconsulting.com/api/book/availability"),
+      env: { BOOKING_REQUIRE_GOOGLE_CALENDAR: "true" }
+    });
+    const payload = await response.json();
+
+    assert.equal(response.status, 503);
+    assert.deepEqual(payload, {
+      ok: false,
+      error: "Booking availability is temporarily unavailable."
+    });
+    assert.equal(JSON.stringify(payload).includes("Google Calendar"), false);
+  } finally {
+    console.error = originalConsoleError;
+  }
 });
 
 test("confirmed paid bookings can create customer-visible Google Calendar events", async () => {
