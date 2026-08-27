@@ -17,7 +17,7 @@ contact:`${base}contact`
 const headerHTML=`<nav id="nav">
 <div class="container">
 <a href="${routes.home}" class="nav-logo nav-logo-textonly" aria-label="AIssisted Consulting Home">
-<span class="nav-logo-wordmark nav-logo-wordmark--visible">AIssisted Consulting</span>
+<span class="nav-logo-wordmark nav-logo-wordmark--visible">hey townsley</span>
 </a>
 <div class="nav-links" id="navLinks">
 <a href="${routes.services}">Services</a>
