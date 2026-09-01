@@ -23,6 +23,9 @@
 /grail/fit-check/* /grail/ 301
 /grail/activation.html /grail/activation 301
 /grail/support /grail/support/ 301
+/grail/delete-account /grail/delete-account/ 301
+/grail/account-deletion /grail/delete-account/ 301
+/grail/account-deletion/ /grail/delete-account/ 301
 /grail/privacy /privacy/grail/ 301
 /grail/privacy/ /privacy/grail/ 301
 /grail/terms /grail/terms/ 301
