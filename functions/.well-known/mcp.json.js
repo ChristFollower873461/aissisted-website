@@ -3,9 +3,9 @@
 
 const MANIFEST = {
   name: "aissisted-consulting",
-  version: "1.0.0",
+  version: "2.0.0",
   description:
-    "AI consulting in Ocala, Florida. AI agents can discover services, check availability, and book a paid 60-minute consult ($225) with PJ Standley on behalf of their human. Free conversations and hardware purchases are handled through the website and direct contact, not through MCP.",
+    "Founder-led AI and software implementation in Ocala, Florida. Agents can discover the two service lanes, published $225 plan, and availability. Humans accept exact terms and complete payment on the website.",
   provider: {
     name: "AIssisted Consulting",
     url: "https://aissistedconsulting.com",
@@ -24,19 +24,18 @@ const MANIFEST = {
       "get_business_info",
       "get_booking_status"
     ],
-    human_approval_required: ["start_booking"],
-    approval_flow: "stripe_checkout_url"
+    human_approval_required: [],
+    approval_flow: "website_booking_page"
   },
   rate_limits: {
     read_tools: { requests_per_minute: 20, requests_per_hour: 300 },
     write_tools: { requests_per_minute: 5, requests_per_hour: 20 }
   },
-  bookable_services: ["paid-consult"],
+  bookable_services: [],
   tools: [
     "list_services",
     "check_availability",
     "get_quote",
-    "start_booking",
     "get_booking_status",
     "get_business_info"
   ],

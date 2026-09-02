@@ -120,7 +120,12 @@ test("availability endpoint does not expose required-calendar failure details", 
   try {
     const response = await getAvailability({
       request: new Request("https://aissistedconsulting.com/api/book/availability"),
-      env: { BOOKING_REQUIRE_GOOGLE_CALENDAR: "true" }
+      env: {
+        BOOKING_REQUIRE_GOOGLE_CALENDAR: "true",
+        BOOKING_CHECKOUT_ENABLED: "true",
+        ACTIVE_BOOKING_RELEASE: "legacy_v1_2026_04_06",
+        STRIPE_BOOKING_PRICE_ID: "price_legacy_test"
+      }
     });
     const payload = await response.json();
 

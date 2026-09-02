@@ -107,6 +107,8 @@ export function normalizeContactAudience(value) {
     .replace(/^_+|_+$/g, "");
   const allowed = new Set([
     "small_business_workflow",
+    "custom_development",
+    "individual_software_build",
     "family_ai_question",
     "privacy_and_control",
     "booking_or_consult",

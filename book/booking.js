@@ -8,6 +8,9 @@
   const selectedSlotMeta = document.getElementById("selected-slot-meta");
   const reservationAmount = document.getElementById("reservation-amount");
   const policyText = document.getElementById("policy-text");
+  const policyTitle = document.getElementById("policy-title");
+  const policyAcceptanceText = document.getElementById("policy-acceptance-text");
+  const FUNNEL_STORAGE_KEY = "aic_paid_plan_funnel_v1";
 
   if (!availabilityRoot || !bookingForm || !submitButton) return;
 
@@ -21,6 +24,10 @@
     currency: "usd",
     reservationAmountFormatted: "$225.00",
     policyVersion: "2026-04-06",
+    policySha256: "",
+    releaseId: "",
+    offerId: "",
+    offerVersion: 0,
     submitting: false,
     usingPreviewSlots: false
   };
@@ -40,6 +47,35 @@
 
     return `checkout-${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
   }
+
+  function createFunnelContext() {
+    const entryRoutes = new Set(["book", "home", "services", "navigation", "other"]);
+    const ctaIds = new Set([
+      "book_direct", "home_hero_paid_plan", "home_catalog_paid_plan",
+      "home_footer_paid_plan", "services_hero_paid_plan", "primary_nav_book", "other"
+    ]);
+    const params = new URLSearchParams(window.location.search);
+    const submittedEntryRoute = params.get("entry_route") || "";
+    const submittedCtaId = params.get("cta_id") || "";
+    let saved = {};
+    try { saved = JSON.parse(sessionStorage.getItem(FUNNEL_STORAGE_KEY) || "{}"); } catch (_error) { saved = {}; }
+    const funnelId = /^funnel_[A-Za-z0-9_-]{8,80}$/.test(saved.funnelId || "")
+      ? saved.funnelId
+      : `funnel_${globalThis.crypto?.randomUUID?.() || `${Date.now().toString(36)}_${Math.random().toString(36).slice(2)}`}`;
+    const context = {
+      funnelId,
+      entryRoute: entryRoutes.has(submittedEntryRoute)
+        ? submittedEntryRoute
+        : (entryRoutes.has(saved.entryRoute) ? saved.entryRoute : "book"),
+      ctaId: ctaIds.has(submittedCtaId)
+        ? submittedCtaId
+        : (ctaIds.has(saved.ctaId) ? saved.ctaId : "book_direct")
+    };
+    try { sessionStorage.setItem(FUNNEL_STORAGE_KEY, JSON.stringify(context)); } catch (_error) { /* best effort */ }
+    return context;
+  }
+
+  const funnelContext = createFunnelContext();
 
   function addDays(date, days) {
     const copy = new Date(date);
@@ -200,8 +236,16 @@
       state.currency = payload.currency || state.currency;
       state.reservationAmountFormatted = payload.reservationAmountFormatted || state.reservationAmountFormatted;
       state.policyVersion = payload.policyVersion || state.policyVersion;
+      state.policySha256 = payload.policySha256 || "";
+      state.releaseId = payload.releaseId || "";
+      state.offerId = payload.offerId || "";
+      state.offerVersion = Number(payload.offerVersion || 0);
       state.usingPreviewSlots = false;
       if (payload.policyText) policyText.textContent = payload.policyText;
+      if (payload.policyHeading && policyTitle) policyTitle.textContent = payload.policyHeading;
+      if (payload.policyAcceptanceText && policyAcceptanceText) {
+        policyAcceptanceText.textContent = payload.policyAcceptanceText;
+      }
       renderAvailability();
     } catch (error) {
       if (!isLocalPreview) {
@@ -230,7 +274,7 @@
     const formData = new FormData(bookingForm);
     const policyAccepted = formData.get("policyAccepted") === "on";
     if (!policyAccepted) {
-      showStatus("Accept the reservation policy before checkout.", "error", true);
+      showStatus("Accept the booking terms before checkout.", "error", true);
       return;
     }
 
@@ -259,8 +303,14 @@
           policyAccepted,
           checkoutConsent: true,
           confirmedReservationAmountCents: state.reservationAmountCents,
+          confirmedAmountCents: state.reservationAmountCents,
           confirmedCurrency: state.currency,
           confirmedPolicyVersion: state.policyVersion,
+          confirmedTermsVersion: state.policyVersion,
+          confirmedTermsSha256: state.policySha256,
+          confirmedReleaseId: state.releaseId,
+          confirmedOfferId: state.offerId,
+          confirmedOfferVersion: state.offerVersion,
           contact: {
             name: formData.get("name"),
             email: formData.get("email"),
@@ -271,8 +321,10 @@
             companyWebsite: formData.get("companyWebsite"),
             industry: formData.get("industry"),
             primaryGoal: formData.get("primaryGoal"),
+            routeId: formData.get("routeId"),
             notes: formData.get("notes")
-          }
+          },
+          measurement: funnelContext
         })
       });
       const payload = await response.json();
@@ -292,7 +344,7 @@
     } catch (error) {
       showStatus(error.message, "error", true);
       submitButton.disabled = false;
-      submitButton.textContent = "Reserve with $225 deposit";
+      submitButton.textContent = "Continue to Stripe";
       state.submitting = false;
       await loadAvailability();
     }

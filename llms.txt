@@ -1,45 +1,51 @@
 # AIssisted Consulting
 
-AIssisted Consulting provides local, trusted AI help for small businesses that want practical systems, clear guardrails, and control over the work. The work starts with one useful workflow instead of a broad AI transformation. The business is based in Ocala, Florida and is founder-led by PJ.
+AIssisted Consulting is a founder-led AI and software implementation company. It helps small businesses and individuals improve how work gets done and build useful software, with PJ Standley accountable for the result.
 
-This support file summarizes public site facts and declared agent-surface capabilities. It does not report live AVOS results, crawler changes, private credentials, authenticated workflows, direct CRM administration, email writes, analytics writes, destructive actions, or direct card collection.
+Registry version: 2026-08-15.2
+Approved registry SHA-256: 02bc61929ddaacfd542f970d5e2fc7f297c90cda00948def98ed2758667031b2
 
-## Contact Facts
+## Contact and service area
 
-- Business: AIssisted Consulting
-- Public brand: AIssisted Consulting
-- Founder/operator: PJ
+- Founder/operator: PJ Standley
 - Phone: (352) 817-3567
 - Email: pj@aissistedconsulting.com
-- Base location: Ocala, Florida
-- Service area: Central Florida, North Central Florida, and remote clients across the United States
-- Contact page: https://aissistedconsulting.com/contact/
+- Base: Ocala, Florida
+- Service area: Central Florida, North Central Florida, and remote work across the United States
 
-## Best Reading Paths
+## Two service lanes
 
-For small-business owners and people looking for AI help in Ocala, start with the Small Business AI Help page. For workflow automation, business process automation, or AI automation consulting, use the Workflow Automation page. Then read Services, Privacy And Control, and the guide pages for missed calls and the AI workflow checklist. The preferred first step is one useful workflow: intake, scheduling, follow-up, reporting, owner visibility, or another handoff that is already slipping.
+1. Fix how something works: workflow improvement for small businesses, including intake, scheduling, follow-up, reporting, handoffs, AI agents, automation, CRM, and integration.
+2. Build something new: custom software for small businesses and individuals, including applications, internal tools, customer experiences, integrations, prototypes, and AI-assisted systems.
 
-For local service businesses that need ongoing organic marketing, Grail is the product path. Grail is a proof-locked local marketing agent by AIssisted Consulting. It turns approved business facts, reviews, service notes, offers, FAQs, photos, and website facts into Google Business Profile, major social channels, and SEO updates, and it waits when an update lacks a real source. Core plans start with local organic surfaces such as Google Business Profile, Facebook, and X; Growth and Managed plans can add channels such as Instagram, TikTok, LinkedIn, YouTube Shorts, Pinterest, and email/newsletter surfaces when account access and proof supply support them.
+For Ocala-focused small-business help, start with the Small Business AI Help page. For workflow automation, business process automation, or AI automation consulting, use the Workflow Automation page. Then read Services, Privacy And Control, and the relevant guide pages.
 
-For families and households, start with Family AI Help, then read Family AI Safety Basics, What Not To Share With AI, and AI Tools For Household Admin. The family path is caring, plain-English guidance for parents preparing children for an AI-shaped future with privacy, judgment, courage, and human care in charge.
+## Primary paid offer
 
-## Public Pages
+Workflow Map & First-Build Plan: one 60-minute founder-led working session and one founder-reviewed, one-page plan for $225. The plan covers the problem or build goal; recommended direction and material known constraints; the smallest useful first build; and the next decision and validation needed before a reliable implementation quote.
+
+Delivery is by 5:00 PM Eastern on the second qualifying business day after the completed session. The $225 is payment for the session and plan. It is not an implementation deposit and creates no implementation credit. Booking is confirmed only after Stripe reports the payment as paid.
+
+Visitors who are not sure the paid plan fits may request a free 15-minute Fit Call. It is manually reviewed, initially limited to two accepted calls per week, and is not directly bookable or payable through Stripe.
+
+## Audiences and routing
+
+- Small businesses may use either service lane.
+- Individuals with a concrete software build may use the custom-development lane and paid plan.
+- Personal and family AI questions route through Contact.
+- Grail and other products or experiments are secondary Products & R&D capability examples. They do not imply consulting customer traction or revenue.
+
+## Public pages
 
 - Home: https://aissistedconsulting.com/
 - Small Business AI Help: https://aissistedconsulting.com/small-business-ai-help/
 - Workflow Automation: https://aissistedconsulting.com/workflow-automation/
 - Services: https://aissistedconsulting.com/services/
-- Privacy And Control: https://aissistedconsulting.com/privacy-and-control/
 - About: https://aissistedconsulting.com/about/
+- Privacy and Control: https://aissistedconsulting.com/privacy-and-control/
 - Contact: https://aissistedconsulting.com/contact/
 - Book: https://aissistedconsulting.com/book/
-- Grail: https://aissistedconsulting.com/grail/
-- Family AI Help: https://aissistedconsulting.com/family-ai-help/
-- UnRealtor Privacy Policy: https://aissistedconsulting.com/privacy/unrealtor/
-- Industry Examples: https://aissistedconsulting.com/industries/
-- HVAC Examples: https://aissistedconsulting.com/industries/hvac/
-- Pest Control Examples: https://aissistedconsulting.com/industries/pest-control/
-- Plumbing Examples: https://aissistedconsulting.com/industries/plumbing/
+- Products & R&D example — Grail: https://aissistedconsulting.com/grail/
 
 ## Guides
 
@@ -61,28 +67,13 @@ For families and households, start with Family AI Help, then read Family AI Safe
 - Plain English AI Help: https://aissistedconsulting.com/guides/plain-english-ai-help/
 - First Workflow Map: https://aissistedconsulting.com/guides/first-workflow-map/
 
-## Machine-Readable Support Files
+## Machine-readable support files
 
 - Business profile: https://aissistedconsulting.com/api/business-profile.json
 - Services: https://aissistedconsulting.com/api/services.json
 - Service areas: https://aissistedconsulting.com/api/service-areas.json
-- Small-business knowledge: https://aissistedconsulting.com/knowledge/small-business-ai-help.md
-- Family knowledge: https://aissistedconsulting.com/knowledge/family-ai-help.md
-- Sitemap: https://aissistedconsulting.com/sitemap.xml
-- Robots policy: https://aissistedconsulting.com/robots.txt
 - Agent manifest: https://aissistedconsulting.com/.well-known/agent.json
-- Agent skills index: https://aissistedconsulting.com/.well-known/agent-skills/index.json
-
-## Agent-Surface Capabilities
-
-The agent manifest exposes read-only public fact commands, draft-only contact preparation, contact inquiry submission, and booking checkout creation.
-
-Contact inquiry submission requires human approval, consent, an Idempotency-Key header, duplicate suppression, and audit records. On deployed environments with AICCRM secrets configured, the same-origin endpoint relays approved website intake into AICCRM. It does not write to email, analytics, booking, or payment systems.
-
-Booking checkout creation requires human approval, policy acceptance, checkout consent, exact amount/currency/policy confirmation, an Idempotency-Key header, slot conflict checks, audit records, and Stripe Checkout. The website does not collect card details.
 
 ## Boundaries
 
-AIssisted Consulting is a fit for practical AI workflow review, small-business operations help, plain-English AI questions, privacy and control planning, caring family guidance, and careful first steps. It is not presented as a fit for removing human judgment, standing in for staff, standing in for parents or caregivers, bypassing professional review, making decisions without people, or promising outcomes from AI systems.
-
-The public booking route describes a 60-minute founder-led consult reservation with a $225 deposit. Booking confirmation depends on the same-origin booking backend and Stripe Checkout. Agent-facing files do not add private-system access, direct CRM administration, email writes, analytics writes, crawler-policy changes, destructive actions, or direct card collection.
+No customer stories or aggregate customer metrics are approved for this website projection. Product experiments do not prove commercial adoption. AIssisted does not promise feasibility, performance, revenue, savings, implementation price, or that every project can be built. Important decisions and sensitive actions retain human review. The website does not collect card details; payment is processed through Stripe Checkout after explicit human approval and acceptance of the exact offer terms.

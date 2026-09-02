@@ -46,12 +46,15 @@
   }
 
   function renderRows(booking) {
+    const isPlan = Number(booking.offer && booking.offer.offerVersion) >= 2;
     const rows = [
       ["Appointment window", booking.slot && booking.slot.label],
-      ["Reservation amount", booking.reservationAmountFormatted],
+      [isPlan ? "Plan fee" : "Reservation amount", booking.feeAmountFormatted],
       ["Prospect", booking.prospect && (booking.prospect.name || booking.prospect.emailMasked)],
       ["Company", booking.prospect && booking.prospect.company],
-      ["Deposit credit", booking.depositCredit && booking.depositCredit.available ? "Available for future invoice credit" : "Created after payment confirmation"]
+      isPlan
+        ? ["Plan delivery", booking.delivery && booking.delivery.status]
+        : ["Deposit credit", booking.depositCredit && booking.depositCredit.available ? "Available for future invoice credit" : "Created after payment confirmation"]
     ];
 
     meta.innerHTML = rows.map(([label, value]) => `
@@ -79,7 +82,11 @@
 
       switch (payload.confirmationState) {
         case "confirmed":
-          setState("Confirmed", "Your appointment is reserved.", "Payment is confirmed, the calendar booking is being placed on PJ's schedule, and the booking record carries a one-time $225 deposit credit for future service.");
+          if (Number(payload.booking.offer && payload.booking.offer.offerVersion) >= 2) {
+            setState("Confirmed", "Your working session is confirmed.", "Payment is confirmed. After the completed session, your Workflow Map & First-Build Plan will be tracked against the delivery terms you accepted.");
+          } else {
+            setState("Confirmed", "Your appointment is reserved.", "Payment is confirmed, the calendar booking is being placed on PJ's schedule, and the booking record carries a one-time $225 deposit credit for future service.");
+          }
           if (window.AicAdsTracking && !wasConversionReported()) {
             window.AicAdsTracking.emit("aic_booking_confirmed", {
               channel: "booking",

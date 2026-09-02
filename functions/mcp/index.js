@@ -8,7 +8,7 @@
 // Supported methods:
 //   - initialize
 //   - tools/list
-//   - tools/call           (wraps our six tools)
+//   - tools/call           (read-only service and availability tools)
 //   - ping                 (returns {})
 
 import {
@@ -23,7 +23,7 @@ import { hashParams, logMcpCall } from "../api/_lib/mcp-log.js";
 const PROTOCOL_VERSION = "2025-06-18";
 const SERVER_INFO = {
   name: "aissisted-consulting",
-  version: "1.0.0"
+  version: "2.0.0"
 };
 
 const CORS_HEADERS = {
@@ -76,7 +76,7 @@ async function handleInitialize(params) {
       tools: { listChanged: false }
     },
     instructions:
-      "AIssisted Consulting MCP server. Use list_services first, then check_availability + start_booking for discovery consults. Paid bookings return a Stripe Checkout URL that the human must open."
+      "AIssisted Consulting MCP server. Use list_services and check_availability for public facts. Direct MCP booking is disabled; humans review exact terms and continue at https://aissistedconsulting.com/book/."
   });
 }
 
