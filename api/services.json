@@ -121,7 +121,7 @@
       "id": "workflow_map_build_discovery_225",
       "name": "Workflow Map & First-Build Plan",
       "audience": ["small_business", "individual_with_software_build"],
-      "status": "approved_not_effective",
+      "status": "active",
       "price_usd": 225,
       "session_minutes": 60,
       "deliverable": "One founder-reviewed, one-page plan",

@@ -4,7 +4,7 @@
   "registryVersion": "2026-08-15.2",
   "approvedRegistrySha256": "02bc61929ddaacfd542f970d5e2fc7f297c90cda00948def98ed2758667031b2",
   "approvedPublicProjectionSha256": "54352234514bcffebdf0a5436aef9c4044d72338af144af4e4738ed45371be74",
-  "status": "approved_not_effective",
+  "status": "effective",
   "approvedBy": "PJ Standley",
   "approvedAt": "2026-08-15T20:43:00-04:00",
   "company": {
