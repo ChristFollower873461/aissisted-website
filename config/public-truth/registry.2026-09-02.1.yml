@@ -1,0 +1,45 @@
+schema_version: 1
+registry_id: aissisted_public_truth
+registry_version: "2026-09-02.1"
+status: effective
+approved_by: PJ Standley
+approved_at: "2026-09-02T06:52:07-04:00"
+approval_source: owner_instruction_company_first_positioning
+supersedes:
+  registry_version: "2026-08-15.2"
+  registry_sha256: 02bc61929ddaacfd542f970d5e2fc7f297c90cda00948def98ed2758667031b2
+
+company:
+  legal_name: AISSISTED CONSULTING LLC
+  public_brand: AIssisted Consulting
+  category: AI and software implementation company
+  one_liner: AIssisted Consulting helps small businesses and individuals improve how work gets done and build useful software with clear scope, human review, and accountable delivery.
+  public_positioning_rule: Make AIssisted Consulting the seller and accountable provider. Keep founder identity secondary to the company except where leadership, credentials, or authorship are directly relevant.
+  audiences: [small_businesses, individuals]
+  geography: Central and North Central Florida plus remote work across the United States
+
+offer:
+  release_id: aissisted_booking_v2_2026_08_15
+  offer_id: workflow_map_build_discovery_225
+  offer_version: 2
+  public_title: Workflow Map & First-Build Plan
+  provider: AIssisted Consulting
+  price_usd: 225
+  session_minutes: 60
+  deliverable: One company-reviewed, one-page plan
+  terms_version: workflow_map_build_discovery_225_terms_2026-09-02_v2
+  terms_sha256: 7a0bec864c09b07e987044909b366ebc32562902cb7cf84c99b4ded52941ebc2
+  implementation_credit_enabled: false
+  unchanged_boundaries:
+    - delivery_deadline
+    - cancellation_and_rescheduling
+    - missed_delivery_remedy
+    - correction_round
+    - plan_use_rights
+    - payment_method_policy
+    - paid_confirmation_requirement
+
+public_projection_source: config/public-truth/public-projection.generated.json
+legacy:
+  preserve_accepted_v1_terms: true
+  retroactive_relabeling: false

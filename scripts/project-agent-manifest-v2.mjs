@@ -2,9 +2,9 @@ import { readFile, writeFile } from "node:fs/promises";
 
 const source = JSON.parse(await readFile(new URL("../agent.json", import.meta.url), "utf8"));
 source.version = "0.2";
-source.site.intent = "Public website for a founder-led AI and software implementation company serving small businesses and individuals through workflow improvement and custom development. Booking and contact actions preserve human approval, exact terms, idempotency, audit, and Stripe-hosted payment boundaries.";
-source.site.registryVersion = "2026-08-15.2";
-source.site.registrySha256 = "02bc61929ddaacfd542f970d5e2fc7f297c90cda00948def98ed2758667031b2";
+source.site.intent = "Public website for AIssisted Consulting, an AI and software implementation company serving small businesses and individuals through workflow improvement and custom development. Booking and contact actions preserve human approval, exact terms, idempotency, audit, and Stripe-hosted payment boundaries.";
+source.site.registryVersion = "2026-09-02.1";
+source.site.registrySha256 = "3ca531e1a0fcf19268f6182e6510f965a9328738f1885dc3e197027874b19923";
 
 const command = (id) => source.commands.find((entry) => entry.id === id);
 const overview = command("get_site_overview");
@@ -16,7 +16,7 @@ overview.outputSchema.properties.individualPath = { type: "string" };
 delete overview.outputSchema.properties.familyPath;
 
 const profile = command("get_business_profile");
-profile.description = "Returns the approved founder-led AI and software implementation identity, audiences, two service lanes, offer boundary, location, and contact facts.";
+profile.description = "Returns the approved AIssisted Consulting identity, audiences, two service lanes, offer boundary, location, and contact facts.";
 
 const services = command("get_services");
 services.description = "Returns the two active implementation lanes, the Workflow Map & First-Build Plan, the request-only Fit Call, and secondary Products & R&D boundary.";

@@ -1,13 +1,13 @@
 # AIssisted Consulting
 
-AIssisted Consulting is a founder-led AI and software implementation company. It helps small businesses and individuals improve how work gets done and build useful software, with PJ Standley accountable for the result.
+AIssisted Consulting is an AI and software implementation company. It helps small businesses and individuals improve how work gets done and build useful software with clear scope, human review, and accountable delivery.
 
-Registry version: 2026-08-15.2
-Approved registry SHA-256: 02bc61929ddaacfd542f970d5e2fc7f297c90cda00948def98ed2758667031b2
+Registry version: 2026-09-02.1
+Approved registry SHA-256: 3ca531e1a0fcf19268f6182e6510f965a9328738f1885dc3e197027874b19923
 
 ## Contact and service area
 
-- Founder/operator: PJ Standley
+- Provider: AIssisted Consulting
 - Phone: (352) 817-3567
 - Email: pj@aissistedconsulting.com
 - Base: Ocala, Florida
@@ -22,7 +22,7 @@ For Ocala-focused small-business help, start with the Small Business AI Help pag
 
 ## Primary paid offer
 
-Workflow Map & First-Build Plan: one 60-minute founder-led working session and one founder-reviewed, one-page plan for $225. The plan covers the problem or build goal; recommended direction and material known constraints; the smallest useful first build; and the next decision and validation needed before a reliable implementation quote.
+Workflow Map & First-Build Plan: one 60-minute working session with AIssisted Consulting and one company-reviewed, one-page plan for $225. The plan covers the problem or build goal; recommended direction and material known constraints; the smallest useful first build; and the next decision and validation needed before a reliable implementation quote.
 
 Delivery is by 5:00 PM Eastern on the second qualifying business day after the completed session. The $225 is payment for the session and plan. It is not an implementation deposit and creates no implementation credit. Booking is confirmed only after Stripe reports the payment as paid.
 

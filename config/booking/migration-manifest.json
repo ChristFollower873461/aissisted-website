@@ -18,8 +18,8 @@
     "repositoryPath": "config/booking/terms/legacy-v1-2026-04-06.json"
   },
   "v2Terms": {
-    "termsVersion": "workflow_map_build_discovery_225_terms_2026-08-15_v1",
-    "renderedTermsSha256": "4902ccab0f6fa2872b32e8dcf2ae4ec6b9145deadc92194b13cdc7ccaef35b2c",
+    "termsVersion": "workflow_map_build_discovery_225_terms_2026-09-02_v2",
+    "renderedTermsSha256": "7a0bec864c09b07e987044909b366ebc32562902cb7cf84c99b4ded52941ebc2",
     "repositoryPath": "config/booking/terms/workflow-map-v2.json"
   }
 }

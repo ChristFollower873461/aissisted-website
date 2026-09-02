@@ -29,7 +29,7 @@
       const payload = await response.json().catch(() => ({}));
       if (!response.ok || !payload.ok) throw new Error(payload.error || "We could not send the request.");
       form.reset();
-      status.textContent = "Request received. PJ will review the fit before scheduling anything.";
+      status.textContent = "Request received. AIssisted Consulting will review the fit before scheduling anything.";
     } catch (error) {
       status.textContent = error instanceof Error ? error.message : "We could not send the request.";
     } finally {

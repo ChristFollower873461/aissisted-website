@@ -58,7 +58,7 @@ export const SERVICES = [
   {
     id: "workflow-map-first-build-plan",
     name: "Workflow Map & First-Build Plan",
-    description: "A 60-minute founder-led working session and one founder-reviewed, one-page plan covering four approved outcomes.",
+    description: "A 60-minute working session with AIssisted Consulting and one company-reviewed, one-page plan covering four approved outcomes.",
     price_usd: 225,
     price_type: "one_time",
     location: "Remote",
@@ -143,13 +143,13 @@ export const listServicesTool = {
 export const getBusinessInfoTool = {
   name: "get_business_info",
   description:
-    "Return structured information about AIssisted Consulting: location, contact, founder credentials, service area, and a summary of offerings. Use this when a human asks their agent 'what do they do?' or 'where are they?'",
+    "Return structured information about AIssisted Consulting: location, company contact, service area, and a summary of offerings. Use this when a human asks their agent 'what do they do?' or 'where are they?'",
   inputSchema: { type: "object", properties: {}, additionalProperties: false },
   async handler(env) {
     const config = getBookingConfig(env || {}, "https://aissistedconsulting.com");
     return {
       name: "AIssisted Consulting",
-      tagline: "Founder-led AI and software implementation",
+      tagline: "AI and software implementation for practical workflows and useful software",
       location: {
         city: "Ocala",
         state: "Florida",
@@ -161,10 +161,8 @@ export const getBusinessInfoTool = {
         website: "https://aissistedconsulting.com",
         booking: "https://aissistedconsulting.com/book"
       },
-      founder: {
-        name: "PJ Standley",
-        credentials: ["BSET", "CAIC", "CAIS"],
-        accountability: "PJ is accountable for the result."
+      company: {
+        accountability: "AIssisted Consulting is accountable for the work it delivers."
       },
       offerings_summary: "Help small businesses improve how work gets done and help small businesses or individuals build useful software.",
       policies: {

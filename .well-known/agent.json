@@ -4,9 +4,9 @@
   "site": {
     "name": "AIssisted Consulting",
     "domain": "aissistedconsulting.com",
-    "intent": "Public website for a founder-led AI and software implementation company serving small businesses and individuals through workflow improvement and custom development. Booking and contact actions preserve human approval, exact terms, idempotency, audit, and Stripe-hosted payment boundaries.",
-    "registryVersion": "2026-08-15.2",
-    "registrySha256": "02bc61929ddaacfd542f970d5e2fc7f297c90cda00948def98ed2758667031b2"
+    "intent": "Public website for AIssisted Consulting, an AI and software implementation company serving small businesses and individuals through workflow improvement and custom development. Booking and contact actions preserve human approval, exact terms, idempotency, audit, and Stripe-hosted payment boundaries.",
+    "registryVersion": "2026-09-02.1",
+    "registrySha256": "3ca531e1a0fcf19268f6182e6510f965a9328738f1885dc3e197027874b19923"
   },
   "discovery": {
     "sitemap": "/sitemap.xml",
@@ -90,7 +90,7 @@
     {
       "id": "get_business_profile",
       "title": "Get public business profile",
-      "description": "Returns the approved founder-led AI and software implementation identity, audiences, two service lanes, offer boundary, location, and contact facts.",
+      "description": "Returns the approved AIssisted Consulting identity, audiences, two service lanes, offer boundary, location, and contact facts.",
       "risk": "read_only",
       "requiresHumanApproval": false,
       "method": "GET",
@@ -103,9 +103,6 @@
           },
           "public_brand": {
             "type": "string"
-          },
-          "founder_operator": {
-            "type": "object"
           },
           "contact": {
             "type": "object"

@@ -1,14 +1,13 @@
 {
   "schemaVersion": 2,
-  "registryVersion": "2026-08-15.2",
-  "registrySha256": "02bc61929ddaacfd542f970d5e2fc7f297c90cda00948def98ed2758667031b2",
-  "termsVersion": "workflow_map_build_discovery_225_terms_2026-08-15_v1",
-  "termsSha256": "4902ccab0f6fa2872b32e8dcf2ae4ec6b9145deadc92194b13cdc7ccaef35b2c",
+  "registryVersion": "2026-09-02.1",
+  "registrySha256": "3ca531e1a0fcf19268f6182e6510f965a9328738f1885dc3e197027874b19923",
+  "termsVersion": "workflow_map_build_discovery_225_terms_2026-09-02_v2",
+  "termsSha256": "7a0bec864c09b07e987044909b366ebc32562902cb7cf84c99b4ded52941ebc2",
   "company": {
     "brand": "AIssisted Consulting",
-    "category": "Founder-led AI and software implementation company",
-    "oneLiner": "AIssisted Consulting helps small businesses and individuals improve how work gets done and build useful software, with PJ accountable for the result.",
-    "founder": "PJ Standley",
+    "category": "AI and software implementation company",
+    "oneLiner": "AIssisted Consulting helps small businesses and individuals improve how work gets done and build useful software with clear scope, human review, and accountable delivery.",
     "audiences": [
       "small_businesses",
       "individuals"
@@ -40,7 +39,7 @@
     "amountCents": 22500,
     "currency": "usd",
     "sessionMinutes": 60,
-    "deliverable": "One founder-reviewed, one-page plan",
+    "deliverable": "One company-reviewed, one-page plan",
     "delivery": {
       "timezone": "America/New_York",
       "dueLocalTime": "17:00",

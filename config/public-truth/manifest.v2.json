@@ -1,16 +1,16 @@
 {
   "schemaVersion": 2,
   "registryId": "aissisted_public_truth",
-  "registryVersion": "2026-08-15.2",
-  "approvedRegistrySha256": "02bc61929ddaacfd542f970d5e2fc7f297c90cda00948def98ed2758667031b2",
-  "approvedPublicProjectionSha256": "54352234514bcffebdf0a5436aef9c4044d72338af144af4e4738ed45371be74",
+  "registryVersion": "2026-09-02.1",
+  "approvedRegistrySha256": "3ca531e1a0fcf19268f6182e6510f965a9328738f1885dc3e197027874b19923",
+  "approvedPublicProjectionSha256": "926f671cb3cfb776e493c132dfad626a8bfba62bf74cca01f493ab8a504c0fc2",
   "status": "effective",
   "approvedBy": "PJ Standley",
-  "approvedAt": "2026-08-15T20:43:00-04:00",
+  "approvedAt": "2026-09-02T06:52:07-04:00",
   "company": {
     "brand": "AIssisted Consulting",
-    "category": "Founder-led AI and software implementation company",
-    "oneLiner": "AIssisted Consulting helps small businesses and individuals improve how work gets done and build useful software, with PJ accountable for the result.",
+    "category": "AI and software implementation company",
+    "oneLiner": "AIssisted Consulting helps small businesses and individuals improve how work gets done and build useful software with clear scope, human review, and accountable delivery.",
     "founder": "PJ Standley",
     "audiences": ["small_businesses", "individuals"],
     "geography": "Central and North Central Florida plus remote work across the United States"
@@ -35,7 +35,7 @@
     "amountCents": 22500,
     "currency": "usd",
     "sessionMinutes": 60,
-    "deliverable": "One founder-reviewed, one-page plan",
+    "deliverable": "One company-reviewed, one-page plan",
     "delivery": {
       "timezone": "America/New_York",
       "dueLocalTime": "17:00",
@@ -50,8 +50,8 @@
       "Next decision and validation needed before a reliable implementation quote"
     ],
     "internalChecklistIds": ["IC-01_current_state", "IC-02_target_outcome", "IC-03_recommended_direction", "IC-04_smallest_first_build", "IC-05_inputs_and_integrations", "IC-06_controls_and_risks", "IC-07_unknowns_and_validation", "IC-08_next_decision"],
-    "termsVersion": "workflow_map_build_discovery_225_terms_2026-08-15_v1",
-    "termsSha256": "4902ccab0f6fa2872b32e8dcf2ae4ec6b9145deadc92194b13cdc7ccaef35b2c",
+    "termsVersion": "workflow_map_build_discovery_225_terms_2026-09-02_v2",
+    "termsSha256": "7a0bec864c09b07e987044909b366ebc32562902cb7cf84c99b4ded52941ebc2",
     "implementationCreditEnabled": false,
     "paymentMethodPolicy": "synchronous_card_only",
     "confirmationRequires": "paid",
