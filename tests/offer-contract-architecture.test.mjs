@@ -87,9 +87,9 @@ test("release pointer and checkout kill switch fail closed", () => {
   assert.equal(resolveBookingControls(v2Env({ BOOKING_V2_STRIPE_PRICE_ID: "" })).checkoutEnabled, false);
 });
 
-test("tracked production config stages the v2 contract with Checkout disabled", () => {
+test("tracked production config enables the validated v2 Checkout release", () => {
   assert.match(productionWrangler, /ACTIVE_BOOKING_RELEASE\s*=\s*"aissisted_booking_v2_2026_08_15"/);
-  assert.match(productionWrangler, /BOOKING_CHECKOUT_ENABLED\s*=\s*"false"/);
+  assert.match(productionWrangler, /BOOKING_CHECKOUT_ENABLED\s*=\s*"true"/);
   assert.match(productionWrangler, /BOOKING_V2_STRIPE_PRODUCT_ID\s*=\s*"prod_[^"]+"/);
   assert.match(productionWrangler, /BOOKING_V2_STRIPE_PRICE_ID\s*=\s*"price_[^"]+"/);
   assert.match(productionWrangler, /BOOKING_V2_PAYMENT_METHOD_CONFIGURATION_ID\s*=\s*"pmc_[^"]+"/);
