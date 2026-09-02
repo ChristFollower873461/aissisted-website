@@ -54,9 +54,13 @@
 /guides/what-not-to-share-with-ai /guides/what-not-to-share-with-ai/ 301
 /guides/ai-tools-for-household-admin /guides/ai-tools-for-household-admin/ 301
 
-# Legacy AIssisted routes from the current production site that are safe to consolidate.
-# Campaign/funnel routes /openclaw, /openclaw-florida, /reserve, /thank-you, /blog/,
-# and /tools intentionally remain live files because they carry Axos/Axon tracking.
+# Legacy AIssisted routes consolidated into the approved company and offer paths.
+/reserve /book/ 301
+/reserve.html /book/ 301
+/openclaw /services/ 301
+/openclaw.html /services/ 301
+/openclaw-florida /services/ 301
+/openclaw-florida.html /services/ 301
 /pricing /book/ 301
 /pricing.html /book/ 301
 /case-studies /small-business-ai-help/ 301

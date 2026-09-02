@@ -49,6 +49,20 @@
   ];
   var MAX_ATTRIBUTION_SOURCE_LENGTH = 500;
 
+  function isTrackingSuppressed() {
+    var hostname = String(window.location.hostname || "").toLowerCase();
+    return (
+      window.location.protocol === "file:" ||
+      hostname === "localhost" ||
+      hostname.slice(-10) === ".localhost" ||
+      hostname === "127.0.0.1" ||
+      hostname === "::1" ||
+      hostname === "[::1]" ||
+      hostname === "aissisted-offer-v2-preview.pages.dev" ||
+      hostname.endsWith(".aissisted-offer-v2-preview.pages.dev")
+    );
+  }
+
   function safeJsonParse(value) {
     try {
       return value ? JSON.parse(value) : {};
@@ -75,6 +89,11 @@
   }
 
   function ensureGoogleTag() {
+    if (isTrackingSuppressed()) {
+      window.__aicTrackingSuppressed = "nonproduction_preview";
+      return false;
+    }
+
     window.dataLayer = window.dataLayer || [];
     if (typeof window.gtag !== "function") {
       window.gtag = function () {
@@ -116,6 +135,8 @@
       script.src = "https://www.googletagmanager.com/gtag/js?id=" + encodeURIComponent(GOOGLE_ADS_TAG_ID);
       document.head.appendChild(script);
     }
+
+    return true;
   }
 
   function currentTouch() {
@@ -232,6 +253,7 @@
   }
 
   function recordGoogleAdsConversion(eventName, payload, explicitLabel) {
+    if (isTrackingSuppressed()) return false;
     if (typeof window.gtag !== "function") return false;
 
     var conversion = normalizedConversionConfig(eventName, explicitLabel, payload);
@@ -277,7 +299,7 @@
     window.dataLayer = window.dataLayer || [];
     window.dataLayer.push(payload);
 
-    if (typeof window.gtag === "function") {
+    if (!isTrackingSuppressed() && typeof window.gtag === "function") {
       window.gtag("event", eventName, payload);
     }
 
@@ -347,6 +369,7 @@
     attributionSourcePage: attributionSourcePage,
     emit: emit,
     recordGoogleAdsConversion: recordGoogleAdsConversion,
-    ensureGoogleTag: ensureGoogleTag
+    ensureGoogleTag: ensureGoogleTag,
+    isTrackingSuppressed: isTrackingSuppressed
   };
 })();

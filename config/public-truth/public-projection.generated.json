@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 2,
+  "registryVersion": "2026-08-15.2",
+  "registrySha256": "02bc61929ddaacfd542f970d5e2fc7f297c90cda00948def98ed2758667031b2",
+  "termsVersion": "workflow_map_build_discovery_225_terms_2026-08-15_v1",
+  "termsSha256": "4902ccab0f6fa2872b32e8dcf2ae4ec6b9145deadc92194b13cdc7ccaef35b2c",
+  "company": {
+    "brand": "AIssisted Consulting",
+    "category": "Founder-led AI and software implementation company",
+    "oneLiner": "AIssisted Consulting helps small businesses and individuals improve how work gets done and build useful software, with PJ accountable for the result.",
+    "founder": "PJ Standley",
+    "audiences": [
+      "small_businesses",
+      "individuals"
+    ],
+    "geography": "Central and North Central Florida plus remote work across the United States"
+  },
+  "lanes": [
+    {
+      "laneId": "workflow_improvement",
+      "label": "Fix how something works",
+      "audiences": [
+        "small_business"
+      ]
+    },
+    {
+      "laneId": "custom_development",
+      "label": "Build something new",
+      "audiences": [
+        "small_business",
+        "individual"
+      ]
+    }
+  ],
+  "primaryOffer": {
+    "releaseId": "aissisted_booking_v2_2026_08_15",
+    "offerId": "workflow_map_build_discovery_225",
+    "offerVersion": 2,
+    "title": "Workflow Map & First-Build Plan",
+    "amountCents": 22500,
+    "currency": "usd",
+    "sessionMinutes": 60,
+    "deliverable": "One founder-reviewed, one-page plan",
+    "delivery": {
+      "timezone": "America/New_York",
+      "dueLocalTime": "17:00",
+      "businessDayOrdinal": 2,
+      "calendarId": "aissisted_us_federal_observed_2026_v1",
+      "observedDates": [
+        "2026-01-01",
+        "2026-01-19",
+        "2026-02-16",
+        "2026-05-25",
+        "2026-06-19",
+        "2026-07-03",
+        "2026-09-07",
+        "2026-10-12",
+        "2026-11-11",
+        "2026-11-26",
+        "2026-12-25"
+      ]
+    },
+    "publicOutcomes": [
+      "Problem or build goal",
+      "Recommended direction and material known constraints",
+      "Smallest useful first build",
+      "Next decision and validation needed before a reliable implementation quote"
+    ],
+    "implementationCreditEnabled": false,
+    "paymentMethodPolicy": "synchronous_card_only",
+    "confirmationRequires": "paid"
+  },
+  "fitCall": {
+    "offerId": "fit_call_15",
+    "title": "15-Minute Fit Call",
+    "durationMinutes": 15,
+    "initialWeeklyCapacity": 2,
+    "requestBased": true,
+    "stripeBookable": false
+  },
+  "proof": {
+    "websiteCustomerClaimIds": []
+  },
+  "products": {
+    "hierarchy": "secondary_products_and_r_and_d",
+    "mayImplyConsultingTractionOrRevenue": false
+  }
+}

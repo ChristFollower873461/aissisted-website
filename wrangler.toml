@@ -2,7 +2,9 @@ name = "aissisted-website"
 compatibility_date = "2026-03-10"
 pages_build_output_dir = "."
 
-# Production deploy config for AIssisted Consulting V11.11.
+# Production configuration for the governed v2 offer.
+# Checkout is enabled only for the validated live release, provider references,
+# and production D1 binding recorded below.
 # Do NOT put credentials in this file. Set secrets through Cloudflare Pages:
 #   STRIPE_SECRET_KEY
 #   STRIPE_WEBHOOK_SECRET
@@ -29,6 +31,18 @@ AIC_OWNER_ALERT_EMAIL = "pj@aissistedconsulting.com"
 BOOKING_POLICY_VERSION = "2026-04-06"
 BOOKING_RESERVATION_AMOUNT_CENTS = "22500"
 STRIPE_BOOKING_PRICE_ID = "price_1TNNnxP3Zy09i3cc3B8yErot"
+ACTIVE_BOOKING_RELEASE = "aissisted_booking_v2_2026_08_15"
+BOOKING_CHECKOUT_ENABLED = "true"
+FIT_CALL_REQUESTS_ENABLED = "true"
+FIT_CALL_WEEKLY_CAPACITY = "2"
+BOOKING_V2_STRIPE_PRODUCT_ID = "prod_V5BlbU0onBqZJm"
+BOOKING_V2_STRIPE_PRICE_ID = "price_1U51O1P3Zy09i3ccga31AkfA"
+BOOKING_V2_PAYMENT_METHOD_CONFIGURATION_ID = "pmc_1U51Q9P3Zy09i3ccSq8MwgKG"
+STRIPE_EXPECTED_LIVEMODE = "true"
+BOOKING_OPEN_SESSION_EXPIRY_ENABLED = "false"
+BOOKING_MONITOR_MAX_GAP_MINUTES = "20"
+BOOKING_CREATE_GOOGLE_CALENDAR_EVENT = "true"
+GOOGLE_CALENDAR_SEND_UPDATES = "all"
 
 [[d1_databases]]
 binding = "BOOKING_DB"

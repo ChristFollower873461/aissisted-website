@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "databaseBinding": "BOOKING_DB",
+  "productionLedgerCapturedAt": "2026-09-02T06:32:34-04:00",
+  "contractlessRowsAreLegacy": true,
+  "automaticLegacyBackfill": false,
+  "freshSchemaSha256": "1af56edf46ccadca2ed25ba0e1b53d4c623dd430988501b6b41fea72b6385403",
+  "migrations": [
+    {"logicalId": "0001", "filename": "0001_booking_schema.sql", "sha256": "4840a2f491f8142cc8bc7bd6d4904a5d7810a1c0b846bff595b296c9f0540ea1", "productionStatus": "applied", "note": "Restored to the exact original 2026-04-06 migration bytes after preview exposed that a later commit had copied 0002 additions backward into 0001, breaking fresh migration chains."},
+    {"logicalId": "0002a", "filename": "0002_v1111_transactional_hardening.sql", "sha256": "c663cfec5ed436a07f5ffab0e6181e97a0e7a91471522cc17c6c7f0deab672db", "productionStatus": "applied", "note": "Historical filename-number collision preserved; logical ID disambiguates it."},
+    {"logicalId": "0002b", "filename": "0002_create_mcp_log.sql", "sha256": "c926f374406f8a044d906d417f936aa28b8695a3a58f43fef0f23c888b5f58c5", "productionStatus": "applied", "note": "Historical filename-number collision preserved; logical ID disambiguates it."},
+    {"logicalId": "0003", "filename": "0003_grail_workspaces.sql", "sha256": "9510592048b342adacb17aea398469032df554880c2f41dfa707975645863063", "productionStatus": "applied_shape_reconstructed", "productionAppliedFileHashKnown": false, "note": "DDL shape and indexes reconstructed from read-only production sqlite_master; original applied file bytes were unavailable."},
+    {"logicalId": "0004", "filename": "0004_offer_contracts_and_deliverables.sql", "sha256": "fdfbca2137ce005e9c1195cf15f69d0aa8896fe0524bf34b453c89c3adc41313", "productionStatus": "applied", "productionAppliedAt": "2026-08-16 17:01:03"}
+  ],
+  "legacyPolicy": {
+    "policyVersion": "2026-04-06",
+    "sourceEvidenceSha256": "b1b1a3e77b56aa7023623751e3c981d9adf4be00542f3cf4fe152eabfe685d06",
+    "repositoryPath": "config/booking/terms/legacy-v1-2026-04-06.json"
+  },
+  "v2Terms": {
+    "termsVersion": "workflow_map_build_discovery_225_terms_2026-08-15_v1",
+    "renderedTermsSha256": "4902ccab0f6fa2872b32e8dcf2ae4ec6b9145deadc92194b13cdc7ccaef35b2c",
+    "repositoryPath": "config/booking/terms/workflow-map-v2.json"
+  }
+}

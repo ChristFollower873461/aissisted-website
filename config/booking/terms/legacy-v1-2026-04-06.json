@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "policyVersion": "2026-04-06",
+  "status": "legacy_preserved_not_for_new_v2_sales",
+  "sourceCommit": "678e22bf4d93e5efc7ba6d86c9f586da3aed79bf",
+  "amountCents": 22500,
+  "currency": "usd",
+  "sessionMinutes": 60,
+  "policyHeading": "60 minutes. $225 deposit.",
+  "customerPolicyText": "This payment reserves your appointment window. If you move forward as a customer, the $225 is credited once toward service. If you do not move forward, the reservation payment is non-refundable.",
+  "customerAcceptanceText": "I understand this is a $225 non-refundable reservation deposit, credited once toward service if I become a customer.",
+  "confirmationCondition": "A slot is not confirmed until Stripe payment succeeds and the booking record is finalized.",
+  "stripeProductId": "prod_UHv1U1ZmK4E51z",
+  "stripePriceId": "price_1TNNnxP3Zy09i3cc3B8yErot",
+  "stripeProductName": "60-Minute AI Consult Reservation",
+  "stripeProductDescription": "Non-refundable $225 deposit for a 60-minute session with PJ Standley. Credited once toward service if you become a customer.",
+  "preservationRule": "Never reinterpret a booking that accepted this policy as a v2 purchase. Preserve any credit created under this policy even if new v2 purchases have no implementation credit.",
+  "sourceEvidenceSha256": "b1b1a3e77b56aa7023623751e3c981d9adf4be00542f3cf4fe152eabfe685d06"
+}

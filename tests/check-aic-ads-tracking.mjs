@@ -213,6 +213,25 @@ function assertAnalyticsConfiguration() {
   pass("AIC GA4 and restricted-region consent configuration verified");
 }
 
+function assertPreviewSuppression(url, label) {
+  const run = runTrackingScript({ url });
+
+  if (run.appendedScripts.length !== 0) {
+    fail(`${label} appended a production Google tag loader`);
+  }
+  if (run.window.__aicTrackingSuppressed !== "nonproduction_preview") {
+    fail(`${label} did not expose its tracking-suppression state`);
+  }
+  if (run.window.AicAdsTracking.recordGoogleAdsConversion("aic_booking_confirmed", {})) {
+    fail(`${label} recorded a Google Ads conversion`);
+  }
+  if (run.gtagCalls.length !== 0) {
+    fail(`${label} emitted a Google measurement call`);
+  }
+
+  pass(`${label} Google measurement suppression verified`);
+}
+
 assertFile("assets/aic-google-ads-tracking.js");
 assertIncludes("index.html", ["assets/aic-google-ads-tracking.js"]);
 assertIncludes("small-business-ai-help/index.html", [
@@ -248,6 +267,18 @@ assertConversionBridge();
 assertConfiguredGoogleAdsLabels();
 assertAttributionSourcePage();
 assertAnalyticsConfiguration();
+assertPreviewSuppression(
+  "http://localhost:8788/book/?utm_source=local_qa",
+  "AIC local preview"
+);
+assertPreviewSuppression(
+  "https://aissisted-offer-v2-preview.pages.dev/book/?utm_source=hosted_qa",
+  "AIC hosted preview"
+);
+assertPreviewSuppression(
+  "https://fd7f6ff.aissisted-offer-v2-preview.pages.dev/book/?utm_source=hosted_qa",
+  "AIC immutable hosted preview"
+);
 
 if (process.exitCode) {
   process.exit(process.exitCode);

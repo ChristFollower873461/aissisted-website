@@ -1,3 +1,5 @@
+import { buildStripeContractMetadata, contractMatchesRelease } from "./booking-releases.js";
+
 const STRIPE_API = "https://api.stripe.com/v1";
 
 function asFormUrlEncoded(params) {
@@ -17,6 +19,7 @@ async function stripeRequest(config, path, options = {}) {
     method: options.method || "POST",
     headers: {
       authorization: `Bearer ${config.stripeSecretKey}`,
+      ...(config.stripeApiVersion ? { "stripe-version": config.stripeApiVersion } : {}),
       ...(options.idempotencyKey ? { "idempotency-key": options.idempotencyKey } : {}),
       ...(options.body
         ? { "content-type": "application/x-www-form-urlencoded" }
@@ -56,6 +59,10 @@ export async function createStripeCustomer(config, prospect, options = {}) {
 }
 
 export async function createCheckoutSession(config, booking, prospect, options = {}) {
+  if (!config.activeRelease || !contractMatchesRelease(booking, config.activeRelease)) {
+    throw new Error("The stored booking contract does not match the active release.");
+  }
+  const contractMetadata = buildStripeContractMetadata(config.activeRelease, booking.id);
   const successUrl = `${config.siteOrigin}/book/success/?booking_id=${encodeURIComponent(booking.id)}&session_id={CHECKOUT_SESSION_ID}`;
   const cancelUrl = `${config.siteOrigin}/book/cancel/?booking_id=${encodeURIComponent(booking.id)}`;
   const body = asFormUrlEncoded({
@@ -70,15 +77,33 @@ export async function createCheckoutSession(config, booking, prospect, options =
     locale: "auto",
     "phone_number_collection[enabled]": true,
     "line_items[0][quantity]": 1,
-    "metadata[booking_id]": booking.id,
+    payment_method_configuration:
+      config.activeRelease.stripePaymentMethodConfigurationRef || undefined,
+    integration_identifier:
+      config.activeRelease.stripeIntegrationIdentifier || undefined,
+    "payment_intent_data[description]":
+      config.activeRelease.stripeReceiptDescription || undefined,
+    "custom_text[submit][message]":
+      config.activeRelease.stripeCheckoutTermsMessage || undefined,
+    "metadata[booking_id]": contractMetadata.booking_id,
     "metadata[prospect_id]": booking.prospectId,
     "metadata[slot_id]": booking.slotId,
     "metadata[slot_start]": booking.selectedTimeWindowStart,
     "metadata[slot_end]": booking.selectedTimeWindowEnd,
     "metadata[policy_version]": booking.policyVersion,
+    "metadata[release_id]": contractMetadata.release_id,
+    "metadata[offer_id]": contractMetadata.offer_id,
+    "metadata[offer_version]": contractMetadata.offer_version,
+    "metadata[terms_version]": contractMetadata.terms_version,
+    "metadata[terms_sha256]": contractMetadata.terms_sha256,
     "payment_intent_data[metadata][booking_id]": booking.id,
     "payment_intent_data[metadata][prospect_id]": booking.prospectId,
     "payment_intent_data[metadata][slot_id]": booking.slotId,
+    "payment_intent_data[metadata][release_id]": contractMetadata.release_id,
+    "payment_intent_data[metadata][offer_id]": contractMetadata.offer_id,
+    "payment_intent_data[metadata][offer_version]": contractMetadata.offer_version,
+    "payment_intent_data[metadata][terms_version]": contractMetadata.terms_version,
+    "payment_intent_data[metadata][terms_sha256]": contractMetadata.terms_sha256,
     expires_at: Math.floor(new Date(booking.temporaryHoldExpiresAt).getTime() / 1000)
   });
 
@@ -88,11 +113,11 @@ export async function createCheckoutSession(config, booking, prospect, options =
     body.set("line_items[0][price_data][currency]", booking.currency);
     body.set(
       "line_items[0][price_data][product_data][name]",
-      "60-minute founder-led consult reservation"
+      config.activeRelease.title
     );
     body.set(
       "line_items[0][price_data][product_data][description]",
-      "Non-refundable $225 reservation deposit for a 60-minute session with PJ Standley, credited once toward service if you become a customer."
+      config.activeRelease.stripeDescription
     );
     body.set(
       "line_items[0][price_data][unit_amount]",
@@ -100,14 +125,43 @@ export async function createCheckoutSession(config, booking, prospect, options =
     );
   }
 
-  return stripeRequest(config, "/checkout/sessions", {
+  const session = await stripeRequest(config, "/checkout/sessions", {
     body,
     idempotencyKey: options.idempotencyKey
   });
+  if (config.activeRelease.paymentMethodPolicy === "synchronous_card_only") {
+    try {
+      if (typeof config.stripeExpectedLivemode !== "boolean") {
+        throw new Error("Stripe environment mode must be explicit for the v2 booking release.");
+      }
+      if (session.livemode !== config.stripeExpectedLivemode) {
+        throw new Error("Stripe Checkout Session mode does not match the configured environment.");
+      }
+      const types = Array.isArray(session.payment_method_types)
+        ? session.payment_method_types
+        : [];
+      if (types.length !== 1 || types[0] !== "card") {
+        throw new Error("Stripe Checkout Session is not restricted to synchronous card payments.");
+      }
+    } catch (error) {
+      if (session.id) {
+        try {
+          await expireCheckoutSession(config, session.id);
+        } catch (expireError) {
+          console.error("[booking] Failed to expire a rejected Stripe Checkout Session.", expireError);
+        }
+      }
+      throw error;
+    }
+  }
+  return session;
 }
 
-export async function retrieveCheckoutSession(config, sessionId) {
-  return stripeRequest(config, `/checkout/sessions/${encodeURIComponent(sessionId)}`, {
+export async function retrieveCheckoutSession(config, sessionId, options = {}) {
+  const expand = options.expandContract === true
+    ? "?expand[]=line_items.data.price.product"
+    : "";
+  return stripeRequest(config, `/checkout/sessions/${encodeURIComponent(sessionId)}${expand}`, {
     method: "GET"
   });
 }
@@ -118,6 +172,41 @@ export async function expireCheckoutSession(config, sessionId) {
     `/checkout/sessions/${encodeURIComponent(sessionId)}/expire`,
     { body: new URLSearchParams() }
   );
+}
+
+export async function listOpenCheckoutSessionsForRelease(
+  config,
+  releaseId,
+  options = {}
+) {
+  if (!config.stripeSecretKey || typeof config.stripeExpectedLivemode !== "boolean") {
+    throw new Error("Stripe key and explicit environment mode are required.");
+  }
+  const pageLimit = Math.min(Math.max(Number(options.pageLimit || 100), 1), 100);
+  const maxPages = Math.min(Math.max(Number(options.maxPages || 10), 1), 10);
+  const sessions = [];
+  let startingAfter = "";
+
+  for (let page = 0; page < maxPages; page += 1) {
+    const query = new URLSearchParams({ status: "open", limit: String(pageLimit) });
+    if (startingAfter) query.set("starting_after", startingAfter);
+    const payload = await stripeRequest(
+      config,
+      `/checkout/sessions?${query.toString()}`,
+      { method: "GET" }
+    );
+    const data = Array.isArray(payload.data) ? payload.data : [];
+    for (const session of data) {
+      if (session.livemode !== config.stripeExpectedLivemode) {
+        throw new Error("Stripe open-Session inventory crossed environment modes.");
+      }
+      if (session.metadata?.release_id === releaseId) sessions.push(session);
+    }
+    if (!payload.has_more || data.length === 0) break;
+    startingAfter = data[data.length - 1].id;
+  }
+
+  return sessions;
 }
 
 function parseSignatureHeader(signatureHeader) {

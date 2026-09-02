@@ -1,9 +1,13 @@
 {
+  "schema_version": 2,
+  "registry_version": "2026-08-15.2",
+  "registry_sha256": "02bc61929ddaacfd542f970d5e2fc7f297c90cda00948def98ed2758667031b2",
   "name": "AIssisted Consulting",
-  "public_brand": "AIssisted Consulting",
+  "category": "Founder-led AI and software implementation company",
+  "one_liner": "AIssisted Consulting helps small businesses and individuals improve how work gets done and build useful software, with PJ accountable for the result.",
   "founder_operator": {
-    "name": "PJ",
-    "role": "Founder/operator of the AIssisted Consulting AI operations lab"
+    "name": "PJ Standley",
+    "role": "Founder and accountable implementation lead"
   },
   "contact": {
     "phone_display": "(352) 817-3567",
@@ -17,71 +21,59 @@
     "country": "United States"
   },
   "service_area": {
-    "local_regions": [
-      "Central Florida",
-      "North Central Florida"
-    ],
-    "remote_region": "United States",
-    "notes": [
-      "AIssisted Consulting is based in Ocala, Florida.",
-      "The site describes help for Central Florida, North Central Florida, and remote clients across the United States.",
-      "This feed does not create extra city, county, or state service claims."
-    ]
+    "local_regions": ["Central Florida", "North Central Florida"],
+    "remote_region": "United States"
   },
   "primary_audiences": [
     {
-      "audience": "Small service businesses",
-      "status": "active",
-      "fit": "Owners who need practical help with intake, scheduling, follow-up, reporting, owner visibility, and reviewable workflows."
+      "audience_id": "small_businesses",
+      "fit": "Businesses with a concrete workflow problem or software build goal."
     },
     {
-      "audience": "Families and households",
-      "status": "guidance",
-      "fit": "Households with setup, privacy, everyday use, and boundary questions about AI tools."
+      "audience_id": "individuals",
+      "fit": "Individuals with a concrete software build goal. Personal and family AI questions route through Contact."
     }
   ],
-  "positioning": [
-    "Founder-led AI operations lab for small businesses.",
-    "Practical AI systems, real results, and control over the work.",
-    "One useful workflow first instead of a broad AI transformation.",
-    "Plain-English implementation for one useful workflow first.",
-    "Softer sales posture with practical guides, examples, and clear next steps.",
-    "Small-business workflow help and conservative family AI guidance.",
-    "The public booking route can reserve a 60-minute founder-led consult through the same-origin booking backend and Stripe Checkout when deployment credentials are configured."
+  "service_lanes": [
+    { "lane_id": "workflow_improvement", "label": "Fix how something works" },
+    { "lane_id": "custom_development", "label": "Build something new" }
   ],
-  "booking": {
-    "page": "https://aissistedconsulting.com/book/",
-    "offer": "60-minute founder-led AI operations consult",
-    "reservation_deposit_usd": 225,
-    "policy": "The reservation deposit is non-refundable and credited once toward service if the visitor becomes a customer.",
-    "confirmation_boundary": "A slot is not confirmed until Stripe payment succeeds and the booking backend finalizes the record."
+  "primary_offer": {
+    "release_id": "aissisted_booking_v2_2026_08_15",
+    "offer_id": "workflow_map_build_discovery_225",
+    "offer_version": 2,
+    "name": "Workflow Map & First-Build Plan",
+    "session_minutes": 60,
+    "fee_usd": 225,
+    "deliverable": "One founder-reviewed, one-page plan",
+    "delivery": "By 5:00 PM Eastern on the second qualifying business day after the completed session.",
+    "implementation_credit": false,
+    "confirmation_boundary": "A booking is confirmed only after Stripe reports the payment as paid."
   },
-  "privacy_control_posture": [
-    "AI should support people without handing away sensitive control.",
-    "Customer relationships, family decisions, and important exceptions need human review.",
-    "Sensitive data boundaries should be named before a tool or workflow is added.",
-    "Some work should stay manual."
-  ],
-  "wrong_fit_boundaries": [
-    "Removing human judgment.",
-    "Standing in for staff, parents, caregivers, teachers, or professionals.",
-    "Bypassing privacy, security, legal, medical, financial, school-policy, or compliance review.",
-    "Unapproved communication, commitments, transactions, booking, payment, or external writes.",
-    "Outcome promises around AI visibility, lead flow, revenue, safety, or rankings."
-  ],
+  "fit_call": {
+    "name": "15-Minute Fit Call",
+    "price_usd": 0,
+    "request_based": true,
+    "stripe_bookable": false,
+    "initial_weekly_capacity": 2
+  },
+  "products_and_r_and_d": {
+    "position": "Secondary capability examples",
+    "boundary": "Products and experiments do not imply consulting customer traction or revenue."
+  },
+  "proof_boundary": "No customer claims or aggregate customer metrics are approved for this website projection.",
   "canonical_pages": {
     "home": "https://aissistedconsulting.com/",
     "small_business_ai_help": "https://aissistedconsulting.com/small-business-ai-help/",
     "workflow_automation": "https://aissistedconsulting.com/workflow-automation/",
     "family_ai_help": "https://aissistedconsulting.com/family-ai-help/",
     "services": "https://aissistedconsulting.com/services/",
-    "privacy_and_control": "https://aissistedconsulting.com/privacy-and-control/",
     "about": "https://aissistedconsulting.com/about/",
     "contact": "https://aissistedconsulting.com/contact/",
     "book": "https://aissistedconsulting.com/book/"
   },
   "publication_boundary": "This support file summarizes public site facts and declared local/deployable agent-surface capabilities. It does not represent live AVOS testing, crawler changes, credentialed private workflows, direct card collection, CRM/email writes, analytics writes, or destructive actions.",
-  "last_reviewed": "2026-08-17",
+  "last_reviewed": "2026-09-02",
   "agent_surface": {
     "manifest": "https://aissistedconsulting.com/.well-known/agent.json",
     "risk_tiers": [
@@ -91,7 +83,7 @@
       "financial"
     ],
     "contact_submission": "Agent-assisted contact submission is declared only through the same-origin contact endpoint with human approval, consent, Idempotency-Key, duplicate suppression, and audit records.",
-    "booking_checkout": "Agent-assisted booking checkout is declared only through the same-origin booking endpoint with human approval, policy acceptance, checkout consent, exact amount/currency/policy confirmation, Idempotency-Key, slot conflict checks, audit records, and Stripe Checkout.",
+    "booking_checkout": "The same-origin booking endpoint creates Stripe Checkout only after human approval and acceptance of the exact release, offer, fee, currency, terms version, and terms hash. The $225 fee purchases the session and one-page plan and creates no implementation credit.",
     "excluded_capabilities": [
       "destructive actions",
       "direct card collection",
