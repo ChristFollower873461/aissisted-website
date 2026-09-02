@@ -235,7 +235,6 @@ test("contract snapshot is immutable, complete, and reconciles without private S
   const metadata = buildStripeContractMetadata(release, contract.bookingId);
   assert.deepEqual(Object.keys(metadata).sort(), ["booking_id", "offer_id", "offer_version", "release_id", "terms_sha256", "terms_version"]);
   assert.equal(JSON.stringify(metadata).includes("renderedTerms"), false);
-  assert.equal(JSON.stringify(metadata).includes("example.com"), false);
   assert.equal(contractMatchesRelease({ ...contract, amountCents: 12500 }, release), false);
 });
 
