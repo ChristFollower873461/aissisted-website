@@ -4,8 +4,8 @@ import { fileURLToPath } from "node:url";
 import { TOOLS } from "../functions/api/_lib/mcp-tools.js";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const registryVersion = "2026-08-15.2";
-const registryHash = "02bc61929ddaacfd542f970d5e2fc7f297c90cda00948def98ed2758667031b2";
+const registryVersion = "2026-09-02.1";
+const registryHash = "3ca531e1a0fcf19268f6182e6510f965a9328738f1885dc3e197027874b19923";
 const activeFiles = [
   "index.html",
   "services/index.html",

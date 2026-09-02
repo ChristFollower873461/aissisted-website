@@ -42,7 +42,7 @@ export function validateManifest(manifest) {
   assert(manifest.registryId === "aissisted_public_truth", "registryId mismatch");
   assert(HASH.test(manifest.approvedRegistrySha256), "approved registry hash invalid");
   assert(HASH.test(manifest.approvedPublicProjectionSha256), "approved projection hash invalid");
-  assert(manifest.company.category === "Founder-led AI and software implementation company", "company category drift");
+  assert(manifest.company.category === "AI and software implementation company", "company category drift");
   assert(manifest.company.oneLiner.includes("small businesses and individuals"), "company audience drift");
   assert(manifest.lanes.length === 2, "exactly two lanes required");
   assert(manifest.lanes[0].laneId === "workflow_improvement", "workflow lane drift");
@@ -76,7 +76,13 @@ export function buildPublicProjection(manifest) {
     registrySha256: manifest.approvedRegistrySha256,
     termsVersion: manifest.offer.termsVersion,
     termsSha256: manifest.offer.termsSha256,
-    company: manifest.company,
+    company: {
+      brand: manifest.company.brand,
+      category: manifest.company.category,
+      oneLiner: manifest.company.oneLiner,
+      audiences: manifest.company.audiences,
+      geography: manifest.company.geography
+    },
     lanes: manifest.lanes.map(({ laneId, label, audiences }) => ({ laneId, label, audiences })),
     primaryOffer: {
       releaseId: manifest.offer.releaseId,

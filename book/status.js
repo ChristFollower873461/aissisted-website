@@ -85,7 +85,7 @@
           if (Number(payload.booking.offer && payload.booking.offer.offerVersion) >= 2) {
             setState("Confirmed", "Your working session is confirmed.", "Payment is confirmed. After the completed session, your Workflow Map & First-Build Plan will be tracked against the delivery terms you accepted.");
           } else {
-            setState("Confirmed", "Your appointment is reserved.", "Payment is confirmed, the calendar booking is being placed on PJ's schedule, and the booking record carries a one-time $225 deposit credit for future service.");
+            setState("Confirmed", "Your appointment is reserved.", "Payment is confirmed, the calendar booking is being placed on AIssisted Consulting's schedule, and the booking record carries a one-time $225 deposit credit for future service.");
           }
           if (window.AicAdsTracking && !wasConversionReported()) {
             window.AicAdsTracking.emit("aic_booking_confirmed", {

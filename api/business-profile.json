@@ -1,14 +1,10 @@
 {
   "schema_version": 2,
-  "registry_version": "2026-08-15.2",
-  "registry_sha256": "02bc61929ddaacfd542f970d5e2fc7f297c90cda00948def98ed2758667031b2",
+  "registry_version": "2026-09-02.1",
+  "registry_sha256": "3ca531e1a0fcf19268f6182e6510f965a9328738f1885dc3e197027874b19923",
   "name": "AIssisted Consulting",
-  "category": "Founder-led AI and software implementation company",
-  "one_liner": "AIssisted Consulting helps small businesses and individuals improve how work gets done and build useful software, with PJ accountable for the result.",
-  "founder_operator": {
-    "name": "PJ Standley",
-    "role": "Founder and accountable implementation lead"
-  },
+  "category": "AI and software implementation company",
+  "one_liner": "AIssisted Consulting helps small businesses and individuals improve how work gets done and build useful software with clear scope, human review, and accountable delivery.",
   "contact": {
     "phone_display": "(352) 817-3567",
     "phone_e164": "+13528173567",
@@ -45,7 +41,7 @@
     "name": "Workflow Map & First-Build Plan",
     "session_minutes": 60,
     "fee_usd": 225,
-    "deliverable": "One founder-reviewed, one-page plan",
+    "deliverable": "One company-reviewed, one-page plan",
     "delivery": "By 5:00 PM Eastern on the second qualifying business day after the completed session.",
     "implementation_credit": false,
     "confirmation_boundary": "A booking is confirmed only after Stripe reports the payment as paid."

@@ -23,7 +23,7 @@ AIC_OWNER_ALERT_EMAIL = "pj@aissistedconsulting.com"
 # separately authorized sandbox-payment exercise.
 BOOKING_CHECKOUT_ENABLED = "false"
 ACTIVE_BOOKING_RELEASE = "aissisted_booking_v2_2026_08_15"
-BOOKING_POLICY_VERSION = "workflow_map_build_discovery_225_terms_2026-08-15_v1"
+BOOKING_POLICY_VERSION = "workflow_map_build_discovery_225_terms_2026-09-02_v2"
 BOOKING_RESERVATION_AMOUNT_CENTS = "22500"
 BOOKING_V2_STRIPE_PRODUCT_ID = "prod_V52nwNYF46RY5U"
 BOOKING_V2_STRIPE_PRICE_ID = "price_1U4shaP3Zy09i3ccRusbjik5"

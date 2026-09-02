@@ -89,17 +89,20 @@ test("list_services exposes the two lanes, Fit Call, and paid plan without direc
   ]);
   assert.equal(byId["workflow-map-first-build-plan"].price_usd, 225);
   assert.equal(byId["workflow-map-first-build-plan"].duration_minutes, 60);
+  assert.match(byId["workflow-map-first-build-plan"].description, /with AIssisted Consulting/);
+  assert.doesNotMatch(byId["workflow-map-first-build-plan"].description, /\bPJ\b|founder/i);
   assert.match(byId["workflow-map-first-build-plan"].notes, /no implementation credit/i);
   assert.equal(byId["fit-call-15"].price_usd, 0);
   assert.equal(result.services.every((service) => service.bookable_via_mcp === false), true);
 });
 
-test("get_business_info returns Ocala/Florida and founder credentials", async () => {
+test("get_business_info returns company-first Ocala/Florida information", async () => {
   const info = await getBusinessInfoTool.handler({});
   assert.equal(info.location.city, "Ocala");
   assert.equal(info.location.state, "Florida");
-  assert.ok(info.founder.credentials.includes("CAIC"));
-  assert.ok(info.founder.credentials.includes("CAIS"));
+  assert.equal(info.tagline, "AI and software implementation for practical workflows and useful software");
+  assert.match(info.company.accountability, /^AIssisted Consulting/);
+  assert.equal("founder" in info, false);
   assert.match(info.contact.email, /aissistedconsulting\.com$/);
 });
 
@@ -349,6 +352,8 @@ test("/.well-known/mcp.json returns a valid manifest", async () => {
   const body = await response.json();
   assert.equal(body.name, "aissisted-consulting");
   assert.equal(body.endpoint, "https://aissistedconsulting.com/mcp");
+  assert.match(body.description, /AIssisted Consulting/);
+  assert.doesNotMatch(body.description, /\bPJ\b|founder/i);
   assert.ok(body.tools.includes("list_services"));
   assert.deepEqual(body.auth.human_approval_required, []);
   assert.equal(body.auth.approval_flow, "website_booking_page");

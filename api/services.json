@@ -1,8 +1,8 @@
 {
   "schema_version": 2,
-  "registry_version": "2026-08-15.2",
+  "registry_version": "2026-09-02.1",
   "business": "AIssisted Consulting",
-  "category": "Founder-led AI and software implementation company",
+  "category": "AI and software implementation company",
   "services": [
     {
       "id": "workflow_improvement",
@@ -42,7 +42,7 @@
       "name": "Workflow automation for small business",
       "audience": "Small service businesses in Ocala, Central Florida, and across the United States",
       "status": "active",
-      "description": "Founder-led workflow automation that connects repeated work while keeping review, exceptions, permissions, and owner control visible.",
+      "description": "Workflow automation by AIssisted Consulting that connects repeated work while keeping review, exceptions, permissions, and owner control visible.",
       "workflow_focus": [
         "Intake and missed calls",
         "Scheduling and reminders",
@@ -124,7 +124,7 @@
       "status": "active",
       "price_usd": 225,
       "session_minutes": 60,
-      "deliverable": "One founder-reviewed, one-page plan",
+      "deliverable": "One company-reviewed, one-page plan",
       "public_outcomes": [
         "Problem or build goal",
         "Recommended direction and material known constraints",

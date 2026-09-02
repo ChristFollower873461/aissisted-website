@@ -215,6 +215,29 @@ test("v1 keeps credit semantics while v2 never creates a credit", () => {
   assert.equal(shouldCreateImplementationCredit(BOOKING_RELEASES.aissisted_booking_v2_2026_08_15), false);
 });
 
+test("v2 contract and provider copy sell the company without changing offer economics or policy", () => {
+  const release = BOOKING_RELEASES.aissisted_booking_v2_2026_08_15;
+  const runtimeTerms = getTermsSnapshotForRelease(release.releaseId);
+
+  assert.equal(runtimeTerms.termsVersion, "workflow_map_build_discovery_225_terms_2026-09-02_v2");
+  assert.equal(runtimeTerms.termsVersion, v2Terms.termsVersion);
+  assert.equal(runtimeTerms.renderedTerms, v2Terms.renderedTerms);
+  assert.match(runtimeTerms.renderedTerms, /working session with AIssisted Consulting/);
+  assert.match(runtimeTerms.renderedTerms, /AIssisted Consulting may offer one discretionary reschedule/);
+  assert.doesNotMatch(runtimeTerms.renderedTerms, /\bPJ\b|PJ Standley|founder-led|founder-reviewed/i);
+  assert.doesNotMatch(release.stripeDescription, /\bPJ\b|founder/i);
+  assert.doesNotMatch(release.stripeReceiptDescription, /\bPJ\b|founder/i);
+
+  assert.equal(release.amountCents, 22500);
+  assert.equal(release.sessionMinutes, 60);
+  assert.equal(release.implementationCreditEnabled, false);
+  assert.equal(release.deliveryCalendarId, "aissisted_us_federal_observed_2026_v1");
+  assert.match(runtimeTerms.renderedTerms, /5:00 PM Eastern on the second qualifying business day/);
+  assert.match(runtimeTerms.renderedTerms, /reschedule once with at least 24 hours' notice/);
+  assert.match(runtimeTerms.renderedTerms, /cancels inside 24 hours, the fee is non-refundable/);
+  assert.match(runtimeTerms.renderedTerms, /If AIssisted cancels, the customer may choose a prompt reschedule or a full refund/);
+});
+
 test("contract snapshot is immutable, complete, and reconciles without private Stripe metadata", () => {
   const release = resolveBookingControls(v2Env()).release;
   const contract = createBookingContractSnapshot({
@@ -1075,7 +1098,7 @@ test("fresh schema creates constrained immutable v2 contract tables", () => {
     assert.equal(tables.length, 5);
     sqlite(databasePath, `
       INSERT INTO prospects VALUES ('prospect_v2','V2 Buyer','v2@example.com',NULL,NULL,NULL,NULL,'2026-08-15T00:00:00Z','2026-08-15T00:00:00Z');
-      INSERT INTO bookings (id,prospect_id,slot_id,selected_time_window_start,selected_time_window_end,selected_time_zone,booking_status,payment_status,reservation_amount,currency,created_at,updated_at,policy_version,policy_accepted_at) VALUES ('book_v2','prospect_v2','slot_v2','2026-08-20T14:00:00Z','2026-08-20T15:00:00Z','America/New_York','hold','hold_created',22500,'usd','2026-08-15T00:00:00Z','2026-08-15T00:00:00Z','workflow_map_build_discovery_225_terms_2026-08-15_v1','2026-08-15T00:00:00Z');
+      INSERT INTO bookings (id,prospect_id,slot_id,selected_time_window_start,selected_time_window_end,selected_time_zone,booking_status,payment_status,reservation_amount,currency,created_at,updated_at,policy_version,policy_accepted_at) VALUES ('book_v2','prospect_v2','slot_v2','2026-08-20T14:00:00Z','2026-08-20T15:00:00Z','America/New_York','hold','hold_created',22500,'usd','2026-08-15T00:00:00Z','2026-08-15T00:00:00Z','${v2Terms.termsVersion}','2026-08-15T00:00:00Z');
       INSERT INTO booking_contracts (
         booking_id,release_id,offer_id,offer_version,terms_version,terms_sha256,
         terms_snapshot_json,amount_cents,currency,stripe_product_ref,stripe_price_ref,
@@ -1084,7 +1107,7 @@ test("fresh schema creates constrained immutable v2 contract tables", () => {
         accepted_at,created_at
       ) VALUES (
         'book_v2','aissisted_booking_v2_2026_08_15','workflow_map_build_discovery_225',2,
-        'workflow_map_build_discovery_225_terms_2026-08-15_v1','${manifest.offer.termsSha256}',
+        '${v2Terms.termsVersion}','${manifest.offer.termsSha256}',
         '{}',22500,'usd','prod_v2','price_v2','synchronous_card_only','pmc_v2','{}',
         0,NULL,'aissisted_us_federal_observed_2026_v1','2026-08-15T00:00:00Z','2026-08-15T00:00:00Z'
       );

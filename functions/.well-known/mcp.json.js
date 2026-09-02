@@ -5,7 +5,7 @@ const MANIFEST = {
   name: "aissisted-consulting",
   version: "2.0.0",
   description:
-    "Founder-led AI and software implementation in Ocala, Florida. Agents can discover the two service lanes, published $225 plan, and availability. Humans accept exact terms and complete payment on the website.",
+    "AI and software implementation from AIssisted Consulting in Ocala, Florida. Agents can discover the two service lanes, published $225 plan, and availability. Humans accept exact terms and complete payment on the website.",
   provider: {
     name: "AIssisted Consulting",
     url: "https://aissistedconsulting.com",
