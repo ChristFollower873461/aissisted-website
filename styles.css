@@ -4380,7 +4380,7 @@ body[data-page="home"] .footer-links a {
 }
 
 body[data-page="private-data-service"] {
-  --page-bg-image: url("assets/visuals/bg-privacy-control.webp");
+  --page-bg-image: url("assets/photography/workflow-desk.webp");
 }
 
 @media (max-width: 980px) {
