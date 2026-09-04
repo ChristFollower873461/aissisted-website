@@ -22,17 +22,17 @@ Open [http://127.0.0.1:4173/](http://127.0.0.1:4173/). This serves the frontend 
 
 ## Local checks
 
-These package scripts check source syntax and run the regression suites used by Site CI:
+Use Node.js 22 and the `sqlite3` command-line tool. These commands match Site CI and check source syntax, public-offer consistency, booking migrations, and every regression suite:
 
 ```bash
 npm run check:site
 npm run check:booking-functions
-npm run test:brightway-store
-npm run test:booking
-npm run test:seo-agent
+npm run check:public-truth
+npm run check:booking-migrations
+npm test
 ```
 
-The listed checks use Node.js built-ins and repository fixtures; they do not require provider credentials. For work that needs the declared npm dependencies, install the locked versions with `npm ci`. Additional checks are listed in [package.json](package.json).
+`npm test` discovers all `tests/*.test.mjs` suites, including MCP, offer-contract architecture, and Grail account deletion. The checks use Node.js built-ins, repository fixtures, and temporary local SQLite databases; they do not require provider credentials. For work that needs the declared npm dependencies, install the locked versions with `npm ci`. Focused suite commands and additional checks remain available in [package.json](package.json).
 
 ## Source layout
 
