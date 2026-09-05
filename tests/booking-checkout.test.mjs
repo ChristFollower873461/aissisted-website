@@ -209,6 +209,9 @@ test("booking checkout relays structured attribution to AICCRM", async () => {
     AIC_CRM_INTAKE_TOKEN: "test-token"
   });
   const slot = await firstAvailableSlot(env);
+  const gclid = "x".repeat(130);
+  const sourcePage = `/book/?gclid=${gclid}&utm_source=codex&utm_medium=production_smoke&utm_campaign=aiccrm_relay&fbclid=fbclid-booking`;
+  assert.ok(sourcePage.length > 160 && sourcePage.length <= 500);
   const originalFetch = global.fetch;
   let crmPayload = null;
   global.fetch = async (url, options = {}) => {
@@ -237,21 +240,19 @@ test("booking checkout relays structured attribution to AICCRM", async () => {
     const { response, payload } = await callCheckout({
       env,
       key: "checkout-crm-relay-key-0001",
-      body: validCheckoutPayload(slot.slotId, {
-        sourcePage:
-          "/book/?utm_source=codex&utm_medium=production_smoke&utm_campaign=aiccrm_relay&fbclid=fbclid-booking"
-      })
+      body: validCheckoutPayload(slot.slotId, { sourcePage })
     });
 
     assert.equal(response.status, 200);
     assert.equal(payload.ok, true);
-    assert.equal(crmPayload.sourceUrl, "https://aissistedconsulting.com/book/?utm_source=codex&utm_medium=production_smoke&utm_campaign=aiccrm_relay&fbclid=fbclid-booking");
-    assert.equal(crmPayload.sourcePage, "/book/?utm_source=codex&utm_medium=production_smoke&utm_campaign=aiccrm_relay&fbclid=fbclid-booking");
+    assert.equal(crmPayload.sourceUrl, `${ORIGIN}${sourcePage}`);
+    assert.equal(crmPayload.sourcePage, sourcePage);
     assert.equal(crmPayload.sourceChannel, "booking");
     assert.equal(crmPayload.formName, "booking-page");
     assert.equal(crmPayload.utmSource, "codex");
     assert.equal(crmPayload.utmMedium, "production_smoke");
     assert.equal(crmPayload.utmCampaign, "aiccrm_relay");
+    assert.equal(crmPayload.gclid, gclid);
     assert.equal(crmPayload.fbclid, "fbclid-booking");
     assert.match(crmPayload.qualifiedSourceEventId, /^website-booking-book_/);
   } finally {

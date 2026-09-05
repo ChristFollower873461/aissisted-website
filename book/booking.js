@@ -299,6 +299,7 @@
         },
         body: JSON.stringify({
           slotId: state.selectedSlotId,
+          sourcePage: globalThis.AicAdsTracking?.attributionSourcePage?.("/book/") || "/book/",
           websiteLeaveBlank: formData.get("websiteLeaveBlank"),
           policyAccepted,
           checkoutConsent: true,
