@@ -28,6 +28,16 @@ Transport failures, ambiguous/malformed acknowledgements, server failures and HT
 
 The monitor processes at most ten due enquiries per call and returns aggregate `summary.crmDelivery` counts: pending, processing, delivered, needs-attention, due and the oldest unresolved creation time, plus attempts during that call. Its existing authorization runs before any queue access or delivery. The summary contains no inquiry text, email, CRM payload or authentication values. Missing required tables fail visibly; a partial migration is not a usable deployment.
 
+### Contact-only recovery
+
+Set `BOOKING_MONITOR_SCOPE = "contacts"` in the intended environment to recover only contact and Fit Call deliveries. This mode returns before reading booking fulfillment, financial recovery or notification outbox work, even when those providers are configured. It uses the same bounded queue and authorization: `BOOKING_MONITOR_TOKEN`, with the existing `BOOKING_OWNER_ACTION_TOKEN` fallback. The request cannot override the scope through query parameters or its body. An unrecognized or explicitly empty scope returns 503 before database access.
+
+All three checked-in preview slots require contact-only mode. The production configuration leaves this variable unset, retaining the existing full monitor; `"all"` selects that same full behavior explicitly. A successful contact-only run records `contact.crm_monitor.completed` and reports `summary.scope = "contacts"`. Full runs retain `booking.fulfillment_monitor.completed`. Each mode uses its own previous-run timestamp, so a contact retry does not conceal a stale fulfillment monitor. No scheduler is created or retargeted by selecting a scope.
+
+An access-controlled preview still needs both authentication layers. Obtain the preview login cookie through `/__preview-auth`, then supply that cookie and the intended monitor bearer token when calling `/api/book/monitor`. A preview access token alone cannot authorize recovery, and a monitor token alone cannot bypass preview access. Keep both credentials out of URLs, committed files, logs and receipts. Do not copy a production monitor token into a preview.
+
+Before a hosted invocation, read back the exact source, `contacts` scope, isolated database and intended non-notifying CRM destination. Check all due contact deliveries: this mode drains up to ten eligible queue rows, not just one selected enquiry. Missing CRM configuration still consumes the queue's bounded attempt budget; do not repeatedly invoke it to manufacture a recovery result. Retain original event IDs and compare actual receiver persistence and sender acknowledgements before claiming delivered. See [preview isolation](preview-isolation.md) for the separate receiver-configuration gate.
+
 ## Inspecting and recovering a held delivery
 
 Use the authorized database/operator surface for the intended environment. Start with identifiers and safe result fields, then inspect private enquiry content only when necessary to resolve the specific case:

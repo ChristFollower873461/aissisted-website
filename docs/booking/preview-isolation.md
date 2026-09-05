@@ -17,6 +17,14 @@ is empty until a separate integration change identifies and verifies an isolated
 receiver; that change must also update the configuration gate's allowed target.
 Fit-call/contact persistence remains available against the isolated database.
 
+Every preview slot also requires `BOOKING_MONITOR_SCOPE = "contacts"`. An
+authenticated monitor invocation in that mode processes only the contact/Fit Call
+delivery queue and records its own completion event. It does not read or process
+existing booking fulfillment, payment recovery or notification outbox work. The
+production site's unset scope retains the existing full monitor. See
+[contact-only recovery](contact-crm-delivery.md#contact-only-recovery) for the
+separate preview and monitor credentials and the hosted receiver checks.
+
 These slots set `PREVIEW_ACCESS_REQUIRED = "true"`. Store `PREVIEW_ACCESS_TOKEN`
 as a Cloudflare secret in each intended environment, never in committed vars.
 Without that secret the middleware returns 503 before dispatch, including API

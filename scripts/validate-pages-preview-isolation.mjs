@@ -7,6 +7,7 @@ export const PREVIEW_DATABASE_ID = "febf1ca7-efa3-4629-b250-7e294ff96a47";
 const PREVIEW_DATABASE_NAME = "aissisted-booking-preview-v2-20260815";
 const SAFE_VARS = Object.freeze({
   PREVIEW_ACCESS_REQUIRED: "true",
+  BOOKING_MONITOR_SCOPE: "contacts",
   BOOKING_CHECKOUT_ENABLED: "false",
   STRIPE_EXPECTED_LIVEMODE: "false",
   BOOKING_REQUIRE_GOOGLE_CALENDAR: "false",
