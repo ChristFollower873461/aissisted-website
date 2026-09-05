@@ -17,15 +17,25 @@ is empty until a separate integration change identifies and verifies an isolated
 receiver; that change must also update the configuration gate's allowed target.
 Fit-call/contact persistence remains available against the isolated database.
 
-The browser's Google Ads/GA4 and Axon wrappers also allow measurement only on
+The browser's Google Ads/GA4, Axon and Grail wrappers also allow measurement only on
 `https://aissistedconsulting.com` and `https://www.aissistedconsulting.com`.
 All other origins, including both Pages projects' default, deployment and branch
 hosts, local servers and unrecognized hosts, suppress external SDK loading and
 measurement calls. Suppression also prevents these wrappers from queuing events
 or dispatching tracking events to existing listeners. The first-party wrappers
 can still load, and local campaign attribution and form payload construction
-remain available. Adding a production origin requires an explicit update to both
+remain available. Adding a production origin requires an explicit update to all three
 independently loaded wrappers and their regression tests.
+
+Retained HTML templates, including Grail, blog and legacy standalone pages, use
+the guarded shared Google loader without inline SDK loading or configuration.
+The HTML inventory regression exercises the actual preview middleware to exclude
+blocked private templates, and inspects redirected legacy templates as well.
+HTML canonicalization and legacy redirects are not measurement-isolation controls.
+Grail retains its page, activation and purchase event names, conversion labels,
+revenue and local campaign attribution; its separate event wrapper also suppresses
+existing Google/Facebook SDK calls, measurement queues and tracking listeners on
+nonproduction origins.
 
 Every preview slot also requires `BOOKING_MONITOR_SCOPE = "contacts"`. An
 authenticated monitor invocation in that mode processes only the contact/Fit Call
