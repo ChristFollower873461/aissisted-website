@@ -4128,3 +4128,8 @@ body:not([data-page="home"]):not([data-page="book"]) .site-footer a {
     animation: none;
   }
 }
+
+/* 2026-09-02: Private Data Service page hero background. */
+body[data-page="private-data-service"] {
+  --page-bg-image: url("assets/photography/workflow-desk.webp");
+}
