@@ -1,5 +1,4 @@
-import { relayWebsiteIntakeToAicCrm } from "../_lib/aic-crm.js";
-import { buildCrmAttribution } from "../_lib/crm-attribution.js";
+import { createContactInquiryWithCrmDelivery, deliverContactInquiryToCrm } from "../_lib/contact-crm-delivery.js";
 import { getBookingConfig } from "../_lib/config.js";
 import { conflict, forbidden, json, methodNotAllowed, readJson, unavailable, unsupportedMediaType } from "../_lib/http.js";
 import { sendContactInquiryNotification } from "../_lib/notifications.js";
@@ -91,33 +90,22 @@ export async function onRequest(context) {
     });
 
     const createdAt = new Date().toISOString();
-    const inquiry = await store.createContactInquiry({
-      ...normalized,
-      messageHash: await sha256Hex(normalizeContactMessage(message)),
-      duplicateFingerprint,
-      consentAt: createdAt,
-      createdAt,
-      status: "fit_call_pending_review",
-      deliveryStatus: "local_record_only",
-      idempotencyRecordId: idempotencyRecord.id
+    const inquiry = await createContactInquiryWithCrmDelivery({
+      store,
+      kind: "fit_call",
+      input: {
+        ...normalized,
+        messageHash: await sha256Hex(normalizeContactMessage(message)),
+        duplicateFingerprint,
+        consentAt: createdAt,
+        createdAt,
+        status: "fit_call_pending_review",
+        deliveryStatus: "local_record_only",
+        idempotencyRecordId: idempotencyRecord.id
+      }
     });
-    const attribution = buildCrmAttribution({
-      sourcePage,
-      fallbackPath: "/book/",
-      sourceChannel: "fit_call_request",
-      formName: "fit-call-request",
-      qualifiedSourceEventId: `fit-call-${inquiry.id}`
-    });
-    const crm = await relayWebsiteIntakeToAicCrm(context.env, {
-      name, email, phone, companyName: company,
-      inquiryType: "fit_call_request",
-      message,
-      ...attribution,
-      consent: true,
-      websiteLeaveBlank: ""
-    });
-    const deliveryStatus = crm.ok ? "crm_relay_delivered" : crm.skipped ? "local_record_only" : "crm_relay_failed";
-    await store.updateContactInquiryDeliveryStatus(inquiry.id, deliveryStatus);
+    const updatedInquiry = await deliverContactInquiryToCrm({ store, env: context.env, inquiry });
+    const deliveryStatus = updatedInquiry.deliveryStatus;
     await sendContactInquiryNotification({ config, inquiry: { ...inquiry, deliveryStatus }, contact: normalized });
     await store.logEvent({
       eventType: "fit_call.requested",
