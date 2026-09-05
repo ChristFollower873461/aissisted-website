@@ -16,12 +16,28 @@ const successful = () => Response.json({ ok: true, bookingId: "booking_synthetic
   checkoutUrl: "https://checkout.stripe.com/c/pay/cs_test_synthetic" });
 const unavailable = (code) => Response.json({ ok: false, code, error: "Synthetic unavailable" }, { status: code === "in_progress" ? 409 : 503 });
 
+function deferredSignal() {
+  let resolve;
+  const promise = new Promise((done) => { resolve = done; });
+  return { promise, resolve };
+}
+
+async function waitForSignal(promise, description) {
+  let timer;
+  try {
+    return await Promise.race([promise, new Promise((_resolve, reject) => {
+      timer = setTimeout(() => reject(new Error(`Timed out waiting for ${description}`)), 5000);
+    })]);
+  } finally { clearTimeout(timer); }
+}
+
 function node() {
   return { textContent: "", innerHTML: "", className: "", disabled: false, listeners: {}, classList: { add() {} },
     addEventListener(type, listener) { this.listeners[type] = listener; }, scrollIntoView() {} };
 }
 async function harness({ storage = new Map(), now = Date.now(), form = values, storageFails = false, manualTimers = false, crypto = webcrypto, checkout = unavailable } = {}) {
   const nodes = new Map(); const requests = []; const timers = new Set(); const data = { ...form }; let availabilityCalls = 0; let sequence = 0;
+  const requestStarted = deferredSignal();
   const buttons = slots.map((s) => ({ ...node(), getAttribute: () => s.slotId }));
   const document = { getElementById(id) { if (!nodes.has(id)) nodes.set(id, node()); return nodes.get(id); } };
   document.getElementById("availability-root").querySelectorAll = () => buttons;
@@ -44,6 +60,7 @@ async function harness({ storage = new Map(), now = Date.now(), form = values, s
       assert.equal(url, "/api/book/create-checkout", "No actual browser or external dispatch is allowed");
       const request = { key: options.headers["idempotency-key"], body: options.body, signal: options.signal };
       requests.push(request);
+      requestStarted.resolve(request);
       return checkout(request, requests.length);
     }
   });
@@ -52,6 +69,7 @@ async function harness({ storage = new Map(), now = Date.now(), form = values, s
   await new Promise(setImmediate);
   return { nodes, buttons, data, requests, storage, context, location,
     get availabilityCalls() { return availabilityCalls; },
+    waitForRequest() { return waitForSignal(requestStarted.promise, "checkout request start"); },
     expireRequest() { for (const callback of [...timers]) callback(); },
     select(index = 0) { buttons[index].listeners.click(); },
     submit() { return nodes.get("booking-form").listeners.submit({ preventDefault() {} }); },
@@ -83,11 +101,18 @@ test("a double click cannot create a second request while hashing or awaiting th
   let release;
   const response = new Promise((resolve) => { release = resolve; });
   const h = await harness({ checkout: () => response }); h.select();
-  const first = h.submit(); const second = h.submit();
+  const submissions = [h.submit(), h.submit()];
   try {
-    for (let n = 0; n < 20 && !h.requests.length; n++) await new Promise(setImmediate);
+    await h.waitForRequest();
     assert.equal(h.requests.length, 1); assert.equal(h.nodes.get("booking-submit").disabled, true);
-  } finally { release(successful()); await Promise.all([first, second]); }
+    // The first duplicate occurs during hashing; this one occurs with a pending response.
+    submissions.push(h.submit());
+    await waitForSignal(submissions[2], "pending-response duplicate submission");
+    assert.equal(h.requests.length, 1);
+  } finally {
+    release(successful());
+    await waitForSignal(Promise.all(submissions), "checkout submissions to settle");
+  }
   assert.equal(h.requests.length, 1);
 });
 
@@ -164,21 +189,37 @@ test("an invalid success destination remains uncertain and analytics errors cann
 });
 
 for (const phase of ["request", "response body"]) test(`the checkout deadline bounds the ${phase} and keeps the original retry`, async () => {
+  const abortListenerReady = deferredSignal();
+  let releasePending;
   const h = await harness({ manualTimers: true, checkout: (request) => {
-    const wait = () => new Promise((_resolve, reject) => request.signal.addEventListener("abort", () => {
-      const error = new Error("Synthetic timeout"); error.name = "AbortError"; reject(error);
-    }));
+    const wait = () => new Promise((_resolve, reject) => {
+      const abort = () => {
+        request.signal.removeEventListener("abort", abort);
+        const error = new Error("Synthetic timeout"); error.name = "AbortError"; reject(error);
+      };
+      releasePending = abort;
+      request.signal.addEventListener("abort", abort, { once: true });
+      abortListenerReady.resolve();
+      if (request.signal.aborted) abort();
+    });
     return phase === "request" ? wait() : { ok: true, status: 200, json: wait };
   } });
   h.select(); const submitted = h.submit();
-  for (let n = 0; n < 100 && !h.requests.length; n++) await new Promise(setImmediate);
-  assert.equal(h.requests.length, 1);
-  // Let the response body consumer attach before expiring the shared deadline.
-  await new Promise(setImmediate); h.expireRequest(); await submitted;
-  assert.equal(h.requests[0].signal.aborted, true); assert.ok(h.saved());
-  assert.equal(h.nodes.get("booking-submit").disabled, false); assert.equal(h.nodes.get("booking-submit").textContent, "Retry checkout");
-  assert.match(h.status(), /taking longer/); assert.equal(h.availabilityCalls, 1);
-  assert.equal(h.data.email, values.email); assert.equal(h.data.notes, values.notes);
+  try {
+    await h.waitForRequest();
+    await waitForSignal(abortListenerReady.promise, `${phase} abort listener`);
+    assert.equal(h.requests.length, 1);
+    h.expireRequest();
+    await waitForSignal(submitted, "timed-out checkout submission");
+    assert.equal(h.requests[0].signal.aborted, true); assert.ok(h.saved());
+    assert.equal(h.nodes.get("booking-submit").disabled, false); assert.equal(h.nodes.get("booking-submit").textContent, "Retry checkout");
+    assert.match(h.status(), /taking longer/); assert.equal(h.availabilityCalls, 1);
+    assert.equal(h.data.email, values.email); assert.equal(h.data.notes, values.notes);
+  } finally {
+    h.expireRequest();
+    releasePending?.();
+    await waitForSignal(submitted, "checkout timeout cleanup");
+  }
 });
 
 test("invalid saved slot timezone fails closed without discarding the original key", async () => {
