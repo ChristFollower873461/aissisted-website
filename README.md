@@ -7,6 +7,7 @@ Source for the AIssisted Consulting public website. The repository contains stat
 - [Project overview](docs/project/README.md) and [project document index](docs/project/V11.11-website-project-index.md) provide the existing project context.
 - [Booking setup](docs/booking/booking-setup.md) and [booking route hardening](docs/booking/booking-route-hardening.md) describe the integration architecture and configuration.
 - [Contact and Fit Call CRM delivery](docs/booking/contact-crm-delivery.md) describes persisted retry, monitor invocation, adoption prerequisites and recovery limits.
+- [Booking payment reconciliation](docs/booking/payment-reconciliation.md) describes verified financial events, atomic recovery, separate receiver authority and rollout requirements.
 - [Pages preview isolation](docs/booking/preview-isolation.md) explains the two project configurations, private-preview requirement, and canonical config selection for the dedicated preview project.
 - [Package scripts](package.json) and [Site CI](.github/workflows/site-ci.yml) define the available checks and the current pull-request checks.
 
@@ -36,7 +37,7 @@ npm run check:pages-preview
 npm test
 ```
 
-`npm test` discovers all `tests/*.test.mjs` suites, including MCP, offer-contract architecture, Grail account deletion, and parsed Pages preview configuration checks. The checks use the locked development dependencies, Node.js built-ins, repository fixtures, and temporary local SQLite databases; they do not require provider credentials. Focused suite commands and additional checks remain available in [package.json](package.json).
+`npm test` discovers all `tests/*.test.mjs` suites, including MCP, offer-contract architecture, Grail account deletion, and parsed Pages preview configuration checks. The checks use the locked development dependencies, Node.js built-ins, repository fixtures, and temporary local SQLite and Miniflare D1 databases; they do not require provider credentials. Focused suite commands and additional checks remain available in [package.json](package.json).
 
 ## Source layout
 

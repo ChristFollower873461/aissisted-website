@@ -716,7 +716,7 @@ test("late delivery records the customer refund choice and reconciliation", asyn
     at: "2026-08-24T22:00:00.000Z"
   });
   assert.equal(requested.deliverable.status, "refund_requested");
-  const reconciled = await applyFulfillmentAction({
+  await assert.rejects(applyFulfillmentAction({
     store,
     bookingId,
     action: "refund_reconciled",
@@ -724,12 +724,12 @@ test("late delivery records the customer refund choice and reconciliation", asyn
     idempotencyKey: `${bookingId}:refund-reconciled:1`,
     at: "2026-08-24T22:05:00.000Z",
     data: { refundReference: "re_test_safe_reference" }
-  });
-  assert.equal(reconciled.deliverable.status, "refunded");
+  }), /provider-verified full-refund evidence/);
+  assert.equal((await store.getBookingDeliverable(bookingId)).status, "refund_requested");
 });
 
 for (const action of ["customer_canceled_with_notice_refund", "aissisted_canceled_refund"]) {
-  test(`${action} records and reconciles an approved pre-session refund`, async () => {
+  test(`${action} records a refund request but a typed reference cannot prove completion`, async () => {
     const { store, bookingId } = await createConfirmedV2Booking(action);
     const requested = await applyFulfillmentAction({
       store,
@@ -753,7 +753,7 @@ for (const action of ["customer_canceled_with_notice_refund", "aissisted_cancele
     });
     assert.equal(replay.replayed, true);
 
-    const reconciled = await applyFulfillmentAction({
+    await assert.rejects(applyFulfillmentAction({
       store,
       bookingId,
       action: "refund_reconciled",
@@ -761,9 +761,8 @@ for (const action of ["customer_canceled_with_notice_refund", "aissisted_cancele
       idempotencyKey: `${bookingId}:refund-reconciled:1`,
       at: "2026-08-18T14:05:00.000Z",
       data: { refundReference: `re_test_${action}` }
-    });
-    assert.equal(reconciled.deliverable.status, "refunded");
-    assert.equal(reconciled.deliverable.remedyStatus, "refunded");
+    }), /provider-verified full-refund evidence/);
+    assert.equal((await store.getBookingDeliverable(bookingId)).status, "refund_requested");
   });
 }
 

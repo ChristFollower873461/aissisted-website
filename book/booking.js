@@ -11,6 +11,11 @@
   const policyTitle = document.getElementById("policy-title");
   const policyAcceptanceText = document.getElementById("policy-acceptance-text");
   const FUNNEL_STORAGE_KEY = "aic_paid_plan_funnel_v1";
+  const CHECKOUT_STORAGE_KEY = "aic_checkout_retry_v1";
+  const CHECKOUT_RETRY_MAX_AGE_MS = 23 * 60 * 60 * 1000;
+  const OFFER_FIELDS = ["timezone", "reservationAmountCents", "currency", "reservationAmountFormatted",
+    "policyVersion", "policySha256", "releaseId", "offerId", "offerVersion"];
+  const REVIEW_MESSAGE = "Your previous checkout needs checking. Call 352-817-3567 or email pj@aissistedconsulting.com before starting another checkout.";
 
   if (!availabilityRoot || !bookingForm || !submitButton) return;
 
@@ -29,7 +34,10 @@
     offerId: "",
     offerVersion: 0,
     submitting: false,
-    usingPreviewSlots: false
+    usingPreviewSlots: false,
+    pendingCheckout: null,
+    recoveryBlocked: false,
+    completed: false
   };
 
   function escapeHtml(value) {
@@ -46,6 +54,93 @@
     }
 
     return `checkout-${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
+  }
+
+  async function fingerprint(bodyJson) {
+    if (!globalThis.crypto?.subtle || typeof TextEncoder === "undefined") {
+      throw new Error("Your browser could not save a safe checkout retry. Please use an up-to-date browser and try again.");
+    }
+    const bytes = await globalThis.crypto.subtle.digest("SHA-256", new TextEncoder().encode(bodyJson));
+    return Array.from(new Uint8Array(bytes), (byte) => byte.toString(16).padStart(2, "0")).join("");
+  }
+
+  function saveCheckout(record) {
+    // Store no contact, intake, free-text form fields, or attribution URLs.
+    const saved = JSON.stringify({ version: 1, key: record.key, fingerprint: record.fingerprint,
+      createdAt: record.createdAt, slot: record.slot, offer: record.offer, measurement: record.measurement });
+    try {
+      sessionStorage.setItem(CHECKOUT_STORAGE_KEY, saved);
+      if (sessionStorage.getItem(CHECKOUT_STORAGE_KEY) !== saved) throw new Error("storage_readback_failed");
+    } catch (_error) {
+      throw new Error("Your browser could not save a checkout retry. Allow storage for this site, then try again. No checkout was started.");
+    }
+  }
+
+  function clearCheckout() {
+    state.pendingCheckout = null;
+    // If removal fails, retaining the original key is safer than a new request on reload.
+    try { sessionStorage.setItem(CHECKOUT_STORAGE_KEY, ""); } catch (_error) { /* keep the original durable record */ }
+  }
+
+  function restoreCheckout() {
+    try {
+      const raw = sessionStorage.getItem(CHECKOUT_STORAGE_KEY);
+      if (!raw) return;
+      if (raw.length > 5000) throw new Error("invalid_saved_checkout");
+      const saved = JSON.parse(raw);
+      const age = Date.now() - saved.createdAt;
+      if (saved.version !== 1 || !/^checkout-[A-Za-z0-9-]{16,180}$/.test(saved.key || "")
+          || !/^[a-f0-9]{64}$/.test(saved.fingerprint || "") || !Number.isSafeInteger(saved.createdAt)
+          || age < 0 || age > CHECKOUT_RETRY_MAX_AGE_MS || !saved.slot?.slotId
+          || !Number.isFinite(Date.parse(saved.slot.startsAt)) || !Number.isFinite(Date.parse(saved.slot.endsAt))
+          || !saved.offer || OFFER_FIELDS.some((key) => !Object.hasOwn(saved.offer, key))
+          || !saved.measurement || typeof saved.measurement.funnelId !== "string") {
+        throw new Error("invalid_saved_checkout");
+      }
+      // Corrupt display context must fail closed before rendering a restored slot.
+      new Intl.DateTimeFormat("en-US", { timeZone: saved.slot.timezone }).format(new Date(saved.slot.startsAt));
+      state.pendingCheckout = { ...saved, bodyJson: null, uncertain: true };
+      Object.assign(state, Object.fromEntries(OFFER_FIELDS.map((key) => [key, saved.offer[key]])));
+      state.slots = [{ ...saved.slot, status: "available" }];
+      state.selectedSlotId = saved.slot.slotId;
+    } catch (_error) {
+      // Missing/old recovery details never authorize a fresh key.
+      state.recoveryBlocked = true;
+    }
+  }
+
+  function checkoutBody(formData) {
+    return {
+      slotId: state.selectedSlotId,
+      sourcePage: state.pendingCheckout?.bodyJson ? JSON.parse(state.pendingCheckout.bodyJson).sourcePage
+        : globalThis.AicAdsTracking?.attributionSourcePage?.("/book/") || "/book/",
+      websiteLeaveBlank: formData.get("websiteLeaveBlank"),
+      policyAccepted: formData.get("policyAccepted") === "on",
+      checkoutConsent: true,
+      confirmedReservationAmountCents: state.reservationAmountCents,
+      confirmedAmountCents: state.reservationAmountCents,
+      confirmedCurrency: state.currency,
+      confirmedPolicyVersion: state.policyVersion,
+      confirmedTermsVersion: state.policyVersion,
+      confirmedTermsSha256: state.policySha256,
+      confirmedReleaseId: state.releaseId,
+      confirmedOfferId: state.offerId,
+      confirmedOfferVersion: state.offerVersion,
+      contact: { name: formData.get("name"), email: formData.get("email"), phone: formData.get("phone"), company: formData.get("company") },
+      intake: { companyWebsite: formData.get("companyWebsite"), industry: formData.get("industry"),
+        primaryGoal: formData.get("primaryGoal"), routeId: formData.get("routeId"), notes: formData.get("notes") },
+      measurement: state.pendingCheckout?.measurement || funnelContext
+    };
+  }
+
+  function stripeCheckoutUrl(payload) {
+    if (payload?.ok !== true || typeof payload.bookingId !== "string" || !payload.bookingId
+        || !/^cs_[A-Za-z0-9_]+$/.test(payload.sessionId || "")) return null;
+    try {
+      const url = new URL(payload.checkoutUrl);
+      return url.protocol === "https:" && url.hostname === "checkout.stripe.com" && !url.username && !url.password
+        && !url.port && url.pathname.startsWith("/c/pay/") ? url.href : null;
+    } catch (_error) { return null; }
   }
 
   function createFunnelContext() {
@@ -211,6 +306,10 @@
 
     availabilityRoot.querySelectorAll("[data-slot-id]:not([disabled])").forEach((button) => {
       button.addEventListener("click", () => {
+        if (state.pendingCheckout || state.submitting || state.recoveryBlocked || state.completed) {
+          showStatus("Retry your previous checkout using the original time and details before choosing another time.", "error", true);
+          return;
+        }
         state.selectedSlotId = button.getAttribute("data-slot-id") || "";
         renderAvailability();
         syncSummary();
@@ -264,93 +363,110 @@
 
   bookingForm.addEventListener("submit", async (event) => {
     event.preventDefault();
+    if (state.submitting || state.completed) return;
     clearStatus();
-
+    if (state.recoveryBlocked) {
+      showStatus(REVIEW_MESSAGE, "error", true);
+      return;
+    }
     if (!state.selectedSlotId) {
       showStatus("Select an appointment window before continuing.", "error", true);
       return;
     }
-
     const formData = new FormData(bookingForm);
-    const policyAccepted = formData.get("policyAccepted") === "on";
-    if (!policyAccepted) {
+    if (formData.get("policyAccepted") !== "on") {
       showStatus("Accept the booking terms before checkout.", "error", true);
       return;
     }
-
     if (state.usingPreviewSlots) {
       showStatus("Local preview stops before Stripe. On the deployed site this submits to /api/book/create-checkout and redirects to Stripe.", "error", true);
       return;
     }
-
-    if (state.submitting) return;
     state.submitting = true;
     submitButton.disabled = true;
-    submitButton.textContent = "Creating secure checkout...";
-
+    submitButton.textContent = state.pendingCheckout ? "Retrying checkout..." : "Creating secure checkout...";
+    let dispatched = false;
+    let knownTerminal = false;
+    let controller;
+    let timer;
     try {
-      const idempotencyKey = createIdempotencyKey();
+      const candidateBody = JSON.stringify(checkoutBody(formData));
+      const candidateHash = await fingerprint(candidateBody);
+      let pending = state.pendingCheckout;
+      if (pending) {
+        if (Date.now() - pending.createdAt > CHECKOUT_RETRY_MAX_AGE_MS) {
+          state.recoveryBlocked = true;
+          throw new Error(REVIEW_MESSAGE);
+        }
+        if (candidateHash !== pending.fingerprint) {
+          throw new Error("A previous checkout is still pending. Restore the original details to retry checkout, or contact us for help.");
+        }
+        pending.bodyJson ||= candidateBody;
+      } else {
+        const slot = getSelectedSlot();
+        pending = { key: createIdempotencyKey(), fingerprint: candidateHash, createdAt: Date.now(),
+          bodyJson: candidateBody, uncertain: false,
+          slot: Object.fromEntries(["slotId", "startsAt", "endsAt", "timezone", "label", "availabilitySource"].map((key) => [key, slot?.[key] || ""])),
+          offer: Object.fromEntries(OFFER_FIELDS.map((key) => [key, state[key]])), measurement: funnelContext };
+        saveCheckout(pending); // Must succeed before a request can create provider work.
+        state.pendingCheckout = pending;
+      }
+      controller = new AbortController();
+      timer = setTimeout(() => controller.abort(), 30_000);
+      dispatched = true;
       const response = await fetch("/api/book/create-checkout", {
-        method: "POST",
-        headers: {
-          "content-type": "application/json",
-          accept: "application/json",
-          "idempotency-key": idempotencyKey
-        },
-        body: JSON.stringify({
-          slotId: state.selectedSlotId,
-          sourcePage: globalThis.AicAdsTracking?.attributionSourcePage?.("/book/") || "/book/",
-          websiteLeaveBlank: formData.get("websiteLeaveBlank"),
-          policyAccepted,
-          checkoutConsent: true,
-          confirmedReservationAmountCents: state.reservationAmountCents,
-          confirmedAmountCents: state.reservationAmountCents,
-          confirmedCurrency: state.currency,
-          confirmedPolicyVersion: state.policyVersion,
-          confirmedTermsVersion: state.policyVersion,
-          confirmedTermsSha256: state.policySha256,
-          confirmedReleaseId: state.releaseId,
-          confirmedOfferId: state.offerId,
-          confirmedOfferVersion: state.offerVersion,
-          contact: {
-            name: formData.get("name"),
-            email: formData.get("email"),
-            phone: formData.get("phone"),
-            company: formData.get("company")
-          },
-          intake: {
-            companyWebsite: formData.get("companyWebsite"),
-            industry: formData.get("industry"),
-            primaryGoal: formData.get("primaryGoal"),
-            routeId: formData.get("routeId"),
-            notes: formData.get("notes")
-          },
-          measurement: funnelContext
-        })
+        method: "POST", signal: controller.signal,
+        headers: { "content-type": "application/json", accept: "application/json", "idempotency-key": pending.key },
+        body: pending.bodyJson
       });
       const payload = await response.json();
-      if (!response.ok || !payload.ok || !payload.checkoutUrl) {
-        throw new Error(payload.error || "Checkout could not be created.");
+      const checkoutUrl = response.ok ? stripeCheckoutUrl(payload) : null;
+      if (!checkoutUrl) {
+        knownTerminal = !pending.uncertain && ((response.status === 400 && payload.code === "validation_failed")
+          || (response.status === 409 && payload.code === "slot_unavailable"));
+        if (knownTerminal) clearCheckout();
+        if (String(payload.code || "").startsWith("checkout_recovery_")
+          && !["checkout_recovery_pending", "checkout_recovery_paused"].includes(payload.code)) {
+          state.recoveryBlocked = true;
+          throw new Error(REVIEW_MESSAGE);
+        }
+        throw new Error(knownTerminal ? payload.error || "Checkout could not be started. Check your details and try again."
+          : "Checkout has not been confirmed yet. Retry checkout using the same details.");
       }
-
+      state.completed = true;
       showStatus("Redirecting to Stripe checkout...", "success", true);
-      if (window.AicAdsTracking) {
-        window.AicAdsTracking.emit("aic_booking_checkout_start", {
-          channel: "booking",
-          creative_angle: "paid_consult",
-          booking_goal: formData.get("primaryGoal") || "not_selected"
+      try {
+        window.AicAdsTracking?.emit("aic_booking_checkout_start", {
+          channel: "booking", creative_angle: "paid_consult", booking_goal: formData.get("primaryGoal") || "not_selected"
         });
-      }
-      window.location.href = payload.checkoutUrl;
+      } catch (_error) { /* Analytics must not prevent an accepted checkout redirect. */ }
+      window.location.href = checkoutUrl;
+      clearCheckout();
     } catch (error) {
-      showStatus(error.message, "error", true);
-      submitButton.disabled = false;
-      submitButton.textContent = "Continue to Stripe";
+      if (dispatched && state.pendingCheckout) state.pendingCheckout.uncertain = true;
+      const message = state.recoveryBlocked ? REVIEW_MESSAGE : dispatched && !knownTerminal
+        ? (error.name === "AbortError" ? "Checkout is taking longer than expected. Retry checkout using the same details."
+          : "Checkout has not been confirmed yet. Retry checkout using the same details.")
+        : error.message;
+      showStatus(message, "error", true);
+      if (knownTerminal) await loadAvailability();
+    } finally {
+      clearTimeout(timer);
       state.submitting = false;
-      await loadAvailability();
+      submitButton.disabled = state.completed || state.recoveryBlocked;
+      if (!state.completed) submitButton.textContent = state.pendingCheckout ? "Retry checkout" : "Continue to Stripe";
     }
   });
 
+  restoreCheckout();
   syncSummary();
-  loadAvailability();
+  if (state.recoveryBlocked) {
+    submitButton.disabled = true;
+    availabilityRoot.innerHTML = '<p class="loading-copy">Your previous checkout needs checking before another time can be selected.</p>';
+    showStatus(REVIEW_MESSAGE, "error");
+  } else if (state.pendingCheckout) {
+    renderAvailability();
+    submitButton.textContent = "Retry checkout";
+    showStatus("Your previous checkout is still pending. Enter the same details to retry checkout.", "error");
+  } else loadAvailability();
 }());

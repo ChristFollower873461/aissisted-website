@@ -55,7 +55,11 @@ async function main() {
       "booking_deliverables",
       "integration_outbox",
       "contact_inquiries",
-      "contact_crm_delivery"
+      "contact_crm_delivery",
+      "booking_payment_state",
+      "booking_provider_receipts",
+      "booking_crm_delivery",
+      "booking_checkout_commands"
     ];
     const query = `SELECT name FROM sqlite_master WHERE type='table' AND name IN (${requiredTables.map((name) => `'${name}'`).join(",")}) ORDER BY name;`;
     const result = spawnSync("sqlite3", [freshDatabase, query], { encoding: "utf8" });
@@ -74,6 +78,16 @@ async function main() {
       return schemaResult.stdout;
     });
     assert(deliverySchemas[0] === deliverySchemas[1], "contact delivery migration/fresh-schema drift");
+    for (const table of ["booking_payment_state", "booking_provider_receipts", "booking_crm_delivery", "booking_checkout_commands"]) {
+      const query = `SELECT type,name,sql FROM sqlite_master WHERE tbl_name='${table}' ORDER BY type,name;`;
+      const shapes = [freshDatabase, snapshotDatabase].map((database) => {
+        const result = spawnSync("sqlite3", [database, query], { encoding: "utf8" });
+        assert(result.status === 0, `${table} schema query failed`);
+        return result.stdout;
+      });
+      assert(shapes[0] === shapes[1], `${table} migration/fresh-schema drift`);
+    }
+
   } finally {
     await rm(freshDirectory, { recursive: true, force: true });
   }

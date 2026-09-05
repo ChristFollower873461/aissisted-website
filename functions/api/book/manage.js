@@ -1,3 +1,5 @@
+import { bookingPaymentEnabled, refreshBookingPayment } from "../_lib/booking-payment-reconciliation.js";
+import { getBookingConfig } from "../_lib/config.js";
 import { applyFulfillmentAction } from "../_lib/booking-fulfillment.js";
 import { forbidden, json, methodNotAllowed, readJson, unavailable } from "../_lib/http.js";
 import { getBookingStore } from "../_lib/storage.js";
@@ -20,13 +22,22 @@ export async function onRequest(context) {
 
   try {
     const payload = await readJson(context.request);
+    const store = getBookingStore(context.env);
+    const refundReconciliation = String(payload.action || "").trim() === "refund_reconciled";
+    if (refundReconciliation) {
+      if (!bookingPaymentEnabled(context.env)) throw new Error("Provider refund verification is not configured.");
+      const verified = await refreshBookingPayment({ env: context.env,
+        config: getBookingConfig(context.env, new URL(context.request.url).origin), store,
+        bookingId: String(payload.bookingId || "").trim() });
+      if (!verified.ok) throw new Error("Current provider refund verification is unavailable.");
+    }
     const result = await applyFulfillmentAction({
-      store: getBookingStore(context.env),
+      store,
       bookingId: String(payload.bookingId || "").trim(),
       action: String(payload.action || "").trim(),
       actorRef: "pj_owner_action",
       idempotencyKey: String(payload.idempotencyKey || "").trim(),
-      at: payload.at || new Date().toISOString(),
+      at: refundReconciliation ? new Date().toISOString() : payload.at || new Date().toISOString(),
       data: payload.data || {}
     });
     return json({ ok: true, replayed: result.replayed, deliverable: result.deliverable });

@@ -1,3 +1,5 @@
+import { drainCheckoutRecovery } from "../_lib/booking-checkout-recovery.js";
+import { bookingPaymentEnabled, drainBookingPayments } from "../_lib/booking-payment-reconciliation.js";
 import { applyFulfillmentAction } from "../_lib/booking-fulfillment.js";
 import { drainBookingOutbox } from "../_lib/booking-outbox.js";
 import { drainContactCrmDeliveries } from "../_lib/contact-crm-delivery.js";
@@ -56,6 +58,10 @@ export async function onRequest(context) {
   };
 
   summary.crmDelivery = await drainContactCrmDeliveries({ store, env: context.env, at: now });
+  if (bookingPaymentEnabled(context.env)) {
+    summary.checkoutRecovery = await drainCheckoutRecovery({ env: context.env, config, store });
+    summary.bookingPayments = await drainBookingPayments({ env: context.env, config, store });
+  }
 
   for (const item of watchItems) {
     const booking = await store.getBookingById(item.bookingId);
