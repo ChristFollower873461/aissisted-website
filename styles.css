@@ -2947,7 +2947,7 @@ body[data-page="home"] .btn-secondary:hover {
 body[data-page="home"] .hero {
   min-height: auto;
   isolation: isolate;
-  padding: clamp(54px, 7vw, 86px) 0 clamp(48px, 6vw, 74px);
+  padding: clamp(40px, 4.2vw, 56px) 0 clamp(48px, 6vw, 74px);
   background:
     linear-gradient(90deg, rgba(247, 241, 230, 0.98) 0%, rgba(247, 241, 230, 0.94) 48%, rgba(247, 241, 230, 0.72) 66%, rgba(247, 241, 230, 0.1) 100%),
     url("assets/photography/business-computer-team.webp"),
@@ -3060,7 +3060,7 @@ body[data-page="home"] .hero-pretitle {
 body[data-page="home"] .hero h1 {
   max-width: 800px;
   color: var(--home-ink);
-  font-size: clamp(3.2rem, 6.4vw, 6rem);
+  font-size: clamp(2.7rem, 4.4vw, 3.5rem);
   line-height: 1.02;
 }
 
@@ -3567,6 +3567,34 @@ body[data-page="home"] address a {
 }
 
 @media (max-width: 980px) {
+  body[data-page="home"] .menu-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  body[data-page="home"] .nav-links {
+    position: absolute;
+    inset: 100% 15px auto;
+    display: none;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 4px;
+    border: 1px solid var(--home-line);
+    border-radius: var(--radius);
+    background: rgba(255, 253, 247, 0.98);
+    box-shadow: var(--shadow-strong);
+    padding: 10px;
+  }
+
+  body[data-page="home"] .nav-links.is-open {
+    display: flex;
+  }
+
+  body[data-page="home"] .nav-links a {
+    padding: 11px 12px;
+  }
+
   body[data-page="home"] .hero {
     background:
       linear-gradient(180deg, rgba(247, 241, 230, 0.98) 0%, rgba(247, 241, 230, 0.94) 58%, rgba(247, 241, 230, 0.84) 100%),
@@ -3615,11 +3643,6 @@ body[data-page="home"] address a {
 }
 
 @media (max-width: 760px) {
-  body[data-page="home"] .nav-links {
-    border-color: var(--home-line);
-    background: rgba(255, 253, 247, 0.98);
-  }
-
   body[data-page="home"] .hero {
     padding: 40px 0 46px;
   }
@@ -3641,7 +3664,7 @@ body[data-page="home"] address a {
   }
 
   body[data-page="home"] .hero h1 {
-    font-size: clamp(2.35rem, 11vw, 3.7rem);
+    font-size: clamp(2.35rem, 11vw, 2.7rem);
     line-height: 1.05;
   }
 
