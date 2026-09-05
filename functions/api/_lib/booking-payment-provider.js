@@ -27,7 +27,7 @@ function reader(config) {
     const timer = setTimeout(() => controller.abort(), Math.min(REQUEST_MS, remaining));
     try {
       const response = await fetch(`${API}${path}`, {
-        method: 'GET', redirect: 'error', signal: controller.signal,
+        method: 'GET', redirect: 'manual', signal: controller.signal,
         headers: { authorization: `Bearer ${config.stripeSecretKey}`, ...(config.stripeApiVersion ? { 'stripe-version': config.stripeApiVersion } : {}) }
       });
       if (!response.ok) {

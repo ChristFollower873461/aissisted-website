@@ -15,6 +15,7 @@ function fixture(t, overrides = {}) {
   const event = { id: 'evt_synthetic', type: 'checkout.session.completed', created: 1788624000, livemode: false, data: { object: { id: session.id, payment_status: 'unpaid', metadata: { booking_id: 'untrusted' } } } };
   const state = { booking, contract, session, payment, charge, event, refunds: [], requests: [], accountId: scope.providerAccountId, ...overrides };
   t.mock.method(globalThis, 'fetch', async (url, init) => {
+    assert.equal(init.redirect, 'manual', 'workerd supports manual/follow, and credentials must not follow redirects');
     assert.equal(init.method, 'GET', 'the provider reader never creates payments, refunds or provider state');
     assert.equal(init.headers['stripe-version'], config.stripeApiVersion);
     assert.equal(init.headers.authorization, `Bearer ${config.stripeSecretKey}`);
@@ -200,4 +201,11 @@ test('aggregate provider read budget bounds a sequence of individually successfu
   const h = fixture(t); h.respond = () => { t.mock.timers.setTime(Date.now() + 3100); return null; };
   const result = await h.read(); assert.equal(result.ok, false); assert.equal(result.retryable, true);
   assert.equal(result.reason, 'provider_deadline'); assert.ok(h.requests.length <= 4);
+});
+
+
+test('provider redirects are rejected without following the credential to another origin', async (t) => {
+  const h = fixture(t); h.respond = () => new Response(null, { status: 302, headers: { location: 'https://foreign.example.test/account' } });
+  const result = await h.read(); assert.equal(result.ok, false); assert.equal(result.reason, 'provider_http_302');
+  assert.equal(h.requests.length, 1);
 });
