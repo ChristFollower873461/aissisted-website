@@ -207,6 +207,74 @@ function normalizeContactInquiry(record) {
   };
 }
 
+function normalizeCrmDelivery(record) {
+  if (!record) return null;
+  return {
+    id: record.id,
+    inquiryId: record.inquiryId ?? record.inquiry_id,
+    eventId: record.eventId ?? record.event_id,
+    payloadJson: record.payloadJson ?? record.payload_json,
+    state: record.state,
+    attempts: Number(record.attempts),
+    nextAttemptAt: record.nextAttemptAt ?? record.next_attempt_at ?? null,
+    leaseToken: record.leaseToken ?? record.lease_token ?? null,
+    leaseExpiresAt: record.leaseExpiresAt ?? record.lease_expires_at ?? null,
+    lastSafeErrorCode: record.lastSafeErrorCode ?? record.last_safe_error_code ?? "",
+    submissionId: record.submissionId ?? record.submission_id ?? "",
+    createdAt: record.createdAt ?? record.created_at,
+    updatedAt: record.updatedAt ?? record.updated_at
+  };
+}
+
+function createCrmDelivery(inquiryId, input, timestamp) {
+  if (typeof input.eventId !== "string" || !input.eventId.trim()) {
+    throw new Error("CRM delivery requires an event ID");
+  }
+  if (typeof input.payloadJson !== "string") {
+    throw new Error("CRM delivery requires a JSON payload");
+  }
+  JSON.parse(input.payloadJson);
+  return {
+    id: createId("crm"),
+    inquiryId,
+    eventId: input.eventId,
+    payloadJson: input.payloadJson,
+    state: "pending",
+    attempts: 0,
+    nextAttemptAt: timestamp,
+    leaseToken: null,
+    leaseExpiresAt: null,
+    lastSafeErrorCode: "",
+    submissionId: "",
+    createdAt: timestamp,
+    updatedAt: timestamp
+  };
+}
+
+function crmDeliveryLimit(limit) {
+  const value = Number(limit);
+  return Number.isFinite(value) ? Math.max(0, Math.min(10, Math.trunc(value))) : 10;
+}
+
+function isCrmDeliveryDue(delivery, at) {
+  return (delivery.state === "pending" && (!delivery.nextAttemptAt || delivery.nextAttemptAt <= at))
+    || (delivery.state === "processing" && delivery.leaseExpiresAt && delivery.leaseExpiresAt <= at);
+}
+
+function validateCrmDeliveryLease({ at, leaseToken, leaseExpiresAt }) {
+  if (typeof leaseToken !== "string" || !leaseToken.trim()
+    || typeof leaseExpiresAt !== "string" || leaseExpiresAt <= at) {
+    throw new Error("CRM delivery requires a token and a future lease expiry");
+  }
+}
+
+function validateCrmDeliveryFinish({ state, deliveryStatus }) {
+  if (!["pending", "delivered", "needs_attention"].includes(state)
+    || typeof deliveryStatus !== "string" || !deliveryStatus) {
+    throw new Error("CRM delivery requires a finish state and contact delivery status");
+  }
+}
+
 function getMemoryState() {
   if (!globalThis.__aissistedBookingStore) {
     globalThis.__aissistedBookingStore = {
@@ -226,6 +294,9 @@ function getMemoryState() {
       agentTransactionAudits: [],
       contactInquiries: new Map(),
       contactInquiryIdsByDuplicateFingerprint: new Map(),
+      contactCrmDeliveries: new Map(),
+      contactCrmDeliveryIdsByInquiry: new Map(),
+      contactCrmDeliveryIdsByEvent: new Map(),
       events: []
     };
   }
@@ -248,7 +319,8 @@ function getMemoryState() {
   if (!globalThis.__aissistedBookingStore.contactInquiryIdsByDuplicateFingerprint) {
     globalThis.__aissistedBookingStore.contactInquiryIdsByDuplicateFingerprint = new Map();
   }
-  for (const key of ["bookingContracts", "bookingDeliverables", "checkoutIntents", "integrationOutbox"]) {
+  for (const key of ["bookingContracts", "bookingDeliverables", "checkoutIntents", "integrationOutbox",
+    "contactCrmDeliveries", "contactCrmDeliveryIdsByInquiry", "contactCrmDeliveryIdsByEvent"]) {
     if (!globalThis.__aissistedBookingStore[key]) {
       globalThis.__aissistedBookingStore[key] = new Map();
     }
@@ -473,6 +545,16 @@ function createMemoryStore() {
         createdAt: timestamp,
         updatedAt: timestamp
       };
+      const delivery = input.crmDelivery
+        ? createCrmDelivery(inquiry.id, input.crmDelivery, timestamp) : null;
+      // Validate every constraint before either map changes. There is no await
+      // between validation and committing the inquiry and its outbox record.
+      if (state.contactCrmDeliveryIdsByInquiry.has(inquiry.id)
+        || (delivery && (state.contactInquiries.has(inquiry.id)
+          || state.contactCrmDeliveries.has(delivery.id)
+          || state.contactCrmDeliveryIdsByEvent.has(delivery.eventId)))) {
+        throw new Error("CRM delivery inquiry and event IDs must be unique");
+      }
       state.contactInquiries.set(inquiry.id, inquiry);
       const duplicateIds =
         state.contactInquiryIdsByDuplicateFingerprint.get(inquiry.duplicateFingerprint) || [];
@@ -481,7 +563,69 @@ function createMemoryStore() {
         inquiry.duplicateFingerprint,
         duplicateIds
       );
+      if (delivery) {
+        state.contactCrmDeliveries.set(delivery.id, delivery);
+        state.contactCrmDeliveryIdsByInquiry.set(inquiry.id, delivery.id);
+        state.contactCrmDeliveryIdsByEvent.set(delivery.eventId, delivery.id);
+      }
       return normalizeContactInquiry(inquiry);
+    },
+
+    async getCrmDeliveryByInquiryId(inquiryId) {
+      return normalizeCrmDelivery(state.contactCrmDeliveries.get(
+        state.contactCrmDeliveryIdsByInquiry.get(inquiryId)
+      ));
+    },
+
+    async listDueCrmDeliveries({ at = nowIso(), limit = 10 } = {}) {
+      const dueAt = (delivery) => delivery.state === "processing"
+        ? delivery.leaseExpiresAt : delivery.nextAttemptAt || delivery.createdAt;
+      return [...state.contactCrmDeliveries.values()]
+        .filter((delivery) => isCrmDeliveryDue(delivery, at))
+        .sort((a, b) => dueAt(a).localeCompare(dueAt(b))
+          || a.createdAt.localeCompare(b.createdAt) || a.id.localeCompare(b.id))
+        .slice(0, crmDeliveryLimit(limit)).map(normalizeCrmDelivery);
+    },
+
+    async claimCrmDelivery(id, { at = nowIso(), leaseToken, leaseExpiresAt }) {
+      validateCrmDeliveryLease({ at, leaseToken, leaseExpiresAt });
+      const delivery = state.contactCrmDeliveries.get(id);
+      if (!delivery || !isCrmDeliveryDue(delivery, at)) return null;
+      Object.assign(delivery, {
+        state: "processing", attempts: delivery.attempts + 1,
+        leaseToken, leaseExpiresAt, updatedAt: at
+      });
+      return normalizeCrmDelivery(delivery);
+    },
+
+    async finishCrmDelivery(id, { leaseToken, state: nextState, at = nowIso(),
+      nextAttemptAt = null, lastSafeErrorCode = "", submissionId = "", deliveryStatus }) {
+      validateCrmDeliveryFinish({ state: nextState, deliveryStatus });
+      const delivery = state.contactCrmDeliveries.get(id);
+      const inquiry = delivery && state.contactInquiries.get(delivery.inquiryId);
+      if (!inquiry || delivery.state !== "processing" || !leaseToken
+        || delivery.leaseToken !== leaseToken) return false;
+      Object.assign(delivery, {
+        state: nextState, nextAttemptAt, lastSafeErrorCode, submissionId,
+        leaseToken: null, leaseExpiresAt: null, updatedAt: at
+      });
+      inquiry.deliveryStatus = deliveryStatus;
+      inquiry.updatedAt = at;
+      return true;
+    },
+
+    async getCrmDeliverySummary({ at = nowIso() } = {}) {
+      const summary = { pending: 0, processing: 0, delivered: 0, needsAttention: 0,
+        due: 0, oldestUnresolvedCreatedAt: null };
+      for (const delivery of state.contactCrmDeliveries.values()) {
+        summary[delivery.state === "needs_attention" ? "needsAttention" : delivery.state] += 1;
+        if (isCrmDeliveryDue(delivery, at)) summary.due += 1;
+        if (delivery.state !== "delivered" && (!summary.oldestUnresolvedCreatedAt
+          || delivery.createdAt < summary.oldestUnresolvedCreatedAt)) {
+          summary.oldestUnresolvedCreatedAt = delivery.createdAt;
+        }
+      }
+      return summary;
     },
 
     async getContactInquiryById(id) {
@@ -1371,7 +1515,9 @@ function createD1Store(db) {
     async createContactInquiry(input) {
       const timestamp = input.createdAt || nowIso();
       const id = input.id || createId("inq");
-      await db
+      const delivery = input.crmDelivery
+        ? createCrmDelivery(id, input.crmDelivery, timestamp) : null;
+      const inquiryStatement = db
         .prepare(
           `
             INSERT INTO contact_inquiries (
@@ -1417,10 +1563,101 @@ function createD1Store(db) {
           input.deliveryStatus || "local_record_only",
           input.idempotencyRecordId,
           timestamp
-        )
-        .run();
+        );
+
+      if (delivery) {
+        // D1 batch commits both records, or rolls both back on any constraint
+        // failure. An accepted inquiry must never lose its required retry job.
+        await db.batch([
+          inquiryStatement,
+          db.prepare(`
+            INSERT INTO contact_crm_delivery (
+              id, inquiry_id, event_id, payload_json, state, attempts,
+              next_attempt_at, created_at, updated_at
+            ) VALUES (?1, ?2, ?3, ?4, 'pending', 0, ?5, ?5, ?5)
+          `).bind(delivery.id, id, delivery.eventId, delivery.payloadJson, timestamp)
+        ]);
+      } else {
+        await inquiryStatement.run();
+      }
 
       return this.getContactInquiryById(id);
+    },
+
+    async getCrmDeliveryByInquiryId(inquiryId) {
+      return normalizeCrmDelivery(await db.prepare(
+        "SELECT * FROM contact_crm_delivery WHERE inquiry_id = ?1 LIMIT 1"
+      ).bind(inquiryId).first());
+    },
+
+    async listDueCrmDeliveries({ at = nowIso(), limit = 10 } = {}) {
+      const result = await db.prepare(`
+        SELECT * FROM contact_crm_delivery
+        WHERE (state = 'pending' AND (next_attempt_at IS NULL OR next_attempt_at <= ?1))
+          OR (state = 'processing' AND lease_expires_at <= ?1)
+        ORDER BY CASE WHEN state = 'processing' THEN lease_expires_at
+          ELSE COALESCE(next_attempt_at, created_at) END, created_at, id
+        LIMIT ?2
+      `).bind(at, crmDeliveryLimit(limit)).all();
+      return result.results.map(normalizeCrmDelivery);
+    },
+
+    async claimCrmDelivery(id, { at = nowIso(), leaseToken, leaseExpiresAt }) {
+      validateCrmDeliveryLease({ at, leaseToken, leaseExpiresAt });
+      return normalizeCrmDelivery(await db.prepare(`
+        UPDATE contact_crm_delivery
+        SET state = 'processing', attempts = attempts + 1,
+          lease_token = ?3, lease_expires_at = ?4, updated_at = ?2
+        WHERE id = ?1 AND (
+          (state = 'pending' AND (next_attempt_at IS NULL OR next_attempt_at <= ?2))
+          OR (state = 'processing' AND lease_expires_at <= ?2)
+        )
+        RETURNING *
+      `).bind(id, at, leaseToken, leaseExpiresAt).first());
+    },
+
+    async finishCrmDelivery(id, { leaseToken, state, at = nowIso(),
+      nextAttemptAt = null, lastSafeErrorCode = "", submissionId = "", deliveryStatus }) {
+      validateCrmDeliveryFinish({ state, deliveryStatus });
+      if (!leaseToken) return false;
+      // Both predicates observe the same claim within D1's ordered transaction.
+      // Updating the contact first keeps the lease available for its predicate;
+      // if the outbox update fails, D1 rolls the contact update back as well.
+      const results = await db.batch([
+        db.prepare(`
+          UPDATE contact_inquiries SET delivery_status = ?3, updated_at = ?4
+          WHERE id = (SELECT inquiry_id FROM contact_crm_delivery
+            WHERE id = ?1 AND state = 'processing' AND lease_token = ?2)
+        `).bind(id, leaseToken, deliveryStatus, at),
+        db.prepare(`
+          UPDATE contact_crm_delivery
+          SET state = ?3, updated_at = ?4, next_attempt_at = ?5,
+            last_safe_error_code = ?6, submission_id = ?7,
+            lease_token = NULL, lease_expires_at = NULL
+          WHERE id = ?1 AND state = 'processing' AND lease_token = ?2
+            AND EXISTS (SELECT 1 FROM contact_inquiries WHERE id = inquiry_id)
+        `).bind(id, leaseToken, state, at, nextAttemptAt, lastSafeErrorCode, submissionId)
+      ]);
+      return Number(results[1].meta.changes) === 1;
+    },
+
+    async getCrmDeliverySummary({ at = nowIso() } = {}) {
+      const result = await db.prepare(`
+        SELECT
+          COUNT(CASE WHEN state = 'pending' THEN 1 END) AS pending,
+          COUNT(CASE WHEN state = 'processing' THEN 1 END) AS processing,
+          COUNT(CASE WHEN state = 'delivered' THEN 1 END) AS delivered,
+          COUNT(CASE WHEN state = 'needs_attention' THEN 1 END) AS needsAttention,
+          COUNT(CASE WHEN (state = 'pending' AND (next_attempt_at IS NULL OR next_attempt_at <= ?1))
+            OR (state = 'processing' AND lease_expires_at <= ?1) THEN 1 END) AS due,
+          MIN(CASE WHEN state != 'delivered' THEN created_at END) AS oldestUnresolvedCreatedAt
+        FROM contact_crm_delivery
+      `).bind(at).first();
+      return {
+        pending: Number(result.pending), processing: Number(result.processing),
+        delivered: Number(result.delivered), needsAttention: Number(result.needsAttention),
+        due: Number(result.due), oldestUnresolvedCreatedAt: result.oldestUnresolvedCreatedAt
+      };
     },
 
     async getContactInquiryById(id) {

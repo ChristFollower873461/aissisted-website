@@ -1,5 +1,6 @@
 import { applyFulfillmentAction } from "../_lib/booking-fulfillment.js";
 import { drainBookingOutbox } from "../_lib/booking-outbox.js";
+import { drainContactCrmDeliveries } from "../_lib/contact-crm-delivery.js";
 import { getBookingConfig } from "../_lib/config.js";
 import { forbidden, json, methodNotAllowed, unavailable } from "../_lib/http.js";
 import { sendManualReviewNotification } from "../_lib/notifications.js";
@@ -53,6 +54,8 @@ export async function onRequest(context) {
     outboxBookingsProcessed: 0,
     previousRunStale
   };
+
+  summary.crmDelivery = await drainContactCrmDeliveries({ store, env: context.env, at: now });
 
   for (const item of watchItems) {
     const booking = await store.getBookingById(item.bookingId);
