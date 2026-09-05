@@ -56,6 +56,10 @@ function checkEvent(scope, event) {
 async function verifyScope(config, scope, event, get) {
   if (!config?.stripeSecretKey || !isId(scope?.providerAccountId, 'acct') || typeof scope?.livemode !== 'boolean'
     || !['staging', 'production'].includes(scope.sourceEnvironment) || config.stripeExpectedLivemode !== scope.livemode) fail('provider_scope_invalid');
+  // /account identifies the account, but has no live/test mode. Check the
+  // documented secret/restricted key mode before a caller can create Checkout.
+  const keyMode = /^(?:sk|rk)_(test|live)_.+$/.exec(config.stripeSecretKey)?.[1];
+  if (keyMode !== (scope.livemode ? 'live' : 'test')) fail('provider_key_mode_mismatch');
   checkEvent(scope, event);
   // Direct-account Stripe events omit account or set it to null. The credential's actual account
   // is read even in that case; a configured label is never treated as proof.

@@ -209,3 +209,16 @@ test('provider redirects are rejected without following the credential to anothe
   const result = await h.read(); assert.equal(result.ok, false); assert.equal(result.reason, 'provider_http_302');
   assert.equal(h.requests.length, 1);
 });
+
+for (const [key, livemode, allowed] of [
+  ['sk_test_fixture', false, true], ['rk_test_fixture', false, true],
+  ['sk_live_fixture', true, true], ['rk_live_fixture', true, true],
+  ['sk_live_fixture', false, false], ['rk_test_fixture', true, false],
+  ['pk_test_fixture', false, false], ['whsec_fixture', false, false], ['unknown_fixture', false, false]
+]) test(`API key mode is verified before provider access (${key.split('_').slice(0, 2).join('_')}, ${livemode})`, async (t) => {
+  let calls = 0;
+  t.mock.method(globalThis, 'fetch', async (_url, options) => { calls++; assert.equal(options.headers.authorization, `Bearer ${key}`); return Response.json({ object: 'account', id: scope.providerAccountId }); });
+  const result = await verifyBookingProviderScope({ config: { ...config, stripeSecretKey: key, stripeExpectedLivemode: livemode }, scope: { ...scope, livemode, sourceEnvironment: livemode ? 'production' : 'staging' } });
+  assert.equal(result.ok, allowed); assert.equal(calls, allowed ? 1 : 0);
+  if (!allowed) assert.deepEqual(result, { ok: false, retryable: false, reason: 'provider_key_mode_mismatch' });
+});
