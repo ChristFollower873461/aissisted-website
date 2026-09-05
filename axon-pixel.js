@@ -4,8 +4,19 @@
   if (window.__aissistedAxonPixelInitialized) return;
   window.__aissistedAxonPixelInitialized = true;
 
+  // This wrapper loads independently of Google tracking; enforce the same
+  // production origins before creating an SDK queue or calling an existing SDK.
+  var origin = String(window.location.origin || "").toLowerCase();
+  if (origin !== "https://aissistedconsulting.com" &&
+      origin !== "https://www.aissistedconsulting.com") {
+    window.__aissistedAxonTrackingSuppressed = "nonproduction_preview";
+    window.aissistedAxon = Object.freeze({
+      trackGenerateLead: function () { return false; }
+    });
+    return;
+  }
+
   var AXON_EVENT_KEY = "9b5458fd-2266-46fe-ad11-76bfcf5ce6ee";
-  var isLocalPreview = /^(localhost|127\.0\.0\.1|\[?::1\]?)$/.test(window.location.hostname);
 
   (function (targetWindow, targetDocument) {
     var sources = [
@@ -27,15 +38,13 @@
     axon.ts = Date.now();
     axon.eventKey = AXON_EVENT_KEY;
 
-    if (!isLocalPreview) {
-      var firstScript = targetDocument.getElementsByTagName("script")[0];
-      sources.forEach(function (source) {
-        var script = targetDocument.createElement("script");
-        script.async = true;
-        script.src = source;
-        firstScript.parentNode.insertBefore(script, firstScript);
-      });
-    }
+    var firstScript = targetDocument.getElementsByTagName("script")[0];
+    sources.forEach(function (source) {
+      var script = targetDocument.createElement("script");
+      script.async = true;
+      script.src = source;
+      firstScript.parentNode.insertBefore(script, firstScript);
+    });
   }(window, document));
 
   window.axon("init");
