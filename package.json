@@ -19,12 +19,14 @@
     "test:booking": "node --test tests/axon-tracking.test.mjs tests/booking-hardening.test.mjs tests/transaction-safety.test.mjs tests/contact-submit.test.mjs tests/booking-checkout.test.mjs tests/booking-conversion-tracking.test.mjs tests/grail-payment-webhook.test.mjs tests/grail-checkout-status.test.mjs tests/grail-activation-conversion.test.mjs tests/grail-tracking-activation.test.mjs",
     "test:brightway-store": "node --test tests/brightway-store-readiness.test.mjs",
     "test:seo-agent": "node --test tests/seo-agent-readiness.test.mjs",
-    "test:grail-deletion": "node --test tests/grail-account-deletion.test.mjs"
+    "test:grail-deletion": "node --test tests/grail-account-deletion.test.mjs",
+    "check:pages-preview": "node scripts/validate-pages-preview-isolation.mjs"
   },
   "dependencies": {
     "three": "0.184.0"
   },
   "devDependencies": {
+    "@iarna/toml": "2.2.5",
     "playwright": "^1.59.1"
   }
 }

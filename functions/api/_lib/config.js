@@ -99,10 +99,12 @@ export function getBookingConfig(env, origin) {
   const termsSnapshot = activeRelease
     ? getTermsSnapshotForRelease(activeRelease.releaseId)
     : null;
+  const siteOrigin = env.PREVIEW_ACCESS_REQUIRED === "true" && origin
+    ? origin : env.PUBLIC_SITE_ORIGIN;
 
   return {
     businessTitle: env.BOOKING_BUSINESS_TITLE || "AIssisted Consulting",
-    siteOrigin: normalizeOrigin(env.PUBLIC_SITE_ORIGIN, origin),
+    siteOrigin: normalizeOrigin(siteOrigin, origin),
     checkoutEnabled: bookingControls.checkoutEnabled,
     checkoutDisabledReason: bookingControls.reason,
     activeRelease,
