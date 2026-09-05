@@ -25,6 +25,13 @@
     "msclkid",
   ];
 
+  function isTrackingSuppressed() {
+    // Grail can run independently; gate even calls to an already loaded SDK.
+    var origin = String(window.location.origin || "").toLowerCase();
+    return origin !== "https://aissistedconsulting.com" &&
+      origin !== "https://www.aissistedconsulting.com";
+  }
+
   function safeJsonParse(value) {
     try {
       return value ? JSON.parse(value) : {};
@@ -124,6 +131,7 @@
   }
 
   function recordGoogleAdsConversion(eventName, payload, explicitLabel) {
+    if (isTrackingSuppressed()) return false;
     if (typeof window.gtag !== "function") {
       return false;
     }
@@ -163,6 +171,9 @@
       touch,
       detail || {}
     );
+
+    // Retain local attribution without publishing to SDKs, queues or listeners.
+    if (isTrackingSuppressed()) return;
 
     window.dataLayer = window.dataLayer || [];
     window.dataLayer.push(payload);
