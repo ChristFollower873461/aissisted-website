@@ -44,6 +44,7 @@ jobs:
         run: |
           npm run check:public-truth
           npm run check:booking-migrations
+          npm run check:pages-preview
 
       - name: Run all regression suites
         run: npm test
