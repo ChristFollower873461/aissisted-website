@@ -23,6 +23,11 @@ Without that secret the middleware returns 503 before dispatch, including API
 and webhook routes. With it configured, existing token/cookie authentication
 remains in force; the Stripe webhook retains its existing signature-protected
 machine endpoint exception. The live site's default config does not opt in.
+Authenticated preview canonical redirects and booking return URLs retain the
+request's deployment origin, including branch and hash hosts. They must not send
+a reviewer to the project's default `pages.dev` host, which serves its production
+slot. The configured preview origin identifies the project when no request is
+available; it does not override the origin of a private preview request.
 
 Cloudflare Pages supports `env.production` and `env.preview`; a deployment's
 branch selects the slot. All non-production branches share `env.preview`. When

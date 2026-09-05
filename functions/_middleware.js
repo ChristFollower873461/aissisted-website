@@ -224,7 +224,8 @@ export async function onRequest(context) {
   const previewGate = await enforcePreviewAccess(context, url);
   if (previewGate) return previewGate;
   const env = context.env || {};
-  const primaryOrigin = env.PUBLIC_SITE_ORIGIN || PRIMARY_ORIGIN;
+  const isPrivatePreview = env.PREVIEW_ACCESS_REQUIRED === "true";
+  const primaryOrigin = isPrivatePreview ? url.origin : env.PUBLIC_SITE_ORIGIN || PRIMARY_ORIGIN;
 
   if (hostname === "ocalaaiconsulting.com" || hostname === "www.ocalaaiconsulting.com") {
     return finalizeResponse(
@@ -242,10 +243,11 @@ export async function onRequest(context) {
 
   const redirectPath = REDIRECTS.get(url.pathname);
   if (redirectPath) {
-    return finalizeResponse(
+    const redirect = finalizeResponse(
       context.request,
       Response.redirect(`${primaryOrigin}${redirectPath}${url.search}`, 301)
     );
+    return isPrivatePreview ? previewHeaders(redirect) : redirect;
   }
 
   if (isBlockedPath(url.pathname)) {

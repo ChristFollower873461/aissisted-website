@@ -113,3 +113,37 @@ test("configured opt-in preview still requires the existing token and accepts va
     assert.equal(response.status, status);
   }
 });
+
+for (const [file, host] of [
+  ["wrangler.toml", "synthetic-review.aissisted-website.pages.dev"],
+  ["wrangler.toml", "0123abcd.aissisted-website.pages.dev"],
+  ["wrangler.preview.toml", "synthetic-review.aissisted-offer-v2-preview.pages.dev"],
+  ["wrangler.preview.toml", "0123abcd.aissisted-offer-v2-preview.pages.dev"]
+]) {
+  test(`preview redirects and return URLs retain deployment origin: ${host}`, async () => {
+    const origin = `https://${host}`;
+    const env = { ...configs[file].env.preview.vars, PREVIEW_ACCESS_TOKEN: "synthetic-preview-token" };
+    for (const [from, to] of [["/grail", "/grail/"], ["/grail/index.html", "/grail/"], ["/grail/activation.html", "/grail/activation"]]) {
+      const response = await middleware({
+        request: new Request(`${origin}${from}?source=synthetic`, { headers: { authorization: `Bearer ${env.PREVIEW_ACCESS_TOKEN}` } }),
+        env, next: async () => { assert.fail("canonical route should redirect"); }
+      });
+      assert.equal(response.status, 301);
+      assert.equal(response.headers.get("location"), `${origin}${to}?source=synthetic`);
+      assert.match(response.headers.get("cache-control"), /no-store/);
+      assert.match(response.headers.get("x-robots-tag"), /noindex/);
+    }
+    assert.equal(getBookingConfig(env, origin).siteOrigin, origin);
+  });
+}
+
+test("production redirects and return URLs retain configured canonical origin", async () => {
+  const env = configs["wrangler.toml"].vars;
+  const response = await middleware({
+    request: new Request("https://aissisted-website.pages.dev/grail?source=synthetic"),
+    env, next: async () => { assert.fail("canonical route should redirect"); }
+  });
+  assert.equal(response.status, 301);
+  assert.equal(response.headers.get("location"), "https://aissistedconsulting.com/grail/?source=synthetic");
+  assert.equal(getBookingConfig(env, "https://aissisted-website.pages.dev").siteOrigin, "https://aissistedconsulting.com");
+});
