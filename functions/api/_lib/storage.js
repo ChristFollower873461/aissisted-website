@@ -1,3 +1,4 @@
+import { createBookingPaymentStore } from "./booking-payment-store.js";
 import { intervalOverlaps } from "./time.js";
 import { createBookingContractSnapshot } from "./booking-contract.js";
 import { shouldCreateImplementationCredit } from "./booking-releases.js";
@@ -2586,5 +2587,14 @@ function createD1Store(db) {
 }
 
 export function getBookingStore(env) {
-  return env.BOOKING_DB ? createD1Store(env.BOOKING_DB) : createMemoryStore();
+  const store = env.BOOKING_DB ? createD1Store(env.BOOKING_DB) : createMemoryStore();
+  if (env.BOOKING_DB && env.AIC_CRM_BOOKING_EVENTS_ENABLED === "true") {
+    const payments = createBookingPaymentStore(env.BOOKING_DB);
+    store.reconcileVerifiedRefund = (input) => payments.reconcileVerifiedRefund(input);
+    store.getBookingByPaymentIntentId = async (id) => {
+      const bookingId = await payments.findBookingIdByPaymentIntent(id);
+      return bookingId ? store.getBookingById(bookingId) : null;
+    };
+  }
+  return store;
 }

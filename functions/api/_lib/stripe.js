@@ -25,7 +25,8 @@ async function stripeRequest(config, path, options = {}) {
         ? { "content-type": "application/x-www-form-urlencoded" }
         : {})
     },
-    body: options.body ? options.body.toString() : undefined
+    body: options.body ? options.body.toString() : undefined,
+    ...(options.signal ? { signal: options.signal, redirect: "manual" } : {})
   });
   const payload = await response.json();
 
@@ -58,7 +59,7 @@ export async function createStripeCustomer(config, prospect, options = {}) {
   });
 }
 
-export async function createCheckoutSession(config, booking, prospect, options = {}) {
+export function buildCheckoutSessionCommand(config, booking, prospect, options = {}) {
   if (!config.activeRelease || !contractMatchesRelease(booking, config.activeRelease)) {
     throw new Error("The stored booking contract does not match the active release.");
   }
@@ -125,10 +126,28 @@ export async function createCheckoutSession(config, booking, prospect, options =
     );
   }
 
-  const session = await stripeRequest(config, "/checkout/sessions", {
-    body,
-    idempotencyKey: options.idempotencyKey
+  return { body: body.toString(), idempotencyKey: options.idempotencyKey || "", apiVersion: config.stripeApiVersion || "" };
+}
+
+export async function sendCheckoutSessionCommand(config, command) {
+  if (!command.idempotencyKey || typeof command.body !== "string" || !command.body) {
+    throw new Error("A persisted Stripe checkout command is required.");
+  }
+  const controller = new AbortController();
+  let timer;
+  const deadline = new Promise((_, reject) => {
+    timer = setTimeout(() => { controller.abort(); reject(new Error("checkout_provider_deadline")); }, 10_000);
   });
+  try {
+    return await Promise.race([stripeRequest({ ...config, stripeApiVersion: command.apiVersion }, "/checkout/sessions", {
+      body: command.body, idempotencyKey: command.idempotencyKey, signal: controller.signal
+    }), deadline]);
+  } finally { clearTimeout(timer); }
+}
+
+export async function createCheckoutSession(config, booking, prospect, options = {}) {
+  const command = buildCheckoutSessionCommand(config, booking, prospect, options);
+  const session = await stripeRequest(config, "/checkout/sessions", { body: command.body, idempotencyKey: command.idempotencyKey });
   if (config.activeRelease.paymentMethodPolicy === "synchronous_card_only") {
     try {
       if (typeof config.stripeExpectedLivemode !== "boolean") {
