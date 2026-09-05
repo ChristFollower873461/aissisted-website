@@ -42,7 +42,7 @@ function createNode() {
   };
 }
 
-async function submitForm(formType, attributionMode) {
+async function submitForm(formType, attributionMode, campaignQuery = CAMPAIGN_QUERY) {
   const requests = [];
   const nodes = new Map();
   const documentListeners = {};
@@ -67,7 +67,7 @@ async function submitForm(formType, attributionMode) {
   document.getElementById("availability-root").querySelectorAll = () => [slotButton];
   const context = vm.createContext({
     document,
-    location: new URL(`https://aissistedconsulting.com/book/?${CAMPAIGN_QUERY}`),
+    location: new URL(`https://aissistedconsulting.com/book/?${campaignQuery}`),
     localStorage: createStorage(),
     sessionStorage: createStorage(),
     URL,
@@ -101,7 +101,7 @@ async function submitForm(formType, attributionMode) {
   if (attributionMode !== "missing-tracker") {
     const trackingSource = readFileSync("assets/aic-google-ads-tracking.js", "utf8");
     if (attributionMode === "stored-landing") {
-      context.location = new URL(`https://aissistedconsulting.com/small-business-ai-help/?${CAMPAIGN_QUERY}`);
+      context.location = new URL(`https://aissistedconsulting.com/small-business-ai-help/?${campaignQuery}`);
     }
     vm.runInContext(trackingSource, context);
     documentListeners.DOMContentLoaded();
@@ -191,5 +191,32 @@ for (const formType of ["checkout", "fit-call"]) {
   test(`${formType} still submits when the attribution tracker is unavailable`, async () => {
     const request = await submitForm(formType, "missing-tracker");
     assert.equal(request.sourcePage, formType === "checkout" ? "/book/" : "/book/#fit-call");
+  });
+}
+
+
+for (const formType of ["checkout", "fit-call"]) {
+  test(`${formType} retains structured attribution when the absolute CRM URL reaches its limit`, async () => {
+    const expected = {
+      gclid: "x".repeat(140),
+      utm_source: "s".repeat(110),
+      utm_medium: "m".repeat(110),
+      utm_campaign: "c".repeat(80)
+    };
+    const request = await submitForm(formType, "current-query", new URLSearchParams(expected).toString());
+    assert.equal(request.sourcePage.length, 491);
+    assert.ok(new URL(request.sourcePage, "https://aissistedconsulting.com").href.length > 500);
+    const attribution = await relayAttribution(formType, request);
+    assert.ok(attribution.sourceUrl.length <= 500, "receiver's absolute source URL budget includes the origin");
+    assert.equal(attribution.sourcePage, request.sourcePage, "retain the full allowed source page");
+    assert.equal(attribution.gclid, expected.gclid);
+    assert.equal(attribution.utmSource, expected.utm_source);
+    assert.equal(attribution.utmMedium, expected.utm_medium);
+    assert.equal(attribution.utmCampaign, expected.utm_campaign);
+    const boundedUrl = new URL(attribution.sourceUrl);
+    assert.equal(boundedUrl.origin, "https://aissistedconsulting.com");
+    assert.equal(boundedUrl.pathname, "/book/");
+    for (const [key, value] of boundedUrl.searchParams) assert.equal(value, expected[key], "never cut a parameter value");
+    assert.equal(boundedUrl.searchParams.get("utm_campaign"), null, "oversized URL details remain available in structured fields");
   });
 }
