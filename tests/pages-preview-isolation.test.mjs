@@ -25,6 +25,8 @@ for (const [label, mutate, expected] of [
   ["omitted D1 group", (slot) => { delete slot.d1_databases; }, "explicit preview D1"],
   ["omitted vars group", (slot) => { delete slot.vars; }, "explicit vars"],
   ["enabled Checkout", (slot) => { slot.vars.BOOKING_CHECKOUT_ENABLED = "true"; }, "BOOKING_CHECKOUT_ENABLED"],
+  ["full fulfillment monitoring", (slot) => { slot.vars.BOOKING_MONITOR_SCOPE = "all"; }, "BOOKING_MONITOR_SCOPE"],
+  ["omitted monitor scope", (slot) => { delete slot.vars.BOOKING_MONITOR_SCOPE; }, "BOOKING_MONITOR_SCOPE"],
   ["calendar event writes", (slot) => { slot.vars.BOOKING_CREATE_GOOGLE_CALENDAR_EVENT = "true"; }, "BOOKING_CREATE_GOOGLE_CALENDAR_EVENT"],
   ["empty email provider permitting fallback", (slot) => { slot.vars.AIC_EMAIL_PROVIDER = ""; }, "AIC_EMAIL_PROVIDER"],
   ["owner webhook", (slot) => { slot.vars.BOOKING_NOTIFICATION_WEBHOOK_URL = "https://example.invalid/hook"; }, "BOOKING_NOTIFICATION_WEBHOOK_URL"],

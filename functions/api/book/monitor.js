@@ -34,16 +34,33 @@ export async function onRequest(context) {
   const provided = String(context.request.headers.get("authorization") || "").replace(/^Bearer\s+/i, "");
   if (!constantTimeEqual(provided, secret)) return forbidden("Monitor authorization is required.");
 
+  // Select the scope from deployed configuration, never from request input.
+  // The default preserves the existing production invoker's full behavior.
+  const scope = context.env.BOOKING_MONITOR_SCOPE ?? "all";
+  if (scope !== "all" && scope !== "contacts") return unavailable("Booking monitor scope is not configured correctly.");
+  const completedEventType = scope === "contacts"
+    ? "contact.crm_monitor.completed"
+    : "booking.fulfillment_monitor.completed";
   const now = new Date().toISOString();
   const store = getBookingStore(context.env);
-  const config = getBookingConfig(context.env, new URL(context.request.url).origin);
-  const previous = await store.getLatestEventByType("booking.fulfillment_monitor.completed");
+  const previous = await store.getLatestEventByType(completedEventType);
   const maxGapMinutes = positiveInteger(context.env.BOOKING_MONITOR_MAX_GAP_MINUTES, 20);
   const previousRunStale = isPreviousMonitorRunStale({
     previousCreatedAt: previous?.createdAt,
     now,
     maxGapMinutes
   });
+  if (scope === "contacts") {
+    const summary = {
+      scope,
+      previousRunStale,
+      crmDelivery: await drainContactCrmDeliveries({ store, env: context.env, at: now })
+    };
+    await store.logEvent({ eventType: completedEventType, payload: summary });
+    return json({ ok: true, summary });
+  }
+
+  const config = getBookingConfig(context.env, new URL(context.request.url).origin);
   const watchItems = await store.listFulfillmentWatchItems({
     nowIso: now,
     awaitingGraceMinutes: 30,

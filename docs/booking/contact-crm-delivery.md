@@ -28,6 +28,16 @@ Transport failures, ambiguous/malformed acknowledgements, server failures and HT
 
 The monitor processes at most ten due enquiries per call and returns aggregate `summary.crmDelivery` counts: pending, processing, delivered, needs-attention, due and the oldest unresolved creation time, plus attempts during that call. Its existing authorization runs before any queue access or delivery. The summary contains no inquiry text, email, CRM payload or authentication values. Missing required tables fail visibly; a partial migration is not a usable deployment.
 
+### Contact-only recovery
+
+Set `BOOKING_MONITOR_SCOPE = "contacts"` in the intended environment to recover only contact and Fit Call deliveries. This mode returns before reading booking fulfillment, financial recovery or notification outbox work, even when those providers are configured. It uses the same bounded queue and authorization: `BOOKING_MONITOR_TOKEN`, with the existing `BOOKING_OWNER_ACTION_TOKEN` fallback. The request cannot override the scope through query parameters or its body. An unrecognized or explicitly empty scope returns 503 before database access.
+
+All three checked-in preview slots require contact-only mode. The production configuration leaves this variable unset, retaining the existing full monitor; `"all"` selects that same full behavior explicitly. A successful contact-only run records `contact.crm_monitor.completed` and reports `summary.scope = "contacts"`. Full runs retain `booking.fulfillment_monitor.completed`. Each mode uses its own previous-run timestamp, so a contact retry does not conceal a stale fulfillment monitor. No scheduler is created or retargeted by selecting a scope.
+
+An access-controlled preview still needs both authentication layers. Obtain the preview login cookie through `/__preview-auth`, then supply that cookie and the intended monitor bearer token when calling `/api/book/monitor`. A preview access token alone cannot authorize recovery, and a monitor token alone cannot bypass preview access. Keep both credentials out of URLs, committed files, logs and receipts. Do not copy a production monitor token into a preview.
+
+Before a hosted invocation, read back the exact source, `contacts` scope, isolated database and intended non-notifying CRM destination. Check all due contact deliveries: this mode drains up to ten eligible queue rows, not just one selected enquiry. Missing CRM configuration still consumes the queue's bounded attempt budget; do not repeatedly invoke it to manufacture a recovery result. Retain original event IDs and compare actual receiver persistence and sender acknowledgements before claiming delivered. See [preview isolation](preview-isolation.md) for the separate receiver-configuration gate.
+
 ## Inspecting and recovering a held delivery
 
 Use the authorized database/operator surface for the intended environment. Start with identifiers and safe result fields, then inspect private enquiry content only when necessary to resolve the specific case:
@@ -49,4 +59,6 @@ After resolving the cause, a deliberately selected `needs_attention` row may be 
 
 `npm test` includes persisted SQLite/actual-route regressions for restart and retry, lost acknowledgements, atomic rollback, concurrent monitor calls, expired/stale leases, backoff, permanent failure, exhaustion and Fit Call disposition. The SQLite adapter exercises repository SQL but does not establish hosted D1 replication, credentials, scheduled invocation or production recovery. Run `npm run check:booking-migrations` to verify the ordered migration chain and fresh-schema hash.
 
-Rollback the application change without dropping the additive table. Preserve unresolved delivery records for reconciliation; reverting the code restores the earlier best-effort behavior and stops this queue from draining. Re-adopting the same event payloads requires checking existing receiver acknowledgements and held records, never inventing paid or contacted status.
+Before rolling back contact-only monitoring to a revision that does not support `BOOKING_MONITOR_SCOPE`, pause every preview monitor invoker. Older code ignores that variable and runs the full fulfillment/outbox pipeline; disabled notification providers do not prevent booking state changes. Preserve the queue and restore a scope-capable revision before resuming contact-only invocation. Verify the actual deployed revision and scope after every rollback.
+
+If rolling back the entire durable-delivery feature to its earlier best-effort implementation, keep the additive table and unresolved delivery records for reconciliation. That older implementation stops this queue from draining. Re-adopting the same event payloads requires checking existing receiver acknowledgements and held records, never inventing paid or contacted status.

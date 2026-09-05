@@ -38,7 +38,7 @@ Inventory existing open Sessions and booking holds at cutover. This migration do
 
 Verify that the intended Stripe endpoint subscribes to `checkout.session.completed`, `checkout.session.async_payment_succeeded`, `checkout.session.expired`, `checkout.session.async_payment_failed`, `refund.created`, `refund.updated`, `refund.failed` and `charge.refunded`. Code handling an event does not prove that the provider sends it. Existing Grail Payment Link onboarding has its separate route behavior.
 
-Verify the actual authenticated monitor invoker after rollout. No additional scheduler is created by this patch. The monitor also processes existing contact delivery, fulfillment, calendar and notification work; do not use a production invocation as a supposedly isolated test. A controlled canary must use verified isolated databases and destinations, existing authorized test objects, and no real payment or customer messaging.
+Verify the actual authenticated monitor invoker after rollout. No additional scheduler is created by this patch. With `BOOKING_MONITOR_SCOPE` unset or `"all"`, the monitor also processes existing contact delivery, fulfillment, calendar and notification work; do not use a production invocation as a supposedly isolated test. Preview configurations select `"contacts"`, which skips financial recovery and all fulfillment/outbox work. Contact-only success is not payment-recovery evidence; a payment canary requires a separately reviewed full-scope configuration with verified isolated databases and destinations, existing authorized test objects, and no real payment or customer messaging.
 
 ## Recovery and owner actions
 
