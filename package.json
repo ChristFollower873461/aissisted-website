@@ -5,6 +5,7 @@
   "type": "module",
   "description": "Local-only AIssisted Consulting website candidate.",
   "scripts": {
+    "test": "node --test tests/*.test.mjs",
     "serve": "python3 -m http.server 4173",
     "check:site": "node --check axon-pixel.js && node --check main.js && node --check contact/contact.js && node --check book/booking.js && node --check book/status.js && node --check grail/assets/grail-activation.js && node --check grail/delete-account/delete-account.js",
     "generate:public-truth": "node scripts/public-truth.mjs --write",

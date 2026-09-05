@@ -1,6 +1,6 @@
 name: Site CI
 
-on:
+"on":
   pull_request:
   push:
     branches:
@@ -27,13 +27,23 @@ jobs:
       - name: Install from lockfile
         run: npm ci
 
+      - name: Ensure SQLite is available for migration checks
+        run: |
+          if ! command -v sqlite3 >/dev/null 2>&1; then
+            sudo apt-get update
+            sudo apt-get install --yes --no-install-recommends sqlite3
+          fi
+          sqlite3 --version
+
       - name: Check browser and worker source
         run: |
           npm run check:site
           npm run check:booking-functions
 
-      - name: Run regression suites
+      - name: Check public contract and booking migrations
         run: |
-          npm run test:brightway-store
-          npm run test:booking
-          npm run test:seo-agent
+          npm run check:public-truth
+          npm run check:booking-migrations
+
+      - name: Run all regression suites
+        run: npm test
