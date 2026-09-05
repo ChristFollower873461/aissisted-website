@@ -10,6 +10,13 @@ const appStorePages = [
   "tools.html"
 ];
 
+const brightWayPublicPages = [
+  "brightway/index.html",
+  "brightway/support/index.html",
+  "brightway/terms/index.html",
+  "privacy/brightway/index.html"
+];
+
 async function read(path) {
   return readFile(new URL(`../${path}`, import.meta.url), "utf8");
 }
@@ -32,6 +39,19 @@ test("BrightWay public legal and support URLs remain mutually linked", async () 
     assert.match(source, /\/brightway\/support\//);
     assert.match(source, /\/privacy\/brightway\//);
     assert.match(source, /\/brightway\/terms\//);
+  }
+});
+
+test("BrightWay public pages identify AIssisted Consulting LLC as operator", async () => {
+  for (const path of brightWayPublicPages) {
+    const source = await read(path);
+    assert.match(source, /AIssisted Consulting LLC/, path);
+    assert.doesNotMatch(source, /PestFriend LLC/, path);
+  }
+
+  for (const path of ["brightway/terms/index.html", "privacy/brightway/index.html"]) {
+    const source = await read(path);
+    assert.match(source, /Effective date:<\/strong> August 25, 2026/, path);
   }
 });
 
