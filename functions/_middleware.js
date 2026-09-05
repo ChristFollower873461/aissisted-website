@@ -115,6 +115,9 @@ ${invalid ? '<p class="error" role="alert">That preview access token was not acc
 async function enforcePreviewAccess(context, url) {
   const env = context.env || {};
   const secret = String(env.PREVIEW_ACCESS_TOKEN || "");
+  if (env.PREVIEW_ACCESS_REQUIRED === "true" && !secret) {
+    return previewHeaders(new Response("Preview access is not configured.", { status: 503 }));
+  }
   if (!secret) return null;
 
   // Stripe cannot carry the preview login cookie. This single machine endpoint
