@@ -17,6 +17,16 @@ is empty until a separate integration change identifies and verifies an isolated
 receiver; that change must also update the configuration gate's allowed target.
 Fit-call/contact persistence remains available against the isolated database.
 
+The browser's Google Ads/GA4 and Axon wrappers also allow measurement only on
+`https://aissistedconsulting.com` and `https://www.aissistedconsulting.com`.
+All other origins, including both Pages projects' default, deployment and branch
+hosts, local servers and unrecognized hosts, suppress external SDK loading and
+measurement calls. Suppression also prevents these wrappers from queuing events
+or dispatching tracking events to existing listeners. The first-party wrappers
+can still load, and local campaign attribution and form payload construction
+remain available. Adding a production origin requires an explicit update to both
+independently loaded wrappers and their regression tests.
+
 Every preview slot also requires `BOOKING_MONITOR_SCOPE = "contacts"`. An
 authenticated monitor invocation in that mode processes only the contact/Fit Call
 delivery queue and records its own completion event. It does not read or process
@@ -51,7 +61,9 @@ and `npm test`. Site CI runs the same configuration gate and all test suites.
 The gate parses TOML, checks both environment slots, rejects production D1 or
 enabled provider effects in preview, and requires review of new resource types.
 Regression tests also execute the actual access middleware and notification
-handler with synthetic data.
+handler with synthetic data. Marketing regression tests execute both browser
+wrappers across preview origins, with and without existing SDKs, and preserve
+production destinations, consent defaults, conversion labels and lead values.
 
 Wrangler Pages 4.125.0 rejects custom `--config` paths and the `--env` flag on
 `pages deploy`. It discovers a canonical `wrangler.toml`/JSON file in the project
@@ -77,6 +89,11 @@ Apply it through the normal deployment process and read back the exact deployed
 commit, selected environment, isolated D1 binding, disabled effect destinations,
 and required secret presence without recording secret values. Check anonymous
 access is denied and authenticated access works before synthetic form exercises.
+Before submitting a browser canary, inspect the authenticated deployment's loaded
+scripts and browser network evidence for production marketing loaders or requests.
+Server-side binding checks alone cannot prove browser measurement isolation.
+The wrapper tests cover their own calls; they cannot certify unrelated scripts,
+browser extensions, provider receipt or a deployment running older JavaScript.
 Use no live payment, calendar, notification, CRM, or customer credentials for
 those exercises. A source gate cannot certify dashboard secrets or an old
 deployment's resource bindings. Existing production configuration is preserved;
