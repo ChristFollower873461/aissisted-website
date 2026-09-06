@@ -67,19 +67,19 @@ const VARIANTS = {
   home: {
     build: buildKnot,
     particles: { full: 2600, lite: 900 },
-    desktop: { anchor: [0.61, 0.06], scale: 0.94, leftDark: 1, core: [0.78, 0.48] },
+    desktop: { anchor: [0.61, 0.06], scale: 0.94, leftDark: 1, core: [0.83, 0.46] },
     mobile: { anchor: [0.74, 0.6], scale: 0.5, leftDark: 0.2, core: [0.82, 0.8] },
   },
   services: {
     build: buildOrbit,
     particles: { full: 1800, lite: 700 },
-    desktop: { anchor: [0.56, 0.0], scale: 0.74, leftDark: 1, core: [0.76, 0.5] },
+    desktop: { anchor: [0.56, 0.0], scale: 0.74, leftDark: 1, core: [0.81, 0.48] },
     mobile: { anchor: [0.62, 0.5], scale: 0.38, leftDark: 0.2, core: [0.8, 0.75] },
   },
   about: {
     build: buildCluster,
     particles: { full: 1800, lite: 700 },
-    desktop: { anchor: [0.5, 0.0], scale: 0.88, leftDark: 1, core: [0.72, 0.5] },
+    desktop: { anchor: [0.5, 0.0], scale: 0.88, leftDark: 1, core: [0.78, 0.48] },
     mobile: { anchor: [0.66, 0.5], scale: 0.44, leftDark: 0.2, core: [0.8, 0.75] },
   },
 };
@@ -149,7 +149,7 @@ const AURORA_FRAGMENT = /* glsl */ `
 
     // A soft pool of light where the sculpture sits, so the glass has something to refract.
     vec2 d = (uv - uCore) * vec2(1.0, 1.35);
-    float core = exp(-dot(d, d) * 7.0);
+    float core = exp(-dot(d, d) * 11.0);
     col += (uGold * 0.72 + uBlue * 0.46) * core * (0.75 + 0.25 * n2);
 
     // Keep the copy column deep for contrast.
@@ -172,6 +172,7 @@ const POINT_VERTEX = /* glsl */ `
   uniform float uScale;
   uniform float uFocus;
   uniform float uMaxSize;
+  uniform float uLeftDark;
   varying vec3 vColor;
   varying float vAlpha;
   varying float vSoft;
@@ -187,9 +188,12 @@ const POINT_VERTEX = /* glsl */ `
     gl_PointSize = min(uMaxSize, size * uScale / max(dist, 0.5));
     float twinkle = 0.72 + 0.28 * sin(uTime * 1.4 + aPhase * 21.0);
     vAlpha = twinkle * mix(1.0, 0.14, blur) * smoothstep(0.6, 3.0, dist);
+    gl_Position = projectionMatrix * mv;
+    // Dim the field under the copy column so text never sits on a bright point.
+    float sx = gl_Position.x / gl_Position.w * 0.5 + 0.5;
+    vAlpha *= mix(1.0, 0.3, uLeftDark * smoothstep(0.62, 0.05, sx));
     vSoft = blur;
     vColor = aColor;
-    gl_Position = projectionMatrix * mv;
   }
 `;
 
@@ -520,6 +524,7 @@ export function mountHeroScene(host) {
       uFocus: { value: CAMERA_Z },
       uMaxSize: { value: 180 },
       uAlpha: { value: 0.9 },
+      uLeftDark: { value: 1 },
     },
     vertexShader: POINT_VERTEX,
     fragmentShader: POINT_FRAGMENT,
@@ -546,7 +551,8 @@ export function mountHeroScene(host) {
     const target = new WebGLRenderTarget(1, 1, { type: HalfFloatType, samples: 4 });
     composer = new EffectComposer(renderer, target);
     composer.addPass(new RenderPass(scene, camera));
-    bloomPass = new UnrealBloomPass(new Vector2(1, 1), 0.5, 0.7, 0.74);
+    // Strength/threshold kept modest so the ring highlights glow without blowing out the glass panels.
+    bloomPass = new UnrealBloomPass(new Vector2(1, 1), 0.36, 0.6, 0.84);
     composer.addPass(bloomPass);
     composer.addPass(new OutputPass());
   }
@@ -633,6 +639,7 @@ export function mountHeroScene(host) {
     auroraMaterial.uniforms.uCore.value.set(layout.core[0], layout.core[1]);
     particleMaterial.uniforms.uScale.value = height * pixelRatio * 0.62;
     particleMaterial.uniforms.uMaxSize.value = 150 * pixelRatio;
+    particleMaterial.uniforms.uLeftDark.value = layout.leftDark;
   }
 
   function resize() {

@@ -4355,7 +4355,7 @@ body[data-theme="stage"][data-page]:not([data-page="book"]) .hero-stage-scrim {
   z-index: 1;
   pointer-events: none;
   background:
-    linear-gradient(90deg, rgba(7, 11, 22, 0.86) 0%, rgba(7, 11, 22, 0.66) 32%, rgba(7, 11, 22, 0.22) 54%, rgba(7, 11, 22, 0) 74%),
+    linear-gradient(90deg, rgba(7, 11, 22, 0.92) 0%, rgba(7, 11, 22, 0.86) 42%, rgba(7, 11, 22, 0.62) 58%, rgba(7, 11, 22, 0.2) 72%, rgba(7, 11, 22, 0) 84%),
     linear-gradient(180deg, rgba(7, 11, 22, 0.42) 0%, rgba(7, 11, 22, 0) 24%, rgba(7, 11, 22, 0) 68%, rgba(7, 11, 22, 0.62) 100%);
 }
 
@@ -4363,6 +4363,23 @@ body[data-theme="stage"][data-page]:not([data-page="book"]) .hero-layout,
 body[data-theme="stage"][data-page]:not([data-page="book"]) .page-hero-layout {
   position: relative;
   z-index: 3;
+}
+
+/* A soft ink halo behind the copy block keeps the headline and lede AA where the aurora is brightest. */
+body[data-theme="stage"][data-page]:not([data-page="book"]) .hero-copy,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .page-hero-layout > div:first-child {
+  position: relative;
+  isolation: isolate;
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .hero-copy::before,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .page-hero-layout > div:first-child::before {
+  content: "";
+  position: absolute;
+  inset: -60px -140px -60px -160px;
+  z-index: -1;
+  background: radial-gradient(ellipse 66% 72% at 40% 50%, rgba(7, 11, 22, 0.86) 0%, rgba(7, 11, 22, 0.6) 48%, rgba(7, 11, 22, 0) 74%);
+  pointer-events: none;
 }
 
 body[data-theme="stage"][data-page]:not([data-page="book"]) .page-hero-layout {
@@ -4400,7 +4417,7 @@ body[data-theme="stage"][data-page]:not([data-page="book"]) .page-hero h1 {
 
 body[data-theme="stage"][data-page]:not([data-page="book"]) .hero-lede,
 body[data-theme="stage"][data-page]:not([data-page="book"]) .page-lede {
-  color: rgba(226, 231, 242, 0.84);
+  color: #e4e9f3;
 }
 
 body[data-theme="stage"][data-page]:not([data-page="book"]) .hero-brand-details {
@@ -4461,17 +4478,17 @@ body[data-theme="stage"][data-page]:not([data-page="book"]) .founder-card {
   border: 1px solid transparent;
   border-radius: 20px;
   background:
-    linear-gradient(160deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.04) 42%, rgba(255, 255, 255, 0.02) 100%) padding-box,
-    linear-gradient(160deg, rgba(12, 17, 31, 0.74), rgba(7, 11, 22, 0.62)) padding-box,
+    linear-gradient(160deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 42%, rgba(255, 255, 255, 0.015) 100%) padding-box,
+    linear-gradient(160deg, rgba(10, 15, 28, 0.84), rgba(7, 11, 22, 0.78)) padding-box,
     var(--stage-border) border-box;
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.28),
-    inset 0 0 70px rgba(230, 181, 74, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.26),
+    inset 0 0 70px rgba(230, 181, 74, 0.05),
     0 30px 80px -30px rgba(0, 0, 0, 0.85),
     0 0 0 1px rgba(0, 0, 0, 0.25);
   color: var(--stage-text);
-  backdrop-filter: blur(28px) saturate(1.4) brightness(0.85);
-  -webkit-backdrop-filter: blur(28px) saturate(1.4) brightness(0.85);
+  backdrop-filter: blur(40px) saturate(1.2) brightness(0.75);
+  -webkit-backdrop-filter: blur(40px) saturate(1.2) brightness(0.75);
 }
 
 body[data-theme="stage"][data-page]:not([data-page="book"]) .hero-system-panel::before {
@@ -4506,12 +4523,15 @@ body[data-theme="stage"][data-page]:not([data-page="book"]) .system-panel-header
   color: #fff;
 }
 
+/* Chips are solid glass pills (opaque dark surface) so the labels never depend on the scene behind. */
 body[data-theme="stage"][data-page]:not([data-page="book"]) .system-flow span {
-  border-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-left: 3px solid var(--stage-gold);
-  border-radius: 10px;
-  background: linear-gradient(160deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.04));
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  background: linear-gradient(160deg, #1c2642 0%, #131b30 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    0 10px 24px -14px rgba(0, 0, 0, 0.85);
   color: #fff;
 }
 
@@ -4535,7 +4555,7 @@ body[data-theme="stage"][data-page]:not([data-page="book"]) .system-terminal spa
 body[data-theme="stage"][data-page]:not([data-page="book"]) .hero-system-panel > p,
 body[data-theme="stage"][data-page]:not([data-page="book"]) .page-panel p:not(.eyebrow),
 body[data-theme="stage"][data-page]:not([data-page="book"]) .founder-card p:not(.eyebrow) {
-  color: rgba(226, 231, 242, 0.78);
+  color: rgba(236, 240, 248, 0.9);
 }
 
 body[data-theme="stage"][data-page]:not([data-page="book"]) .page-panel h2,
@@ -5242,7 +5262,13 @@ body[data-theme="stage"][data-page]:not([data-page="book"]) .founder-card.tilt:h
 
   body[data-theme="stage"][data-page]:not([data-page="book"]) .hero-stage-scrim {
     background:
-      linear-gradient(180deg, rgba(7, 11, 22, 0.66) 0%, rgba(7, 11, 22, 0.5) 40%, rgba(7, 11, 22, 0.5) 72%, rgba(7, 11, 22, 0.78) 100%);
+      linear-gradient(180deg, rgba(7, 11, 22, 0.72) 0%, rgba(7, 11, 22, 0.58) 40%, rgba(7, 11, 22, 0.58) 72%, rgba(7, 11, 22, 0.8) 100%);
+  }
+
+  body[data-theme="stage"][data-page]:not([data-page="book"]) .hero-copy::before,
+  body[data-theme="stage"][data-page]:not([data-page="book"]) .page-hero-layout > div:first-child::before {
+    inset: -30px -40px;
+    background: radial-gradient(ellipse 70% 70% at 50% 50%, rgba(7, 11, 22, 0.7) 0%, rgba(7, 11, 22, 0.4) 50%, rgba(7, 11, 22, 0) 75%);
   }
 
   body[data-theme="stage"][data-page]:not([data-page="book"]) .hero h1,
