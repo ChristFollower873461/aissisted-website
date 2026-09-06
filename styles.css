@@ -4153,16 +4153,20 @@ body[data-theme="stage"][data-page]:not([data-page="book"]) {
   --stage-gold-deep: #c8952d;
   --stage-blue: #5aa5ea;
   --stage-green: #4fc48f;
-  --stage-glow-gold: rgba(230, 181, 74, 0.44);
-  --stage-glow-blue: rgba(90, 165, 234, 0.38);
-  --stage-glow-green: rgba(79, 196, 143, 0.3);
+  --stage-glow-gold: rgba(230, 181, 74, 0.56);
+  --stage-glow-blue: rgba(90, 165, 234, 0.48);
+  --stage-glow-green: rgba(79, 196, 143, 0.4);
   --stage-surface: linear-gradient(160deg, rgba(255, 255, 255, 0.075) 0%, rgba(255, 255, 255, 0.035) 48%, rgba(255, 255, 255, 0.018) 100%);
   --stage-surface-base: #0f1729;
-  --stage-border: linear-gradient(135deg, rgba(246, 215, 138, 0.7) 0%, rgba(230, 181, 74, 0.3) 26%, rgba(255, 255, 255, 0.09) 52%, rgba(90, 165, 234, 0.42) 100%);
+  --stage-border: linear-gradient(135deg, rgba(246, 215, 138, 0.9) 0%, rgba(230, 181, 74, 0.5) 30%, rgba(160, 170, 200, 0.22) 52%, rgba(90, 165, 234, 0.55) 74%, rgba(120, 190, 255, 0.8) 100%);
+  --stage-border-alt: linear-gradient(135deg, rgba(120, 190, 255, 0.8) 0%, rgba(90, 165, 234, 0.5) 30%, rgba(160, 170, 200, 0.22) 52%, rgba(230, 181, 74, 0.55) 74%, rgba(246, 215, 138, 0.9) 100%);
+  --stage-leak: radial-gradient(420px 240px at 0% 0%, rgba(230, 181, 74, 0.16), transparent 62%), radial-gradient(380px 240px at 100% 100%, rgba(90, 165, 234, 0.14), transparent 62%);
+  --stage-leak-alt: radial-gradient(420px 240px at 100% 0%, rgba(90, 165, 234, 0.15), transparent 62%), radial-gradient(380px 240px at 0% 100%, rgba(230, 181, 74, 0.14), transparent 62%);
   --stage-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.07),
-    0 20px 50px -26px rgba(0, 0, 0, 0.8),
-    0 44px 90px -44px rgba(0, 0, 0, 0.75);
+    inset 0 1px 0 rgba(255, 255, 255, 0.09),
+    0 0 28px -10px rgba(230, 181, 74, 0.28),
+    0 20px 50px -24px rgba(0, 0, 0, 0.8),
+    0 40px 90px -40px rgba(0, 0, 0, 0.75);
   --stage-eyebrow: linear-gradient(90deg, #f6d78a 0%, #e6b54a 58%, #d9a63a 100%);
   --stage-headline: linear-gradient(180deg, #ffffff 0%, #e6eaf4 58%, #c9d2e6 100%);
   --radius: 14px;
@@ -4653,12 +4657,12 @@ body[data-theme="stage"][data-page]:not([data-page="book"]) main > section:not(.
   position: absolute;
   z-index: 0;
   inset: auto;
-  width: var(--orb-size, 760px);
-  height: var(--orb-size, 760px);
+  width: var(--orb-size, 920px);
+  height: var(--orb-size, 920px);
   border: 0;
   border-radius: 50%;
   pointer-events: none;
-  opacity: var(--orb-opacity, 0.85);
+  opacity: var(--orb-opacity, 1);
 }
 
 body[data-theme="stage"][data-page]:not([data-page="book"]) main > section:not(.hero):not(.page-hero)::before {
@@ -4705,9 +4709,9 @@ body[data-theme="stage"][data-page]:not([data-page="book"]) .workflow-section {
   --orb-b-top: 30%;
   padding: clamp(72px, 8vw, 106px) 0;
   background:
-    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px) 0 0 / 100% 64px,
-    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px) 0 0 / 64px 100%,
-    radial-gradient(1200px 600px at 50% 0%, rgba(46, 111, 168, 0.12), transparent 70%),
+    linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px) 0 0 / 100% 64px,
+    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px) 0 0 / 64px 100%,
+    radial-gradient(1200px 600px at 50% 0%, rgba(46, 111, 168, 0.16), transparent 70%),
     var(--stage-ink-1);
 }
 
@@ -4959,8 +4963,24 @@ body[data-theme="stage"][data-page]:not([data-page="book"]) .integration-board,
 body[data-theme="stage"][data-page]:not([data-page="book"]) .boundary-list p,
 body[data-theme="stage"][data-page]:not([data-page="book"]) address {
   background:
+    var(--stage-leak) padding-box,
     linear-gradient(160deg, #182238 0%, #111a2c 46%, #0e1526 100%) padding-box,
     var(--stage-border) border-box;
+}
+
+/* Alternate the light direction on even cards so a grid never reads as one flat navy sheet. */
+body[data-theme="stage"][data-page]:not([data-page="book"]) .capability-card:nth-child(even),
+body[data-theme="stage"][data-page]:not([data-page="book"]) .catalog-card:nth-child(even),
+body[data-theme="stage"][data-page]:not([data-page="book"]) .process-card:nth-child(even),
+body[data-theme="stage"][data-page]:not([data-page="book"]) .info-card:nth-child(even),
+body[data-theme="stage"][data-page]:not([data-page="book"]) .step-card:nth-child(even),
+body[data-theme="stage"][data-page]:not([data-page="book"]) .credential-card:nth-child(even),
+body[data-theme="stage"][data-page]:not([data-page="book"]) .fact-list div:nth-child(even),
+body[data-theme="stage"][data-page]:not([data-page="book"]) .boundary-list p:nth-child(even) {
+  background:
+    var(--stage-leak-alt) padding-box,
+    linear-gradient(160deg, #182238 0%, #111a2c 46%, #0e1526 100%) padding-box,
+    var(--stage-border-alt) border-box;
 }
 
 body[data-theme="stage"][data-page]:not([data-page="book"]) .fact-list div {
