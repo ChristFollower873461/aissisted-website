@@ -2948,45 +2948,67 @@ body[data-page="home"] .hero {
   min-height: auto;
   isolation: isolate;
   padding: clamp(40px, 4.2vw, 56px) 0 clamp(48px, 6vw, 74px);
-  background:
-    linear-gradient(90deg, rgba(247, 241, 230, 0.98) 0%, rgba(247, 241, 230, 0.94) 48%, rgba(247, 241, 230, 0.72) 66%, rgba(247, 241, 230, 0.1) 100%),
-    url("assets/photography/business-computer-team.webp"),
-    var(--home-paper);
-  background-position: center, center right 14%, center;
-  background-size: cover, cover, auto;
+  background: var(--home-paper);
 }
 
 body[data-page="home"] .hero::before {
   background:
-    linear-gradient(180deg, rgba(247, 241, 230, 0) 0%, rgba(247, 241, 230, 0.86) 100%),
-    linear-gradient(90deg, rgba(255, 253, 247, 0.7), rgba(255, 253, 247, 0) 60%);
+    linear-gradient(180deg, rgba(247, 241, 230, 0) 0%, rgba(247, 241, 230, 0) 58%, rgba(247, 241, 230, 0.7) 100%),
+    linear-gradient(90deg, rgba(255, 253, 247, 0.55), rgba(255, 253, 247, 0) 56%);
   opacity: 1;
   z-index: 1;
 }
 
-body[data-page="home"] .hero-automation-video,
-body[data-page="home"] .hero-video-scrim,
+/* Home hero 3D scene: poster first, live WebGL canvas fades in over it when allowed. */
+body[data-page="home"] .hero-scene,
+body[data-page="home"] .hero-scene-scrim,
 body[data-page="home"] .hero-logo-settle {
   position: absolute;
   pointer-events: none;
 }
 
-body[data-page="home"] .hero-automation-video {
+body[data-page="home"] .hero-scene {
   inset: 0;
   z-index: 0;
+  overflow: hidden;
+  background: var(--home-paper);
+  contain: layout paint;
+}
+
+body[data-page="home"] .hero-scene-poster,
+body[data-page="home"] .hero-scene canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center right;
-  filter: saturate(0.98) contrast(0.98);
+  object-position: center;
 }
 
-body[data-page="home"] .hero-video-scrim {
+body[data-page="home"] .hero-scene canvas {
+  opacity: 0;
+  transition: opacity 900ms ease;
+}
+
+body[data-page="home"] .hero-scene.is-ready canvas {
+  opacity: 1;
+}
+
+body[data-page="home"] .hero-scene-poster {
+  transition: opacity 700ms ease 300ms;
+}
+
+body[data-page="home"] .hero-scene.is-ready .hero-scene-poster {
+  opacity: 0;
+}
+
+body[data-page="home"] .hero-scene-scrim {
   inset: 0;
   z-index: 1;
   background:
-    linear-gradient(90deg, rgba(247, 241, 230, 0.98) 0%, rgba(247, 241, 230, 0.93) 43%, rgba(247, 241, 230, 0.74) 62%, rgba(247, 241, 230, 0.2) 100%),
-    linear-gradient(180deg, rgba(247, 241, 230, 0.22) 0%, rgba(247, 241, 230, 0.78) 100%);
+    linear-gradient(90deg, rgba(247, 241, 230, 0.97) 0%, rgba(247, 241, 230, 0.9) 40%, rgba(247, 241, 230, 0.55) 60%, rgba(247, 241, 230, 0.04) 100%),
+    linear-gradient(180deg, rgba(247, 241, 230, 0.1) 0%, rgba(247, 241, 230, 0.5) 100%);
 }
 
 body[data-page="home"] .hero-logo-settle {
@@ -3596,12 +3618,7 @@ body[data-page="home"] address a {
   }
 
   body[data-page="home"] .hero {
-    background:
-      linear-gradient(180deg, rgba(247, 241, 230, 0.98) 0%, rgba(247, 241, 230, 0.94) 58%, rgba(247, 241, 230, 0.84) 100%),
-      url("assets/photography/business-computer-team.webp"),
-      var(--home-paper);
-    background-position: center, center right 34%, center;
-    background-size: cover, cover, auto;
+    background: var(--home-paper);
   }
 
   body[data-page="home"] .hero-layout,
@@ -4099,15 +4116,11 @@ body:not([data-page="home"]):not([data-page="book"]) .site-footer a {
   }
 }
 
-/* Home hero video intro: mobile and reduced-motion safeguards. */
+/* Home hero scene: mobile and reduced-motion safeguards. */
 @media (max-width: 760px) {
-  body[data-page="home"] .hero-automation-video {
-    object-position: center;
-  }
-
-  body[data-page="home"] .hero-video-scrim {
+  body[data-page="home"] .hero-scene-scrim {
     background:
-      linear-gradient(180deg, rgba(247, 241, 230, 0.98) 0%, rgba(247, 241, 230, 0.92) 54%, rgba(247, 241, 230, 0.88) 100%);
+      linear-gradient(180deg, rgba(247, 241, 230, 0.84) 0%, rgba(247, 241, 230, 0.78) 50%, rgba(247, 241, 230, 0.84) 100%);
   }
 
   body[data-page="home"] .hero-logo-settle {
@@ -4117,14 +4130,355 @@ body:not([data-page="home"]):not([data-page="book"]) .site-footer a {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  body[data-page="home"] .hero-automation-video,
+  body[data-page="home"] .hero-scene canvas,
   body[data-page="home"] .hero-logo-settle {
     display: none;
+  }
+
+  body[data-page="home"] .hero-scene.is-ready .hero-scene-poster {
+    opacity: 1;
   }
 
   body[data-page="home"] .hero-layout {
     opacity: 1;
     transform: none;
     animation: none;
+  }
+}
+
+/* Visual pass 2026-09-05: depth and motion layer. Layout, section order, copy and type are untouched. */
+body[data-page="home"] .capability-card,
+body[data-page="home"] .catalog-card:not(.catalog-card-featured),
+body:not([data-page="home"]):not([data-page="book"]) .info-card,
+body:not([data-page="home"]):not([data-page="book"]) .step-card,
+body:not([data-page="home"]):not([data-page="book"]) .credential-card,
+body:not([data-page="home"]):not([data-page="book"]) .credential-note,
+body:not([data-page="home"]):not([data-page="book"]) .fact-list div {
+  background:
+    linear-gradient(165deg, rgba(255, 255, 252, 0.98) 0%, rgba(255, 251, 243, 0.95) 52%, rgba(249, 241, 228, 0.92) 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.95),
+    0 1px 2px rgba(35, 28, 19, 0.05),
+    0 10px 24px -10px rgba(35, 28, 19, 0.16),
+    0 24px 48px -20px rgba(35, 28, 19, 0.18);
+}
+
+body[data-page="home"] .capability-card-wide {
+  background: linear-gradient(165deg, #f6eee0 0%, #efe4d2 100%);
+}
+
+body[data-page="home"] .catalog-card-featured {
+  background: linear-gradient(160deg, #1b2740 0%, #111827 58%, #0d1320 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.09),
+    0 24px 48px -20px rgba(17, 24, 39, 0.55);
+}
+
+/* Glass over the hero scene: keep the panels translucent so the field shows through. */
+body[data-page="home"] .hero-system-panel,
+body:not([data-page="home"]):not([data-page="book"]) .page-panel,
+body:not([data-page="home"]):not([data-page="book"]) .founder-card {
+  background: linear-gradient(165deg, rgba(255, 255, 252, 0.94) 0%, rgba(255, 251, 243, 0.88) 60%, rgba(250, 243, 230, 0.86) 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.95),
+    0 1px 2px rgba(35, 28, 19, 0.05),
+    0 18px 40px -16px rgba(35, 28, 19, 0.22),
+    0 34px 70px -30px rgba(35, 28, 19, 0.24);
+  backdrop-filter: blur(16px) saturate(1.15);
+}
+
+body[data-page="home"] .hero-baseline,
+body[data-page="home"] .hero-brand-details {
+  background: linear-gradient(165deg, rgba(255, 255, 252, 0.84) 0%, rgba(255, 251, 243, 0.72) 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    0 1px 2px rgba(35, 28, 19, 0.05),
+    0 16px 36px -16px rgba(35, 28, 19, 0.18);
+  backdrop-filter: blur(14px) saturate(1.1);
+}
+
+body[data-page="home"] .system-flow span {
+  background: linear-gradient(160deg, #fbf3e5 0%, #f4e9d6 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+body[data-page="home"] .system-terminal {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 14px 30px -14px rgba(17, 24, 39, 0.5);
+}
+
+body[data-page="home"] .process-card {
+  background: linear-gradient(165deg, rgba(255, 253, 247, 0.12) 0%, rgba(255, 253, 247, 0.05) 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 18px 40px -24px rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(10px);
+}
+
+body[data-page="home"] .path-card {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 1px 2px rgba(35, 28, 19, 0.06),
+    0 18px 40px -16px rgba(17, 24, 39, 0.35),
+    0 34px 70px -30px rgba(17, 24, 39, 0.35);
+}
+
+body[data-page="home"] .integration-board,
+body[data-page="home"] .scoreboard-customer-list {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 18px 40px -18px rgba(17, 24, 39, 0.45);
+}
+
+body[data-page="home"] .boundary-list p {
+  background: linear-gradient(165deg, rgba(255, 253, 247, 0.11) 0%, rgba(255, 253, 247, 0.06) 100%);
+}
+
+body[data-page="home"] address {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 18px 40px -18px rgba(0, 0, 0, 0.5);
+}
+
+body[data-page="home"] .founder-layout img {
+  box-shadow:
+    0 1px 2px rgba(35, 28, 19, 0.06),
+    0 18px 40px -16px rgba(35, 28, 19, 0.24);
+}
+
+/* Section depth: soft accent glows in the brand colors, same section backgrounds underneath. */
+body[data-page="home"] .capability-section {
+  background:
+    radial-gradient(1100px 520px at 92% -10%, rgba(200, 149, 45, 0.12), transparent 65%),
+    radial-gradient(800px 480px at 4% 110%, rgba(47, 125, 91, 0.07), transparent 65%),
+    linear-gradient(180deg, #f7f1e6 0%, #fff8ed 100%);
+}
+
+body[data-page="home"] .workflow-section::before {
+  background:
+    radial-gradient(900px 460px at 6% 0%, rgba(200, 149, 45, 0.14), transparent 62%),
+    linear-gradient(180deg, rgba(17, 24, 39, 0.08), rgba(17, 24, 39, 0.72));
+}
+
+body[data-page="home"] .service-catalog-section {
+  background:
+    radial-gradient(900px 500px at 8% -10%, rgba(46, 88, 116, 0.09), transparent 65%),
+    radial-gradient(900px 500px at 96% 105%, rgba(200, 149, 45, 0.1), transparent 65%),
+    linear-gradient(180deg, #fffaf1 0%, #f1e7d8 100%);
+}
+
+body[data-page="home"] .credibility-section {
+  background:
+    radial-gradient(1000px 520px at 88% 0%, rgba(47, 125, 91, 0.08), transparent 65%),
+    linear-gradient(180deg, #fffdf7 0%, #f4ebdc 100%);
+}
+
+body[data-page="home"] .route-board {
+  background:
+    radial-gradient(900px 460px at 10% 0%, rgba(200, 149, 45, 0.1), transparent 65%),
+    var(--home-paper);
+}
+
+body[data-page="home"] .privacy-band {
+  background:
+    radial-gradient(900px 420px at 88% 0%, rgba(200, 149, 45, 0.16), transparent 62%),
+    linear-gradient(90deg, rgba(17, 24, 39, 0.98), rgba(23, 32, 51, 0.92)),
+    var(--home-dark);
+}
+
+body[data-page="home"] .founder-section {
+  background:
+    radial-gradient(900px 460px at 95% 20%, rgba(200, 149, 45, 0.1), transparent 65%),
+    #fffdf7;
+}
+
+body:not([data-page="home"]):not([data-page="book"]) .content-section {
+  background:
+    radial-gradient(1000px 520px at 92% -10%, rgba(200, 149, 45, 0.1), transparent 65%),
+    var(--site-paper);
+}
+
+body:not([data-page="home"]):not([data-page="book"]) .content-section:nth-of-type(odd) {
+  background:
+    radial-gradient(900px 500px at 6% 110%, rgba(47, 125, 91, 0.07), transparent 65%),
+    #fffaf1;
+}
+
+body[data-page="home"] .site-header,
+body:not([data-page="home"]):not([data-page="book"]) .site-header {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.78),
+    0 12px 32px -26px rgba(35, 28, 19, 0.4);
+}
+
+/* Buttons: a little lift and a soft shadow on the primary action. */
+.btn {
+  transition: transform 160ms ease, box-shadow 200ms ease, background-color 200ms ease, border-color 200ms ease, color 200ms ease;
+}
+
+body[data-page="home"] .btn-primary,
+body:not([data-page="home"]):not([data-page="book"]) .btn-primary {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 10px 24px -12px rgba(17, 24, 39, 0.55);
+}
+
+.nav-links a,
+.catalog-card a,
+.info-card a,
+.credential-meta a,
+.path-card a,
+.integration-row span,
+.founder-facts span,
+.capability-card,
+.catalog-card,
+.process-card,
+.path-card,
+.info-card,
+.step-card,
+.credential-card,
+.fact-list div {
+  transition: transform 240ms cubic-bezier(0.2, 0.7, 0.2, 1), box-shadow 240ms ease, border-color 240ms ease, background-color 200ms ease, color 200ms ease;
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .btn:hover {
+    transform: translateY(-1px);
+  }
+
+  body[data-page="home"] .btn-primary:hover,
+  body:not([data-page="home"]):not([data-page="book"]) .btn-primary:hover {
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.08),
+      0 16px 30px -12px rgba(17, 24, 39, 0.6);
+  }
+
+  body[data-page="home"] .btn-secondary:hover,
+  body:not([data-page="home"]):not([data-page="book"]) .btn-secondary:hover {
+    box-shadow: 0 10px 22px -14px rgba(35, 28, 19, 0.35);
+  }
+
+  body[data-page="home"] .capability-card:hover,
+  body[data-page="home"] .catalog-card:hover,
+  body:not([data-page="home"]):not([data-page="book"]) .info-card:hover,
+  body:not([data-page="home"]):not([data-page="book"]) .step-card:hover,
+  body:not([data-page="home"]):not([data-page="book"]) .credential-card:hover,
+  body:not([data-page="home"]):not([data-page="book"]) .fact-list div:hover {
+    transform: translateY(-3px);
+    border-color: rgba(200, 149, 45, 0.45);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.95),
+      0 2px 4px rgba(35, 28, 19, 0.05),
+      0 16px 32px -12px rgba(35, 28, 19, 0.2),
+      0 34px 64px -24px rgba(35, 28, 19, 0.24);
+  }
+
+  body[data-page="home"] .catalog-card-featured:hover {
+    border-color: rgba(244, 223, 174, 0.4);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.1),
+      0 34px 64px -24px rgba(17, 24, 39, 0.65);
+  }
+
+  body[data-page="home"] .process-card:hover {
+    transform: translateY(-3px);
+    border-color: rgba(255, 253, 247, 0.26);
+    background: linear-gradient(165deg, rgba(255, 253, 247, 0.16) 0%, rgba(255, 253, 247, 0.08) 100%);
+  }
+
+  body[data-page="home"] .path-card:hover {
+    transform: translateY(-3px);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.12),
+      0 2px 4px rgba(35, 28, 19, 0.06),
+      0 24px 50px -16px rgba(17, 24, 39, 0.4),
+      0 44px 80px -30px rgba(17, 24, 39, 0.4);
+  }
+
+  body[data-page="home"] .catalog-card a:hover,
+  body[data-page="home"] .path-card a:hover,
+  body:not([data-page="home"]):not([data-page="book"]) .info-card a:hover,
+  body:not([data-page="home"]):not([data-page="book"]) .credential-meta a:hover {
+    border-bottom-color: currentColor;
+  }
+
+  body[data-page="home"] .integration-row span:hover {
+    border-color: rgba(244, 223, 174, 0.5);
+    background: rgba(255, 253, 247, 0.16);
+  }
+
+  body[data-page="home"] .founder-facts span:hover {
+    border-color: rgba(200, 149, 45, 0.45);
+    background: #fbf3e5;
+  }
+}
+
+/* Scroll-triggered fade/lift, CSS only (scroll-driven animations). Browsers without
+   animation-timeline, and anyone preferring reduced motion, simply see the final state.
+   Full-width bands that clip their backgrounds must not be scroll containers, or view()
+   would resolve against the band instead of the viewport; `clip` renders identically. */
+.workflow-section,
+.privacy-band,
+.founder-section,
+.contact-strip {
+  overflow: clip;
+}
+
+@keyframes aic-reveal {
+  from {
+    opacity: 0;
+    translate: 0 22px;
+  }
+
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    body:not([data-page="book"]) .section-kicker,
+    body:not([data-page="book"]) .workflow-copy,
+    body:not([data-page="book"]) .content-copy,
+    body:not([data-page="book"]) .scoreboard-header > div,
+    body:not([data-page="book"]) .scoreboard-note,
+    body:not([data-page="book"]) .service-integrations > p,
+    body:not([data-page="book"]) .integration-board,
+    body:not([data-page="book"]) .privacy-layout > .eyebrow,
+    body:not([data-page="book"]) .privacy-layout > h2,
+    body:not([data-page="book"]) .boundary-list,
+    body:not([data-page="book"]) .boundary-layout > *,
+    body:not([data-page="book"]) .founder-layout > *,
+    body:not([data-page="book"]) .contact-layout > *,
+    body:not([data-page="book"]) .credential-intro > *,
+    body:not([data-page="book"]) .capability-card,
+    body:not([data-page="book"]) .catalog-card,
+    body:not([data-page="book"]) .process-card,
+    body:not([data-page="book"]) .path-card,
+    body:not([data-page="book"]) .info-card,
+    body:not([data-page="book"]) .step-card,
+    body:not([data-page="book"]) .credential-card,
+    body:not([data-page="book"]) .fact-list div {
+      animation: aic-reveal linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 40%;
+    }
+
+    body:not([data-page="book"]) .capability-grid > :nth-child(3n + 2),
+    body:not([data-page="book"]) .catalog-grid > :nth-child(3n + 2),
+    body:not([data-page="book"]) .process-grid > :nth-child(3n + 2),
+    body:not([data-page="book"]) .card-grid > :nth-child(2n),
+    body:not([data-page="book"]) .credential-grid > :nth-child(2n),
+    body:not([data-page="book"]) .route-cards > :nth-child(2n) {
+      animation-range: entry 10% entry 50%;
+    }
+
+    body:not([data-page="book"]) .capability-grid > :nth-child(3n + 3),
+    body:not([data-page="book"]) .catalog-grid > :nth-child(3n + 3),
+    body:not([data-page="book"]) .process-grid > :nth-child(3n + 3) {
+      animation-range: entry 20% entry 60%;
+    }
   }
 }

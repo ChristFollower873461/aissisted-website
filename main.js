@@ -42,11 +42,50 @@
     }, { once: true });
   }
 
+  function initHeroScene() {
+    const host = document.querySelector("[data-hero-scene]");
+    if (!host || !host.dataset.heroScene) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const connection = navigator.connection;
+    if (connection && (connection.saveData || /(^|-)2g$|^3g$/.test(connection.effectiveType || ""))) return;
+
+    let webgl = false;
+    try {
+      const probe = document.createElement("canvas");
+      webgl = Boolean(probe.getContext("webgl2") || probe.getContext("webgl"));
+    } catch (error) {
+      webgl = false;
+    }
+    if (!webgl) return;
+
+    const mount = () => {
+      import(host.dataset.heroScene)
+        .then((module) => module.mountHeroScene(host))
+        .catch(() => {});
+    };
+    const whenIdle = () => {
+      if (window.requestIdleCallback) {
+        window.requestIdleCallback(mount, { timeout: 2500 });
+      } else {
+        window.setTimeout(mount, 600);
+      }
+    };
+    // Let the first paint, the poster and the largest-contentful-paint settle before the
+    // bundle competes for bandwidth or main-thread time; the poster covers the wait.
+    const afterSettle = () => window.setTimeout(whenIdle, 1400);
+    if (document.readyState === "complete") {
+      afterSettle();
+    } else {
+      window.addEventListener("load", afterSettle, { once: true });
+    }
+  }
+
   function init() {
     initAxonPixel();
     initMenu();
     initYear();
     initFocusMode();
+    initHeroScene();
   }
 
   init();
