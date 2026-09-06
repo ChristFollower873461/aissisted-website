@@ -21,7 +21,7 @@
           company: data.get("company"),
           routeId: data.get("routeId"),
           reason: data.get("summary"),
-          sourcePage: "/book/#fit-call",
+          sourcePage: globalThis.AicAdsTracking?.attributionSourcePage?.("/book/#fit-call") || "/book/#fit-call",
           consentToSubmit: data.get("consentToSubmit") === "on",
           websiteLeaveBlank: data.get("websiteLeaveBlank")
         })

@@ -48,7 +48,7 @@ export async function onRequest(context) {
     const company = normalizeWhitespace(body.company).slice(0, 120);
     const routeId = normalizeWhitespace(body.routeId).slice(0, 80);
     const reason = normalizeWhitespace(body.reason).slice(0, 1200);
-    const sourcePage = normalizeRelativePath(body.sourcePage || "/book/");
+    const sourcePage = normalizeRelativePath(body.sourcePage || "/book/", 500);
     if (!name || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || !ROUTES.has(routeId) || !reason) {
       return json({ ok: false, error: "Name, valid email, project route, and a short reason are required." }, 400);
     }

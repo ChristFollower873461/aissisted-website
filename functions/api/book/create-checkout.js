@@ -180,7 +180,8 @@ export function normalizeCheckoutPayload(payload, config) {
   const routeId = normalizeWhitespace(limitString(intake.routeId, "Project route", FIELD_LIMITS.routeId));
   const notes = normalizeWhitespace(limitString(intake.notes, "Notes", FIELD_LIMITS.notes));
   const sourcePage = normalizeRelativePath(
-    limitString(payload.sourcePage, "Source page", FIELD_LIMITS.sourcePage)
+    limitString(payload.sourcePage, "Source page", FIELD_LIMITS.sourcePage),
+    FIELD_LIMITS.sourcePage
   ) || "/book/";
   const submittedMeasurement = payload.measurement || {};
   const submittedFunnelId = limitString(

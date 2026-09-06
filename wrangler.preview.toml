@@ -4,6 +4,8 @@ pages_build_output_dir = "."
 
 # Isolated E4 preview configuration. Never bind a production resource here.
 [vars]
+# PREVIEW_ACCESS_TOKEN must be a platform secret; missing secret denies access.
+PREVIEW_ACCESS_REQUIRED = "true"
 PUBLIC_SITE_ORIGIN = "https://aissisted-offer-v2-preview.pages.dev"
 PREVIEW_ACCESS_LABEL = "AIssisted Offer v2 Preview"
 BOOKING_BUSINESS_TITLE = "AIssisted Consulting"
@@ -16,8 +18,13 @@ BOOKING_LOOKAHEAD_DAYS = "21"
 BOOKING_REQUIRE_GOOGLE_CALENDAR = "false"
 BOOKING_CREATE_GOOGLE_CALENDAR_EVENT = "false"
 GOOGLE_CALENDAR_SEND_UPDATES = "none"
-AIC_EMAIL_PROVIDER = ""
+AIC_EMAIL_PROVIDER = "disabled"
 AIC_EMAIL_FROM = ""
+GRAIL_EMAIL_PROVIDER = "disabled"
+GRAIL_EMAIL_FROM = ""
+BOOKING_NOTIFICATION_WEBHOOK_URL = ""
+BOOKING_CONFIRMATION_WEBHOOK_URL = ""
+AIC_CRM_INTAKE_URL = ""
 AIC_OWNER_ALERT_EMAIL = "pj@aissistedconsulting.com"
 # Preview deployment/readback gate: keep provider Checkout disabled until a
 # separately authorized sandbox-payment exercise.
@@ -35,6 +42,49 @@ FIT_CALL_REQUESTS_ENABLED = "true"
 FIT_CALL_WEEKLY_CAPACITY = "2"
 
 [[d1_databases]]
+binding = "BOOKING_DB"
+database_name = "aissisted-booking-preview-v2-20260815"
+database_id = "febf1ca7-efa3-4629-b250-7e294ff96a47"
+preview_database_id = "febf1ca7-efa3-4629-b250-7e294ff96a47"
+
+# Pages uses env.preview for every non-production branch. Non-inheritable vars
+# and D1 bindings must both be explicit. See docs/booking/preview-isolation.md.
+[env.preview.vars]
+PUBLIC_SITE_ORIGIN = "https://aissisted-offer-v2-preview.pages.dev"
+PREVIEW_ACCESS_LABEL = "AIssisted Offer v2 Preview"
+BOOKING_BUSINESS_TITLE = "AIssisted Consulting"
+BOOKING_SUPPORT_EMAIL = "pj@aissistedconsulting.com"
+BOOKING_CURRENCY = "usd"
+BOOKING_TIMEZONE = "America/New_York"
+BOOKING_HOLD_MINUTES = "30"
+BOOKING_MINIMUM_LEAD_HOURS = "48"
+BOOKING_LOOKAHEAD_DAYS = "21"
+BOOKING_REQUIRE_GOOGLE_CALENDAR = "false"
+BOOKING_CREATE_GOOGLE_CALENDAR_EVENT = "false"
+GOOGLE_CALENDAR_SEND_UPDATES = "none"
+AIC_EMAIL_PROVIDER = "disabled"
+AIC_EMAIL_FROM = ""
+AIC_OWNER_ALERT_EMAIL = "pj@aissistedconsulting.com"
+BOOKING_CHECKOUT_ENABLED = "false"
+ACTIVE_BOOKING_RELEASE = "aissisted_booking_v2_2026_08_15"
+BOOKING_POLICY_VERSION = "workflow_map_build_discovery_225_terms_2026-09-02_v2"
+BOOKING_RESERVATION_AMOUNT_CENTS = "22500"
+BOOKING_V2_STRIPE_PRODUCT_ID = "prod_V52nwNYF46RY5U"
+BOOKING_V2_STRIPE_PRICE_ID = "price_1U4shaP3Zy09i3ccRusbjik5"
+BOOKING_V2_PAYMENT_METHOD_CONFIGURATION_ID = "pmc_1U4skSP3Zy09i3cc4vMQTswL"
+STRIPE_EXPECTED_LIVEMODE = "false"
+STRIPE_API_VERSION = "2026-06-24.dahlia"
+BOOKING_OPEN_SESSION_EXPIRY_ENABLED = "false"
+FIT_CALL_REQUESTS_ENABLED = "true"
+FIT_CALL_WEEKLY_CAPACITY = "2"
+PREVIEW_ACCESS_REQUIRED = "true"
+GRAIL_EMAIL_PROVIDER = "disabled"
+GRAIL_EMAIL_FROM = ""
+BOOKING_NOTIFICATION_WEBHOOK_URL = ""
+BOOKING_CONFIRMATION_WEBHOOK_URL = ""
+AIC_CRM_INTAKE_URL = ""
+
+[[env.preview.d1_databases]]
 binding = "BOOKING_DB"
 database_name = "aissisted-booking-preview-v2-20260815"
 database_id = "febf1ca7-efa3-4629-b250-7e294ff96a47"

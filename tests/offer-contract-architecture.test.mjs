@@ -106,7 +106,7 @@ test("isolated hosted preview keeps Checkout disabled and production resources u
   assert.match(previewWrangler, /BOOKING_CHECKOUT_ENABLED\s*=\s*"false"/);
   assert.match(previewWrangler, /STRIPE_EXPECTED_LIVEMODE\s*=\s*"false"/);
   assert.match(previewWrangler, /BOOKING_CREATE_GOOGLE_CALENDAR_EVENT\s*=\s*"false"/);
-  assert.match(previewWrangler, /AIC_EMAIL_PROVIDER\s*=\s*""/);
+  assert.match(previewWrangler, /AIC_EMAIL_PROVIDER\s*=\s*"disabled"/);
   assert.match(previewWrangler, /database_name\s*=\s*"aissisted-booking-preview-v2-20260815"/);
   assert.doesNotMatch(previewWrangler, /database_name\s*=\s*"aissisted-booking"\s*$/m);
   assert.doesNotMatch(previewWrangler, /STRIPE_EXPECTED_LIVEMODE\s*=\s*"true"/);
