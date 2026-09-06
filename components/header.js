@@ -3,15 +3,13 @@ const isSubdir=document.querySelector('link[href*="../styles.css"]')!==null;
 const base=isSubdir?'../':'./';
 const routes={
 home:base,
-services:`${base}services`,
+services:`${base}services/`,
+privateData:`${base}private-data-service/`,
 industries:`${base}industries/`,
-pricing:`${base}pricing`,
-compare:`${base}compare`,
-about:`${base}about`,
-caseStudies:`${base}case-studies`,
+about:`${base}about/`,
 blog:`${base}blog/`,
 book:`${base}book/`,
-contact:`${base}contact`
+contact:`${base}contact/`
 };
 const headerHTML=`<nav id="nav">
 <div class="container">
@@ -20,11 +18,9 @@ const headerHTML=`<nav id="nav">
 </a>
 <div class="nav-links" id="navLinks">
 <a href="${routes.services}">Services</a>
+<a href="${routes.privateData}">Private AI</a>
 <a href="${routes.industries}">Industries</a>
-<a href="${routes.pricing}">Pricing</a>
-<a href="${routes.compare}">Compare</a>
 <a href="${routes.about}">About</a>
-<a href="${routes.caseStudies}">Case Studies</a>
 <a href="${routes.blog}">Blog</a>
 <a href="${routes.book}" class="btn nav-reserve" style="background:transparent;border:2px solid var(--gold-mid);color:var(--gold-mid);padding:10px 20px;font-size:.85rem">Book the $225 Plan</a>
 <a href="${routes.contact}" class="btn btn-primary nav-cta">Contact AIssisted Consulting</a>

@@ -18,7 +18,9 @@ Approved registry SHA-256: 3ca531e1a0fcf19268f6182e6510f965a9328738f1885dc3e1970
 1. Fix how something works: workflow improvement for small businesses, including intake, scheduling, follow-up, reporting, handoffs, AI agents, automation, CRM, and integration.
 2. Build something new: custom software for small businesses and individuals, including applications, internal tools, customer experiences, integrations, prototypes, and AI-assisted systems.
 
-For Ocala-focused small-business help, start with the Small Business AI Help page. For workflow automation, business process automation, or AI automation consulting, use the Workflow Automation page. Then read Services, Privacy And Control, and the relevant guide pages.
+Within both lanes, the Private Data Service cleans and structures business data on AIssisted Consulting's self-hosted private system: no third-party cloud or AI service touches the data, open-license models only, a graded quality check, a plain-English fix report, and certified destruction or an encrypted monthly plan. Fixed prices start with a $500 privacy assessment credited toward a $2,500 backlog cleanup project; it is arranged through Contact, not Stripe Checkout.
+
+For Ocala-focused small-business help, start with the Small Business AI Help page. For workflow automation, business process automation, or AI automation consulting, use the Workflow Automation page. For private or on-prem data and AI work, use the Private Data Service page. Then read Services, Privacy And Control, and the relevant guide pages.
 
 ## Primary paid offer
 
@@ -40,6 +42,7 @@ Visitors who are not sure the paid plan fits may request a free 15-minute Fit Ca
 - Home: https://aissistedconsulting.com/
 - Small Business AI Help: https://aissistedconsulting.com/small-business-ai-help/
 - Workflow Automation: https://aissistedconsulting.com/workflow-automation/
+- Private Data Service: https://aissistedconsulting.com/private-data-service/
 - Services: https://aissistedconsulting.com/services/
 - About: https://aissistedconsulting.com/about/
 - Privacy and Control: https://aissistedconsulting.com/privacy-and-control/

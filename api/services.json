@@ -71,6 +71,44 @@
       "recommended_next_action": "Bring one repeated workflow to AIssisted Consulting for a practical map and first-build review."
     },
     {
+      "id": "private_data_service",
+      "name": "Private Data Service",
+      "audience": ["small_business"],
+      "status": "active",
+      "description": "Business data cleaned and structured on AIssisted Consulting's self-hosted private system. No third-party cloud or AI service touches the data, open-license models only, a graded quality check, a plain-English fix report, and certified destruction or an encrypted monthly plan.",
+      "pricing": {
+        "privacy_assessment_usd": 500,
+        "backlog_cleanup_project_usd": 2500,
+        "keep_it_clean_monthly_usd": 500,
+        "always_on_private_lane_monthly_usd_starting_at": 1000,
+        "on_site_appliance": "quoted",
+        "billing_boundary": "Fixed prices with no per-record or per-token billing. The assessment fee is credited in full toward a cleanup project. Work is invoiced after agreement; there is no Stripe Checkout for this service on the website."
+      },
+      "workflow_focus": [
+        "Customer list and record cleanup",
+        "Deduplication and format standardization",
+        "Exports from multiple systems merged into one trusted set",
+        "Monthly refresh of new and changed records",
+        "Private or on-prem AI processing"
+      ],
+      "best_fit": [
+        "Businesses with a customer list, job history, or archive they do not fully trust.",
+        "Owners who would not paste their records into a public AI tool.",
+        "Teams that want measured quality and a written record of what changed."
+      ],
+      "not_a_fit": [
+        "Data the business is not permitted to process or share.",
+        "Requests to skip the verification sample or human spot-check.",
+        "Per-token or per-record pricing negotiations."
+      ],
+      "related_pages": [
+        "https://aissistedconsulting.com/private-data-service/",
+        "https://aissistedconsulting.com/guides/local-and-on-prem-ai/",
+        "https://aissistedconsulting.com/privacy-and-control/"
+      ],
+      "recommended_next_action": "Ask about a private assessment through the Contact page."
+    },
+    {
       "id": "grail_local_marketing_agent",
       "name": "Grail local marketing agent",
       "audience": "Local service businesses",
