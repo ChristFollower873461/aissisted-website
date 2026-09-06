@@ -1,111 +1,213 @@
 /*
- * AIssisted homepage hero scene.
+ * AIssisted hero stage (visual pass v2).
  *
- * A slow-drifting node-and-edge "workflow constellation" with three low-poly hubs,
- * drawn in the site's accent colors on the homepage paper tone. Bundled with esbuild
- * from the vendored Three.js (assets/vendor, r184) into hero-scene.min.js.
+ * A translucent glass sculpture floats over a live aurora, inside a depth-of-field particle
+ * field, with bloom, a slow camera drift and gentle pointer parallax. Each page mounts a
+ * different composition from the same material family:
+ *   home      -> torus knot + glowing core + orbiting shards + two light rings
+ *   services  -> ring-and-orb system
+ *   about     -> beveled crystal shard cluster
  *
- * Loaded lazily by main.js (initHeroScene) only when: motion is allowed, Save-Data is off,
- * WebGL exists, and the page has finished loading. Anything that fails leaves the static
- * poster (assets/hero/hero-poster.webp, rendered from this same scene) in place.
+ * Bundled with esbuild from the vendored Three.js r184 (assets/vendor, MIT) into hero-scene.min.js.
+ * Loaded lazily by main.js (initHeroScene) only when motion is allowed, Save-Data is off, WebGL
+ * exists and the page has finished loading. Anything that fails leaves the static poster in place;
+ * the poster is rendered from this scene at POSTER_TIME (see .review/v2-render-poster.mjs), so the
+ * poster-to-canvas crossfade is seamless.
  */
 import {
+  ACESFilmicToneMapping,
+  AdditiveBlending,
+  BackSide,
   BufferAttribute,
   BufferGeometry,
   Color,
   DirectionalLight,
-  DynamicDrawUsage,
-  Fog,
+  DoubleSide,
   Group,
-  HemisphereLight,
+  HalfFloatType,
   IcosahedronGeometry,
-  LineBasicMaterial,
-  LineSegments,
   Mesh,
   MeshBasicMaterial,
-  MeshLambertMaterial,
+  MeshPhysicalMaterial,
+  OctahedronGeometry,
+  PMREMGenerator,
   PerspectiveCamera,
+  PlaneGeometry,
   Points,
   Scene,
   ShaderMaterial,
+  SphereGeometry,
+  TorusGeometry,
+  TorusKnotGeometry,
+  Vector2,
+  WebGLRenderTarget,
   WebGLRenderer,
-} from "../vendor/three.module.js";
+} from "three";
+import { EffectComposer } from "../vendor/postprocessing/EffectComposer.js";
+import { RenderPass } from "../vendor/postprocessing/RenderPass.js";
+import { UnrealBloomPass } from "../vendor/postprocessing/UnrealBloomPass.js";
+import { OutputPass } from "../vendor/postprocessing/OutputPass.js";
 
-const PAPER = 0xf7f1e6;
-const SIGNAL = 0xe0ad3f;
+const DEG = Math.PI / 180;
+const FOV = 34;
+const CAMERA_Z = 10;
+const AURORA_Z = -8;
+const POSTER_TIME = 6;
 const SEED = 20260905;
-const POSTER_TIME = 2.5;
-const NODE_COLORS = [
-  [0xc8952d, 0.36], // gold
-  [0x2e5874, 0.26], // blue
-  [0x2f7d5b, 0.22], // green
-  [0x8a6817, 0.09], // deep gold
-  [0x171b24, 0.07], // ink
-];
 
-const CONFIGS = {
-  desktop: {
-    nodes: 112,
-    halfW: 8.2,
-    halfH: 3.9,
-    halfD: 2.2,
-    linkDist: 2.6,
-    links: 2,
-    signals: 6,
-    hubs: [
-      { color: 0xc8952d, pos: [3.55, 2.45, 0.2], radius: 0.62, spin: 1 },
-      { color: 0x2e5874, pos: [5.0, -1.35, -0.4], radius: 0.5, spin: -1 },
-      { color: 0x2f7d5b, pos: [0.85, 2.0, -0.4], radius: 0.4, spin: 1 },
-    ],
+const INK = 0x070b16;
+const GOLD = 0xe6b54a;
+const BLUE = 0x4a9be6;
+const GREEN = 0x3fae7c;
+
+// Per-page composition. `anchor` is where the sculpture sits in normalized device coordinates
+// (x, y in -1..1), `scale` is its size relative to the hero height, `leftDark` darkens the aurora
+// under the copy column and `core` is where the aurora's brightest pool sits (0..1 uv).
+const VARIANTS = {
+  home: {
+    build: buildKnot,
+    particles: { full: 2600, lite: 900 },
+    desktop: { anchor: [0.61, 0.06], scale: 0.94, leftDark: 1, core: [0.78, 0.48] },
+    mobile: { anchor: [0.74, 0.6], scale: 0.5, leftDark: 0.2, core: [0.82, 0.8] },
   },
-  mobile: {
-    nodes: 46,
-    halfW: 2.0,
-    halfH: 6.4,
-    halfD: 1.6,
-    linkDist: 2.4,
-    links: 2,
-    signals: 3,
-    hubs: [
-      { color: 0xc8952d, pos: [1.1, 4.3, 0.1], radius: 0.3, spin: 1 },
-      { color: 0x2e5874, pos: [-1.05, 0.9, -0.5], radius: 0.24, spin: -1 },
-      { color: 0x2f7d5b, pos: [0.2, 2.4, -0.6], radius: 0.2, spin: 1 },
-    ],
+  services: {
+    build: buildOrbit,
+    particles: { full: 1800, lite: 700 },
+    desktop: { anchor: [0.56, 0.0], scale: 0.74, leftDark: 1, core: [0.76, 0.5] },
+    mobile: { anchor: [0.62, 0.5], scale: 0.38, leftDark: 0.2, core: [0.8, 0.75] },
+  },
+  about: {
+    build: buildCluster,
+    particles: { full: 1800, lite: 700 },
+    desktop: { anchor: [0.5, 0.0], scale: 0.88, leftDark: 1, core: [0.72, 0.5] },
+    mobile: { anchor: [0.66, 0.5], scale: 0.44, leftDark: 0.2, core: [0.8, 0.75] },
   },
 };
 
-// One world unit renders as ~128 CSS px at z=0 regardless of hero height, so the field keeps
-// the same visual density from a 793px desktop hero to a 1500px stacked mobile hero.
-const REFERENCE_HEIGHT = 794;
+const AURORA_VERTEX = /* glsl */ `
+  varying vec2 vUv;
+  void main() {
+    vUv = uv;
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+  }
+`;
+
+const AURORA_FRAGMENT = /* glsl */ `
+  precision highp float;
+  uniform float uTime;
+  uniform float uAspect;
+  uniform float uLeftDark;
+  uniform vec2 uCore;
+  uniform vec3 uInk;
+  uniform vec3 uGold;
+  uniform vec3 uBlue;
+  uniform vec3 uGreen;
+  varying vec2 vUv;
+
+  float hash(vec2 p) {
+    return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
+  }
+  float noise(vec2 p) {
+    vec2 i = floor(p);
+    vec2 f = fract(p);
+    f = f * f * (3.0 - 2.0 * f);
+    float a = hash(i);
+    float b = hash(i + vec2(1.0, 0.0));
+    float c = hash(i + vec2(0.0, 1.0));
+    float d = hash(i + vec2(1.0, 1.0));
+    return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
+  }
+  float fbm(vec2 p) {
+    float v = 0.0;
+    float a = 0.5;
+    mat2 m = mat2(1.6, 1.2, -1.2, 1.6);
+    for (int i = 0; i < 5; i++) {
+      v += a * noise(p);
+      p = m * p;
+      a *= 0.5;
+    }
+    return v;
+  }
+
+  void main() {
+    vec2 uv = vUv;
+    vec2 p = vec2(uv.x * uAspect, uv.y);
+    float t = uTime * 0.05;
+    float n1 = fbm(p * 1.25 + vec2(t * 0.7, -t * 0.45));
+    float n2 = fbm(p * 1.9 - vec2(t * 0.55, t * 0.6) + 3.7);
+    float n3 = fbm(p * 0.85 + vec2(-t * 0.3, t * 0.25) + 9.1);
+
+    // Three slow bands: gold rises toward the right, blue sweeps the upper field, green pools low.
+    float gold = smoothstep(0.42, 0.8, n1) * smoothstep(0.05, 0.85, uv.x + 0.2 * n3);
+    float blue = smoothstep(0.5, 0.88, n2) * (0.45 + 0.55 * uv.y);
+    float green = smoothstep(0.56, 0.92, n3) * smoothstep(0.0, 0.7, 1.0 - uv.y) * 0.85;
+
+    vec3 col = uInk;
+    col += uGold * gold * 0.9;
+    col += uBlue * blue * 0.95;
+    col += uGreen * green * 0.7;
+
+    // A soft pool of light where the sculpture sits, so the glass has something to refract.
+    vec2 d = (uv - uCore) * vec2(1.0, 1.35);
+    float core = exp(-dot(d, d) * 7.0);
+    col += (uGold * 0.72 + uBlue * 0.46) * core * (0.75 + 0.25 * n2);
+
+    // Keep the copy column deep for contrast.
+    col *= mix(1.0, 0.3, uLeftDark * smoothstep(0.58, 0.02, uv.x));
+
+    float vig = smoothstep(1.3, 0.3, length((uv - 0.5) * vec2(1.15, 1.5)));
+    col *= 0.6 + 0.4 * vig;
+
+    gl_FragColor = vec4(col, 1.0);
+    #include <tonemapping_fragment>
+    #include <colorspace_fragment>
+  }
+`;
 
 const POINT_VERTEX = /* glsl */ `
   attribute float aSize;
+  attribute float aPhase;
+  attribute vec3 aColor;
+  uniform float uTime;
   uniform float uScale;
+  uniform float uFocus;
+  uniform float uMaxSize;
   varying vec3 vColor;
-  varying float vFade;
+  varying float vAlpha;
+  varying float vSoft;
   void main() {
-    vec4 mv = modelViewMatrix * vec4(position, 1.0);
+    vec3 pos = position;
+    pos.y += sin(uTime * 0.22 + aPhase * 6.2831) * 0.2;
+    pos.x += cos(uTime * 0.16 + aPhase * 4.1) * 0.14;
+    vec4 mv = modelViewMatrix * vec4(pos, 1.0);
     float dist = -mv.z;
-    gl_PointSize = aSize * uScale / dist;
-    vColor = color;
-    vFade = 1.0 - smoothstep(6.5, 12.5, dist);
+    // Depth of field: points away from the focus plane grow into soft bokeh discs and fade.
+    float blur = smoothstep(0.0, 6.5, abs(dist - uFocus));
+    float size = aSize * (1.0 + blur * 3.6);
+    gl_PointSize = min(uMaxSize, size * uScale / max(dist, 0.5));
+    float twinkle = 0.72 + 0.28 * sin(uTime * 1.4 + aPhase * 21.0);
+    vAlpha = twinkle * mix(1.0, 0.14, blur) * smoothstep(0.6, 3.0, dist);
+    vSoft = blur;
+    vColor = aColor;
     gl_Position = projectionMatrix * mv;
   }
 `;
 
 const POINT_FRAGMENT = /* glsl */ `
-  uniform vec3 uPaper;
   uniform float uAlpha;
   varying vec3 vColor;
-  varying float vFade;
+  varying float vAlpha;
+  varying float vSoft;
   void main() {
-    float r = length(gl_PointCoord - 0.5) * 2.0;
+    vec2 c = gl_PointCoord - 0.5;
+    float r = length(c) * 2.0;
     if (r > 1.0) discard;
-    float disc = 1.0 - smoothstep(0.6, 1.0, r);
-    float core = 1.0 - smoothstep(0.0, 0.6, r);
-    float depth = 0.3 + 0.7 * vFade;
-    vec3 col = mix(uPaper, vColor, depth);
-    gl_FragColor = vec4(col, disc * (0.5 + 0.5 * core) * depth * uAlpha);
+    float edge = mix(0.38, 0.04, vSoft);
+    float disc = 1.0 - smoothstep(edge, 1.0, r);
+    float core = (1.0 - smoothstep(0.0, 0.32, r)) * (1.0 - vSoft);
+    vec3 col = vColor * (disc + core * 0.9);
+    gl_FragColor = vec4(col, disc * vAlpha * uAlpha);
+    #include <tonemapping_fragment>
     #include <colorspace_fragment>
   }
 `;
@@ -122,86 +224,226 @@ function makeRandom(seed) {
   };
 }
 
-function pickColor(rand) {
-  let roll = rand();
-  for (const [hex, weight] of NODE_COLORS) {
-    roll -= weight;
-    if (roll <= 0) return hex;
+// Small procedural studio: warm gold key panel, cool blue rim panel, a white strip for crisp
+// highlights and a green floor bounce. Baked to a PMREM so the glass reflects and refracts it.
+function buildEnvironment(renderer) {
+  const pmrem = new PMREMGenerator(renderer);
+  const env = new Scene();
+  const room = new Mesh(new SphereGeometry(24, 24, 16), new MeshBasicMaterial({ color: 0x0a1120, side: BackSide }));
+  env.add(room);
+  const panel = (hex, intensity, pos, size) => {
+    const mesh = new Mesh(
+      new PlaneGeometry(size[0], size[1]),
+      new MeshBasicMaterial({ color: new Color(hex).multiplyScalar(intensity), side: DoubleSide })
+    );
+    mesh.position.set(pos[0], pos[1], pos[2]);
+    mesh.lookAt(0, 0, 0);
+    env.add(mesh);
+  };
+  panel(0xffd27a, 7, [7, 8, 5], [10, 4]);
+  panel(0x6fb4ff, 5, [-9, 2, -4], [7, 9]);
+  panel(0xffffff, 10, [0, 11, -2], [12, 1.2]);
+  panel(0x8fe4bd, 3, [3, -9, 3], [8, 3]);
+  panel(0xe6b54a, 4, [9, -3, 7], [3, 7]);
+  const texture = pmrem.fromScene(env, 0.035).texture;
+  env.traverse((node) => {
+    node.geometry?.dispose();
+    node.material?.dispose();
+  });
+  pmrem.dispose();
+  return texture;
+}
+
+function makeGlass(overrides = {}) {
+  return new MeshPhysicalMaterial({
+    color: 0xffffff,
+    metalness: 0,
+    roughness: 0.09,
+    transmission: 1,
+    thickness: 1.6,
+    ior: 1.46,
+    attenuationColor: new Color(0xf5d9a0),
+    attenuationDistance: 3.2,
+    iridescence: 0.85,
+    iridescenceIOR: 1.35,
+    iridescenceThicknessRange: [140, 520],
+    clearcoat: 1,
+    clearcoatRoughness: 0.06,
+    envMapIntensity: 1.35,
+    specularIntensity: 1,
+    ...overrides,
+  });
+}
+
+function makeLine(hex, intensity) {
+  return new MeshBasicMaterial({ color: new Color(hex).multiplyScalar(intensity) });
+}
+
+function buildKnot(mat, lite) {
+  const group = new Group();
+  const knot = new Mesh(new TorusKnotGeometry(1.42, 0.4, lite ? 170 : 300, lite ? 24 : 44, 2, 3), mat.glass);
+  const core = new Mesh(new SphereGeometry(0.64, 48, 32), mat.core);
+  const ringA = new Mesh(new TorusGeometry(2.55, 0.02, 10, 220), mat.gold);
+  const ringB = new Mesh(new TorusGeometry(2.95, 0.013, 10, 240), mat.blue);
+  ringA.rotation.set(1.25, 0.2, 0);
+  ringB.rotation.set(0.55, 0.9, 0.3);
+  const shards = [0, 1, 2, 3].map((i) => {
+    const shard = new Mesh(new OctahedronGeometry(0.24 + i * 0.05, 0), mat.glass);
+    shard.scale.set(1, 1.7, 1);
+    return shard;
+  });
+  group.add(knot, core, ringA, ringB, ...shards);
+  return {
+    group,
+    update(t) {
+      knot.rotation.y = t * 0.12;
+      knot.rotation.x = Math.sin(t * 0.17) * 0.35;
+      knot.rotation.z = Math.cos(t * 0.11) * 0.2;
+      core.scale.setScalar(1 + Math.sin(t * 0.9) * 0.04);
+      ringA.rotation.z = t * 0.08;
+      ringA.rotation.x = 1.25 + Math.sin(t * 0.13) * 0.25;
+      ringB.rotation.z = -t * 0.06;
+      ringB.rotation.y = 0.9 + Math.cos(t * 0.1) * 0.3;
+      shards.forEach((shard, i) => {
+        const a = t * (0.16 + i * 0.035) + i * 1.7;
+        const r = 2.55 + i * 0.28;
+        shard.position.set(Math.cos(a) * r, Math.sin(a * 0.7 + i) * 1.35, Math.sin(a) * r * 0.6);
+        shard.rotation.x = t * 0.5 + i;
+        shard.rotation.y = t * 0.4;
+      });
+    },
+  };
+}
+
+function buildOrbit(mat, lite) {
+  const group = new Group();
+  const orb = new Mesh(new SphereGeometry(1.12, lite ? 40 : 72, lite ? 28 : 48), mat.glass);
+  const core = new Mesh(new SphereGeometry(0.5, 40, 28), mat.core);
+  const rings = [1.85, 2.2, 2.55].map((r, i) => new Mesh(new TorusGeometry(r, 0.13 - i * 0.03, lite ? 16 : 28, lite ? 110 : 180), mat.glass));
+  rings[0].rotation.set(1.1, 0.3, 0);
+  rings[1].rotation.set(0.5, 1.2, 0.4);
+  rings[2].rotation.set(1.9, -0.6, 0.2);
+  const thin = new Mesh(new TorusGeometry(2.9, 0.016, 10, 240), mat.gold);
+  thin.rotation.set(1.4, 0.4, 0);
+  const moons = [0, 1, 2].map((i) => new Mesh(new SphereGeometry(0.16 + i * 0.05, 24, 16), mat.glass));
+  group.add(orb, core, ...rings, thin, ...moons);
+  return {
+    group,
+    update(t) {
+      orb.rotation.y = t * 0.1;
+      core.scale.setScalar(1 + Math.sin(t * 0.8) * 0.05);
+      rings.forEach((ring, i) => {
+        ring.rotation.z += 0;
+        ring.rotation.y = (i % 2 ? -1 : 1) * t * (0.09 + i * 0.03) + i;
+        ring.rotation.x = [1.1, 0.5, 1.9][i] + Math.sin(t * 0.15 + i) * 0.2;
+      });
+      thin.rotation.z = t * 0.07;
+      moons.forEach((moon, i) => {
+        const a = t * (0.32 - i * 0.05) + i * 2.1;
+        const r = 1.85 + i * 0.35;
+        moon.position.set(Math.cos(a) * r, Math.sin(a) * r * 0.42, Math.sin(a + i) * r * 0.5);
+      });
+    },
+  };
+}
+
+function buildCluster(mat, lite) {
+  const group = new Group();
+  const rand = makeRandom(SEED + 7);
+  const shards = [];
+  // Crystal shards: a brighter, warmer glass than the knot so the facets catch the gold key.
+  const crystal = mat.glass.clone();
+  crystal.roughness = 0.04;
+  crystal.attenuationColor = new Color(0xf7d58c);
+  crystal.attenuationDistance = 1.6;
+  crystal.iridescence = 1;
+  crystal.envMapIntensity = 2;
+  const heartMaterial = mat.core.clone();
+  heartMaterial.emissiveIntensity = 1.1;
+  for (let i = 0; i < 8; i += 1) {
+    const size = 0.4 + rand() * 0.46;
+    const shard = new Mesh(new IcosahedronGeometry(size, 0), crystal);
+    shard.scale.set(0.55 + rand() * 0.2, 1.5 + rand() * 0.9, 0.55 + rand() * 0.2);
+    const a = (i / 8) * Math.PI * 2 + rand() * 0.5;
+    const r = 0.8 + rand() * 1.3;
+    shard.position.set(Math.cos(a) * r, (rand() - 0.5) * 1.6, Math.sin(a) * r);
+    shard.rotation.set(rand() * 1.2 - 0.6, a, rand() * 0.8 - 0.4);
+    shard.userData.spin = 0.05 + rand() * 0.08;
+    shards.push(shard);
   }
-  return NODE_COLORS[0][0];
+  const heart = new Mesh(new IcosahedronGeometry(1.05, lite ? 1 : 2), heartMaterial);
+  const ringA = new Mesh(new TorusGeometry(2.7, 0.018, 10, 220), mat.gold);
+  const ringB = new Mesh(new TorusGeometry(2.3, 0.012, 10, 200), mat.blue);
+  ringA.rotation.set(1.35, 0.2, 0);
+  ringB.rotation.set(0.4, 1.1, 0.5);
+  group.add(heart, ringA, ringB, ...shards);
+  return {
+    group,
+    update(t) {
+      group.rotation.y = t * 0.09;
+      heart.rotation.y = -t * 0.2;
+      heart.rotation.x = Math.sin(t * 0.3) * 0.4;
+      heart.scale.setScalar(1 + Math.sin(t * 0.7) * 0.04);
+      shards.forEach((shard, i) => {
+        shard.rotation.y += 0;
+        shard.position.y += Math.sin(t * 0.5 + i) * 0.0009;
+        shard.rotation.z = Math.sin(t * shard.userData.spin * 4 + i) * 0.35;
+      });
+      ringA.rotation.z = t * 0.06;
+      ringB.rotation.z = -t * 0.05;
+    },
+  };
 }
 
-function smoothstep(v) {
-  const c = Math.min(Math.max(v, 0), 1);
-  return c * c * (3 - 2 * c);
-}
-
-function buildField(cfg, rand) {
-  const hubCount = cfg.hubs.length;
-  const n = cfg.nodes + hubCount;
-  const base = new Float32Array(n * 3);
-  const amp = new Float32Array(n * 3);
-  const freq = new Float32Array(n * 3);
-  const phase = new Float32Array(n * 3);
-  const colors = new Float32Array(n * 3);
-  const sizes = new Float32Array(n);
+function buildParticles(count, rand) {
+  const positions = new Float32Array(count * 3);
+  const colors = new Float32Array(count * 3);
+  const sizes = new Float32Array(count);
+  const phases = new Float32Array(count);
+  const palette = [
+    [0xfff1cf, 0.42],
+    [0xffcf6a, 0.24],
+    [0x86bfff, 0.22],
+    [0x8fe8bf, 0.12],
+  ];
   const tint = new Color();
-
-  for (let i = 0; i < cfg.nodes; i += 1) {
-    base[i * 3] = (rand() * 2 - 1) * cfg.halfW;
-    base[i * 3 + 1] = (rand() * 2 - 1) * cfg.halfH;
-    base[i * 3 + 2] = (rand() * 2 - 1) * cfg.halfD;
-    for (let k = 0; k < 3; k += 1) {
-      amp[i * 3 + k] = 0.05 + rand() * 0.09;
-      freq[i * 3 + k] = 0.16 + rand() * 0.26;
-      phase[i * 3 + k] = rand() * Math.PI * 2;
+  for (let i = 0; i < count; i += 1) {
+    const foreground = rand() < 0.12;
+    positions[i * 3] = (rand() * 2 - 1) * 9.5;
+    positions[i * 3 + 1] = (rand() * 2 - 1) * 5;
+    positions[i * 3 + 2] = foreground ? 5 + rand() * 2.5 : -7 + rand() * 12;
+    let roll = rand();
+    let hex = palette[0][0];
+    for (const [c, w] of palette) {
+      roll -= w;
+      if (roll <= 0) {
+        hex = c;
+        break;
+      }
     }
-    tint.set(pickColor(rand));
+    tint.set(hex);
     colors[i * 3] = tint.r;
     colors[i * 3 + 1] = tint.g;
     colors[i * 3 + 2] = tint.b;
-    sizes[i] = 0.05 + rand() * 0.075 + (rand() < 0.12 ? 0.06 : 0);
+    sizes[i] = 0.05 + rand() * 0.11 + (rand() < 0.06 ? 0.16 : 0);
+    phases[i] = rand();
   }
-
-  // Hubs join the field as static anchor nodes (size 0: drawn as meshes, not points).
-  cfg.hubs.forEach((hub, h) => {
-    const i = cfg.nodes + h;
-    base.set(hub.pos, i * 3);
-    tint.set(hub.color);
-    colors.set([tint.r, tint.g, tint.b], i * 3);
-    sizes[i] = 0;
-  });
-
-  // Edges: each node links to its nearest neighbours within linkDist.
-  const edges = [];
-  const adjacency = Array.from({ length: n }, () => []);
-  const seen = new Set();
-  const dist = (i, j) => Math.hypot(base[i * 3] - base[j * 3], base[i * 3 + 1] - base[j * 3 + 1], base[i * 3 + 2] - base[j * 3 + 2]);
-  for (let i = 0; i < n; i += 1) {
-    const candidates = [];
-    for (let j = 0; j < n; j += 1) {
-      if (j === i) continue;
-      const d = dist(i, j);
-      if (d < cfg.linkDist) candidates.push([d, j]);
-    }
-    candidates.sort((a, b) => a[0] - b[0]);
-    const wanted = i >= cfg.nodes ? cfg.links + 1 : cfg.links;
-    for (let m = 0; m < Math.min(wanted, candidates.length); m += 1) {
-      const j = candidates[m][1];
-      const key = i < j ? i * n + j : j * n + i;
-      if (seen.has(key)) continue;
-      seen.add(key);
-      adjacency[i].push(edges.length);
-      adjacency[j].push(edges.length);
-      edges.push([i, j]);
-    }
-  }
-
-  return { n, base, amp, freq, phase, colors, sizes, edges, adjacency };
+  const geometry = new BufferGeometry();
+  geometry.setAttribute("position", new BufferAttribute(positions, 3));
+  geometry.setAttribute("aColor", new BufferAttribute(colors, 3));
+  geometry.setAttribute("aSize", new BufferAttribute(sizes, 1));
+  geometry.setAttribute("aPhase", new BufferAttribute(phases, 1));
+  return geometry;
 }
 
 export function mountHeroScene(host) {
   if (!host || host.dataset.heroMounted) return null;
+
+  const variant = VARIANTS[host.dataset.heroVariant] || VARIANTS.home;
+  const coarse = window.matchMedia("(pointer: coarse)").matches;
+  const finePointer = window.matchMedia("(pointer: fine)").matches;
+  const lite = coarse || (navigator.hardwareConcurrency || 8) <= 4;
+  const maxPixelRatio = lite ? 1.25 : 1.5;
 
   const canvas = document.createElement("canvas");
   canvas.setAttribute("data-hero-canvas", "");
@@ -209,113 +451,105 @@ export function mountHeroScene(host) {
 
   let renderer;
   try {
-    renderer = new WebGLRenderer({ canvas, antialias: true, alpha: false, powerPreference: "low-power" });
+    renderer = new WebGLRenderer({
+      canvas,
+      antialias: lite,
+      alpha: false,
+      powerPreference: lite ? "default" : "high-performance",
+    });
   } catch {
     return null;
   }
+  renderer.toneMapping = ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.05;
+  renderer.transmissionResolutionScale = lite ? 0.5 : 0.75;
+  renderer.setClearColor(INK, 1);
 
-  const coarse = window.matchMedia("(pointer: coarse)").matches;
-  const finePointer = window.matchMedia("(pointer: fine)").matches;
-  const cfg = CONFIGS[host.clientWidth < 760 ? "mobile" : "desktop"];
   const rand = makeRandom(SEED);
-  const field = buildField(cfg, rand);
-  const paper = new Color(PAPER);
-
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
   const scene = new Scene();
-  scene.background = paper;
-  scene.fog = new Fog(PAPER, 7, 13.5);
+  const envTexture = buildEnvironment(renderer);
+  scene.environment = envTexture;
 
-  const camera = new PerspectiveCamera(38, 1, 0.5, 40);
-  camera.position.set(0, 0, 9);
+  const camera = new PerspectiveCamera(FOV, 1, 0.5, 60);
+  camera.position.set(0, 0, CAMERA_Z);
 
-  const world = new Group();
-  scene.add(world);
-
-  // Nodes.
-  const nodePositions = new Float32Array(field.base);
-  const nodeGeometry = new BufferGeometry();
-  const nodePositionAttr = new BufferAttribute(nodePositions, 3).setUsage(DynamicDrawUsage);
-  nodeGeometry.setAttribute("position", nodePositionAttr);
-  nodeGeometry.setAttribute("color", new BufferAttribute(field.colors, 3));
-  nodeGeometry.setAttribute("aSize", new BufferAttribute(field.sizes, 1));
-  const pointMaterial = new ShaderMaterial({
-    uniforms: { uScale: { value: 300 }, uPaper: { value: paper }, uAlpha: { value: 1 } },
-    vertexShader: POINT_VERTEX,
-    fragmentShader: POINT_FRAGMENT,
-    vertexColors: true,
-    transparent: true,
+  // Aurora: an opaque, frustum-filling plane behind everything, so the glass can refract it.
+  const auroraMaterial = new ShaderMaterial({
+    uniforms: {
+      uTime: { value: 0 },
+      uAspect: { value: 1 },
+      uLeftDark: { value: 1 },
+      uCore: { value: new Vector2(0.72, 0.5) },
+      uInk: { value: new Color(INK) },
+      uGold: { value: new Color(0xc8952d) },
+      uBlue: { value: new Color(0x2e6fa8) },
+      uGreen: { value: new Color(0x2f8a5e) },
+    },
+    vertexShader: AURORA_VERTEX,
+    fragmentShader: AURORA_FRAGMENT,
     depthWrite: false,
   });
-  const nodes = new Points(nodeGeometry, pointMaterial);
-  nodes.frustumCulled = false;
-  world.add(nodes);
+  const aurora = new Mesh(new PlaneGeometry(1, 1), auroraMaterial);
+  aurora.position.z = AURORA_Z;
+  aurora.frustumCulled = false;
+  scene.add(aurora);
 
-  // Edges.
-  const edgeCount = field.edges.length;
-  const edgePositions = new Float32Array(edgeCount * 6);
-  const edgeColors = new Float32Array(edgeCount * 6);
-  const mixA = new Color();
-  const mixB = new Color();
-  field.edges.forEach(([a, b], e) => {
-    mixA.setRGB(field.colors[a * 3], field.colors[a * 3 + 1], field.colors[a * 3 + 2]);
-    mixB.setRGB(field.colors[b * 3], field.colors[b * 3 + 1], field.colors[b * 3 + 2]);
-    mixA.lerp(mixB, 0.5).lerp(paper, 0.42);
-    edgeColors.set([mixA.r, mixA.g, mixA.b, mixA.r, mixA.g, mixA.b], e * 6);
+  // Materials shared by every variant.
+  const materials = {
+    glass: makeGlass(),
+    core: makeGlass({
+      color: 0xffe3a6,
+      roughness: 0.18,
+      thickness: 0.8,
+      transmission: 0.85,
+      emissive: new Color(0xe6b54a),
+      emissiveIntensity: 0.55,
+      iridescence: 0.4,
+    }),
+    gold: makeLine(GOLD, 2.6),
+    blue: makeLine(BLUE, 2.2),
+  };
+  const sculpture = variant.build(materials, lite);
+  scene.add(sculpture.group);
+
+  const particleGeometry = buildParticles(lite ? variant.particles.lite : variant.particles.full, rand);
+  const particleMaterial = new ShaderMaterial({
+    uniforms: {
+      uTime: { value: 0 },
+      uScale: { value: 300 },
+      uFocus: { value: CAMERA_Z },
+      uMaxSize: { value: 180 },
+      uAlpha: { value: 0.9 },
+    },
+    vertexShader: POINT_VERTEX,
+    fragmentShader: POINT_FRAGMENT,
+    transparent: true,
+    depthWrite: false,
+    blending: AdditiveBlending,
   });
-  const edgeGeometry = new BufferGeometry();
-  const edgePositionAttr = new BufferAttribute(edgePositions, 3).setUsage(DynamicDrawUsage);
-  edgeGeometry.setAttribute("position", edgePositionAttr);
-  edgeGeometry.setAttribute("color", new BufferAttribute(edgeColors, 3));
-  const edges = new LineSegments(edgeGeometry, new LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.62 }));
-  edges.frustumCulled = false;
-  world.add(edges);
+  const particles = new Points(particleGeometry, particleMaterial);
+  particles.frustumCulled = false;
+  scene.add(particles);
 
-  // Signals: small bright points travelling along edges.
-  const signalCount = edgeCount ? cfg.signals : 0;
-  const signalPositions = new Float32Array(signalCount * 3);
-  const signalColors = new Float32Array(signalCount * 3);
-  const signalSizes = new Float32Array(signalCount);
-  const signalTint = new Color(SIGNAL);
-  const signals = [];
-  for (let s = 0; s < signalCount; s += 1) {
-    signalColors.set([signalTint.r, signalTint.g, signalTint.b], s * 3);
-    signalSizes[s] = 0.15;
-    signals.push({ edge: Math.floor(rand() * edgeCount), dir: rand() < 0.5 ? 1 : 0, t: rand(), speed: 0.2 + rand() * 0.2 });
+  const key = new DirectionalLight(0xffd58a, 2.4);
+  key.position.set(5, 6, 7);
+  const rim = new DirectionalLight(0x6fb0ff, 1.9);
+  rim.position.set(-6, -3, -4);
+  const fill = new DirectionalLight(0x8fe8bf, 0.5);
+  fill.position.set(0, -6, 3);
+  scene.add(key, rim, fill);
+
+  // Post: bloom on capable devices; the lite tier renders straight to the canvas.
+  let composer = null;
+  let bloomPass = null;
+  if (!lite) {
+    const target = new WebGLRenderTarget(1, 1, { type: HalfFloatType, samples: 4 });
+    composer = new EffectComposer(renderer, target);
+    composer.addPass(new RenderPass(scene, camera));
+    bloomPass = new UnrealBloomPass(new Vector2(1, 1), 0.5, 0.7, 0.74);
+    composer.addPass(bloomPass);
+    composer.addPass(new OutputPass());
   }
-  const signalGeometry = new BufferGeometry();
-  const signalPositionAttr = new BufferAttribute(signalPositions, 3).setUsage(DynamicDrawUsage);
-  signalGeometry.setAttribute("position", signalPositionAttr);
-  signalGeometry.setAttribute("color", new BufferAttribute(signalColors, 3));
-  signalGeometry.setAttribute("aSize", new BufferAttribute(signalSizes, 1));
-  const signalMaterial = pointMaterial.clone();
-  signalMaterial.uniforms.uScale = pointMaterial.uniforms.uScale;
-  signalMaterial.uniforms.uAlpha.value = 0.95;
-  const signalPoints = new Points(signalGeometry, signalMaterial);
-  signalPoints.frustumCulled = false;
-  world.add(signalPoints);
-
-  // Hubs: low-poly icosahedra with a wireframe shell.
-  const hubs = cfg.hubs.map((hub, h) => {
-    const group = new Group();
-    group.position.set(hub.pos[0], hub.pos[1], hub.pos[2]);
-    const shell = new Mesh(
-      new IcosahedronGeometry(hub.radius, 1),
-      new MeshBasicMaterial({ color: hub.color, wireframe: true, transparent: true, opacity: 0.3 })
-    );
-    const core = new Mesh(
-      new IcosahedronGeometry(hub.radius * 0.56, 0),
-      new MeshLambertMaterial({ color: hub.color, flatShading: true })
-    );
-    group.add(shell, core);
-    world.add(group);
-    return { group, shell, core, baseY: hub.pos[1], spin: hub.spin, phase: h * 1.7 };
-  });
-
-  scene.add(new HemisphereLight(0xffffff, 0xd8c39d, 1.7));
-  const key = new DirectionalLight(0xffffff, 1.5);
-  key.position.set(4, 6, 8);
-  scene.add(key);
 
   // State.
   let time = POSTER_TIME;
@@ -328,92 +562,33 @@ export function mountHeroScene(host) {
   let pointerY = 0;
   let smoothX = 0;
   let smoothY = 0;
-
-  function updateField(t) {
-    const { base, amp, freq, phase } = field;
-    for (let i = 0; i < field.n; i += 1) {
-      for (let k = 0; k < 3; k += 1) {
-        const idx = i * 3 + k;
-        nodePositions[idx] = base[idx] + amp[idx] * Math.sin(t * freq[idx] + phase[idx]);
-      }
-    }
-    nodePositionAttr.needsUpdate = true;
-    for (let e = 0; e < edgeCount; e += 1) {
-      const [a, b] = field.edges[e];
-      edgePositions[e * 6] = nodePositions[a * 3];
-      edgePositions[e * 6 + 1] = nodePositions[a * 3 + 1];
-      edgePositions[e * 6 + 2] = nodePositions[a * 3 + 2];
-      edgePositions[e * 6 + 3] = nodePositions[b * 3];
-      edgePositions[e * 6 + 4] = nodePositions[b * 3 + 1];
-      edgePositions[e * 6 + 5] = nodePositions[b * 3 + 2];
-    }
-    edgePositionAttr.needsUpdate = true;
-  }
-
-  function updateSignals(dt) {
-    for (let s = 0; s < signalCount; s += 1) {
-      const sig = signals[s];
-      sig.t += dt * sig.speed;
-      while (sig.t >= 1) {
-        sig.t -= 1;
-        const [a, b] = field.edges[sig.edge];
-        const end = sig.dir ? b : a;
-        const options = field.adjacency[end].filter((e) => e !== sig.edge);
-        if (options.length) {
-          sig.edge = options[Math.floor(rand() * options.length)];
-          sig.dir = field.edges[sig.edge][0] === end ? 1 : 0;
-        } else {
-          sig.dir = sig.dir ? 0 : 1;
-        }
-        sig.speed = 0.2 + rand() * 0.2;
-      }
-      const [a, b] = field.edges[sig.edge];
-      const from = sig.dir ? a : b;
-      const to = sig.dir ? b : a;
-      const k = smoothstep(sig.t);
-      for (let c = 0; c < 3; c += 1) {
-        signalPositions[s * 3 + c] = nodePositions[from * 3 + c] + (nodePositions[to * 3 + c] - nodePositions[from * 3 + c]) * k;
-      }
-    }
-    if (signalCount) signalPositionAttr.needsUpdate = true;
-  }
-
-  function updateHubs(t, dt) {
-    hubs.forEach((hub) => {
-      hub.group.position.y = hub.baseY + Math.sin(t * 0.32 + hub.phase) * 0.07;
-      hub.shell.rotation.y += dt * 0.11 * hub.spin;
-      hub.shell.rotation.x += dt * 0.06;
-      hub.core.rotation.y -= dt * 0.08 * hub.spin;
-      hub.core.rotation.z += dt * 0.05;
-    });
-  }
-
-  function updateCamera(t, dt) {
-    const ease = Math.min(1, dt * 2.5);
-    smoothX += (pointerX - smoothX) * ease;
-    smoothY += (pointerY - smoothY) * ease;
-    world.rotation.y = Math.sin(t * 0.06) * 0.1 + smoothX * 0.05;
-    world.rotation.x = Math.sin(t * 0.045) * 0.04 + smoothY * 0.03;
-    camera.position.x = Math.sin(t * 0.11) * 0.18 + smoothX * 0.25;
-    camera.position.y = Math.cos(t * 0.09) * 0.12 - smoothY * 0.15;
-    camera.lookAt(0, 0, 0);
-  }
+  let layout = variant.desktop;
 
   function step(t, dt) {
-    updateField(t);
-    updateSignals(dt);
-    updateHubs(t, dt);
-    updateCamera(t, dt);
+    sculpture.update(t);
+    auroraMaterial.uniforms.uTime.value = t;
+    particleMaterial.uniforms.uTime.value = t;
+    const ease = Math.min(1, dt * 2.2);
+    smoothX += (pointerX - smoothX) * ease;
+    smoothY += (pointerY - smoothY) * ease;
+    camera.position.x = Math.sin(t * 0.07) * 0.28 + smoothX * 0.5;
+    camera.position.y = Math.cos(t * 0.05) * 0.18 - smoothY * 0.34;
+    camera.position.z = CAMERA_Z + Math.sin(t * 0.04) * 0.25;
+    camera.lookAt(sculpture.group.position.x * 0.35, sculpture.group.position.y * 0.35, 0);
   }
 
   function draw() {
-    renderer.render(scene, camera);
+    if (composer) {
+      composer.render();
+    } else {
+      renderer.render(scene, camera);
+    }
   }
 
   function frame(now) {
     raf = 0;
     if (disposed) return;
-    if (coarse && now - lastDraw < 31) {
+    if (lite && now - lastDraw < 31) {
       raf = window.requestAnimationFrame(frame);
       return;
     }
@@ -438,27 +613,40 @@ export function mountHeroScene(host) {
   }
 
   function applySize(width, height, pixelRatio) {
-    const worldScale = Math.min(1.2, Math.max(0.45, REFERENCE_HEIGHT / height));
-    world.scale.setScalar(worldScale);
     renderer.setPixelRatio(pixelRatio);
     renderer.setSize(width, height, false);
     camera.aspect = width / height;
     camera.updateProjectionMatrix();
-    pointMaterial.uniforms.uScale.value = height * pixelRatio * 0.5 * worldScale;
+    if (composer) {
+      composer.setPixelRatio(pixelRatio);
+      composer.setSize(width, height);
+    }
+    layout = width < 760 ? variant.mobile : variant.desktop;
+    const halfH = Math.tan((FOV / 2) * DEG) * CAMERA_Z;
+    const halfW = halfH * camera.aspect;
+    sculpture.group.position.set(layout.anchor[0] * halfW, layout.anchor[1] * halfH, 0);
+    sculpture.group.scale.setScalar(layout.scale);
+    const auroraHeight = 2 * (CAMERA_Z - AURORA_Z) * Math.tan((FOV / 2) * DEG) * 1.3;
+    aurora.scale.set(auroraHeight * camera.aspect, auroraHeight, 1);
+    auroraMaterial.uniforms.uAspect.value = camera.aspect;
+    auroraMaterial.uniforms.uLeftDark.value = layout.leftDark;
+    auroraMaterial.uniforms.uCore.value.set(layout.core[0], layout.core[1]);
+    particleMaterial.uniforms.uScale.value = height * pixelRatio * 0.62;
+    particleMaterial.uniforms.uMaxSize.value = 150 * pixelRatio;
   }
 
   function resize() {
     const width = Math.max(1, host.clientWidth);
     const height = Math.max(1, host.clientHeight);
-    applySize(width, height, Math.min(window.devicePixelRatio || 1, 1.5));
+    applySize(width, height, Math.min(window.devicePixelRatio || 1, maxPixelRatio));
     if (!raf) {
       step(time, 0);
       draw();
     }
   }
 
-  // Poster rendering hook (used by .review/render-poster.mjs): render one frame at a
-  // fixed CSS size, pixel ratio and time, return it as a data URL, then restore the live size.
+  // Poster rendering hook (used by .review/v2-render-poster.mjs): render one frame at a fixed
+  // CSS size, pixel ratio and time, return it as a data URL, then restore the live size.
   function snapshot(width, height, at = POSTER_TIME, quality = 0.82, pixelRatio = 1) {
     const liveW = Math.max(1, host.clientWidth);
     const liveH = Math.max(1, host.clientHeight);
@@ -519,18 +707,17 @@ export function mountHeroScene(host) {
     host.classList.remove("is-ready");
     delete host.dataset.heroMounted;
     delete host.heroScene;
-    nodeGeometry.dispose();
-    edgeGeometry.dispose();
-    signalGeometry.dispose();
-    pointMaterial.dispose();
-    signalMaterial.dispose();
-    edges.material.dispose();
-    hubs.forEach((hub) => {
-      hub.shell.geometry.dispose();
-      hub.shell.material.dispose();
-      hub.core.geometry.dispose();
-      hub.core.material.dispose();
+    scene.traverse((node) => {
+      node.geometry?.dispose();
+      if (node.material && !Object.values(materials).includes(node.material)) node.material.dispose();
     });
+    Object.values(materials).forEach((material) => material.dispose());
+    auroraMaterial.dispose();
+    particleMaterial.dispose();
+    envTexture.dispose();
+    bloomPass?.dispose();
+    composer?.renderTarget1.dispose();
+    composer?.renderTarget2.dispose();
     renderer.dispose();
     canvas.remove();
   }
@@ -551,7 +738,7 @@ export function mountHeroScene(host) {
   canvas.addEventListener("webglcontextrestored", onContextRestored);
   sync();
 
-  const controller = { snapshot, dispose, resize, get running() { return raf !== 0; } };
+  const controller = { snapshot, dispose, resize, lite, get running() { return raf !== 0; } };
   host.heroScene = controller;
   return controller;
 }

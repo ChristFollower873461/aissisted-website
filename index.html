@@ -22,7 +22,7 @@
     <meta name="twitter:description" content="Improve how work gets done or build useful software with clear scope, practical implementation, and accountable delivery.">
     <meta name="twitter:image" content="https://aissistedconsulting.com/assets/social-logo-20260713.jpg">
     <meta name="twitter:image:alt" content="AIssisted Consulting official logo.">
-    <link rel="stylesheet" href="styles.css?v=11.11.11">
+    <link rel="stylesheet" href="styles.css?v=20260905v2">
     <script type="application/ld+json">
     {
           "@context": "https://schema.org",
@@ -45,13 +45,13 @@
     }
     </script>
   </head>
-  <body data-page="home">
+  <body data-page="home" data-theme="stage">
     <a class="skip-link" href="#main">Skip to content</a>
 
     <header class="site-header">
       <div class="container nav-wrap">
         <a class="brand" href="./" aria-label="AIssisted Consulting home">
-          <img src="assets/logo.png" alt="AIssisted Consulting logo" width="58" height="44">
+          <img src="assets/logo.png" alt="AIssisted Consulting logo" width="58" height="44" fetchpriority="low">
           <span>
             <strong>AIssisted Consulting</strong>
             <small>AI &amp; software implementation</small>
@@ -77,10 +77,13 @@
 
     <main id="main">
       <section class="hero" id="top">
-        <div class="hero-scene" data-hero-scene="/assets/hero/hero-scene.min.js?v=20260905" aria-hidden="true">
-          <img class="hero-scene-poster" src="assets/hero/hero-poster.webp" alt="" width="2880" height="1586" decoding="async" fetchpriority="high">
+        <div class="hero-stage" data-hero-scene="/assets/hero/hero-scene.min.js?v=20260905v2" data-hero-variant="home" aria-hidden="true">
+          <picture>
+            <source media="(max-width: 760px)" srcset="assets/hero/poster-home-mobile.webp">
+            <img class="hero-stage-poster" src="assets/hero/poster-home.webp" alt="" width="2880" height="1800" decoding="async" fetchpriority="high">
+          </picture>
         </div>
-        <div class="hero-scene-scrim" aria-hidden="true"></div>
+        <div class="hero-stage-scrim" aria-hidden="true"></div>
         <div class="container hero-layout">
           <div class="hero-copy">
             <div class="hero-brand-lockup" aria-label="AIssisted Consulting business information">
@@ -421,7 +424,7 @@
       </div>
     </footer>
 
-    <script src="main.js?v=20260905"></script>
+    <script src="main.js?v=20260905v2"></script>
     <script src="assets/aic-google-ads-tracking.js?v=20260817"></script>
   </body>
 </html>

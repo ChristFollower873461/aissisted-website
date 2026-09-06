@@ -48,6 +48,7 @@
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const connection = navigator.connection;
     if (connection && (connection.saveData || /(^|-)2g$|^3g$/.test(connection.effectiveType || ""))) return;
+    if (navigator.deviceMemory && navigator.deviceMemory < 2) return;
 
     let webgl = false;
     try {
@@ -80,11 +81,86 @@
     }
   }
 
+  // Stage pages (body[data-theme="stage"]): floating nav that turns solid on scroll,
+  // staggered scroll reveals, and pointer-tracked tilt + glow on cards.
+  const REVEAL_SELECTOR = [
+    ".section-kicker", ".workflow-copy", ".content-copy", ".scoreboard-header > div", ".scoreboard-note",
+    ".service-integrations > p", ".integration-board", ".privacy-layout > .eyebrow", ".privacy-layout > h2",
+    ".boundary-list", ".boundary-layout > *", ".founder-layout > *", ".contact-layout > *", ".credential-intro > *",
+    ".capability-card", ".catalog-card", ".process-card", ".path-card", ".info-card", ".step-card",
+    ".credential-card", ".fact-list > div",
+  ].join(",");
+  const TILT_SELECTOR = [
+    ".capability-card", ".catalog-card", ".process-card", ".path-card", ".info-card", ".step-card",
+    ".credential-card", ".fact-list > div", ".hero-system-panel", ".page-panel", ".founder-card",
+  ].join(",");
+
+  function initStage() {
+    const body = document.body;
+    if (!body.hasAttribute("data-theme")) return;
+    body.classList.add("stage-js");
+
+    const header = document.querySelector(".site-header");
+    if (header) {
+      let queued = false;
+      const update = () => {
+        header.classList.toggle("is-scrolled", window.scrollY > 24);
+        queued = false;
+      };
+      window.addEventListener("scroll", () => {
+        if (queued) return;
+        queued = true;
+        window.requestAnimationFrame(update);
+      }, { passive: true });
+      update();
+    }
+
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const reveals = Array.from(document.querySelectorAll(REVEAL_SELECTOR))
+      .filter((el) => !el.closest(".hero, .page-hero"));
+    reveals.forEach((el) => {
+      const siblings = Array.from(el.parentElement.children).filter((node) => reveals.includes(node));
+      el.style.setProperty("--reveal-i", String(siblings.indexOf(el) % 6));
+      el.classList.add("reveal");
+    });
+    if (reduced || !("IntersectionObserver" in window)) {
+      reveals.forEach((el) => el.classList.add("is-in"));
+    } else {
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add("is-in");
+          io.unobserve(entry.target);
+        });
+      }, { rootMargin: "0px 0px -6% 0px", threshold: 0.06 });
+      reveals.forEach((el) => io.observe(el));
+    }
+
+    if (reduced || !window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
+    document.querySelectorAll(TILT_SELECTOR).forEach((card) => {
+      card.classList.add("tilt");
+      card.addEventListener("pointermove", (event) => {
+        const rect = card.getBoundingClientRect();
+        const x = (event.clientX - rect.left) / rect.width;
+        const y = (event.clientY - rect.top) / rect.height;
+        card.style.setProperty("--mx", `${(x * 100).toFixed(1)}%`);
+        card.style.setProperty("--my", `${(y * 100).toFixed(1)}%`);
+        card.style.setProperty("--ry", `${((x - 0.5) * 7).toFixed(2)}deg`);
+        card.style.setProperty("--rx", `${((0.5 - y) * 7).toFixed(2)}deg`);
+      });
+      card.addEventListener("pointerleave", () => {
+        card.style.setProperty("--rx", "0deg");
+        card.style.setProperty("--ry", "0deg");
+      });
+    });
+  }
+
   function init() {
     initAxonPixel();
     initMenu();
     initYear();
     initFocusMode();
+    initStage();
     initHeroScene();
   }
 

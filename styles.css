@@ -2948,67 +2948,45 @@ body[data-page="home"] .hero {
   min-height: auto;
   isolation: isolate;
   padding: clamp(40px, 4.2vw, 56px) 0 clamp(48px, 6vw, 74px);
-  background: var(--home-paper);
+  background:
+    linear-gradient(90deg, rgba(247, 241, 230, 0.98) 0%, rgba(247, 241, 230, 0.94) 48%, rgba(247, 241, 230, 0.72) 66%, rgba(247, 241, 230, 0.1) 100%),
+    url("assets/photography/business-computer-team.webp"),
+    var(--home-paper);
+  background-position: center, center right 14%, center;
+  background-size: cover, cover, auto;
 }
 
 body[data-page="home"] .hero::before {
   background:
-    linear-gradient(180deg, rgba(247, 241, 230, 0) 0%, rgba(247, 241, 230, 0) 58%, rgba(247, 241, 230, 0.7) 100%),
-    linear-gradient(90deg, rgba(255, 253, 247, 0.55), rgba(255, 253, 247, 0) 56%);
+    linear-gradient(180deg, rgba(247, 241, 230, 0) 0%, rgba(247, 241, 230, 0.86) 100%),
+    linear-gradient(90deg, rgba(255, 253, 247, 0.7), rgba(255, 253, 247, 0) 60%);
   opacity: 1;
   z-index: 1;
 }
 
-/* Home hero 3D scene: poster first, live WebGL canvas fades in over it when allowed. */
-body[data-page="home"] .hero-scene,
-body[data-page="home"] .hero-scene-scrim,
+body[data-page="home"] .hero-automation-video,
+body[data-page="home"] .hero-video-scrim,
 body[data-page="home"] .hero-logo-settle {
   position: absolute;
   pointer-events: none;
 }
 
-body[data-page="home"] .hero-scene {
+body[data-page="home"] .hero-automation-video {
   inset: 0;
   z-index: 0;
-  overflow: hidden;
-  background: var(--home-paper);
-  contain: layout paint;
-}
-
-body[data-page="home"] .hero-scene-poster,
-body[data-page="home"] .hero-scene canvas {
-  position: absolute;
-  inset: 0;
-  display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center;
+  object-position: center right;
+  filter: saturate(0.98) contrast(0.98);
 }
 
-body[data-page="home"] .hero-scene canvas {
-  opacity: 0;
-  transition: opacity 900ms ease;
-}
-
-body[data-page="home"] .hero-scene.is-ready canvas {
-  opacity: 1;
-}
-
-body[data-page="home"] .hero-scene-poster {
-  transition: opacity 700ms ease 300ms;
-}
-
-body[data-page="home"] .hero-scene.is-ready .hero-scene-poster {
-  opacity: 0;
-}
-
-body[data-page="home"] .hero-scene-scrim {
+body[data-page="home"] .hero-video-scrim {
   inset: 0;
   z-index: 1;
   background:
-    linear-gradient(90deg, rgba(247, 241, 230, 0.97) 0%, rgba(247, 241, 230, 0.9) 40%, rgba(247, 241, 230, 0.55) 60%, rgba(247, 241, 230, 0.04) 100%),
-    linear-gradient(180deg, rgba(247, 241, 230, 0.1) 0%, rgba(247, 241, 230, 0.5) 100%);
+    linear-gradient(90deg, rgba(247, 241, 230, 0.98) 0%, rgba(247, 241, 230, 0.93) 43%, rgba(247, 241, 230, 0.74) 62%, rgba(247, 241, 230, 0.2) 100%),
+    linear-gradient(180deg, rgba(247, 241, 230, 0.22) 0%, rgba(247, 241, 230, 0.78) 100%);
 }
 
 body[data-page="home"] .hero-logo-settle {
@@ -3618,7 +3596,12 @@ body[data-page="home"] address a {
   }
 
   body[data-page="home"] .hero {
-    background: var(--home-paper);
+    background:
+      linear-gradient(180deg, rgba(247, 241, 230, 0.98) 0%, rgba(247, 241, 230, 0.94) 58%, rgba(247, 241, 230, 0.84) 100%),
+      url("assets/photography/business-computer-team.webp"),
+      var(--home-paper);
+    background-position: center, center right 34%, center;
+    background-size: cover, cover, auto;
   }
 
   body[data-page="home"] .hero-layout,
@@ -4116,11 +4099,15 @@ body:not([data-page="home"]):not([data-page="book"]) .site-footer a {
   }
 }
 
-/* Home hero scene: mobile and reduced-motion safeguards. */
+/* Home hero video intro: mobile and reduced-motion safeguards. */
 @media (max-width: 760px) {
-  body[data-page="home"] .hero-scene-scrim {
+  body[data-page="home"] .hero-automation-video {
+    object-position: center;
+  }
+
+  body[data-page="home"] .hero-video-scrim {
     background:
-      linear-gradient(180deg, rgba(247, 241, 230, 0.84) 0%, rgba(247, 241, 230, 0.78) 50%, rgba(247, 241, 230, 0.84) 100%);
+      linear-gradient(180deg, rgba(247, 241, 230, 0.98) 0%, rgba(247, 241, 230, 0.92) 54%, rgba(247, 241, 230, 0.88) 100%);
   }
 
   body[data-page="home"] .hero-logo-settle {
@@ -4130,13 +4117,9 @@ body:not([data-page="home"]):not([data-page="book"]) .site-footer a {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  body[data-page="home"] .hero-scene canvas,
+  body[data-page="home"] .hero-automation-video,
   body[data-page="home"] .hero-logo-settle {
     display: none;
-  }
-
-  body[data-page="home"] .hero-scene.is-ready .hero-scene-poster {
-    opacity: 1;
   }
 
   body[data-page="home"] .hero-layout {
@@ -4146,339 +4129,1190 @@ body:not([data-page="home"]):not([data-page="book"]) .site-footer a {
   }
 }
 
-/* Visual pass 2026-09-05: depth and motion layer. Layout, section order, copy and type are untouched. */
-body[data-page="home"] .capability-card,
-body[data-page="home"] .catalog-card:not(.catalog-card-featured),
-body:not([data-page="home"]):not([data-page="book"]) .info-card,
-body:not([data-page="home"]):not([data-page="book"]) .step-card,
-body:not([data-page="home"]):not([data-page="book"]) .credential-card,
-body:not([data-page="home"]):not([data-page="book"]) .credential-note,
-body:not([data-page="home"]):not([data-page="book"]) .fact-list div {
+/* ============================================================================
+   Visual pass v2 (2026-09-05): the ink stage.
+   Scope: body[data-theme="stage"] (home, /services, /about). Copy, section order, the hero
+   column split, the card grids and the type families are untouched; every surface, color,
+   light and motion below is new. The prefix
+   `body[data-theme="stage"][data-page]:not([data-page="book"])` exists only to outrank the
+   older page-scoped rules above without !important.
+   ============================================================================ */
+body[data-theme="stage"][data-page]:not([data-page="book"]) {
+  --stage-ink-0: #04070d;
+  --stage-ink-1: #070b16;
+  --stage-ink-2: #0a1020;
+  --stage-ink-3: #101829;
+  --stage-ink-4: #131b2e;
+  --stage-line: rgba(255, 255, 255, 0.08);
+  --stage-line-strong: rgba(255, 255, 255, 0.14);
+  --stage-text: #eef1f8;
+  --stage-text-soft: #c3c9d8;
+  --stage-text-muted: #98a1b5;
+  --stage-gold: #e6b54a;
+  --stage-gold-2: #f6d78a;
+  --stage-gold-deep: #c8952d;
+  --stage-blue: #5aa5ea;
+  --stage-green: #4fc48f;
+  --stage-glow-gold: rgba(230, 181, 74, 0.44);
+  --stage-glow-blue: rgba(90, 165, 234, 0.38);
+  --stage-glow-green: rgba(79, 196, 143, 0.3);
+  --stage-surface: linear-gradient(160deg, rgba(255, 255, 255, 0.075) 0%, rgba(255, 255, 255, 0.035) 48%, rgba(255, 255, 255, 0.018) 100%);
+  --stage-surface-base: #0f1729;
+  --stage-border: linear-gradient(135deg, rgba(246, 215, 138, 0.7) 0%, rgba(230, 181, 74, 0.3) 26%, rgba(255, 255, 255, 0.09) 52%, rgba(90, 165, 234, 0.42) 100%);
+  --stage-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.07),
+    0 20px 50px -26px rgba(0, 0, 0, 0.8),
+    0 44px 90px -44px rgba(0, 0, 0, 0.75);
+  --stage-eyebrow: linear-gradient(90deg, #f6d78a 0%, #e6b54a 58%, #d9a63a 100%);
+  --stage-headline: linear-gradient(180deg, #ffffff 0%, #e6eaf4 58%, #c9d2e6 100%);
+  --radius: 14px;
+  background: var(--stage-ink-2);
+  color: var(--stage-text);
+  color-scheme: dark;
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) ::selection {
+  background: rgba(230, 181, 74, 0.35);
+  color: #fff;
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) :focus-visible {
+  outline: 2px solid var(--stage-gold-2);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 6px rgba(230, 181, 74, 0.22);
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .skip-link {
+  background: var(--stage-gold);
+  color: #12161f;
+}
+
+/* ---------- Floating glass nav: transparent over the hero, solid once scrolled ---------- */
+body[data-theme="stage"][data-page]:not([data-page="book"]) .site-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  border-bottom: 1px solid transparent;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  transition: background-color 320ms ease, border-color 320ms ease, box-shadow 320ms ease;
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .site-header.is-scrolled {
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+  background: rgba(6, 9, 17, 0.78);
+  box-shadow: 0 18px 50px -30px rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(20px) saturate(1.4);
+  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .nav-wrap {
+  position: relative;
+  isolation: isolate;
+  padding: 0 16px;
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .nav-wrap::before {
+  content: "";
+  position: absolute;
+  inset: 12px 0;
+  z-index: -1;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.085) 0%, rgba(255, 255, 255, 0.035) 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    0 24px 60px -34px rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(22px) saturate(1.4);
+  -webkit-backdrop-filter: blur(22px) saturate(1.4);
+  transition: opacity 320ms ease;
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .site-header.is-scrolled .nav-wrap::before {
+  opacity: 0;
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .brand,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .brand strong {
+  color: #fff;
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .brand img {
+  filter: drop-shadow(0 8px 20px rgba(230, 181, 74, 0.28));
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .brand small {
+  color: var(--stage-text-muted);
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .nav-links a {
+  border-radius: 10px;
+  color: rgba(238, 241, 248, 0.8);
+  transition: color 180ms ease, background-color 180ms ease, box-shadow 180ms ease;
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .nav-links a:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .nav-links a[aria-current="page"] {
+  color: var(--stage-gold-2);
+  background: rgba(230, 181, 74, 0.12);
+  box-shadow: inset 0 0 0 1px rgba(230, 181, 74, 0.22);
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .menu-toggle {
+  border-color: rgba(255, 255, 255, 0.14);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+}
+
+/* ---------- Hero: full-bleed cinematic stage ---------- */
+body[data-theme="stage"][data-page]:not([data-page="book"]) .hero,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .page-hero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  margin-top: -82px;
+  border-bottom: 0;
+  color: var(--stage-text);
   background:
-    linear-gradient(165deg, rgba(255, 255, 252, 0.98) 0%, rgba(255, 251, 243, 0.95) 52%, rgba(249, 241, 228, 0.92) 100%);
+    radial-gradient(900px 600px at 78% 40%, rgba(200, 149, 45, 0.28), transparent 65%),
+    radial-gradient(700px 520px at 92% 10%, rgba(46, 111, 168, 0.32), transparent 62%),
+    radial-gradient(800px 500px at 60% 100%, rgba(47, 138, 94, 0.16), transparent 62%),
+    var(--stage-ink-1);
+  background-position: center;
+  background-size: auto;
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .hero {
+  display: grid;
+  align-content: center;
+  min-height: 100svh;
+  padding: calc(82px + clamp(40px, 5vw, 72px)) 0 calc(44px + clamp(56px, 7vw, 96px));
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .page-hero {
+  padding: calc(82px + clamp(52px, 6.5vw, 88px)) 0 calc(44px + clamp(52px, 6.5vw, 88px));
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .hero::before,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .page-hero::before {
+  display: none;
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .hero-stage {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  background: var(--stage-ink-1);
+  pointer-events: none;
+  contain: layout paint;
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .hero-stage picture,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .hero-stage img,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .hero-stage canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .hero-stage img,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .hero-stage canvas {
+  object-fit: cover;
+  object-position: center;
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .hero-stage canvas {
+  opacity: 0;
+  transition: opacity 1000ms ease;
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .hero-stage.is-ready canvas {
+  opacity: 1;
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .hero-stage picture {
+  transition: opacity 800ms ease 400ms;
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .hero-stage.is-ready picture {
+  opacity: 0;
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .hero-stage-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, rgba(7, 11, 22, 0.86) 0%, rgba(7, 11, 22, 0.66) 32%, rgba(7, 11, 22, 0.22) 54%, rgba(7, 11, 22, 0) 74%),
+    linear-gradient(180deg, rgba(7, 11, 22, 0.42) 0%, rgba(7, 11, 22, 0) 24%, rgba(7, 11, 22, 0) 68%, rgba(7, 11, 22, 0.62) 100%);
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .hero-layout,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .page-hero-layout {
+  position: relative;
+  z-index: 3;
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .page-hero-layout {
+  opacity: 0;
+  transform: translateY(14px);
+  animation: heroContentReveal 640ms ease-out 120ms both;
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .hero .eyebrow,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .page-hero .eyebrow {
+  display: inline-block;
+  background: var(--stage-eyebrow);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: var(--stage-gold);
+  -webkit-text-fill-color: transparent;
+  letter-spacing: 0.1em;
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .hero-pretitle {
+  color: var(--stage-gold-2);
+  font-weight: 750;
+  text-shadow: 0 0 34px rgba(230, 181, 74, 0.3);
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .hero h1,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .page-hero h1 {
+  color: #fff;
+  background: var(--stage-headline);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -0.015em;
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .hero-lede,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .page-lede {
+  color: rgba(226, 231, 242, 0.84);
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .hero-brand-details {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-left: 3px solid var(--stage-gold);
+  border-radius: 12px;
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.035));
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.95),
-    0 1px 2px rgba(35, 28, 19, 0.05),
-    0 10px 24px -10px rgba(35, 28, 19, 0.16),
-    0 24px 48px -20px rgba(35, 28, 19, 0.18);
+    inset 0 1px 0 rgba(255, 255, 255, 0.16),
+    0 18px 40px -22px rgba(0, 0, 0, 0.8);
+  text-shadow: none;
+  backdrop-filter: blur(18px) saturate(1.3);
+  -webkit-backdrop-filter: blur(18px) saturate(1.3);
 }
 
-body[data-page="home"] .capability-card-wide {
-  background: linear-gradient(165deg, #f6eee0 0%, #efe4d2 100%);
+body[data-theme="stage"][data-page]:not([data-page="book"]) .hero-brand-details strong {
+  color: #fff;
 }
 
-body[data-page="home"] .catalog-card-featured {
-  background: linear-gradient(160deg, #1b2740 0%, #111827 58%, #0d1320 100%);
+body[data-theme="stage"][data-page]:not([data-page="book"]) .hero-brand-details span {
+  color: var(--stage-text-soft);
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .hero-brand-details span:last-child {
+  color: var(--stage-gold-2);
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .hero-baseline {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03));
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.09),
-    0 24px 48px -20px rgba(17, 24, 39, 0.55);
+    inset 0 1px 0 rgba(255, 255, 255, 0.16),
+    0 24px 50px -28px rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(18px) saturate(1.3);
+  -webkit-backdrop-filter: blur(18px) saturate(1.3);
 }
 
-/* Glass over the hero scene: keep the panels translucent so the field shows through. */
-body[data-page="home"] .hero-system-panel,
-body:not([data-page="home"]):not([data-page="book"]) .page-panel,
-body:not([data-page="home"]):not([data-page="book"]) .founder-card {
-  background: linear-gradient(165deg, rgba(255, 255, 252, 0.94) 0%, rgba(255, 251, 243, 0.88) 60%, rgba(250, 243, 230, 0.86) 100%);
+body[data-theme="stage"][data-page]:not([data-page="book"]) .hero-baseline div + div {
+  border-left-color: rgba(255, 255, 255, 0.1);
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .hero-baseline dt {
+  color: var(--stage-gold);
+  letter-spacing: 0.1em;
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .hero-baseline dd {
+  color: #fff;
+}
+
+/* Console card and page panels: true glass floating over the sculpture. */
+body[data-theme="stage"][data-page]:not([data-page="book"]) .hero-system-panel,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .page-panel,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .founder-card {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid transparent;
+  border-radius: 20px;
+  background:
+    linear-gradient(160deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.04) 42%, rgba(255, 255, 255, 0.02) 100%) padding-box,
+    linear-gradient(160deg, rgba(12, 17, 31, 0.74), rgba(7, 11, 22, 0.62)) padding-box,
+    var(--stage-border) border-box;
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.95),
-    0 1px 2px rgba(35, 28, 19, 0.05),
-    0 18px 40px -16px rgba(35, 28, 19, 0.22),
-    0 34px 70px -30px rgba(35, 28, 19, 0.24);
-  backdrop-filter: blur(16px) saturate(1.15);
+    inset 0 1px 0 rgba(255, 255, 255, 0.28),
+    inset 0 0 70px rgba(230, 181, 74, 0.06),
+    0 30px 80px -30px rgba(0, 0, 0, 0.85),
+    0 0 0 1px rgba(0, 0, 0, 0.25);
+  color: var(--stage-text);
+  backdrop-filter: blur(28px) saturate(1.4) brightness(0.85);
+  -webkit-backdrop-filter: blur(28px) saturate(1.4) brightness(0.85);
 }
 
-body[data-page="home"] .hero-baseline,
-body[data-page="home"] .hero-brand-details {
-  background: linear-gradient(165deg, rgba(255, 255, 252, 0.84) 0%, rgba(255, 251, 243, 0.72) 100%);
+body[data-theme="stage"][data-page]:not([data-page="book"]) .hero-system-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  height: auto;
+  border-radius: inherit;
+  background:
+    radial-gradient(420px 140px at 20% 0%, rgba(255, 255, 255, 0.16), transparent 70%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.06), transparent 30%);
+  pointer-events: none;
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .hero-system-panel > *,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .page-panel > *,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .founder-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .system-panel-header {
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .system-panel-header span {
+  color: var(--stage-gold);
+  letter-spacing: 0.1em;
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .system-panel-header strong {
+  color: #fff;
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .system-flow span {
+  border-color: rgba(255, 255, 255, 0.1);
+  border-left: 3px solid var(--stage-gold);
+  border-radius: 10px;
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.04));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .system-terminal {
+  border-color: rgba(79, 196, 143, 0.35);
+  border-radius: 10px;
+  background: rgba(4, 7, 13, 0.78);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.9),
-    0 1px 2px rgba(35, 28, 19, 0.05),
-    0 16px 36px -16px rgba(35, 28, 19, 0.18);
-  backdrop-filter: blur(14px) saturate(1.1);
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 0 30px -10px rgba(79, 196, 143, 0.35);
 }
 
-body[data-page="home"] .system-flow span {
-  background: linear-gradient(160deg, #fbf3e5 0%, #f4e9d6 100%);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+body[data-theme="stage"][data-page]:not([data-page="book"]) .system-terminal p {
+  color: rgba(238, 241, 248, 0.82);
 }
 
-body[data-page="home"] .system-terminal {
+body[data-theme="stage"][data-page]:not([data-page="book"]) .system-terminal span {
+  color: #7fe0b0;
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .hero-system-panel > p,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .page-panel p:not(.eyebrow),
+body[data-theme="stage"][data-page]:not([data-page="book"]) .founder-card p:not(.eyebrow) {
+  color: rgba(226, 231, 242, 0.78);
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .page-panel h2,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .founder-card h2 {
+  color: #fff;
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .founder-card img {
+  border: 2px solid rgba(246, 215, 138, 0.75);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.06),
-    0 14px 30px -14px rgba(17, 24, 39, 0.5);
+    0 0 0 5px rgba(230, 181, 74, 0.14),
+    0 16px 34px -12px rgba(0, 0, 0, 0.8);
 }
 
-body[data-page="home"] .process-card {
-  background: linear-gradient(165deg, rgba(255, 253, 247, 0.12) 0%, rgba(255, 253, 247, 0.05) 100%);
+/* ---------- Buttons: gradient primary with glow and a real pressed state ---------- */
+body[data-theme="stage"][data-page]:not([data-page="book"]) .btn {
+  border-radius: 12px;
+  transition: transform 160ms ease, box-shadow 220ms ease, background-color 200ms ease, border-color 200ms ease, color 200ms ease, filter 200ms ease;
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .btn-primary {
+  border-color: rgba(255, 255, 255, 0.22);
+  background: linear-gradient(135deg, #f8dc8f 0%, #e6b54a 46%, #c9962d 100%);
+  color: #12161f;
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.12),
-    0 18px 40px -24px rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(10px);
+    inset 0 1px 0 rgba(255, 255, 255, 0.45),
+    0 10px 30px -10px rgba(230, 181, 74, 0.75),
+    0 0 0 1px rgba(230, 181, 74, 0.25);
 }
 
-body[data-page="home"] .path-card {
+body[data-theme="stage"][data-page]:not([data-page="book"]) .btn-primary:hover {
+  color: #12161f;
+  background: linear-gradient(135deg, #ffe6a0 0%, #efc058 46%, #d4a036 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.5),
+    0 16px 40px -10px rgba(230, 181, 74, 0.85),
+    0 0 0 1px rgba(230, 181, 74, 0.35);
+  transform: translateY(-1px);
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .btn-primary:active {
+  transform: translateY(1px) scale(0.985);
+  box-shadow:
+    inset 0 2px 8px rgba(70, 45, 5, 0.35),
+    0 4px 14px -8px rgba(230, 181, 74, 0.6);
+  filter: brightness(0.94);
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .btn-secondary {
+  border-color: rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .btn-secondary:hover {
+  color: #fff;
+  border-color: rgba(246, 215, 138, 0.5);
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.16),
+    0 12px 30px -16px rgba(230, 181, 74, 0.5);
+  transform: translateY(-1px);
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .btn-secondary:active {
+  transform: translateY(1px) scale(0.985);
+  background: rgba(255, 255, 255, 0.04);
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+/* ---------- Sections: one dark world, ambient light, intentional dividers ---------- */
+body[data-theme="stage"][data-page]:not([data-page="book"]) main > section:not(.hero):not(.page-hero) {
+  position: relative;
+  isolation: isolate;
+  overflow: clip;
+  border-top: 1px solid transparent;
+  border-bottom: 0;
+  border-image: linear-gradient(90deg, transparent 0%, rgba(230, 181, 74, 0.45) 22%, rgba(90, 165, 234, 0.45) 78%, transparent 100%) 1;
+  background: var(--stage-ink-2);
+  color: var(--stage-text);
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) main > section:not(.hero):not(.page-hero) > .container {
+  position: relative;
+  z-index: 1;
+}
+
+/* Ambient orbs: two soft radial lights per section, drifting slowly on capable devices. */
+body[data-theme="stage"][data-page]:not([data-page="book"]) main > section:not(.hero):not(.page-hero)::before,
+body[data-theme="stage"][data-page]:not([data-page="book"]) main > section:not(.hero):not(.page-hero)::after {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  inset: auto;
+  width: var(--orb-size, 760px);
+  height: var(--orb-size, 760px);
+  border: 0;
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: var(--orb-opacity, 0.85);
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) main > section:not(.hero):not(.page-hero)::before {
+  top: var(--orb-a-top, -34%);
+  left: var(--orb-a-left, -12%);
+  background: radial-gradient(closest-side, var(--orb-a-color, var(--stage-glow-gold)), transparent 74%);
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) main > section:not(.hero):not(.page-hero)::after {
+  top: var(--orb-b-top, 42%);
+  right: var(--orb-b-right, -14%);
+  left: auto;
+  background: radial-gradient(closest-side, var(--orb-b-color, var(--stage-glow-blue)), transparent 74%);
+}
+
+/* The first content section curves up over the stage instead of meeting it at a hard edge. */
+body[data-theme="stage"][data-page]:not([data-page="book"]) .hero + section,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .page-hero + section {
+  z-index: 2;
+  margin-top: -44px;
+  border-top: 0;
+  border-image: none;
+  border-radius: 44px 44px 0 0;
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.1),
-    0 1px 2px rgba(35, 28, 19, 0.06),
-    0 18px 40px -16px rgba(17, 24, 39, 0.35),
-    0 34px 70px -30px rgba(17, 24, 39, 0.35);
+    0 -30px 80px -40px rgba(230, 181, 74, 0.35),
+    0 -1px 0 rgba(246, 215, 138, 0.22);
 }
 
-body[data-page="home"] .integration-board,
-body[data-page="home"] .scoreboard-customer-list {
+/* Home sections. */
+body[data-theme="stage"][data-page]:not([data-page="book"]) .capability-section {
+  --orb-a-color: var(--stage-glow-gold);
+  --orb-b-color: var(--stage-glow-green);
+  --orb-b-top: 55%;
+  padding: calc(44px + clamp(70px, 8vw, 108px)) 0 clamp(70px, 8vw, 108px);
+  background: var(--stage-ink-2);
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .workflow-section {
+  --orb-a-color: var(--stage-glow-gold);
+  --orb-a-top: -20%;
+  --orb-a-left: -8%;
+  --orb-b-color: var(--stage-glow-blue);
+  --orb-b-top: 30%;
+  padding: clamp(72px, 8vw, 106px) 0;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px) 0 0 / 100% 64px,
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px) 0 0 / 64px 100%,
+    radial-gradient(1200px 600px at 50% 0%, rgba(46, 111, 168, 0.12), transparent 70%),
+    var(--stage-ink-1);
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .service-catalog-section {
+  --orb-a-color: var(--stage-glow-blue);
+  --orb-b-color: var(--stage-glow-gold);
+  --orb-b-top: 50%;
+  padding: clamp(70px, 8vw, 108px) 0;
+  background: var(--stage-ink-3);
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .credibility-section {
+  --orb-a-color: var(--stage-glow-green);
+  --orb-a-left: 60%;
+  --orb-a-top: -40%;
+  --orb-b-color: var(--stage-glow-gold);
+  --orb-b-top: 60%;
+  --orb-b-right: 70%;
+  padding: clamp(70px, 7vw, 96px) 0;
+  background: var(--stage-ink-2);
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .route-board {
+  --orb-a-color: var(--stage-glow-gold);
+  --orb-b-color: var(--stage-glow-blue);
+  padding: clamp(70px, 8vw, 108px) 0;
+  background: var(--stage-ink-3);
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .privacy-band {
+  --orb-a-color: var(--stage-glow-gold);
+  --orb-a-left: 62%;
+  --orb-a-top: -50%;
+  --orb-size: 900px;
+  --orb-b-color: var(--stage-glow-blue);
+  --orb-b-top: 20%;
+  --orb-b-right: 70%;
+  --orb-opacity: 0.55;
+  padding: clamp(66px, 7vw, 88px) 0;
+  background: var(--stage-ink-1);
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .founder-section {
+  --orb-a-color: var(--stage-glow-blue);
+  --orb-a-top: -30%;
+  --orb-a-left: -14%;
+  --orb-b-color: var(--stage-glow-gold);
+  --orb-b-top: 30%;
+  padding: clamp(70px, 7vw, 96px) 0;
+  background: var(--stage-ink-2);
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .contact-strip {
+  --orb-a-color: var(--stage-glow-gold);
+  --orb-a-top: 10%;
+  --orb-a-left: 58%;
+  --orb-size: 900px;
+  --orb-opacity: 0.75;
+  --orb-b-color: var(--stage-glow-blue);
+  --orb-b-top: -50%;
+  --orb-b-right: 75%;
+  padding: clamp(66px, 7vw, 88px) 0;
+  background:
+    radial-gradient(1000px 500px at 100% 100%, rgba(200, 149, 45, 0.22), transparent 65%),
+    var(--stage-ink-1);
+}
+
+/* Services / about sections. */
+body[data-theme="stage"][data-page]:not([data-page="book"]) .content-section {
+  --orb-a-color: var(--stage-glow-gold);
+  --orb-b-color: var(--stage-glow-blue);
+  padding: clamp(70px, 8vw, 100px) 0;
+  background: var(--stage-ink-2);
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .page-hero + .content-section {
+  padding-top: calc(44px + clamp(70px, 8vw, 100px));
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .content-section:nth-of-type(odd) {
+  --orb-a-color: var(--stage-glow-blue);
+  --orb-b-color: var(--stage-glow-green);
+  background: var(--stage-ink-3);
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .credentials-section {
+  --orb-a-color: var(--stage-glow-gold);
+  --orb-a-left: 55%;
+  --orb-b-color: var(--stage-glow-blue);
+  --orb-b-top: 50%;
+  --orb-b-right: 70%;
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .boundary-band {
+  --orb-a-color: var(--stage-glow-gold);
+  --orb-a-left: 60%;
+  --orb-a-top: -60%;
+  --orb-size: 900px;
+  --orb-b-color: var(--stage-glow-blue);
+  --orb-b-top: 10%;
+  --orb-b-right: 72%;
+  padding: clamp(66px, 7vw, 88px) 0;
+  background: var(--stage-ink-1);
+}
+
+/* ---------- Type on the stage ---------- */
+body[data-theme="stage"][data-page]:not([data-page="book"]) .eyebrow,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .row-label,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .process-meta,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .service-integrations p,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .boundary-band .eyebrow,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .capability-card span,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .step-card span,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .credential-meta .eyebrow {
+  color: var(--stage-gold);
+  letter-spacing: 0.1em;
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .section-kicker h2,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .workflow-copy h2,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .content-copy h2,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .scoreboard-header h2,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .credibility-layout h2,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .privacy-layout h2,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .founder-layout h2,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .contact-layout h2,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .boundary-layout h2 {
+  color: #fff;
+  background: var(--stage-headline);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -0.012em;
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .section-kicker p:not(.eyebrow),
+body[data-theme="stage"][data-page]:not([data-page="book"]) .workflow-copy p:not(.eyebrow),
+body[data-theme="stage"][data-page]:not([data-page="book"]) .content-copy p:not(.eyebrow),
+body[data-theme="stage"][data-page]:not([data-page="book"]) .scoreboard-header p:not(.eyebrow),
+body[data-theme="stage"][data-page]:not([data-page="book"]) .credibility-layout p:not(.eyebrow),
+body[data-theme="stage"][data-page]:not([data-page="book"]) .founder-layout p:not(.eyebrow),
+body[data-theme="stage"][data-page]:not([data-page="book"]) .contact-layout p:not(.eyebrow),
+body[data-theme="stage"][data-page]:not([data-page="book"]) .boundary-layout p:not(.eyebrow),
+body[data-theme="stage"][data-page]:not([data-page="book"]) .credentials-section .section-kicker p:not(.eyebrow),
+body[data-theme="stage"][data-page]:not([data-page="book"]) .capability-card p,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .catalog-card p,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .process-card p,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .path-card p:not(.row-label),
+body[data-theme="stage"][data-page]:not([data-page="book"]) .info-card p,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .step-card p,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .fact-list span,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .credential-note span {
+  color: var(--stage-text-soft);
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .capability-card h3,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .catalog-card h3,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .process-card h3,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .path-card h3,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .info-card h3,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .step-card h3,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .credential-meta h3,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .credential-meta dd,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .fact-list strong,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .credential-note strong,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .integration-row span,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .boundary-list p,
+body[data-theme="stage"][data-page]:not([data-page="book"]) address,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .scoreboard-note {
+  color: #fff;
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .capability-card small {
+  border-top-color: rgba(255, 255, 255, 0.09);
+  color: var(--stage-text-muted);
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .credential-meta dt {
+  color: var(--stage-text-muted);
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .credential-meta dl div {
+  border-top-color: rgba(255, 255, 255, 0.09);
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .capability-card a,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .catalog-card a,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .path-card a,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .info-card a,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .credential-meta a,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .founder-layout p a,
+body[data-theme="stage"][data-page]:not([data-page="book"]) address a,
+body[data-theme="stage"][data-page]:not([data-page="book"]) address strong,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .integration-row strong,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .site-footer a {
+  color: var(--stage-gold-2);
+  border-bottom-color: rgba(230, 181, 74, 0.45);
+  transition: color 180ms ease, border-color 180ms ease;
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .capability-card a:hover,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .catalog-card a:hover,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .path-card a:hover,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .info-card a:hover,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .credential-meta a:hover,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .founder-layout p a:hover,
+body[data-theme="stage"][data-page]:not([data-page="book"]) address a:hover,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .site-footer a:hover {
+  color: #fff;
+  border-bottom-color: #fff;
+}
+
+/* ---------- Cards: layered gradient surface, luminous gradient border, glow bleed ---------- */
+body[data-theme="stage"][data-page]:not([data-page="book"]) .capability-card,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .catalog-card,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .process-card,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .info-card,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .step-card,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .credential-card,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .credential-note,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .fact-list div,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .integration-board,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .boundary-list p,
+body[data-theme="stage"][data-page]:not([data-page="book"]) address {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid transparent;
+  border-radius: 18px;
+  background:
+    linear-gradient(var(--stage-surface-base), var(--stage-surface-base)) padding-box,
+    var(--stage-surface) padding-box,
+    var(--stage-border) border-box;
+  background-blend-mode: normal, screen, normal;
+  box-shadow: var(--stage-shadow);
+  color: var(--stage-text);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .capability-card,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .catalog-card,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .process-card,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .info-card,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .step-card,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .credential-card,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .credential-note,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .fact-list div,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .integration-board,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .boundary-list p,
+body[data-theme="stage"][data-page]:not([data-page="book"]) address {
+  background:
+    linear-gradient(160deg, #182238 0%, #111a2c 46%, #0e1526 100%) padding-box,
+    var(--stage-border) border-box;
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .fact-list div {
+  border-bottom: 1px solid transparent;
+  padding: 16px 18px;
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .capability-card::before,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .info-card::before,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .step-card::before,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .credential-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 18px auto;
+  height: 2px;
+  border-radius: 0 0 2px 2px;
+  background: linear-gradient(90deg, var(--accent-a, var(--stage-gold-2)), var(--accent-b, var(--stage-gold-deep)));
+  box-shadow: 0 0 22px var(--accent-glow, var(--stage-glow-gold));
+  pointer-events: none;
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .capability-card:nth-child(4),
+body[data-theme="stage"][data-page]:not([data-page="book"]) .capability-card:nth-child(5),
+body[data-theme="stage"][data-page]:not([data-page="book"]) .info-card:nth-child(3n + 2) {
+  --accent-a: #8fe4bd;
+  --accent-b: var(--stage-green);
+  --accent-glow: var(--stage-glow-green);
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .capability-card:nth-child(6),
+body[data-theme="stage"][data-page]:not([data-page="book"]) .info-card:nth-child(3n) {
+  --accent-a: #9cc8ff;
+  --accent-b: var(--stage-blue);
+  --accent-glow: var(--stage-glow-blue);
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .capability-card-wide {
+  background:
+    linear-gradient(160deg, rgba(230, 181, 74, 0.2) 0%, rgba(230, 181, 74, 0.06) 38%, #111a2c 70%, #0e1526 100%) padding-box,
+    var(--stage-border) border-box;
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .catalog-card-featured {
+  background:
+    linear-gradient(160deg, rgba(230, 181, 74, 0.28) 0%, rgba(230, 181, 74, 0.1) 40%, rgba(90, 165, 234, 0.12) 100%) padding-box,
+    linear-gradient(135deg, rgba(246, 215, 138, 0.95), rgba(230, 181, 74, 0.45) 40%, rgba(90, 165, 234, 0.55)) border-box;
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.08),
-    0 18px 40px -18px rgba(17, 24, 39, 0.45);
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    inset 0 0 60px rgba(230, 181, 74, 0.08),
+    0 24px 60px -24px rgba(230, 181, 74, 0.45),
+    0 44px 90px -44px rgba(0, 0, 0, 0.8);
 }
 
-body[data-page="home"] .boundary-list p {
-  background: linear-gradient(165deg, rgba(255, 253, 247, 0.11) 0%, rgba(255, 253, 247, 0.06) 100%);
+body[data-theme="stage"][data-page]:not([data-page="book"]) .catalog-card-featured h3,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .catalog-card-featured p {
+  color: #fff;
 }
 
-body[data-page="home"] address {
+body[data-theme="stage"][data-page]:not([data-page="book"]) .catalog-card-featured a {
+  color: #fff;
+  border-bottom-color: rgba(255, 255, 255, 0.55);
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .process-card {
+  border-left: 1px solid transparent;
+  padding-left: 26px;
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .process-card::before {
+  content: "";
+  position: absolute;
+  inset: 16px auto 16px 0;
+  width: 2px;
+  border-radius: 0 2px 2px 0;
+  background: linear-gradient(180deg, var(--stage-gold-2), var(--stage-gold-deep));
+  box-shadow: 0 0 18px var(--stage-glow-gold);
+  pointer-events: none;
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .process-meta {
+  display: inline-block;
+  background: var(--stage-eyebrow);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-size: 1.3rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .path-card {
+  border: 1px solid transparent;
+  border-radius: 20px;
+  background:
+    linear-gradient(180deg, rgba(7, 11, 22, 0.28) 0%, rgba(7, 11, 22, 0.58) 42%, rgba(7, 11, 22, 0.96) 100%) padding-box,
+    var(--path-image) center / cover padding-box,
+    var(--stage-ink-3) padding-box,
+    var(--stage-border) border-box;
+  box-shadow: var(--stage-shadow);
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .path-card::before {
+  border-top: 0;
+  background: radial-gradient(600px 240px at 50% 100%, rgba(230, 181, 74, 0.18), transparent 70%);
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .scoreboard-note {
+  border-left: 2px solid var(--stage-gold);
+  padding: 12px 0 12px 18px;
+  color: var(--stage-text-soft);
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .integration-board {
+  border-radius: 18px;
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .integration-row {
+  border-bottom-color: rgba(255, 255, 255, 0.07);
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .integration-row span,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .founder-facts span {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.04));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  color: #fff;
+  transition: border-color 200ms ease, background-color 200ms ease, box-shadow 200ms ease, transform 200ms ease;
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .integration-row span:hover,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .founder-facts span:hover {
+  border-color: rgba(246, 215, 138, 0.55);
+  background: rgba(230, 181, 74, 0.12);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.08),
-    0 18px 40px -18px rgba(0, 0, 0, 0.5);
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    0 0 24px -6px var(--stage-glow-gold);
 }
 
-body[data-page="home"] .founder-layout img {
+body[data-theme="stage"][data-page]:not([data-page="book"]) .boundary-list {
+  gap: 12px;
+  border: 0;
+  background: none;
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .boundary-list p {
+  border-radius: 16px;
+}
+
+body[data-theme="stage"][data-page]:not([data-page="book"]) .founder-layout img {
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 18px;
   box-shadow:
-    0 1px 2px rgba(35, 28, 19, 0.06),
-    0 18px 40px -16px rgba(35, 28, 19, 0.24);
+    0 0 0 1px rgba(230, 181, 74, 0.2),
+    0 24px 60px -24px rgba(230, 181, 74, 0.45),
+    0 40px 90px -40px rgba(0, 0, 0, 0.85);
 }
 
-/* Section depth: soft accent glows in the brand colors, same section backgrounds underneath. */
-body[data-page="home"] .capability-section {
-  background:
-    radial-gradient(1100px 520px at 92% -10%, rgba(200, 149, 45, 0.12), transparent 65%),
-    radial-gradient(800px 480px at 4% 110%, rgba(47, 125, 91, 0.07), transparent 65%),
-    linear-gradient(180deg, #f7f1e6 0%, #fff8ed 100%);
+body[data-theme="stage"][data-page]:not([data-page="book"]) .credential-preview,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .credential-card img {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: #f6f7f9;
 }
 
-body[data-page="home"] .workflow-section::before {
-  background:
-    radial-gradient(900px 460px at 6% 0%, rgba(200, 149, 45, 0.14), transparent 62%),
-    linear-gradient(180deg, rgba(17, 24, 39, 0.08), rgba(17, 24, 39, 0.72));
+body[data-theme="stage"][data-page]:not([data-page="book"]) .site-footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  background: var(--stage-ink-0);
 }
 
-body[data-page="home"] .service-catalog-section {
-  background:
-    radial-gradient(900px 500px at 8% -10%, rgba(46, 88, 116, 0.09), transparent 65%),
-    radial-gradient(900px 500px at 96% 105%, rgba(200, 149, 45, 0.1), transparent 65%),
-    linear-gradient(180deg, #fffaf1 0%, #f1e7d8 100%);
+body[data-theme="stage"][data-page]:not([data-page="book"]) .site-footer p {
+  color: var(--stage-text-muted);
 }
 
-body[data-page="home"] .credibility-section {
-  background:
-    radial-gradient(1000px 520px at 88% 0%, rgba(47, 125, 91, 0.08), transparent 65%),
-    linear-gradient(180deg, #fffdf7 0%, #f4ebdc 100%);
+/* ---------- Motion: reveals, tilt, orbs ---------- */
+body[data-theme="stage"][data-page]:not([data-page="book"]).stage-js .reveal {
+  opacity: 0;
+  translate: 0 28px;
 }
 
-body[data-page="home"] .route-board {
-  background:
-    radial-gradient(900px 460px at 10% 0%, rgba(200, 149, 45, 0.1), transparent 65%),
-    var(--home-paper);
+body[data-theme="stage"][data-page]:not([data-page="book"]).stage-js .reveal.is-in {
+  opacity: 1;
+  translate: 0 0;
+  transition:
+    opacity 900ms cubic-bezier(0.2, 0.7, 0.2, 1) calc(var(--reveal-i, 0) * 90ms),
+    translate 900ms cubic-bezier(0.2, 0.7, 0.2, 1) calc(var(--reveal-i, 0) * 90ms);
 }
 
-body[data-page="home"] .privacy-band {
-  background:
-    radial-gradient(900px 420px at 88% 0%, rgba(200, 149, 45, 0.16), transparent 62%),
-    linear-gradient(90deg, rgba(17, 24, 39, 0.98), rgba(23, 32, 51, 0.92)),
-    var(--home-dark);
+body[data-theme="stage"][data-page]:not([data-page="book"]) .tilt {
+  transform: perspective(1100px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  transform-style: preserve-3d;
+  transition: transform 360ms cubic-bezier(0.2, 0.7, 0.2, 1), box-shadow 360ms ease, border-color 360ms ease;
+  will-change: transform;
 }
 
-body[data-page="home"] .founder-section {
-  background:
-    radial-gradient(900px 460px at 95% 20%, rgba(200, 149, 45, 0.1), transparent 65%),
-    #fffdf7;
+body[data-theme="stage"][data-page]:not([data-page="book"]) .tilt::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  background: radial-gradient(460px circle at var(--mx, 50%) var(--my, 50%), rgba(246, 215, 138, 0.18), rgba(90, 165, 234, 0.06) 45%, transparent 68%);
+  opacity: 0;
+  transition: opacity 360ms ease;
+  pointer-events: none;
 }
 
-body:not([data-page="home"]):not([data-page="book"]) .content-section {
-  background:
-    radial-gradient(1000px 520px at 92% -10%, rgba(200, 149, 45, 0.1), transparent 65%),
-    var(--site-paper);
-}
-
-body:not([data-page="home"]):not([data-page="book"]) .content-section:nth-of-type(odd) {
-  background:
-    radial-gradient(900px 500px at 6% 110%, rgba(47, 125, 91, 0.07), transparent 65%),
-    #fffaf1;
-}
-
-body[data-page="home"] .site-header,
-body:not([data-page="home"]):not([data-page="book"]) .site-header {
+body[data-theme="stage"][data-page]:not([data-page="book"]) .tilt:hover {
+  transform: perspective(1100px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateY(-6px) scale(1.012);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.78),
-    0 12px 32px -26px rgba(35, 28, 19, 0.4);
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 0 0 1px rgba(246, 215, 138, 0.18),
+    0 30px 70px -28px rgba(230, 181, 74, 0.45),
+    0 50px 100px -40px rgba(0, 0, 0, 0.85);
 }
 
-/* Buttons: a little lift and a soft shadow on the primary action. */
-.btn {
-  transition: transform 160ms ease, box-shadow 200ms ease, background-color 200ms ease, border-color 200ms ease, color 200ms ease;
+body[data-theme="stage"][data-page]:not([data-page="book"]) .tilt:hover::after {
+  opacity: 1;
 }
 
-body[data-page="home"] .btn-primary,
-body:not([data-page="home"]):not([data-page="book"]) .btn-primary {
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.08),
-    0 10px 24px -12px rgba(17, 24, 39, 0.55);
+body[data-theme="stage"][data-page]:not([data-page="book"]) .hero-system-panel.tilt:hover,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .page-panel.tilt:hover,
+body[data-theme="stage"][data-page]:not([data-page="book"]) .founder-card.tilt:hover {
+  transform: perspective(1100px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateY(-4px);
 }
 
-.nav-links a,
-.catalog-card a,
-.info-card a,
-.credential-meta a,
-.path-card a,
-.integration-row span,
-.founder-facts span,
-.capability-card,
-.catalog-card,
-.process-card,
-.path-card,
-.info-card,
-.step-card,
-.credential-card,
-.fact-list div {
-  transition: transform 240ms cubic-bezier(0.2, 0.7, 0.2, 1), box-shadow 240ms ease, border-color 240ms ease, background-color 200ms ease, color 200ms ease;
-}
-
-@media (hover: hover) and (prefers-reduced-motion: no-preference) {
-  .btn:hover {
-    transform: translateY(-1px);
-  }
-
-  body[data-page="home"] .btn-primary:hover,
-  body:not([data-page="home"]):not([data-page="book"]) .btn-primary:hover {
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.08),
-      0 16px 30px -12px rgba(17, 24, 39, 0.6);
-  }
-
-  body[data-page="home"] .btn-secondary:hover,
-  body:not([data-page="home"]):not([data-page="book"]) .btn-secondary:hover {
-    box-shadow: 0 10px 22px -14px rgba(35, 28, 19, 0.35);
-  }
-
-  body[data-page="home"] .capability-card:hover,
-  body[data-page="home"] .catalog-card:hover,
-  body:not([data-page="home"]):not([data-page="book"]) .info-card:hover,
-  body:not([data-page="home"]):not([data-page="book"]) .step-card:hover,
-  body:not([data-page="home"]):not([data-page="book"]) .credential-card:hover,
-  body:not([data-page="home"]):not([data-page="book"]) .fact-list div:hover {
-    transform: translateY(-3px);
-    border-color: rgba(200, 149, 45, 0.45);
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.95),
-      0 2px 4px rgba(35, 28, 19, 0.05),
-      0 16px 32px -12px rgba(35, 28, 19, 0.2),
-      0 34px 64px -24px rgba(35, 28, 19, 0.24);
-  }
-
-  body[data-page="home"] .catalog-card-featured:hover {
-    border-color: rgba(244, 223, 174, 0.4);
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.1),
-      0 34px 64px -24px rgba(17, 24, 39, 0.65);
-  }
-
-  body[data-page="home"] .process-card:hover {
-    transform: translateY(-3px);
-    border-color: rgba(255, 253, 247, 0.26);
-    background: linear-gradient(165deg, rgba(255, 253, 247, 0.16) 0%, rgba(255, 253, 247, 0.08) 100%);
-  }
-
-  body[data-page="home"] .path-card:hover {
-    transform: translateY(-3px);
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.12),
-      0 2px 4px rgba(35, 28, 19, 0.06),
-      0 24px 50px -16px rgba(17, 24, 39, 0.4),
-      0 44px 80px -30px rgba(17, 24, 39, 0.4);
-  }
-
-  body[data-page="home"] .catalog-card a:hover,
-  body[data-page="home"] .path-card a:hover,
-  body:not([data-page="home"]):not([data-page="book"]) .info-card a:hover,
-  body:not([data-page="home"]):not([data-page="book"]) .credential-meta a:hover {
-    border-bottom-color: currentColor;
-  }
-
-  body[data-page="home"] .integration-row span:hover {
-    border-color: rgba(244, 223, 174, 0.5);
-    background: rgba(255, 253, 247, 0.16);
-  }
-
-  body[data-page="home"] .founder-facts span:hover {
-    border-color: rgba(200, 149, 45, 0.45);
-    background: #fbf3e5;
-  }
-}
-
-/* Scroll-triggered fade/lift, CSS only (scroll-driven animations). Browsers without
-   animation-timeline, and anyone preferring reduced motion, simply see the final state.
-   Full-width bands that clip their backgrounds must not be scroll containers, or view()
-   would resolve against the band instead of the viewport; `clip` renders identically. */
-.workflow-section,
-.privacy-band,
-.founder-section,
-.contact-strip {
-  overflow: clip;
-}
-
-@keyframes aic-reveal {
+@keyframes stage-orb-a {
   from {
-    opacity: 0;
-    translate: 0 22px;
+    translate: 0 0;
   }
 
   to {
-    opacity: 1;
-    translate: 0 0;
+    translate: 70px -50px;
   }
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  @supports (animation-timeline: view()) {
-    body:not([data-page="book"]) .section-kicker,
-    body:not([data-page="book"]) .workflow-copy,
-    body:not([data-page="book"]) .content-copy,
-    body:not([data-page="book"]) .scoreboard-header > div,
-    body:not([data-page="book"]) .scoreboard-note,
-    body:not([data-page="book"]) .service-integrations > p,
-    body:not([data-page="book"]) .integration-board,
-    body:not([data-page="book"]) .privacy-layout > .eyebrow,
-    body:not([data-page="book"]) .privacy-layout > h2,
-    body:not([data-page="book"]) .boundary-list,
-    body:not([data-page="book"]) .boundary-layout > *,
-    body:not([data-page="book"]) .founder-layout > *,
-    body:not([data-page="book"]) .contact-layout > *,
-    body:not([data-page="book"]) .credential-intro > *,
-    body:not([data-page="book"]) .capability-card,
-    body:not([data-page="book"]) .catalog-card,
-    body:not([data-page="book"]) .process-card,
-    body:not([data-page="book"]) .path-card,
-    body:not([data-page="book"]) .info-card,
-    body:not([data-page="book"]) .step-card,
-    body:not([data-page="book"]) .credential-card,
-    body:not([data-page="book"]) .fact-list div {
-      animation: aic-reveal linear both;
-      animation-timeline: view();
-      animation-range: entry 0% entry 40%;
-    }
+@keyframes stage-orb-b {
+  from {
+    translate: 0 0;
+  }
 
-    body:not([data-page="book"]) .capability-grid > :nth-child(3n + 2),
-    body:not([data-page="book"]) .catalog-grid > :nth-child(3n + 2),
-    body:not([data-page="book"]) .process-grid > :nth-child(3n + 2),
-    body:not([data-page="book"]) .card-grid > :nth-child(2n),
-    body:not([data-page="book"]) .credential-grid > :nth-child(2n),
-    body:not([data-page="book"]) .route-cards > :nth-child(2n) {
-      animation-range: entry 10% entry 50%;
-    }
+  to {
+    translate: -60px 60px;
+  }
+}
 
-    body:not([data-page="book"]) .capability-grid > :nth-child(3n + 3),
-    body:not([data-page="book"]) .catalog-grid > :nth-child(3n + 3),
-    body:not([data-page="book"]) .process-grid > :nth-child(3n + 3) {
-      animation-range: entry 20% entry 60%;
-    }
+@media (hover: hover) and (min-width: 761px) and (prefers-reduced-motion: no-preference) {
+  body[data-theme="stage"][data-page]:not([data-page="book"]) main > section:not(.hero):not(.page-hero)::before {
+    animation: stage-orb-a 26s ease-in-out infinite alternate;
+  }
+
+  body[data-theme="stage"][data-page]:not([data-page="book"]) main > section:not(.hero):not(.page-hero)::after {
+    animation: stage-orb-b 32s ease-in-out infinite alternate;
+  }
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 980px) {
+  body[data-theme="stage"][data-page]:not([data-page="book"]) .nav-links {
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 16px;
+    background: rgba(8, 12, 23, 0.94);
+    box-shadow: 0 30px 70px -30px rgba(0, 0, 0, 0.9);
+    backdrop-filter: blur(24px) saturate(1.4);
+    -webkit-backdrop-filter: blur(24px) saturate(1.4);
+  }
+
+  body[data-theme="stage"][data-page]:not([data-page="book"]) .hero,
+  body[data-theme="stage"][data-page]:not([data-page="book"]) .page-hero {
+    background:
+      radial-gradient(700px 520px at 80% 22%, rgba(200, 149, 45, 0.3), transparent 65%),
+      radial-gradient(600px 460px at 20% 70%, rgba(46, 111, 168, 0.28), transparent 62%),
+      var(--stage-ink-1);
+  }
+}
+
+@media (max-width: 760px) {
+  body[data-theme="stage"][data-page]:not([data-page="book"]) .hero,
+  body[data-theme="stage"][data-page]:not([data-page="book"]) .page-hero {
+    margin-top: -74px;
+  }
+
+  body[data-theme="stage"][data-page]:not([data-page="book"]) .hero {
+    min-height: auto;
+    padding: calc(74px + 40px) 0 calc(44px + 56px);
+  }
+
+  body[data-theme="stage"][data-page]:not([data-page="book"]) .page-hero {
+    padding: calc(74px + 44px) 0 calc(44px + 52px);
+  }
+
+  body[data-theme="stage"][data-page]:not([data-page="book"]) .nav-wrap {
+    padding: 0 12px;
+  }
+
+  body[data-theme="stage"][data-page]:not([data-page="book"]) .nav-wrap::before {
+    inset: 9px 0;
+    border-radius: 16px;
+  }
+
+  body[data-theme="stage"][data-page]:not([data-page="book"]) .hero-stage-scrim {
+    background:
+      linear-gradient(180deg, rgba(7, 11, 22, 0.66) 0%, rgba(7, 11, 22, 0.5) 40%, rgba(7, 11, 22, 0.5) 72%, rgba(7, 11, 22, 0.78) 100%);
+  }
+
+  body[data-theme="stage"][data-page]:not([data-page="book"]) .hero h1,
+  body[data-theme="stage"][data-page]:not([data-page="book"]) .page-hero h1 {
+    background: none;
+    -webkit-text-fill-color: #fff;
+    color: #fff;
+    text-shadow: 0 4px 30px rgba(0, 0, 0, 0.55);
+  }
+
+  body[data-theme="stage"][data-page]:not([data-page="book"]) .hero-lede,
+  body[data-theme="stage"][data-page]:not([data-page="book"]) .page-lede,
+  body[data-theme="stage"][data-page]:not([data-page="book"]) .hero-pretitle {
+    text-shadow: 0 2px 18px rgba(0, 0, 0, 0.55);
+  }
+
+  body[data-theme="stage"][data-page]:not([data-page="book"]) .hero + section,
+  body[data-theme="stage"][data-page]:not([data-page="book"]) .page-hero + section {
+    border-radius: 28px 28px 0 0;
+  }
+
+  body[data-theme="stage"][data-page]:not([data-page="book"]) .hero-baseline div + div {
+    border-left: 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  body[data-theme="stage"][data-page]:not([data-page="book"]) main > section:not(.hero):not(.page-hero)::before,
+  body[data-theme="stage"][data-page]:not([data-page="book"]) main > section:not(.hero):not(.page-hero)::after {
+    --orb-size: 520px;
+  }
+}
+
+/* ---------- Reduced motion: a still poster that is still the same picture ---------- */
+@media (prefers-reduced-motion: reduce) {
+  body[data-theme="stage"][data-page]:not([data-page="book"]) .hero-stage canvas {
+    display: none;
+  }
+
+  body[data-theme="stage"][data-page]:not([data-page="book"]) .hero-stage.is-ready picture {
+    opacity: 1;
+  }
+
+  body[data-theme="stage"][data-page]:not([data-page="book"]) .hero-layout,
+  body[data-theme="stage"][data-page]:not([data-page="book"]) .page-hero-layout {
+    opacity: 1;
+    transform: none;
+    animation: none;
+  }
+
+  body[data-theme="stage"][data-page]:not([data-page="book"]).stage-js .reveal {
+    opacity: 1;
+    translate: 0 0;
+    transition: none;
+  }
+
+  body[data-theme="stage"][data-page]:not([data-page="book"]) .tilt,
+  body[data-theme="stage"][data-page]:not([data-page="book"]) .tilt:hover {
+    transform: none;
+    transition: none;
+  }
+
+  body[data-theme="stage"][data-page]:not([data-page="book"]) .btn,
+  body[data-theme="stage"][data-page]:not([data-page="book"]) .btn:hover,
+  body[data-theme="stage"][data-page]:not([data-page="book"]) .btn:active {
+    transform: none;
+    transition: none;
+  }
+
+  body[data-theme="stage"][data-page]:not([data-page="book"]) main > section:not(.hero):not(.page-hero)::before,
+  body[data-theme="stage"][data-page]:not([data-page="book"]) main > section:not(.hero):not(.page-hero)::after {
+    animation: none;
   }
 }
