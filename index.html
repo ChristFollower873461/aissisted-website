@@ -7,10 +7,11 @@
     <meta name="aissisted:registry-sha256" content="3ca531e1a0fcf19268f6182e6510f965a9328738f1885dc3e197027874b19923">
     <title>AI & Software Implementation | AIssisted Consulting</title>
     <meta name="description" content="AIssisted Consulting helps small businesses and individuals improve how work gets done and build useful software with clear scope, human review, and accountable delivery.">
+    <meta name="theme-color" content="#06080f">
     <link rel="canonical" href="https://aissistedconsulting.com/">
     <meta property="og:type" content="website">
     <meta property="og:title" content="AI &amp; Software Implementation | AIssisted Consulting">
-    <meta property="og:description" content="Improve how work gets done or build useful software with clear scope, practical implementation, and accountable delivery.">
+    <meta property="og:description" content="Local. Trusted. AI. Fix how something works or build something new, with clear scope and accountable delivery.">
     <meta property="og:url" content="https://aissistedconsulting.com/">
     <meta property="og:image" content="https://aissistedconsulting.com/assets/social-logo-20260713.jpg">
     <meta property="og:image:secure_url" content="https://aissistedconsulting.com/assets/social-logo-20260713.jpg">
@@ -19,10 +20,12 @@
     <meta property="og:image:alt" content="AIssisted Consulting official logo.">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="AI &amp; Software Implementation | AIssisted Consulting">
-    <meta name="twitter:description" content="Improve how work gets done or build useful software with clear scope, practical implementation, and accountable delivery.">
+    <meta name="twitter:description" content="Local. Trusted. AI. Fix how something works or build something new, with clear scope and accountable delivery.">
     <meta name="twitter:image" content="https://aissistedconsulting.com/assets/social-logo-20260713.jpg">
     <meta name="twitter:image:alt" content="AIssisted Consulting official logo.">
-    <link rel="stylesheet" href="styles.css?v=11.11.10">
+    <link rel="preload" href="assets/fonts/martian-mono-var.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="assets/site/site.css?v=20260907">
+    <link rel="stylesheet" href="assets/site/home.css?v=20260907">
     <script type="application/ld+json">
     {
           "@context": "https://schema.org",
@@ -48,380 +51,251 @@
   <body data-page="home">
     <a class="skip-link" href="#main">Skip to content</a>
 
-    <header class="site-header">
+    <header class="site-header" data-header>
       <div class="container nav-wrap">
         <a class="brand" href="./" aria-label="AIssisted Consulting home">
-          <img src="assets/logo.png" alt="AIssisted Consulting logo" width="58" height="44">
-          <span>
-            <strong>AIssisted Consulting</strong>
-            <small>AI &amp; software implementation</small>
-          </span>
+          <img src="assets/logo-mark-192.png" alt="" width="40" height="40">
+          <strong>AIssisted Consulting</strong>
         </a>
 
-        <button class="menu-toggle" type="button" data-menu-toggle aria-expanded="false" aria-controls="site-nav">
-          Menu
-        </button>
-
-        <nav class="nav-links" id="site-nav" data-nav-links aria-label="Primary navigation">
-          <a href="./small-business-ai-help/">Small business</a>
-          <a href="./services/">Services</a>
-          <a href="./family-ai-help/">Family</a>
-          <a href="./industries/">Industries</a>
-          <a href="./privacy-and-control/">Privacy</a>
-          <a href="./about/">About</a>
-          <a href="./book/">Book</a>
-          <a href="./contact/">Contact</a>
-        </nav>
+        <div class="nav-cluster">
+          <a class="btn btn-gold btn-sm" href="./book/?entry_route=home&amp;cta_id=home_nav_paid_plan">Book</a>
+          <button class="menu-btn" type="button" data-menu-open aria-expanded="false" aria-controls="site-menu" aria-haspopup="dialog">
+            <span class="menu-lines" aria-hidden="true"><i></i><i></i></span>
+            <span>Menu</span>
+          </button>
+        </div>
       </div>
     </header>
 
-    <main id="main">
-      <section class="hero" id="top">
-        <video class="hero-automation-video" autoplay muted loop playsinline preload="metadata" poster="assets/visuals/workflow-orbit-poster.svg" aria-hidden="true">
-          <source src="assets/video/automation-hero-no-words.mp4" type="video/mp4">
-        </video>
-        <div class="hero-video-scrim" aria-hidden="true"></div>
-        <div class="container hero-layout">
-          <div class="hero-copy">
-            <div class="hero-brand-lockup" aria-label="AIssisted Consulting business information">
-              <div class="hero-brand-details">
-                <strong>AIssisted Consulting</strong>
-                <span>Based in Ocala, serving Florida and remote clients.</span>
-                <span>Workflows | Custom software | AI | Support</span>
-              </div>
-            </div>
-            <p class="eyebrow">AI and software implementation</p>
-            <p class="hero-pretitle">Fix how something works. Build something new.</p>
-            <h1>AIssisted Consulting builds useful systems and software around real work.</h1>
-            <p class="hero-lede">
-              AIssisted Consulting helps small businesses and individuals improve how work gets done and build useful software. Start with a messy workflow or a concrete build idea, then make the next step clear.
-            </p>
-            <div class="hero-actions" aria-label="Primary actions">
-              <a class="btn btn-primary" href="./book/?entry_route=home&amp;cta_id=home_hero_paid_plan">Book the $225 plan</a>
-              <a class="btn btn-secondary" href="#capabilities">See what we build</a>
-            </div>
-            <dl class="hero-baseline" aria-label="Working principles">
-              <div>
-                <dt>Start</dt>
-                <dd>One messy workflow</dd>
-              </div>
-              <div>
-                <dt>Build</dt>
-                <dd>Useful system, not demo</dd>
-              </div>
-              <div>
-                <dt>Protect</dt>
-                <dd>Approval points stay human</dd>
-              </div>
-            </dl>
-          </div>
-
-          <aside class="hero-system-panel" aria-label="AIssisted capability snapshot">
-            <div class="system-panel-header">
-              <span>Owner workflow console</span>
-              <strong>What gets connected</strong>
-            </div>
-            <div class="system-flow" aria-label="Example connected workflow">
-              <span>Website inquiry</span>
-              <span>CRM intake</span>
-              <span>Calendar + Stripe</span>
-              <span>Human review</span>
-            </div>
-            <div class="system-terminal" aria-label="Example guardrail log">
-              <p><span>guardrail</span> source truth checked</p>
-              <p><span>handoff</span> owner approval required</p>
-              <p><span>status</span> customer follow-up queued</p>
-            </div>
-            <p>
-              Built close to the actual work: calls, forms, calendars, CRMs, quotes, documents, and the follow-up that usually slips.
-            </p>
-          </aside>
-        </div>
-      </section>
-
-      <section class="capability-section" id="capabilities" data-agent="services" aria-labelledby="capabilities-title">
-        <div class="container">
-          <div class="section-kicker">
-            <p class="eyebrow">What you can hire us for</p>
-            <h2 id="capabilities-title">Practical AI systems work when the AI, the workflow, and the handoff are designed together.</h2>
-          </div>
-
-          <div class="capability-grid">
-            <article class="capability-card capability-card-featured">
-              <span>Agents</span>
-              <h3>AI agents and assistants</h3>
-              <p>Answer, draft, summarize, route, and prepare work while a person stays responsible for important decisions.</p>
-              <small>Example: a service-business intake assistant that turns web inquiries into reviewable CRM leads.</small>
-            </article>
-            <article class="capability-card capability-card-featured">
-              <span>Automation</span>
-              <h3>Workflow automation</h3>
-              <p>Remove the daily drag between forms, calendars, messages, spreadsheets, and follow-up.</p>
-              <small>Example: missed-call follow-up that creates the next task instead of becoming another sticky note.</small>
-              <a href="./workflow-automation/">Explore small-business workflow automation</a>
-            </article>
-            <article class="capability-card">
-              <span>Integration</span>
-              <h3>Business system integration</h3>
-              <p>Connect the tools your business already uses without pretending you need a giant enterprise stack.</p>
-              <small>Example: website, CRM, booking, Stripe, Google Workspace, and reporting working in one loop.</small>
-            </article>
-            <article class="capability-card">
-              <span>CRM</span>
-              <h3>CRM and intake systems</h3>
-              <p>Make leads, booking requests, notes, statuses, and follow-up visible enough to run the day.</p>
-              <small>Example: a private owner CRM for web inquiries, booking leads, call lists, and next actions.</small>
-            </article>
-            <article class="capability-card">
-              <span>Local AI</span>
-              <h3>Local and on-prem AI</h3>
-              <p>Use local Macs, private tools, and OpenClaw-style setups where privacy, control, or resilience matter.</p>
-              <small>Example: a private workspace that helps with documents and operations without exposing the whole business.</small>
-            </article>
-            <article class="capability-card">
-              <span>Control</span>
-              <h3>Security, privacy, and guardrails</h3>
-              <p>Decide what AI may do, what it must not touch, and where a human approval step is required.</p>
-              <small>Example: idempotency, audit records, permissions, and safer handoffs for form and booking actions.</small>
-            </article>
-            <article class="capability-card capability-card-wide">
-              <span>Support</span>
-              <h3>Training, support, and change requests</h3>
-              <p>Systems need tuning after they meet real people. AIssisted keeps the work practical, observable, and adjustable.</p>
-              <small>Example: monthly improvements when the workflow changes, the team learns, or a better handoff appears.</small>
-            </article>
-          </div>
-        </div>
-      </section>
-
-      <section class="workflow-section" id="how-we-work" data-agent="services" aria-labelledby="workflow-title">
-        <div class="container workflow-layout">
-          <div class="workflow-copy">
-            <p class="eyebrow">How we work</p>
-            <h2 id="workflow-title">Map the mess. Build the smallest useful system. Keep improving it.</h2>
-            <p>
-              No consultant fog. No vague transformation pitch. The work starts where the business is already leaking time.
-            </p>
-          </div>
-          <div class="process-grid process-grid-six" aria-label="Workflow stages">
-            <article class="process-card">
-              <span class="process-meta">01</span>
-              <h3>Map</h3>
-              <p>Find the messy workflow, owner pain, and places where follow-up slips.</p>
-            </article>
-            <article class="process-card">
-              <span class="process-meta">02</span>
-              <h3>Pick</h3>
-              <p>Choose the highest-value automation instead of boiling the whole business.</p>
-            </article>
-            <article class="process-card">
-              <span class="process-meta">03</span>
-              <h3>Build</h3>
-              <p>Create the agent, integration, CRM view, or workflow with clear guardrails.</p>
-            </article>
-            <article class="process-card">
-              <span class="process-meta">04</span>
-              <h3>Test</h3>
-              <p>Run it against real cases, edge cases, and the weird stuff customers actually send.</p>
-            </article>
-            <article class="process-card">
-              <span class="process-meta">05</span>
-              <h3>Launch</h3>
-              <p>Go live carefully with approval points, fallback paths, and visible status.</p>
-            </article>
-            <article class="process-card">
-              <span class="process-meta">06</span>
-              <h3>Support</h3>
-              <p>Monitor, tune, and improve it as the business changes.</p>
-            </article>
-          </div>
-        </div>
-      </section>
-
-      <section class="service-catalog-section" id="service-catalog" aria-labelledby="catalog-title">
-        <div class="container">
-          <div class="section-kicker">
-            <p class="eyebrow">Service catalog</p>
-            <h2 id="catalog-title">Two ways to start with AIssisted Consulting.</h2>
-          </div>
-          <div class="catalog-grid">
-            <article class="catalog-card catalog-card-featured">
-              <h3>Workflow Map &amp; First-Build Plan</h3>
-              <p>A 60-minute working session plus a one-page plan prepared and reviewed by AIssisted Consulting. $225, delivered by 5 PM Eastern on the second qualifying business day after the completed session.</p>
-              <a href="./book/?entry_route=home&amp;cta_id=home_catalog_paid_plan">Book the $225 plan</a>
-            </article>
-            <article class="catalog-card">
-              <h3>Website + intake + CRM setup</h3>
-              <p>Connect public forms, booking requests, and owner visibility so leads do not disappear between tools.</p>
-              <a href="./contact/">Talk through intake</a>
-            </article>
-            <article class="catalog-card">
-              <h3>Custom software development</h3>
-              <p>Build an app, internal tool, customer experience, integration, or AI-assisted system around a concrete need.</p>
-              <a href="./services/">Explore development help</a>
-            </article>
-            <article class="catalog-card">
-              <h3>On-prem OpenClaw setup</h3>
-              <p>Explore local or private AI systems when privacy, control, or resilience matters more than shiny demos.</p>
-              <a href="./openclaw.html">See OpenClaw</a>
-            </article>
-            <article class="catalog-card">
-              <h3>Monthly support</h3>
-              <p>Keep systems watched, tuned, documented, and improved as customers and workflows change.</p>
-              <a href="./contact/">Ask about support</a>
-            </article>
-            <article class="catalog-card">
-              <h3>Products &amp; R&amp;D</h3>
-              <p>Grail and other experiments show what we explore and can build. They are supporting capability examples, not claims of customer traction or revenue.</p>
-              <a href="./grail/">See Grail</a>
-            </article>
-          </div>
-        </div>
-      </section>
-
-      <section class="credibility-section" aria-labelledby="credibility-title">
-        <div class="container credibility-stack">
-          <div class="scoreboard-header">
-            <div>
-              <p class="eyebrow">How we show capability</p>
-              <h2 id="credibility-title">Look at the work, the systems, and the boundaries.</h2>
-              <p>
-                AIssisted works across websites, applications, AI agents, automations, CRMs, payments, deployment, local systems, and the operational handoffs between them.
-              </p>
-            </div>
-            <p class="scoreboard-note">
-              Customer names, private records, and outcome claims stay off the public site unless the evidence and permission are explicitly approved for that channel.
-            </p>
-          </div>
-
-          <div class="service-integrations" aria-label="Services we've integrated">
-            <p>Services we've integrated</p>
-            <div class="integration-board">
-              <div class="integration-row">
-                <strong>Cloud and deploy</strong>
-                <span>Cloudflare</span>
-                <span>Render</span>
-                <span>GitHub</span>
-              </div>
-              <div class="integration-row">
-                <strong>Data and storage</strong>
-                <span>Neon Postgres</span>
-                <span>Cloudflare R2</span>
-                <span>CRMs</span>
-              </div>
-              <div class="integration-row">
-                <strong>Payments and APIs</strong>
-                <span>Stripe</span>
-                <span>APIs</span>
-                <span>OpenClaw</span>
-              </div>
-              <div class="integration-row">
-                <strong>Business accounts</strong>
-                <span>Google Workspace</span>
-                <span>Google</span>
-                <span>Microsoft</span>
-              </div>
-              <div class="integration-row">
-                <strong>Web and local systems</strong>
-                <span>GoDaddy</span>
-                <span>Wix</span>
-                <span>Local Macs</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section class="route-board" aria-labelledby="routes-title">
-        <div class="container">
-          <div class="section-kicker">
-            <p class="eyebrow">Who this is for</p>
-            <h2 id="routes-title">Small businesses and individuals with a concrete problem or build goal.</h2>
-          </div>
-
-          <div class="route-cards">
-            <article class="path-card path-card-business" id="small-business" data-agent="audience-small-business">
-              <div class="path-card-main">
-                <p class="row-label">Small business</p>
-                <h3>Service businesses with repetitive admin work</h3>
-                <p>Calls, forms, calendars, CRMs, estimates, documents, reporting, and follow-up that need a calmer system.</p>
-              </div>
-              <a href="./small-business-ai-help/">See the business path</a>
-            </article>
-
-            <article class="path-card path-card-family" id="individual" data-agent="audience-individual">
-              <div class="path-card-main">
-                <p class="row-label">Individuals</p>
-                <h3>People with a concrete software build in mind</h3>
-                <p>Apps, tools, prototypes, integrations, and AI-assisted experiences that need a grounded first-build plan.</p>
-              </div>
-              <a href="./services/">See development help</a>
-            </article>
-          </div>
-        </div>
-      </section>
-
-      <section class="privacy-band" id="privacy" data-agent="privacy-control" aria-labelledby="privacy-title">
-        <div class="container privacy-layout">
-          <p class="eyebrow">Privacy and control</p>
-          <h2 id="privacy-title">Boundaries stay visible.</h2>
-          <div class="boundary-list" aria-label="AI boundaries">
-            <p>Sensitive details need care.</p>
-            <p>Some work stays manual.</p>
-            <p>Important decisions need human review.</p>
-          </div>
-        </div>
-      </section>
-
-      <section class="founder-section" aria-labelledby="founder-title">
-        <div class="container founder-layout">
-          <img src="assets/photography/workflow-desk.webp" alt="A workflow plan taking shape beside a laptop">
-          <div>
-            <p class="eyebrow">AIssisted Consulting</p>
-            <h2 id="founder-title">Local, practical, direct.</h2>
-            <p>
-              AIssisted Consulting is based in Ocala, Florida. Bring one workflow or one concrete build goal. The work stays close to the real process, keeps important decisions visible, and makes the next step understandable. See how our <a href="./small-business-ai-help/">Ocala AI consulting</a> work starts.
-            </p>
-            <div class="founder-facts" aria-label="Service facts">
-              <span>Central Florida</span>
-              <span>Remote support</span>
-              <span>Small businesses and individuals</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section class="contact-strip" id="contact" data-agent="contact" aria-labelledby="contact-title">
-        <div class="container contact-layout">
-          <div>
-            <p class="eyebrow">Start small</p>
-            <h2 id="contact-title">Bring one useful workflow or one build goal.</h2>
-            <p>
-              The paid plan is the clearest start. If you are not sure it fits, request a short Fit Call or contact AIssisted Consulting first.
-            </p>
-            <div class="hero-actions">
-              <a class="btn btn-primary" href="./book/?entry_route=home&amp;cta_id=home_footer_paid_plan">Book the $225 plan</a>
-              <a class="btn btn-secondary" href="./contact/">Contact first</a>
-            </div>
-          </div>
+    <div class="site-menu" id="site-menu" data-menu role="dialog" aria-modal="true" aria-label="Site menu" hidden>
+      <div class="container menu-top">
+        <a class="brand" href="./" aria-label="AIssisted Consulting home">
+          <img src="assets/logo-mark-192.png" alt="" width="40" height="40">
+          <strong>AIssisted Consulting</strong>
+        </a>
+        <button class="menu-btn is-close" type="button" data-menu-close>
+          <span class="menu-lines" aria-hidden="true"><i></i><i></i></span>
+          <span>Close</span>
+        </button>
+      </div>
+      <div class="container menu-body">
+        <nav class="menu-nav" aria-label="Primary navigation">
+          <ol>
+            <li style="--i:0"><a href="./services/"><small class="num">01</small>Services</a></li>
+            <li style="--i:1"><a href="./privacy-and-control/"><small class="num">02</small>Private AI</a></li>
+            <li style="--i:2"><a href="./industries/"><small class="num">03</small>Industries</a></li>
+            <li style="--i:3"><a href="./about/"><small class="num">04</small>About</a></li>
+            <li style="--i:4"><a href="./contact/"><small class="num">05</small>Contact</a></li>
+          </ol>
+        </nav>
+        <div class="menu-foot">
+          <p class="menu-tag">Local. Trusted. <span class="accent">AI.</span></p>
+          <a class="btn btn-gold" href="./book/?entry_route=home&amp;cta_id=home_nav_paid_plan">Book the $225 plan</a>
           <address>
-            <strong>AIssisted Consulting</strong>
             <a href="tel:+13528173567">(352) 817-3567</a>
             <a href="mailto:pj@aissistedconsulting.com">pj@aissistedconsulting.com</a>
             <span>Ocala, Florida</span>
+          </address>
+        </div>
+      </div>
+    </div>
+
+    <main id="main">
+      <section class="hero" id="top">
+        <div class="hero-stage" data-hero-scene="/assets/hero/hero-scene.min.js?v=20260907" data-hero-variant="home" aria-hidden="true">
+          <picture>
+            <source media="(max-width: 760px)" srcset="assets/hero/poster-home-mobile.webp">
+            <img class="hero-poster" src="assets/hero/poster-home.webp" alt="" width="2880" height="1800" decoding="async" fetchpriority="high">
+          </picture>
+        </div>
+        <div class="hero-scrim" aria-hidden="true"></div>
+        <div class="container hero-copy">
+          <p class="kicker hero-kicker">Ocala, Florida<span class="kicker-more"> &middot; AI &amp; software implementation</span></p>
+          <h1 class="hero-title"><span>Local.</span> <span>Trusted.</span> <span class="accent">AI.</span></h1>
+          <p class="hero-lede">Fix how something works.<br>Build something new.</p>
+          <div class="hero-actions">
+            <a class="btn btn-gold" href="./book/?entry_route=home&amp;cta_id=home_hero_paid_plan">Book the $225 plan</a>
+            <a class="btn btn-ghost" href="#proof">Watch it run</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="section proof" id="proof" aria-labelledby="proof-title">
+        <div class="container">
+          <div class="proof-head">
+            <div class="reveal">
+              <p class="kicker">Proof, not promises</p>
+              <h2 class="h2" id="proof-title">This ran on our own machine <span class="accent">this afternoon.</span></h2>
+            </div>
+            <p class="sub reveal" data-delay="1">Private Data Service: 89 messy records in, 80 clean ones out, on a Mac we own, with no internet on the lane. Demo data, real run. Nothing left the room.</p>
+          </div>
+
+          <div class="terminal reveal" data-delay="1" data-terminal>
+            <div class="terminal-bar">
+              <i></i><i></i><i></i>
+              <span>ark@studio &rarr; neo &middot; private data service</span>
+              <button class="replay" type="button" data-replay>Replay</button>
+            </div>
+            <div class="terminal-body" aria-label="Replay of the Private Data Service demo run">
+<p class="t-line t-dim" data-line>Private Data Service on Neo · Ark driving from the Studio over Tailscale · 2026-09-06 16:21</p>
+<p class="t-line t-dim" data-line>  machine : neo  (Mac Studio M3 Ultra, FileVault on, no internet egress for this lane)</p>
+<p class="t-line t-dim" data-line>  account : pds  (non-admin, SSH-key only, no sudo)</p>
+<p class="t-line t-dim" data-line data-pause="500">  data    : synthetic fixture, 89 messy contact records. Nothing real.</p>
+<p class="t-line t-step" data-line data-pause="700">1. Storage: one encrypted container per customer, random key, mounted only while we work</p>
+<p class="t-line t-step" data-line data-pause="700">2. Intake: the customer's files land inside the container, get hashed, and become read-only</p>
+<p class="t-line t-step" data-line data-pause="700">3. Mapping: job spec (target schema, cleanup rules, dedupe keys, models) plus a graded golden set</p>
+<p class="t-line t-step" data-line data-pause="300">4. Processing: the local model cleans every record inside the container; low confidence escalates to the bigger model</p>
+<p class="t-line t-cmd" data-line data-typed data-pause="900"><b>&#9654; ark@studio &rarr; neo:</b> <span data-cmd>python3 ~/pds-runner/pds/runner/pds_run.py --job ~/pds/mnt/demo-clip/work/jobspec.json</span></p>
+<p class="t-line t-out" data-line data-pause="500">89 in · 80 cleaned · 4 junk · 5 duplicates · 4 escalated to the bigger model</p>
+<p class="t-line t-out" data-line data-pause="600">model pass 154.9 s · all of it on local hardware</p>
+<p class="t-line t-step" data-line data-pause="400">5. QA gate and the customer's reports</p>
+<p class="t-line t-pass" data-line data-pause="800">Gate: PASS · golden set 99.4%</p>
+<p class="t-line t-step" data-line data-pause="700">6. Close out: unmount (nothing stays mounted unattended), then the certified wipe</p>
+<p class="t-line t-done" data-line>DONE. Reports delivered, container gone, key gone. Neo kept nothing but the trail.</p>
+            </div>
+          </div>
+          <p class="proof-note reveal">Replayed from the run log. The models never saw the internet; the records never left the machine.</p>
+        </div>
+      </section>
+
+      <section class="section work" id="work" aria-labelledby="work-title">
+        <div class="container">
+          <div class="reveal">
+            <p class="kicker">What we do</p>
+            <h2 class="h2" id="work-title">Three ways in.</h2>
+          </div>
+          <ol class="lanes">
+            <li class="reveal">
+              <a class="lane" href="./services/">
+                <span class="num">01</span>
+                <h3>Fix how something works</h3>
+                <p>Calls, forms, calendars, CRM, follow-up. One workflow at a time, built around the real job.</p>
+                <span class="arrow" aria-hidden="true">&rarr;</span>
+              </a>
+            </li>
+            <li class="reveal" data-delay="1">
+              <a class="lane" href="./services/">
+                <span class="num">02</span>
+                <h3>Build something new</h3>
+                <p>Apps, internal tools, integrations, AI agents. Scoped tight, shipped working, kept running.</p>
+                <span class="arrow" aria-hidden="true">&rarr;</span>
+              </a>
+            </li>
+            <li class="reveal" data-delay="2">
+              <a class="lane" href="./privacy-and-control/">
+                <span class="num">03</span>
+                <h3>Keep it private</h3>
+                <p>Local AI on hardware you own. Your data stays in the room, and a person still signs off.</p>
+                <span class="arrow" aria-hidden="true">&rarr;</span>
+              </a>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <section class="section start" id="start" aria-labelledby="start-title">
+        <div class="container start-grid">
+          <div class="reveal">
+            <p class="kicker">Start here</p>
+            <p class="price">$225<small>One hour. One page. Two business days.</small></p>
+          </div>
+          <div class="start-card reveal" data-delay="1">
+            <h2 class="h2 h2-small" id="start-title">Workflow Map &amp; First-Build Plan</h2>
+            <p>Bring the problem or the build idea. You get back the direction, the smallest useful first build, and exactly what it takes to quote it. No pitch, no retainer, no pressure.</p>
+            <div class="start-actions">
+              <a class="btn btn-gold" href="./book/?entry_route=home&amp;cta_id=home_catalog_paid_plan">Book the $225 plan</a>
+              <a class="link" href="./contact/">Not sure it fits? Ask first.</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="stack" aria-label="What we deploy">
+        <div class="marquee" aria-hidden="true">
+          <div class="marquee-track">
+            <span>OpenClaw</span><span>Cloudflare</span><span>Stripe</span><span>Google Workspace</span><span>GitHub</span><span>Ollama</span><span>Apple silicon</span><span>Postgres</span><span>Microsoft 365</span><span>Render</span><span>Local models</span><span>Your CRM</span>
+          </div>
+          <div class="marquee-track">
+            <span>OpenClaw</span><span>Cloudflare</span><span>Stripe</span><span>Google Workspace</span><span>GitHub</span><span>Ollama</span><span>Apple silicon</span><span>Postgres</span><span>Microsoft 365</span><span>Render</span><span>Local models</span><span>Your CRM</span>
+          </div>
+        </div>
+        <p class="stack-note container">What we deploy, in production, for real businesses.</p>
+      </section>
+
+      <section class="section products" aria-labelledby="products-title">
+        <div class="container reveal">
+          <p class="kicker">Products &amp; R&amp;D</p>
+          <h2 class="h2" id="products-title">We build our own, too.</h2>
+          <p class="sub">Grail, PestFriend, BrightWay, UnRealtor. Shipping our own products keeps us honest about what it actually takes.</p>
+          <a class="link" href="./grail/">See Grail</a>
+        </div>
+      </section>
+
+      <section class="section contact" id="contact" aria-labelledby="contact-title">
+        <div class="container contact-grid">
+          <div class="reveal">
+            <p class="kicker">Talk to us</p>
+            <h2 class="h2" id="contact-title">Bring one workflow.<br>Or one idea.</h2>
+            <p class="sub">We'll tell you straight whether it's worth doing.</p>
+            <div class="hero-actions">
+              <a class="btn btn-gold" href="./book/?entry_route=home&amp;cta_id=home_footer_paid_plan">Book the $225 plan</a>
+              <a class="btn btn-ghost" href="./contact/">Contact</a>
+            </div>
+          </div>
+          <address class="contact-lines reveal" data-delay="1">
+            <a href="tel:+13528173567">(352) 817-3567</a>
+            <a href="mailto:pj@aissistedconsulting.com">pj@aissistedconsulting.com</a>
+            <span>Ocala, Florida &middot; remote across the U.S.</span>
           </address>
         </div>
       </section>
     </main>
 
     <footer class="site-footer">
-      <div class="container footer-layout">
-        <p>&copy; <span data-year>2026</span> AIssisted Consulting. Ocala, FL.</p>
-        <p>AI and software implementation for small businesses and individuals.</p>
+      <div class="container">
+        <div class="footer-grid">
+          <div>
+            <a class="brand" href="./" aria-label="AIssisted Consulting home">
+              <img src="assets/logo-mark-192.png" alt="" width="40" height="40">
+              <strong>AIssisted Consulting</strong>
+            </a>
+            <p class="footer-blurb">AI and software implementation for small businesses and individuals. Certified AI Scientist and Certified AI Consultant (USAII).</p>
+          </div>
+          <div>
+            <h3>Work with us</h3>
+            <a href="./services/">Services</a>
+            <a href="./workflow-automation/">Workflow automation</a>
+            <a href="./small-business-ai-help/">Small business</a>
+            <a href="./family-ai-help/">Family</a>
+            <a href="./industries/">Industries</a>
+          </div>
+          <div>
+            <h3>Company</h3>
+            <a href="./about/">About</a>
+            <a href="./privacy-and-control/">Privacy &amp; control</a>
+            <a href="./book/">Book</a>
+            <a href="./contact/">Contact</a>
+          </div>
+          <div>
+            <h3>Products</h3>
+            <a href="./grail/">Grail</a>
+            <a href="./brightway/">BrightWay</a>
+            <a href="./unrealtor/">UnRealtor</a>
+            <a href="./terms/">Terms</a>
+            <a href="./privacy/">Privacy policy</a>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <p>&copy; <span data-year>2026</span> AIssisted Consulting. Ocala, FL.</p>
+          <p>Local. Trusted. AI.</p>
+        </div>
       </div>
     </footer>
 
     <script src="main.js?v=20260718"></script>
     <script src="assets/aic-google-ads-tracking.js?v=20260817"></script>
+    <script src="assets/site/site.js?v=20260907"></script>
+    <script src="assets/site/home.js?v=20260907"></script>
   </body>
 </html>

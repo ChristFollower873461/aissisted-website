@@ -7,6 +7,7 @@
     <meta name="aissisted:registry-sha256" content="3ca531e1a0fcf19268f6182e6510f965a9328738f1885dc3e197027874b19923">
     <title>Book with AIssisted Consulting | Workflow Map &amp; First-Build Plan</title>
     <meta name="description" content="Book a 60-minute working session with AIssisted Consulting and receive a one-page Workflow Map &amp; First-Build Plan for $225.">
+    <meta name="theme-color" content="#06080f">
     <link rel="canonical" href="https://aissistedconsulting.com/book/">
     <meta property="og:type" content="website">
     <meta property="og:title" content="Book with AIssisted Consulting | Workflow Map &amp; First-Build Plan">
@@ -17,8 +18,9 @@
     <meta name="twitter:title" content="Book with AIssisted Consulting | Workflow Map &amp; First-Build Plan">
     <meta name="twitter:description" content="A 60-minute working session with AIssisted Consulting and a one-page plan for $225.">
     <meta name="twitter:image" content="https://aissistedconsulting.com/assets/og-image.jpg">
-    <link rel="stylesheet" href="../styles.css?v=11.11.5">
-    <link rel="stylesheet" href="./booking.css?v=11.11.5">
+    <link rel="preload" href="../assets/fonts/martian-mono-var.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="../assets/site/site.css?v=20260907">
+    <link rel="stylesheet" href="../assets/site/book.css?v=20260907">
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -55,264 +57,272 @@
   <body data-page="book">
     <a class="skip-link" href="#main">Skip to content</a>
 
-    <header class="site-header">
+    <header class="site-header" data-header>
       <div class="container nav-wrap">
         <a class="brand" href="../" aria-label="AIssisted Consulting home">
-          <img src="../assets/logo.png" alt="AIssisted Consulting logo" width="58" height="44">
-          <span>
-            <strong>AIssisted Consulting</strong>
-            <small>AI &amp; software implementation</small>
-          </span>
+          <img src="../assets/logo-mark-192.png" alt="" width="40" height="40">
+          <strong>AIssisted Consulting</strong>
         </a>
-
-        <button class="menu-toggle" type="button" data-menu-toggle aria-expanded="false" aria-controls="site-nav">
-          Menu
-        </button>
-
-        <nav class="nav-links" id="site-nav" data-nav-links aria-label="Primary navigation">
-          <a href="../small-business-ai-help/">Small business</a>
-          <a href="../services/">Services</a>
-          <a href="../family-ai-help/">Family</a>
-          <a href="../industries/">Industries</a>
-          <a href="../privacy-and-control/">Privacy</a>
-          <a href="../about/">About</a>
-          <a href="./">Book</a>
-          <a href="../contact/">Contact</a>
-        </nav>
+        <div class="nav-cluster">
+          <a class="btn btn-gold btn-sm" href="#availability-title">Book</a>
+          <button class="menu-btn" type="button" data-menu-open aria-expanded="false" aria-controls="site-menu" aria-haspopup="dialog">
+            <span class="menu-lines" aria-hidden="true"><i></i><i></i></span>
+            <span>Menu</span>
+          </button>
+        </div>
       </div>
     </header>
 
-    <main id="main">
-      <section class="booking-hero" data-agent="booking" aria-labelledby="booking-title">
-        <div class="container booking-hero-grid">
-          <div class="booking-lead">
-            <p class="eyebrow">Workflow Map &amp; First-Build Plan</p>
-            <h1 id="booking-title">Turn one workflow or build goal into a clear first plan.</h1>
-            <p>
-              Book a 60-minute working session with AIssisted Consulting, then receive a one-page plan prepared and reviewed by the company by 5 PM Eastern on the second qualifying business day after the completed session. The fee is $225.
-            </p>
-            <div class="booking-trust-row" aria-label="Booking assurances">
-              <span>AIssisted Consulting</span>
-              <span>Stripe checkout</span>
-              <span>Google Calendar-backed</span>
-            </div>
-            <div class="booking-steps" aria-label="Booking steps">
-              <div>
-                <strong>1</strong>
-                <span>Pick an open hour checked against AIssisted Consulting's calendar.</span>
-              </div>
-              <div>
-                <strong>2</strong>
-                <span>Send intake details so the meeting starts useful.</span>
-              </div>
-              <div>
-                <strong>3</strong>
-                <span>Payment confirms the session; the completed session starts the plan-delivery clock.</span>
-              </div>
-            </div>
-          </div>
+    <div class="site-menu" id="site-menu" data-menu role="dialog" aria-modal="true" aria-label="Site menu" hidden>
+      <div class="container menu-top">
+        <a class="brand" href="../" aria-label="AIssisted Consulting home">
+          <img src="../assets/logo-mark-192.png" alt="" width="40" height="40">
+          <strong>AIssisted Consulting</strong>
+        </a>
+        <button class="menu-btn is-close" type="button" data-menu-close>
+          <span class="menu-lines" aria-hidden="true"><i></i><i></i></span>
+          <span>Close</span>
+        </button>
+      </div>
+      <div class="container menu-body">
+        <nav class="menu-nav" aria-label="Primary navigation">
+          <ol>
+            <li style="--i:0"><a href="../services/"><small class="num">01</small>Services</a></li>
+            <li style="--i:1"><a href="../privacy-and-control/"><small class="num">02</small>Private AI</a></li>
+            <li style="--i:2"><a href="../industries/"><small class="num">03</small>Industries</a></li>
+            <li style="--i:3"><a href="../about/"><small class="num">04</small>About</a></li>
+            <li style="--i:4"><a href="../contact/"><small class="num">05</small>Contact</a></li>
+          </ol>
+        </nav>
+        <div class="menu-foot">
+          <p class="menu-tag">Local. Trusted. <span class="accent">AI.</span></p>
+          <a class="btn btn-gold" href="./?entry_route=navigation&amp;cta_id=primary_nav_book">Book the $225 plan</a>
+          <address>
+            <a href="tel:+13528173567">(352) 817-3567</a>
+            <a href="mailto:pj@aissistedconsulting.com">pj@aissistedconsulting.com</a>
+            <span>Ocala, Florida</span>
+          </address>
+        </div>
+      </div>
+    </div>
 
-          <aside class="booking-policy-card" aria-labelledby="policy-title">
-            <p class="eyebrow">What you purchase</p>
-            <h2 id="policy-title">60 minutes plus a one-page plan. $225.</h2>
-            <dl class="booking-receipt-lines" aria-label="Offer details">
-              <div>
-                <dt>Session</dt>
-                <dd>60 minutes</dd>
-              </div>
-              <div>
-                <dt>Fee</dt>
-                <dd>$225</dd>
-              </div>
-              <div>
-                <dt>Delivery</dt>
-                <dd>5 PM Eastern on the second qualifying business day after the completed session</dd>
-              </div>
-            </dl>
-            <details class="booking-terms-details" id="booking-terms">
-              <summary>Read the complete purchase, cancellation, delivery, correction, and plan-use terms</summary>
-              <p id="policy-text">
-                The $225 pays for the working session and plan. It is not an implementation deposit and creates no implementation credit. Later implementation is scoped and priced separately.
-              </p>
-            </details>
-            <p class="booking-note">A slot is not confirmed until Stripe payment succeeds and the booking record is finalized.</p>
-          </aside>
+    <main id="main" class="book-page">
+      <section class="book-head" data-agent="booking" aria-labelledby="booking-title">
+        <div class="container">
+          <p class="kicker">Workflow Map &amp; First-Build Plan</p>
+          <h1 class="h1" id="booking-title">Pick an hour.<br><span class="accent">Get a plan.</span></h1>
+          <p class="sub">Sixty minutes with us, then a one-page plan in your inbox by 5&nbsp;PM Eastern on the second qualifying business day after the completed session. $225.</p>
         </div>
       </section>
 
-      <section class="booking-workspace">
-        <div class="container booking-shell">
-          <div class="booking-stack">
-            <section class="booking-card" aria-labelledby="availability-title">
-              <div class="booking-card-header">
-                <div>
-                  <p class="eyebrow">Step 1</p>
-                  <h2 id="availability-title">Choose a real calendar window</h2>
-                </div>
-                <small>Busy customer meetings and other busy calendar events are blocked automatically.</small>
-              </div>
-              <div id="booking-status" class="status-banner" role="status" aria-live="polite"></div>
-              <div id="availability-root">
-                <p class="loading-copy">Loading appointment windows...</p>
-              </div>
-            </section>
+      <section class="container book-shell">
+        <div class="book-main">
+          <section class="panel" aria-labelledby="availability-title">
+            <div class="panel-head">
+              <span class="num">01</span>
+              <h2 id="availability-title">Choose a time</h2>
+              <small>Live from our calendar. Times are Eastern.</small>
+            </div>
+            <div id="booking-status" class="status-banner" role="status" aria-live="polite"></div>
+            <div id="availability-root">
+              <p class="loading-copy">Loading open hours&hellip;</p>
+            </div>
+          </section>
 
-            <section class="booking-card" aria-labelledby="intake-title">
-              <p class="eyebrow">Step 2</p>
-              <h2 id="intake-title">A little context before checkout</h2>
-              <p>Keep it short and do not include passwords, API keys, private customer records, or other sensitive information.</p>
-              <form id="booking-form" class="booking-form">
-                <div class="booking-form-grid">
-                  <label>
-                    <span>Name</span>
-                    <input id="name" name="name" maxlength="100" autocomplete="name" required>
-                  </label>
-                  <label>
-                    <span>Email</span>
-                    <input id="email" name="email" type="email" maxlength="200" autocomplete="email" required>
-                  </label>
-                  <label>
-                    <span>Phone</span>
-                    <input id="phone" name="phone" maxlength="40" autocomplete="tel">
-                  </label>
-                  <label>
-                    <span>Company or project</span>
-                    <input id="company" name="company" maxlength="120" autocomplete="organization">
-                  </label>
-                  <label class="full">
-                    <span>Website</span>
-                    <input id="companyWebsite" name="companyWebsite" type="url" maxlength="200" inputmode="url" placeholder="https://yourbusiness.com">
-                  </label>
-                  <label>
-                    <span>Industry</span>
-                    <select id="industry" name="industry">
-                      <option value="">Select</option>
-                      <option>HVAC</option>
-                      <option>Pest Control</option>
-                      <option>Plumbing</option>
-                      <option>Electrical</option>
-                      <option>Real Estate</option>
-                      <option>Professional Services</option>
-                      <option>Other</option>
-                    </select>
-                  </label>
-                  <label>
-                    <span>Primary goal</span>
-                    <select id="primaryGoal" name="primaryGoal">
-                      <option value="">Select</option>
-                      <option>Missed call recovery</option>
-                      <option>Scheduling and dispatch</option>
-                      <option>Lead qualification</option>
-                      <option>Follow-up support</option>
-                      <option>Operations reporting</option>
-                      <option>Custom software build</option>
-                      <option>General implementation planning</option>
-                    </select>
-                  </label>
-                  <label class="full">
-                    <span>What would you like help with? *</span>
-                    <select id="routeId" name="routeId" required>
-                      <option value="">Choose one</option>
-                      <option value="workflow_improvement">Fix how something works</option>
-                      <option value="custom_development">Build something new</option>
-                    </select>
-                  </label>
-                  <label class="full">
-                    <span>What should we know before the appointment?</span>
-                    <textarea id="notes" name="notes" maxlength="2000" rows="5" placeholder="Current workflow, friction, software in use, or the one decision you want clearer."></textarea>
-                  </label>
-                </div>
-
-                <div class="honeypot" aria-hidden="true">
-                  <label for="websiteLeaveBlank">Leave this field empty</label>
-                  <input id="websiteLeaveBlank" name="websiteLeaveBlank" tabindex="-1" autocomplete="off">
-                </div>
-
-                <label class="policy-check" for="policyAccepted">
-                  <input id="policyAccepted" name="policyAccepted" type="checkbox">
-                  <span id="policy-acceptance-text">I agree to the booking terms shown on this page.</span>
+          <section class="panel" aria-labelledby="intake-title">
+            <div class="panel-head">
+              <span class="num">02</span>
+              <h2 id="intake-title">Tell us what you're working on</h2>
+              <small>Short is fine. No passwords, API keys, or private customer records.</small>
+            </div>
+            <form id="booking-form" class="form">
+              <div class="form-grid">
+                <label class="field">
+                  <span>Name</span>
+                  <input id="name" name="name" maxlength="100" autocomplete="name" required>
                 </label>
-                <a class="booking-terms-link" href="#booking-terms">Review the complete terms before payment</a>
+                <label class="field">
+                  <span>Email</span>
+                  <input id="email" name="email" type="email" maxlength="200" autocomplete="email" required>
+                </label>
+                <label class="field">
+                  <span>Phone</span>
+                  <input id="phone" name="phone" maxlength="40" autocomplete="tel">
+                </label>
+                <label class="field">
+                  <span>Company or project</span>
+                  <input id="company" name="company" maxlength="120" autocomplete="organization">
+                </label>
+                <label class="field full">
+                  <span>Website</span>
+                  <input id="companyWebsite" name="companyWebsite" type="url" maxlength="200" inputmode="url" placeholder="https://yourbusiness.com">
+                </label>
+                <label class="field">
+                  <span>Industry</span>
+                  <select id="industry" name="industry">
+                    <option value="">Select</option>
+                    <option>HVAC</option>
+                    <option>Pest Control</option>
+                    <option>Plumbing</option>
+                    <option>Electrical</option>
+                    <option>Real Estate</option>
+                    <option>Professional Services</option>
+                    <option>Other</option>
+                  </select>
+                </label>
+                <label class="field">
+                  <span>Primary goal</span>
+                  <select id="primaryGoal" name="primaryGoal">
+                    <option value="">Select</option>
+                    <option>Missed call recovery</option>
+                    <option>Scheduling and dispatch</option>
+                    <option>Lead qualification</option>
+                    <option>Follow-up support</option>
+                    <option>Operations reporting</option>
+                    <option>Custom software build</option>
+                    <option>General implementation planning</option>
+                  </select>
+                </label>
+                <label class="field full">
+                  <span>What would you like help with? *</span>
+                  <select id="routeId" name="routeId" required>
+                    <option value="">Choose one</option>
+                    <option value="workflow_improvement">Fix how something works</option>
+                    <option value="custom_development">Build something new</option>
+                  </select>
+                </label>
+                <label class="field full">
+                  <span>What should we know before we meet?</span>
+                  <textarea id="notes" name="notes" maxlength="2000" rows="5" placeholder="The workflow, the friction, the software in play, or the one decision you want clearer."></textarea>
+                </label>
+              </div>
 
-                <button id="booking-submit" class="btn btn-primary" type="submit">Continue to Stripe</button>
-                <div id="booking-submit-status" class="status-banner booking-submit-status" role="status" aria-live="polite"></div>
-                <p class="fine-print">Checkout opens only after the form validates. The slot is not confirmed until payment succeeds and the backend finalizes the booking.</p>
-              </form>
-            </section>
-          </div>
+              <div class="honeypot" aria-hidden="true">
+                <label for="websiteLeaveBlank">Leave this field empty</label>
+                <input id="websiteLeaveBlank" name="websiteLeaveBlank" tabindex="-1" autocomplete="off">
+              </div>
 
-          <aside class="booking-summary" aria-label="Plan summary">
-            <section class="summary-tile">
-              <span class="summary-label">Session and plan fee</span>
-              <strong id="reservation-amount" class="summary-amount">$225.00</strong>
-              <p>No implementation credit. Implementation is scoped separately.</p>
-            </section>
-            <section class="summary-tile">
-              <span class="summary-label">Selected appointment</span>
-              <strong id="selected-slot-label" class="summary-slot">Choose a time window</strong>
-              <p id="selected-slot-meta">A slot remains temporary until Stripe payment succeeds.</p>
-            </section>
-            <section class="summary-tile">
-              <span class="summary-label">Your plan covers</span>
+              <label class="check" for="policyAccepted">
+                <input id="policyAccepted" name="policyAccepted" type="checkbox">
+                <span id="policy-acceptance-text">I agree to the booking terms shown on this page.</span>
+              </label>
+
+              <div class="form-actions">
+                <button id="booking-submit" class="btn btn-gold" type="submit">Continue to Stripe</button>
+                <a class="link" href="#booking-terms">Read the terms</a>
+              </div>
+              <div id="booking-submit-status" class="status-banner booking-submit-status" role="status" aria-live="polite"></div>
+              <p class="fine-print">Your time is held once Stripe payment succeeds and the booking is finalized.</p>
+            </form>
+          </section>
+        </div>
+
+        <aside class="book-side" aria-label="Plan summary">
+          <div class="summary">
+            <p class="kicker">Your session</p>
+            <p class="summary-price">
+              <strong id="reservation-amount">$225.00</strong>
+              <span>60 minutes, then a one-page plan.</span>
+            </p>
+            <div class="summary-slot">
+              <span class="label">Time</span>
+              <strong id="selected-slot-label">Choose a time</strong>
+              <small id="selected-slot-meta">Held only once payment succeeds.</small>
+            </div>
+            <div>
+              <span class="label">The plan covers</span>
               <ul>
                 <li>Problem or build goal.</li>
                 <li>Recommended direction and material known constraints.</li>
                 <li>Smallest useful first build.</li>
                 <li>Next decision and validation needed before a reliable implementation quote.</li>
               </ul>
-            </section>
-            <a class="summary-link" href="#fit-call">Not sure? Request a 15-minute Fit Call</a>
-          </aside>
-        </div>
+            </div>
+            <p class="summary-note">No implementation credit. Implementation is scoped and priced separately.</p>
+            <details class="terms" id="booking-terms">
+              <summary id="policy-title">Purchase, cancellation, delivery, and plan-use terms</summary>
+              <p id="policy-text">
+                The $225 pays for the working session and plan. It is not an implementation deposit and creates no implementation credit. Later implementation is scoped and priced separately.
+              </p>
+            </details>
+            <a class="link" href="#fit-call">Not sure? Ask for a free 15-minute Fit Call</a>
+          </div>
+        </aside>
       </section>
 
-      <section class="content-section" id="fit-call" aria-labelledby="fit-call-title">
-        <div class="container content-grid">
-          <div class="content-copy">
-            <p class="eyebrow">Not sure?</p>
-            <h2 id="fit-call-title">Request a free 15-minute Fit Call.</h2>
-            <p>This is a short manual-fit check, not a consulting session. Requests are reviewed by AIssisted Consulting and initially limited to two accepted calls per week.</p>
+      <section class="section fit" id="fit-call" aria-labelledby="fit-call-title">
+        <div class="container fit-grid">
+          <div class="reveal">
+            <p class="kicker">Not sure yet?</p>
+            <h2 class="h2 h2-small" id="fit-call-title">Request a free 15-minute Fit Call.</h2>
+            <p class="sub">A short fit check, not a consulting session. We accept two a week.</p>
           </div>
-          <form class="draft-panel contact-form" id="fit-call-form" data-fit-call-form>
-            <div class="field-grid">
-              <label>Name<input name="name" autocomplete="name" required></label>
-              <label>Email<input name="email" type="email" autocomplete="email" required></label>
-              <label>Phone<input name="phone" type="tel" autocomplete="tel"></label>
-              <label>Business or project<input name="company" autocomplete="organization"></label>
-              <label class="full">What kind of help?<select name="routeId" required><option value="workflow_improvement">Fix how something works</option><option value="custom_development">Build something new</option></select></label>
-              <label class="full">What are you trying to decide?<textarea name="summary" rows="4" maxlength="1000" required></textarea></label>
+          <form class="panel reveal" id="fit-call-form" data-fit-call-form data-delay="1">
+            <div class="form-grid">
+              <label class="field"><span>Name</span><input name="name" autocomplete="name" required></label>
+              <label class="field"><span>Email</span><input name="email" type="email" autocomplete="email" required></label>
+              <label class="field"><span>Phone</span><input name="phone" type="tel" autocomplete="tel"></label>
+              <label class="field"><span>Business or project</span><input name="company" autocomplete="organization"></label>
+              <label class="field full"><span>What kind of help?</span><select name="routeId" required><option value="workflow_improvement">Fix how something works</option><option value="custom_development">Build something new</option></select></label>
+              <label class="field full"><span>What are you trying to decide?</span><textarea name="summary" rows="4" maxlength="1000" required></textarea></label>
             </div>
             <div class="honeypot" aria-hidden="true"><label>Leave blank<input name="websiteLeaveBlank" tabindex="-1" autocomplete="off"></label></div>
-            <label class="consent-check"><input name="consentToSubmit" type="checkbox" required><span>Send this request to AIssisted Consulting for review.</span></label>
-            <button class="btn btn-secondary" type="submit">Request a Fit Call</button>
-            <div class="contact-submit-status" data-fit-call-status role="status" aria-live="polite"></div>
-            <p class="form-note">Do not include passwords, API keys, financial account details, health records, or private customer data.</p>
+            <label class="check"><input name="consentToSubmit" type="checkbox" required><span>Send this request to AIssisted Consulting for review.</span></label>
+            <div class="form-actions">
+              <button class="btn btn-ghost" type="submit">Request a Fit Call</button>
+            </div>
+            <div class="fit-status" data-fit-call-status role="status" aria-live="polite"></div>
+            <p class="fine-print">No passwords, API keys, financial details, health records, or private customer data.</p>
           </form>
         </div>
       </section>
     </main>
 
     <footer class="site-footer">
-      <div class="container footer-layout">
-        <div>
-          <strong>AIssisted Consulting</strong>
-          <p>AI and software implementation for small businesses and individuals in Ocala, Florida and remotely.</p>
+      <div class="container">
+        <div class="footer-grid">
+          <div>
+            <a class="brand" href="../" aria-label="AIssisted Consulting home">
+              <img src="../assets/logo-mark-192.png" alt="" width="40" height="40">
+              <strong>AIssisted Consulting</strong>
+            </a>
+            <p class="footer-blurb">AI and software implementation for small businesses and individuals. Certified AI Scientist and Certified AI Consultant (USAII).</p>
+          </div>
+          <div>
+            <h3>Work with us</h3>
+            <a href="../services/">Services</a>
+            <a href="../workflow-automation/">Workflow automation</a>
+            <a href="../small-business-ai-help/">Small business</a>
+            <a href="../family-ai-help/">Family</a>
+            <a href="../industries/">Industries</a>
+          </div>
+          <div>
+            <h3>Company</h3>
+            <a href="../about/">About</a>
+            <a href="../privacy-and-control/">Privacy &amp; control</a>
+            <a href="./">Book</a>
+            <a href="../contact/">Contact</a>
+          </div>
+          <div>
+            <h3>Products</h3>
+            <a href="../grail/">Grail</a>
+            <a href="../brightway/">BrightWay</a>
+            <a href="../unrealtor/">UnRealtor</a>
+            <a href="../terms/">Terms</a>
+            <a href="../privacy/">Privacy policy</a>
+          </div>
         </div>
-        <nav class="footer-links" aria-label="Footer navigation">
-          <a href="../small-business-ai-help/">Small business</a>
-          <a href="../services/">Services</a>
-          <a href="../family-ai-help/">Family</a>
-          <a href="../privacy-and-control/">Privacy</a>
-          <a href="../contact/">Contact</a>
-        </nav>
-        <img class="ai-guy-mark" src="../assets/ai-guy-logo.jpeg" alt="AI Guy: Local. Trusted. AI." width="96" height="96">
-        <p>&copy; <span data-year>2026</span> AIssisted Consulting. Ocala, FL.</p>
+        <div class="footer-bottom">
+          <p>&copy; <span data-year>2026</span> AIssisted Consulting. Ocala, FL.</p>
+          <p>Local. Trusted. AI.</p>
+        </div>
       </div>
     </footer>
 
-    <script src="../main.js?v=11.11.5" defer></script>
+    <script src="../main.js?v=20260718" defer></script>
     <script src="../assets/aic-google-ads-tracking.js?v=20260817" defer></script>
-    <script src="./booking.js?v=11.11.6" defer></script>
+    <script src="../assets/site/site.js?v=20260907" defer></script>
+    <script src="./booking.js?v=20260907" defer></script>
     <script src="./fit-call.js?v=20260904" defer></script>
   </body>
 </html>

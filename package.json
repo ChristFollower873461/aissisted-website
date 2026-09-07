@@ -20,13 +20,15 @@
     "test:brightway-store": "node --test tests/brightway-store-readiness.test.mjs",
     "test:seo-agent": "node --test tests/seo-agent-readiness.test.mjs",
     "test:grail-deletion": "node --test tests/grail-account-deletion.test.mjs",
-    "check:pages-preview": "node scripts/validate-pages-preview-isolation.mjs"
+    "check:pages-preview": "node scripts/validate-pages-preview-isolation.mjs",
+    "build:hero": "node scripts/build-hero.mjs"
   },
   "dependencies": {
     "three": "0.184.0"
   },
   "devDependencies": {
     "@iarna/toml": "2.2.5",
+    "esbuild": "^0.28.2",
     "playwright": "^1.59.1"
   }
 }

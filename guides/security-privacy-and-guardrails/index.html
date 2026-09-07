@@ -15,7 +15,9 @@
     <meta name="twitter:title" content="AI Security, Privacy &amp; Guardrails for Small Business | AIssisted Consulting">
     <meta name="twitter:description" content="Define allowed data, blocked actions, human review, audit visibility, and a safe fallback before an AI workflow goes live.">
     <meta name="twitter:image" content="https://aissistedconsulting.com/assets/og-image.jpg">
-    <link rel="stylesheet" href="../../styles.css?v=11.11.8">
+    <link rel="preload" href="/assets/fonts/martian-mono-var.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="/assets/site/site.css?v=20260907">
+    <link rel="stylesheet" href="/assets/site/page.css?v=20260907">
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -84,28 +86,54 @@
   <body data-page="guide-security-privacy-and-guardrails" data-parsifal-source-id="seo-content-2026-06-26-privacy-guardrails">
     <a class="skip-link" href="#main">Skip to content</a>
 
-    <header class="site-header">
+    <header class="site-header" data-header>
       <div class="container nav-wrap">
         <a class="brand" href="../../" aria-label="AIssisted Consulting home">
-          <img src="../../assets/logo.png" alt="AIssisted Consulting logo" width="58" height="44">
-          <span>
-            <strong>AIssisted Consulting</strong>
-            <small>AI &amp; software implementation</small>
-          </span>
+          <img src="/assets/logo-mark-192.png" alt="" width="40" height="40">
+          <strong>AIssisted Consulting</strong>
         </a>
-        <button class="menu-toggle" type="button" data-menu-toggle aria-expanded="false" aria-controls="site-nav">Menu</button>
-        <nav class="nav-links" id="site-nav" data-nav-links aria-label="Primary navigation">
-          <a href="../../small-business-ai-help/">Small business</a>
-          <a href="../../services/">Services</a>
-          <a href="../../family-ai-help/">Family</a>
-          <a href="../../industries/">Industries</a>
-          <a href="../../privacy-and-control/">Privacy</a>
-          <a href="../../about/">About</a>
-          <a href="../../book/">Book</a>
-          <a href="../../contact/">Contact</a>
-        </nav>
+        <div class="nav-cluster">
+          <a class="btn btn-gold btn-sm" href="../../book/?entry_route=guide&amp;cta_id=guide_nav_paid_plan">Book</a>
+          <button class="menu-btn" type="button" data-menu-open aria-expanded="false" aria-controls="site-menu" aria-haspopup="dialog">
+            <span class="menu-lines" aria-hidden="true"><i></i><i></i></span>
+            <span>Menu</span>
+          </button>
+        </div>
       </div>
     </header>
+
+    <div class="site-menu" id="site-menu" data-menu role="dialog" aria-modal="true" aria-label="Site menu" hidden>
+      <div class="container menu-top">
+        <a class="brand" href="../../" aria-label="AIssisted Consulting home">
+          <img src="/assets/logo-mark-192.png" alt="" width="40" height="40">
+          <strong>AIssisted Consulting</strong>
+        </a>
+        <button class="menu-btn is-close" type="button" data-menu-close>
+          <span class="menu-lines" aria-hidden="true"><i></i><i></i></span>
+          <span>Close</span>
+        </button>
+      </div>
+      <div class="container menu-body">
+        <nav class="menu-nav" aria-label="Primary navigation">
+          <ol>
+            <li style="--i:0"><a href="../../services/"><small class="num">01</small>Services</a></li>
+            <li style="--i:1"><a href="../../privacy-and-control/"><small class="num">02</small>Private AI</a></li>
+            <li style="--i:2"><a href="../../industries/"><small class="num">03</small>Industries</a></li>
+            <li style="--i:3"><a href="../../about/"><small class="num">04</small>About</a></li>
+            <li style="--i:4"><a href="../../contact/"><small class="num">05</small>Contact</a></li>
+          </ol>
+        </nav>
+        <div class="menu-foot">
+          <p class="menu-tag">Local. Trusted. <span class="accent">AI.</span></p>
+          <a class="btn btn-gold" href="../../book/?entry_route=guide&amp;cta_id=guide_nav_paid_plan">Book the $225 plan</a>
+          <address>
+            <a href="tel:+13528173567">(352) 817-3567</a>
+            <a href="mailto:pj@aissistedconsulting.com">pj@aissistedconsulting.com</a>
+            <span>Ocala, Florida</span>
+          </address>
+        </div>
+      </div>
+    </div>
 
     <main id="main">
       <section class="page-hero page-hero-small" aria-labelledby="guide-title">
@@ -209,13 +237,48 @@
     </main>
 
     <footer class="site-footer">
-      <div class="container footer-layout">
-        <p>&copy; <span data-year>2026</span> AIssisted Consulting. Ocala, FL.</p>
-        <p><a href="../../contact/">Ask about your process</a> or email <a href="mailto:pj@aissistedconsulting.com">pj@aissistedconsulting.com</a>.</p>
+      <div class="container">
+        <div class="footer-grid">
+          <div>
+            <a class="brand" href="../../" aria-label="AIssisted Consulting home">
+              <img src="/assets/logo-mark-192.png" alt="" width="40" height="40">
+              <strong>AIssisted Consulting</strong>
+            </a>
+            <p class="footer-blurb">AI and software implementation for small businesses and individuals. Certified AI Scientist and Certified AI Consultant (USAII).</p>
+          </div>
+          <div>
+            <h3>Work with us</h3>
+            <a href="../../services/">Services</a>
+            <a href="../../workflow-automation/">Workflow automation</a>
+            <a href="../../small-business-ai-help/">Small business</a>
+            <a href="../../family-ai-help/">Family</a>
+            <a href="../../industries/">Industries</a>
+          </div>
+          <div>
+            <h3>Company</h3>
+            <a href="../../about/">About</a>
+            <a href="../../privacy-and-control/">Privacy &amp; control</a>
+            <a href="../../blog/">Blog</a>
+            <a href="../../book/">Book</a>
+            <a href="../../contact/">Contact</a>
+          </div>
+          <div>
+            <h3>Products</h3>
+            <a href="../../grail/">Grail</a>
+            <a href="../../brightway/">BrightWay</a>
+            <a href="../../unrealtor/">UnRealtor</a>
+            <a href="../../terms/">Terms</a>
+            <a href="../../privacy/">Privacy policy</a>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <p>&copy; <span data-year>2026</span> AIssisted Consulting. Ocala, FL.</p>
+          <p>Local. Trusted. AI.</p>
+        </div>
       </div>
     </footer>
 
-    <script src="../../main.js?v=11.11.8"></script>
+    <script src="/assets/site/site.js?v=20260907"></script>
     <script src="/assets/aic-google-ads-tracking.js?v=20260817"></script>
   </body>
 </html>
