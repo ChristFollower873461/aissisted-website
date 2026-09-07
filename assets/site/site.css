@@ -350,7 +350,7 @@ html.menu-open { overflow: hidden; }
   gap: 40px;
 }
 .footer-blurb { margin: 18px 0 0; max-width: 34ch; }
-.footer-grid h4 {
+.footer-grid h3 {
   margin: 8px 0 14px;
   font-stretch: 80%;
   font-size: 0.76rem;
