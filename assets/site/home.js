@@ -1,4 +1,4 @@
-/* Homepage behaviour: the terminal replay and the lazy hero scene. Header, menu and reveals live in site.js. */
+/* Homepage behaviour: the terminal replay. Header, menu, reveals and the hero scene live in site.js. */
 (function () {
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -74,44 +74,5 @@
     observer.observe(terminal);
   }
 
-  function initHeroScene() {
-    const host = document.querySelector("[data-hero-scene]");
-    if (!host || !host.dataset.heroScene) return;
-    if (reducedMotion) return;
-    const connection = navigator.connection;
-    if (connection && (connection.saveData || /(^|-)2g$|^3g$/.test(connection.effectiveType || ""))) return;
-    if (navigator.deviceMemory && navigator.deviceMemory < 2) return;
-
-    let webgl = false;
-    try {
-      const probe = document.createElement("canvas");
-      webgl = Boolean(probe.getContext("webgl2") || probe.getContext("webgl"));
-    } catch (error) {
-      webgl = false;
-    }
-    if (!webgl) return;
-
-    const mount = () => {
-      import(host.dataset.heroScene)
-        .then((module) => module.mountHeroScene(host))
-        .catch(() => {});
-    };
-    const whenIdle = () => {
-      if (window.requestIdleCallback) {
-        window.requestIdleCallback(mount, { timeout: 2500 });
-      } else {
-        window.setTimeout(mount, 600);
-      }
-    };
-    // Let the first paint and the poster settle before the bundle competes for the main thread.
-    const afterSettle = () => window.setTimeout(whenIdle, 900);
-    if (document.readyState === "complete") {
-      afterSettle();
-    } else {
-      window.addEventListener("load", afterSettle, { once: true });
-    }
-  }
-
   initTerminal();
-  initHeroScene();
 }());

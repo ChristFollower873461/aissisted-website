@@ -5,14 +5,84 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex, nofollow">
     <title>Page Not Found | AIssisted Consulting</title>
-    <link rel="stylesheet" href="/styles.css?v=11.11.4">
+    <meta name="theme-color" content="#06080f">
+    <link rel="preload" href="/assets/fonts/martian-mono-var.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="/assets/site/site.css?v=20260907">
+    <link rel="stylesheet" href="/assets/site/page.css?v=20260907">
   </head>
-  <body>
-    <main class="section page-shell">
-      <p class="eyebrow">404</p>
-      <h1>That page is not available.</h1>
-      <p>The AIssisted Consulting page you requested could not be found.</p>
-      <p><a class="button" href="/">Return home</a></p>
+  <body data-page="404">
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <header class="site-header" data-header>
+      <div class="container nav-wrap">
+        <a class="brand" href="/" aria-label="AIssisted Consulting home">
+          <img src="/assets/logo-mark-192.png" alt="" width="40" height="40">
+          <strong>AIssisted Consulting</strong>
+        </a>
+        <div class="nav-cluster">
+          <a class="btn btn-gold btn-sm" href="/book/?entry_route=404&amp;cta_id=404_nav_paid_plan">Book</a>
+          <button class="menu-btn" type="button" data-menu-open aria-expanded="false" aria-controls="site-menu" aria-haspopup="dialog">
+            <span class="menu-lines" aria-hidden="true"><i></i><i></i></span>
+            <span>Menu</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <div class="site-menu" id="site-menu" data-menu role="dialog" aria-modal="true" aria-label="Site menu" hidden>
+      <div class="container menu-top">
+        <a class="brand" href="/" aria-label="AIssisted Consulting home">
+          <img src="/assets/logo-mark-192.png" alt="" width="40" height="40">
+          <strong>AIssisted Consulting</strong>
+        </a>
+        <button class="menu-btn is-close" type="button" data-menu-close>
+          <span class="menu-lines" aria-hidden="true"><i></i><i></i></span>
+          <span>Close</span>
+        </button>
+      </div>
+      <div class="container menu-body">
+        <nav class="menu-nav" aria-label="Primary navigation">
+          <ol>
+            <li style="--i:0"><a href="/services/"><small class="num">01</small>Services</a></li>
+            <li style="--i:1"><a href="/privacy-and-control/"><small class="num">02</small>Private AI</a></li>
+            <li style="--i:2"><a href="/industries/"><small class="num">03</small>Industries</a></li>
+            <li style="--i:3"><a href="/about/"><small class="num">04</small>About</a></li>
+            <li style="--i:4"><a href="/contact/"><small class="num">05</small>Contact</a></li>
+          </ol>
+        </nav>
+        <div class="menu-foot">
+          <p class="menu-tag">Local. Trusted. <span class="accent">AI.</span></p>
+          <a class="btn btn-gold" href="/book/?entry_route=404&amp;cta_id=404_nav_paid_plan">Book the $225 plan</a>
+          <address>
+            <a href="tel:+13528173567">(352) 817-3567</a>
+            <a href="mailto:pj@aissistedconsulting.com">pj@aissistedconsulting.com</a>
+            <span>Ocala, Florida</span>
+          </address>
+        </div>
+      </div>
+    </div>
+
+    <main id="main">
+      <section class="page-hero notfound" aria-labelledby="page-title">
+        <div class="hero-stage" data-hero-scene="/assets/hero/hero-scene.min.js?v=20260907" data-hero-variant="page" aria-hidden="true">
+          <picture>
+            <source media="(max-width: 760px)" srcset="/assets/hero/poster-page-mobile.webp">
+            <img class="hero-poster" src="/assets/hero/poster-page.webp" alt="" width="2880" height="1800" decoding="async" fetchpriority="high">
+          </picture>
+        </div>
+        <div class="hero-scrim" aria-hidden="true"></div>
+        <div class="container page-hero-copy">
+          <p class="kicker">Not found</p>
+          <p class="code">404</p>
+          <h1 class="h1" id="page-title">That page is not here.</h1>
+          <div class="hero-actions">
+            <a class="btn btn-gold" href="/">Back to the start</a>
+            <a class="btn btn-ghost" href="/contact/">Contact</a>
+          </div>
+        </div>
+      </section>
     </main>
+
+    <script src="/assets/site/site.js?v=20260907"></script>
   </body>
 </html>

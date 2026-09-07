@@ -1,4 +1,5 @@
-/* Homepage sections on top of site.css: hero, proof terminal, lanes, the $225 plan, stack, products, contact. */
+/* Homepage sections on top of site.css: hero copy, proof terminal, the $225 plan, stack, products, contact.
+   The stage, scrim, lanes and hero-actions are shared components in site.css. */
 
 /* Hero --------------------------------------------------------------------------------- */
 
@@ -11,31 +12,6 @@
   background: var(--ink);
 }
 
-.hero-stage {
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(60% 70% at 70% 40%, rgba(95, 98, 214, 0.28), transparent 70%), var(--ink);
-}
-.hero-stage picture, .hero-stage img, .hero-stage canvas {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-}
-.hero-stage img { object-fit: cover; transition: opacity 1.4s var(--ease) 0.3s; }
-.hero-stage canvas { display: block; opacity: 0; transition: opacity 1.4s var(--ease); }
-.hero-stage.is-ready canvas { opacity: 1; }
-.hero-stage.is-ready img { opacity: 0; }
-
-.hero-scrim {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background:
-    linear-gradient(180deg, rgba(6, 8, 15, 0.45) 0%, rgba(6, 8, 15, 0) 28%, rgba(6, 8, 15, 0) 52%, rgba(6, 8, 15, 0.92) 100%),
-    linear-gradient(90deg, rgba(6, 8, 15, 0.55) 0%, rgba(6, 8, 15, 0) 52%);
-}
-
 .hero-copy {
   position: relative;
   z-index: 2;
@@ -46,24 +22,23 @@
 
 .hero-title {
   margin: 0 0 28px;
-  font-weight: 500;
-  font-size: clamp(4.4rem, 12.5vw, 11.5rem);
-  line-height: 0.9;
-  letter-spacing: -0.045em;
+  font-stretch: 112.5%;
+  font-weight: 700;
+  font-size: clamp(3rem, 7.6vw, 8.6rem);
+  line-height: 0.92;
+  letter-spacing: -0.065em;
   color: #fff;
   text-shadow: 0 8px 60px rgba(6, 8, 15, 0.6);
 }
-.hero-title span { display: inline-block; }
+.hero-title span { display: block; }
 
 .hero-lede {
   margin: 0 0 40px;
   max-width: 34ch;
-  font-size: clamp(1.2rem, 1.7vw, 1.5rem);
-  line-height: 1.4;
+  font-size: clamp(1.02rem, 1.4vw, 1.25rem);
+  line-height: 1.45;
   color: rgba(243, 242, 255, 0.92);
 }
-
-.hero-actions { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; }
 
 /* Entrance: kicker, each headline word, lede and actions rise in sequence. */
 .js .hero-kicker, .js .hero-title span, .js .hero-lede, .js .hero-actions {
@@ -130,8 +105,8 @@
   gap: 8px;
   padding: 14px 18px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.07);
-  font-family: var(--mono);
-  font-size: 0.78rem;
+  font-stretch: 87.5%;
+  font-size: 0.76rem;
   color: var(--muted);
 }
 .terminal-bar i { width: 11px; height: 11px; border-radius: 50%; background: #ff5f57; }
@@ -144,10 +119,11 @@
   background: rgba(255, 255, 255, 0.04);
   color: var(--text);
   border-radius: var(--r-pill);
-  padding: 6px 14px;
-  font-family: var(--font);
-  font-size: 0.82rem;
+  padding: 7px 14px;
+  font-size: 0.72rem;
   font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   cursor: pointer;
   transition: background 0.2s, border-color 0.2s;
 }
@@ -158,8 +134,8 @@
   z-index: 1;
   padding: 24px 26px 28px;
   min-height: 430px;
-  font-family: var(--mono);
-  font-size: clamp(0.78rem, 1vw, 0.94rem);
+  font-stretch: 87.5%;
+  font-size: clamp(0.76rem, 0.95vw, 0.9rem);
   line-height: 1.75;
   color: #d7d6ee;
   overflow-x: auto;
@@ -187,47 +163,7 @@
 }
 @keyframes blink { 50% { opacity: 0; } }
 
-.proof-note { margin: 22px 0 0; color: var(--muted); font-size: 0.95rem; }
-
-/* Lanes -------------------------------------------------------------------------------- */
-
-.lanes { list-style: none; margin: 56px 0 0; padding: 0; border-top: 1px solid var(--line); }
-.lanes li { border-bottom: 1px solid var(--line); }
-.lane {
-  display: grid;
-  grid-template-columns: 110px 1fr 1fr 56px;
-  gap: 32px;
-  align-items: center;
-  padding: 44px 0;
-  color: inherit;
-}
-.lane .num {
-  font-size: 1.9rem;
-  color: var(--muted);
-  transition: color 0.25s;
-}
-.lane h3 {
-  margin: 0;
-  font-weight: 500;
-  font-size: clamp(1.9rem, 3.1vw, 2.9rem);
-  line-height: 1.05;
-  letter-spacing: -0.025em;
-  color: #fff;
-}
-.lane p { margin: 0; max-width: 40ch; font-size: 1.05rem; color: var(--muted); }
-.lane .arrow {
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  border: 1px solid var(--line);
-  display: grid;
-  place-items: center;
-  font-size: 1.3rem;
-  color: #fff;
-  transition: background 0.25s, color 0.25s, border-color 0.25s, transform 0.3s var(--ease);
-}
-.lane:hover .num { color: var(--gold); }
-.lane:hover .arrow { background: var(--gold); color: #1a1405; border-color: var(--gold); transform: translateX(6px); }
+.proof-note { margin: 22px 0 0; color: var(--muted); font-size: 0.9rem; }
 
 /* Start: the $225 plan ------------------------------------------------------------------ */
 
@@ -240,17 +176,19 @@
 }
 .price {
   margin: 0;
-  font-weight: 600;
-  font-size: clamp(5.5rem, 13vw, 11rem);
+  font-stretch: 112.5%;
+  font-weight: 700;
+  font-size: clamp(4.4rem, 10vw, 8.6rem);
   line-height: 0.9;
-  letter-spacing: -0.06em;
+  letter-spacing: -0.08em;
   color: #fff;
 }
 .price small {
   display: block;
   margin-top: 18px;
+  font-stretch: 87.5%;
   font-weight: 400;
-  font-size: 1.05rem;
+  font-size: 0.98rem;
   letter-spacing: 0;
   color: var(--muted);
 }
@@ -262,7 +200,7 @@
   border: 1px solid rgba(138, 139, 221, 0.26);
   box-shadow: 0 40px 100px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
-.start-card p { margin: 0 0 30px; font-size: 1.1rem; color: rgba(243, 242, 255, 0.86); }
+.start-card p { margin: 0 0 30px; font-size: 1.02rem; color: rgba(243, 242, 255, 0.86); }
 .start-actions { display: flex; flex-wrap: wrap; gap: 22px; align-items: center; }
 
 /* Stack marquee ------------------------------------------------------------------------ */
@@ -297,9 +235,10 @@
   display: inline-flex;
   align-items: center;
   padding-right: 56px;
-  font-weight: 500;
-  font-size: clamp(1.7rem, 3vw, 2.7rem);
-  letter-spacing: -0.025em;
+  font-stretch: 112.5%;
+  font-weight: 600;
+  font-size: clamp(1.3rem, 2.2vw, 2rem);
+  letter-spacing: -0.04em;
   color: rgba(243, 242, 255, 0.78);
   white-space: nowrap;
 }
@@ -314,7 +253,7 @@
 }
 .stack:hover .marquee-track { animation-play-state: paused; }
 @keyframes marquee { to { transform: translateX(-100%); } }
-.stack-note { margin: 28px auto 0; font-size: 0.9rem; color: var(--muted); }
+.stack-note { margin: 28px auto 0; font-size: 0.86rem; color: var(--muted); }
 
 /* Products ----------------------------------------------------------------------------- */
 
@@ -331,7 +270,7 @@
   align-items: end;
 }
 .contact .sub { margin-bottom: 36px; }
-.contact-lines { display: grid; gap: 10px; font-style: normal; font-size: 1.15rem; color: var(--muted); }
+.contact-lines { display: grid; gap: 10px; font-style: normal; font-size: 1.05rem; color: var(--muted); }
 .contact-lines a { color: #fff; }
 .contact-lines a:hover { color: var(--gold-2); }
 
@@ -339,35 +278,23 @@
 
 @media (max-width: 1000px) {
   .proof-head, .start-grid, .contact-grid { grid-template-columns: 1fr; gap: 28px; }
-  .lane { grid-template-columns: 70px 1fr 56px; gap: 20px; padding: 32px 0; }
-  .lane p { grid-column: 2; }
 }
 
 @media (max-width: 760px) {
   .hero { min-height: 100svh; }
   .hero-copy { padding: 140px 0 56px; }
-  .hero-scrim {
-    background:
-      linear-gradient(180deg, rgba(6, 8, 15, 0.5) 0%, rgba(6, 8, 15, 0.05) 30%, rgba(6, 8, 15, 0.55) 60%, rgba(6, 8, 15, 0.96) 100%);
-  }
-  .hero-title { font-size: clamp(3.6rem, 19vw, 5.6rem); }
-  .hero-lede { font-size: 1.15rem; }
+  .hero-title { font-size: clamp(2.6rem, 13.5vw, 3.6rem); }
+  .hero-lede { font-size: 1.02rem; }
   .kicker-more { display: none; }
-  .terminal-body { min-height: 0; padding: 18px 16px 22px; font-size: 0.72rem; }
+  .terminal-body { min-height: 0; padding: 18px 16px 22px; font-size: 0.7rem; }
   .t-line { white-space: pre-wrap; }
   .terminal-bar span { display: none; }
-  .lane { grid-template-columns: 1fr 48px; }
-  .lane .num { grid-column: 1; font-size: 1.3rem; }
-  .lane h3 { grid-column: 1; }
-  .lane p { grid-column: 1; }
-  .lane .arrow { grid-column: 2; grid-row: 1 / span 3; width: 48px; height: 48px; }
   .start-card { padding: 28px 24px; }
-  .price small { font-size: 0.95rem; }
+  .price small { font-size: 0.9rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .js .hero-kicker, .js .hero-title span, .js .hero-lede, .js .hero-actions { animation: none; opacity: 1; transform: none; }
   .marquee-track { animation: none; }
   .t-line { transition: none; }
-  .hero-stage img, .hero-stage canvas, .lane .arrow { transition: none; }
 }

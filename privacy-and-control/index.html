@@ -5,17 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Privacy And Control | AIssisted Consulting</title>
     <meta name="description" content="Privacy-aware AI guidance from AIssisted Consulting focused on boundaries, human review, and deciding what should stay manual.">
+    <meta name="theme-color" content="#06080f">
     <link rel="canonical" href="https://aissistedconsulting.com/privacy-and-control/">
     <meta property="og:type" content="website">
     <meta property="og:title" content="Privacy And Control | AIssisted Consulting">
-    <meta property="og:description" content="Privacy-aware AI guidance from AIssisted Consulting focused on boundaries, human review, and deciding what should stay manual.">
+    <meta property="og:description" content="Your data stays in the room. Local models on hardware you own, clear boundaries, and a person who still signs off.">
     <meta property="og:url" content="https://aissistedconsulting.com/privacy-and-control/">
-    <meta property="og:image" content="https://aissistedconsulting.com/assets/og-image.jpg">
+    <meta property="og:image" content="https://aissistedconsulting.com/assets/social-logo-20260713.jpg">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Privacy And Control | AIssisted Consulting">
-    <meta name="twitter:description" content="Privacy-aware AI guidance from AIssisted Consulting focused on boundaries, human review, and deciding what should stay manual.">
-    <meta name="twitter:image" content="https://aissistedconsulting.com/assets/og-image.jpg">
-    <link rel="stylesheet" href="../styles.css?v=11.11.4">
+    <meta name="twitter:description" content="Your data stays in the room. Local models on hardware you own, clear boundaries, and a person who still signs off.">
+    <meta name="twitter:image" content="https://aissistedconsulting.com/assets/social-logo-20260713.jpg">
+    <link rel="preload" href="/assets/fonts/martian-mono-var.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="/assets/site/site.css?v=20260907">
+    <link rel="stylesheet" href="/assets/site/page.css?v=20260907">
     <script type="application/ld+json">
     {
           "@context": "https://schema.org",
@@ -38,117 +41,247 @@
     }
     </script>
   </head>
-  <body data-page="privacy">
+  <body data-page="privacy-and-control">
     <a class="skip-link" href="#main">Skip to content</a>
 
-    <header class="site-header">
+    <header class="site-header" data-header>
       <div class="container nav-wrap">
         <a class="brand" href="../" aria-label="AIssisted Consulting home">
-          <img src="../assets/logo.png" alt="AIssisted Consulting logo" width="58" height="44">
-          <span>
-            <strong>AIssisted Consulting</strong>
-            <small>AI &amp; software implementation</small>
-          </span>
+          <img src="/assets/logo-mark-192.png" alt="" width="40" height="40">
+          <strong>AIssisted Consulting</strong>
         </a>
-
-        <button class="menu-toggle" type="button" data-menu-toggle aria-expanded="false" aria-controls="site-nav">
-          Menu
-        </button>
-
-        <nav class="nav-links" id="site-nav" data-nav-links aria-label="Primary navigation">
-          <a href="../small-business-ai-help/">Small business</a>
-          <a href="../services/">Services</a>
-          <a href="../family-ai-help/">Family</a>
-          <a href="../industries/">Industries</a>
-          <a href="../privacy-and-control/" aria-current="page">Privacy</a>
-          <a href="../about/">About</a>
-          <a href="../book/">Book</a>
-          <a href="../contact/">Contact</a>
-        </nav>
+        <div class="nav-cluster">
+          <a class="btn btn-gold btn-sm" href="../book/?entry_route=privacy&amp;cta_id=privacy_nav_paid_plan">Book</a>
+          <button class="menu-btn" type="button" data-menu-open aria-expanded="false" aria-controls="site-menu" aria-haspopup="dialog">
+            <span class="menu-lines" aria-hidden="true"><i></i><i></i></span>
+            <span>Menu</span>
+          </button>
+        </div>
       </div>
     </header>
 
+    <div class="site-menu" id="site-menu" data-menu role="dialog" aria-modal="true" aria-label="Site menu" hidden>
+      <div class="container menu-top">
+        <a class="brand" href="../" aria-label="AIssisted Consulting home">
+          <img src="/assets/logo-mark-192.png" alt="" width="40" height="40">
+          <strong>AIssisted Consulting</strong>
+        </a>
+        <button class="menu-btn is-close" type="button" data-menu-close>
+          <span class="menu-lines" aria-hidden="true"><i></i><i></i></span>
+          <span>Close</span>
+        </button>
+      </div>
+      <div class="container menu-body">
+        <nav class="menu-nav" aria-label="Primary navigation">
+          <ol>
+            <li style="--i:0"><a href="../services/"><small class="num">01</small>Services</a></li>
+            <li style="--i:1"><a href="../privacy-and-control/"><small class="num">02</small>Private AI</a></li>
+            <li style="--i:2"><a href="../industries/"><small class="num">03</small>Industries</a></li>
+            <li style="--i:3"><a href="../about/"><small class="num">04</small>About</a></li>
+            <li style="--i:4"><a href="../contact/"><small class="num">05</small>Contact</a></li>
+          </ol>
+        </nav>
+        <div class="menu-foot">
+          <p class="menu-tag">Local. Trusted. <span class="accent">AI.</span></p>
+          <a class="btn btn-gold" href="../book/?entry_route=privacy&amp;cta_id=privacy_nav_paid_plan">Book the $225 plan</a>
+          <address>
+            <a href="tel:+13528173567">(352) 817-3567</a>
+            <a href="mailto:pj@aissistedconsulting.com">pj@aissistedconsulting.com</a>
+            <span>Ocala, Florida</span>
+          </address>
+        </div>
+      </div>
+    </div>
+
     <main id="main">
-      <section class="page-hero page-hero-privacy" data-agent="privacy-control" aria-labelledby="privacy-page-title">
-        <div class="container page-hero-layout">
-          <div>
-            <p class="eyebrow">Privacy and control</p>
-            <h1 id="privacy-page-title">Useful AI still needs clear boundaries.</h1>
-            <p class="page-lede">
-              The goal is practical support with human review, not handing sensitive details or important decisions to a tool without a plan.
-            </p>
-            <div class="hero-actions">
-              <a class="btn btn-primary" href="../contact/">Talk through your setup</a>
-              <a class="btn btn-secondary" href="../services/">Review service areas</a>
+      <section class="page-hero" aria-labelledby="page-title">
+        <div class="hero-stage" data-hero-scene="/assets/hero/hero-scene.min.js?v=20260907" data-hero-variant="page" aria-hidden="true">
+          <picture>
+            <source media="(max-width: 760px)" srcset="/assets/hero/poster-page-mobile.webp">
+            <img class="hero-poster" src="/assets/hero/poster-page.webp" alt="" width="2880" height="1800" decoding="async" fetchpriority="high">
+          </picture>
+        </div>
+        <div class="hero-scrim" aria-hidden="true"></div>
+        <div class="container page-hero-copy">
+          <p class="kicker">Private AI</p>
+          <h1 class="h1" id="page-title">Your data stays in the room.</h1>
+          <p class="sub">Local models on hardware you own. Clear boundaries before any tool. A person who still signs off.</p>
+          <div class="hero-actions">
+            <a class="btn btn-gold" href="../contact/">Talk through your setup</a>
+            <a class="btn btn-ghost" href="../#proof">Watch it run</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="pds-title">
+        <div class="container">
+          <div class="head-split">
+            <div class="reveal">
+              <p class="kicker">Private Data Service</p>
+              <h2 class="h2" id="pds-title">Messy records in. Clean data out. Nothing leaves the building.</h2>
+            </div>
+            <p class="sub reveal" data-delay="1">Your files go into an encrypted container on a machine we own, with no internet on that lane. A local model does the cleanup. A person grades it against a golden set. Then the container and its key are wiped, and you keep the reports and the trail.</p>
+          </div>
+          <div class="grid grid-4">
+            <div class="card reveal">
+              <span class="num">01</span>
+              <h3>Assessment</h3>
+              <p>We look at a sample, score it, and tell you what cleanup would take.</p>
+              <p class="num" style="font-size:1.3rem;color:#fff">$500</p>
+              <p>Credited toward the cleanup.</p>
+            </div>
+            <div class="card reveal" data-delay="1">
+              <span class="num">02</span>
+              <h3>Cleanup</h3>
+              <p>One dataset, deduped, normalized, gated at a score you sign off on.</p>
+              <p class="num" style="font-size:1.3rem;color:#fff">$2,500</p>
+              <p>Flat. Reports and custody trail included.</p>
+            </div>
+            <div class="card reveal" data-delay="2">
+              <span class="num">03</span>
+              <h3>Keep it clean</h3>
+              <p>Monthly runs on what changed, same gate, same trail.</p>
+              <p class="num" style="font-size:1.3rem;color:#fff">$500 / mo</p>
+              <p>Cancel any month.</p>
+            </div>
+            <div class="card card-gold reveal" data-delay="3">
+              <span class="num">04</span>
+              <h3>Always-on lane</h3>
+              <p>A private processing lane reserved for your business, models and all.</p>
+              <p class="num" style="font-size:1.3rem;color:#fff">From $1,000 / mo</p>
+              <p>Appliance in your office quoted separately.</p>
             </div>
           </div>
-          <div class="page-panel">
-            <p class="eyebrow">Boundary check</p>
-            <h2>Start by naming what should not move.</h2>
-            <p>
-              Some details need extra care. Some decisions should stay manual. Some work is not a good fit for AI support at all.
-            </p>
-          </div>
         </div>
       </section>
 
-      <section class="content-section">
-        <div class="container content-grid">
-          <div class="content-copy">
-            <p class="eyebrow">Review before tools</p>
-            <h2>Privacy is part of the workflow, not a footnote.</h2>
-            <p>
-              Before adding pages, forms, or connected tools, the work needs visible limits. AIssisted Consulting keeps privacy, control, and human judgment in the conversation from the start.
-            </p>
-            <p>
-              The <a href="../guides/ai-ownership-and-local-operator-control/">AI ownership and local operator control guide</a> turns those limits into four practical workflow questions.
-            </p>
-            <p>
-              For sensitive workflows, compare <a href="../guides/local-and-on-prem-ai/">cloud, local, on-prem, and hybrid AI boundaries</a> before choosing a model or connecting business records.
-            </p>
+      <section class="section" aria-labelledby="questions-title">
+        <div class="container">
+          <div class="head reveal">
+            <p class="kicker">Before any tool</p>
+            <h2 class="h2" id="questions-title">Three questions we ask first.</h2>
           </div>
-          <div class="card-grid card-grid-tight">
-            <article class="info-card">
-              <h3>What not to share</h3>
-              <p>Passwords, private records, payment details, sensitive customer information, and other high-risk details need careful handling.</p>
-            </article>
-            <article class="info-card">
+          <ol class="steps reveal" data-delay="1">
+            <li>
+              <h3>What should not move</h3>
+              <p>Passwords, private records, payment details, sensitive customer information. Named up front, handled with care.</p>
+            </li>
+            <li>
               <h3>What needs review</h3>
-              <p>Customer messages, owner decisions, family guidance, and operational changes should have a person in the loop.</p>
-            </article>
-            <article class="info-card">
-              <h3>What may stay manual</h3>
-              <p>If a workflow depends on trust, safety, context, or judgment, support may be useful even when automation is not.</p>
-            </article>
-            <article class="info-card">
-              <h3>Advertising measurement</h3>
-              <p>The site uses Google Analytics 4, Google Ads, and AppLovin Axon to measure page visits and successful inquiry or booking actions. Browser events do not include an inquiry message, email address, phone number, or payment details. Google analytics and advertising storage defaults to denied for visitors in the EEA, United Kingdom, and Switzerland. Learn <a href="https://policies.google.com/technologies/partner-sites" rel="noopener">how Google uses information from sites that use its services</a>.</p>
-            </article>
+              <p>Customer messages, owner decisions, family guidance, operational changes. A person stays in the loop.</p>
+            </li>
+            <li>
+              <h3>What stays manual</h3>
+              <p>If the work depends on trust, safety, or judgment, support may still help. Automation may not.</p>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="guides-title">
+        <div class="container">
+          <div class="head reveal">
+            <p class="kicker">Read first</p>
+            <h2 class="h2" id="guides-title">Two short guides.</h2>
+          </div>
+          <div class="grid grid-2">
+            <a class="card reveal" href="../guides/ai-ownership-and-local-operator-control/">
+              <span class="num">Guide</span>
+              <h3>AI ownership and local operator control</h3>
+              <p>Four workflow questions that keep customer context, data boundaries, approvals, and vendor choices with you.</p>
+              <span class="link">Read the guide</span>
+            </a>
+            <a class="card reveal" data-delay="1" href="../guides/local-and-on-prem-ai/">
+              <span class="num">Guide</span>
+              <h3>Cloud, local, on-prem, hybrid</h3>
+              <p>Where the processing happens and what that means for sensitive records, before you connect anything.</p>
+              <span class="link">Compare the boundaries</span>
+            </a>
           </div>
         </div>
       </section>
 
-      <section class="boundary-band" aria-labelledby="privacy-caution">
-        <div class="container boundary-layout">
-          <div>
-            <p class="eyebrow">Plain limit</p>
-            <h2 id="privacy-caution">This is practical guidance, not a certification.</h2>
+      <section class="section" aria-labelledby="limits-title">
+        <div class="container">
+          <div class="split">
+            <p class="statement reveal" id="limits-title">Practical guidance, not a certification.</p>
+            <div class="reveal" data-delay="1">
+              <p class="sub">AIssisted Consulting does not claim legal, security, medical, financial, school-policy, child-safety, privacy, or compliance certification. Boundaries stay visible so the work stays honest.</p>
+              <div class="faq" style="margin-top: 28px">
+                <details>
+                  <summary>How this site measures visits</summary>
+                  <p>The site uses Google Analytics 4, Google Ads, and AppLovin Axon to measure page visits and successful inquiry or booking actions. Browser events do not include an inquiry message, email address, phone number, or payment details. Google analytics and advertising storage defaults to denied for visitors in the EEA, United Kingdom, and Switzerland. Learn <a href="https://policies.google.com/technologies/partner-sites">how Google uses information from sites that use its services</a>.</p>
+                </details>
+              </div>
+            </div>
           </div>
-          <p>
-            AIssisted Consulting does not claim legal, security, medical, financial, school-policy, child-safety, privacy, or compliance certification. Boundaries stay visible so the work stays practical and honest.
-          </p>
+        </div>
+      </section>
+
+      <section class="section cta" id="contact" aria-labelledby="contact-title">
+        <div class="container cta-grid">
+          <div class="reveal">
+            <p class="kicker">Talk to us</p>
+            <h2 class="h2" id="contact-title">Bring the sensitive workflow.<br>We'll map the boundary.</h2>
+            <p class="sub">We'll tell you straight whether it's worth doing.</p>
+            <div class="hero-actions">
+              <a class="btn btn-gold" href="../contact/">Talk through your setup</a>
+              <a class="btn btn-ghost" href="../book/?entry_route=privacy&amp;cta_id=privacy_footer_paid_plan">Book the $225 plan</a>
+            </div>
+          </div>
+          <address class="contact-lines reveal" data-delay="1">
+            <a href="tel:+13528173567">(352) 817-3567</a>
+            <a href="mailto:pj@aissistedconsulting.com">pj@aissistedconsulting.com</a>
+            <span>Ocala, Florida &middot; remote across the U.S.</span>
+          </address>
         </div>
       </section>
     </main>
 
     <footer class="site-footer">
-      <div class="container footer-layout">
-        <p>&copy; <span data-year>2026</span> AIssisted Consulting. Ocala, FL.</p>
-        <p><a href="../contact/">Ask a privacy-aware question</a> before adding a new workflow.</p>
+      <div class="container">
+        <div class="footer-grid">
+          <div>
+            <a class="brand" href="../" aria-label="AIssisted Consulting home">
+              <img src="/assets/logo-mark-192.png" alt="" width="40" height="40">
+              <strong>AIssisted Consulting</strong>
+            </a>
+            <p class="footer-blurb">AI and software implementation for small businesses and individuals. Certified AI Scientist and Certified AI Consultant (USAII).</p>
+          </div>
+          <div>
+            <h3>Work with us</h3>
+            <a href="../services/">Services</a>
+            <a href="../workflow-automation/">Workflow automation</a>
+            <a href="../small-business-ai-help/">Small business</a>
+            <a href="../family-ai-help/">Family</a>
+            <a href="../industries/">Industries</a>
+          </div>
+          <div>
+            <h3>Company</h3>
+            <a href="../about/">About</a>
+            <a href="../privacy-and-control/">Privacy &amp; control</a>
+            <a href="../blog/">Blog</a>
+            <a href="../book/">Book</a>
+            <a href="../contact/">Contact</a>
+          </div>
+          <div>
+            <h3>Products</h3>
+            <a href="../grail/">Grail</a>
+            <a href="../brightway/">BrightWay</a>
+            <a href="../unrealtor/">UnRealtor</a>
+            <a href="../terms/">Terms</a>
+            <a href="../privacy/">Privacy policy</a>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <p>&copy; <span data-year>2026</span> AIssisted Consulting. Ocala, FL.</p>
+          <p>Local. Trusted. AI.</p>
+        </div>
       </div>
     </footer>
 
-    <script src="../main.js?v=20260718"></script>
+    <script src="/main.js?v=20260718"></script>
     <script src="/assets/aic-google-ads-tracking.js?v=20260817"></script>
+    <script src="/assets/site/site.js?v=20260907"></script>
   </body>
 </html>

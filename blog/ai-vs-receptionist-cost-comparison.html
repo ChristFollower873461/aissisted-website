@@ -46,9 +46,9 @@
   }
 }
 </script>
-<link rel="stylesheet" href="../styles.css?v=11.11.4">
-<script src="../components/header.js?v=11.11.4" defer></script>
-<script src="../components/footer.js?v=11.11.4" defer></script>
+<link rel="preload" href="/assets/fonts/martian-mono-var.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/assets/site/site.css?v=20260907">
+<link rel="stylesheet" href="/assets/site/page.css?v=20260907">
 <style>
 .blog-hero {
   min-height: 40vh;
@@ -241,17 +241,68 @@
 </script>
 </head>
 <body>
-<div id="header-container"></div>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <header class="site-header" data-header>
+      <div class="container nav-wrap">
+        <a class="brand" href="../" aria-label="AIssisted Consulting home">
+          <img src="/assets/logo-mark-192.png" alt="" width="40" height="40">
+          <strong>AIssisted Consulting</strong>
+        </a>
+        <div class="nav-cluster">
+          <a class="btn btn-gold btn-sm" href="../book/?entry_route=blog&amp;cta_id=blog_nav_paid_plan">Book</a>
+          <button class="menu-btn" type="button" data-menu-open aria-expanded="false" aria-controls="site-menu" aria-haspopup="dialog">
+            <span class="menu-lines" aria-hidden="true"><i></i><i></i></span>
+            <span>Menu</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <div class="site-menu" id="site-menu" data-menu role="dialog" aria-modal="true" aria-label="Site menu" hidden>
+      <div class="container menu-top">
+        <a class="brand" href="../" aria-label="AIssisted Consulting home">
+          <img src="/assets/logo-mark-192.png" alt="" width="40" height="40">
+          <strong>AIssisted Consulting</strong>
+        </a>
+        <button class="menu-btn is-close" type="button" data-menu-close>
+          <span class="menu-lines" aria-hidden="true"><i></i><i></i></span>
+          <span>Close</span>
+        </button>
+      </div>
+      <div class="container menu-body">
+        <nav class="menu-nav" aria-label="Primary navigation">
+          <ol>
+            <li style="--i:0"><a href="../services/"><small class="num">01</small>Services</a></li>
+            <li style="--i:1"><a href="../privacy-and-control/"><small class="num">02</small>Private AI</a></li>
+            <li style="--i:2"><a href="../industries/"><small class="num">03</small>Industries</a></li>
+            <li style="--i:3"><a href="../about/"><small class="num">04</small>About</a></li>
+            <li style="--i:4"><a href="../contact/"><small class="num">05</small>Contact</a></li>
+          </ol>
+        </nav>
+        <div class="menu-foot">
+          <p class="menu-tag">Local. Trusted. <span class="accent">AI.</span></p>
+          <a class="btn btn-gold" href="../book/?entry_route=blog&amp;cta_id=blog_nav_paid_plan">Book the $225 plan</a>
+          <address>
+            <a href="tel:+13528173567">(352) 817-3567</a>
+            <a href="mailto:pj@aissistedconsulting.com">pj@aissistedconsulting.com</a>
+            <span>Ocala, Florida</span>
+          </address>
+        </div>
+      </div>
+    </div>
+
+<main id="main">
 
 <section class="blog-hero">
 <div class="hero-bg-stars" aria-hidden="true">
-<span style="top:10%;left:15%"></span>
-<span style="top:25%;left:80%"></span>
-<span style="top:40%;left:50%"></span>
+<span></span>
+<span></span>
+<span></span>
 </div>
-<div class="container" style="text-align: center;">
+<div class="container">
 <p class="section-label reveal">Blog</p>
-<h1 class="reveal" style="font-size: clamp(1.75rem, 4vw, 2.75rem); max-width: 800px; margin: 0 auto;">AI Phone Agent vs. Hiring a Receptionist: The Real Cost Comparison</h1>
+<h1 class="reveal">AI Phone Agent vs. Hiring a Receptionist: The Real Cost Comparison</h1>
 </div>
 </section>
 
@@ -274,9 +325,9 @@
 <p>That's when I started seriously looking at alternatives. And the math shocked me.</p>
 
 <div class="savings-highlight">
-<p style="margin: 0; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted);">3-Year Total Savings</p>
+<p>3-Year Total Savings</p>
 <div class="savings-amount">$121,536 – $170,336</div>
-<p style="margin: 0; color: var(--text);">That's the real difference between hiring a receptionist and using an AI phone agent.</p>
+<p>That's the real difference between hiring a receptionist and using an AI phone agent.</p>
 </div>
 
 <h2>The Hidden Costs of Hiring a Receptionist</h2>
@@ -395,7 +446,7 @@
 <table class="comparison-table">
 <thead>
 <tr>
-<th style="width: 30%;">Feature</th>
+<th>Feature</th>
 <th>Human Receptionist</th>
 <th>AI Phone Agent</th>
 </tr>
@@ -404,7 +455,7 @@
 <tr>
 <td><strong>3-Year Total Cost</strong></td>
 <td class="highlight">$135,000 – $195,000</td>
-<td style="color: #22c55e; font-weight: 600;">$19,064 – $24,664</td>
+<td>$19,064 – $24,664</td>
 </tr>
 <tr>
 <td><strong>Annual Cost</strong></td>
@@ -414,52 +465,52 @@
 <tr>
 <td><strong>Availability</strong></td>
 <td>40 hrs/week, weekdays</td>
-<td style="color: #22c55e;">24/7/365, never off</td>
+<td>24/7/365, never off</td>
 </tr>
 <tr>
 <td><strong>Call Capacity</strong></td>
 <td>1 call at a time</td>
-<td style="color: #22c55e;">Unlimited simultaneous</td>
+<td>Unlimited simultaneous</td>
 </tr>
 <tr>
 <td><strong>After-Hours Coverage</strong></td>
 <td>None (voicemail)</td>
-<td style="color: #22c55e;">Full coverage</td>
+<td>Full coverage</td>
 </tr>
 <tr>
 <td><strong>Consistency</strong></td>
 <td>Varies by day/mood</td>
-<td style="color: #22c55e;">Identical every call</td>
+<td>Identical every call</td>
 </tr>
 <tr>
 <td><strong>Sick Days / PTO</strong></td>
 <td>20+ days per year</td>
-<td style="color: #22c55e;">Zero</td>
+<td>Zero</td>
 </tr>
 <tr>
 <td><strong>Turnover Risk</strong></td>
 <td>High (every 18-24 mo)</td>
-<td style="color: #22c55e;">None</td>
+<td>None</td>
 </tr>
 <tr>
 <td><strong>Training New Services</strong></td>
 <td>Weeks of retraining</td>
-<td style="color: #22c55e;">Minutes to update</td>
+<td>Minutes to update</td>
 </tr>
 <tr>
 <td><strong>Calendar Integration</strong></td>
 <td>Manual scheduling</td>
-<td style="color: #22c55e;">Real-time booking</td>
+<td>Real-time booking</td>
 </tr>
 <tr>
 <td><strong>CRM Integration</strong></td>
 <td>Limited</td>
-<td style="color: #22c55e;">Full integration</td>
+<td>Full integration</td>
 </tr>
 <tr>
 <td><strong>Data Privacy</strong></td>
 <td>Human error risk</td>
-<td style="color: #22c55e;">Encrypted, on-premises</td>
+<td>Encrypted, on-premises</td>
 </tr>
 </tbody>
 </table>
@@ -538,7 +589,7 @@
 </div>
 <div class="cost-item">
 <span>Estimated Missed Call Revenue Loss</span>
-<span style="color: #22c55e;">$2,000/year</span>
+<span>$2,000/year</span>
 </div>
 <div class="cost-item">
 <strong>Total First Year Cost</strong>
@@ -546,7 +597,7 @@
 </div>
 <div class="cost-item">
 <strong>Annual Savings</strong>
-<strong style="color: #22c55e;">$53,512</strong>
+<strong>$53,512</strong>
 </div>
 </div>
 
@@ -597,10 +648,10 @@
 
 <div class="blog-cta reveal">
 <h3>See Your Exact Savings</h3>
-<p style="font-size: 1.1rem; margin-bottom: 24px;">Want to know exactly how much an AI phone agent could save your specific business? Let's run the numbers together.</p>
-<a href="../compare" class="btn btn-secondary" style="margin-right: 12px;">View Full Comparison</a>
+<p>Want to know exactly how much an AI phone agent could save your specific business? Let's run the numbers together.</p>
+<a href="../compare" class="btn btn-secondary">View Full Comparison</a>
 <a href="../contact" class="btn btn-primary">Request a 15-Minute Fit Call</a>
-<p style="margin-top: 16px; font-size: 0.95rem; color: var(--text-muted);">Call us: <a href="tel:+13528173567" style="color: var(--gold-mid);">(352) 817-3567</a></p>
+<p>Call us: <a href="tel:+13528173567">(352) 817-3567</a></p>
 </div>
 
 <h2>Frequently Asked Questions</h2>
@@ -620,12 +671,12 @@
 <h3>Can the AI integrate with my existing software?</h3>
 <p>Yes. We integrate with most major CRMs, scheduling tools, and industry-specific software including ServiceTitan, Housecall Pro, Jobber, HubSpot, Google Calendar, and more.</p>
 
-<p><em>Not sure whether an AI phone agent fits your business? <a href="../book/#fit-call" style="color: var(--gold-mid);">Request a 15-Minute Fit Call.</a></em></p>
+<p><em>Not sure whether an AI phone agent fits your business? <a href="../book/#fit-call">Request a 15-Minute Fit Call.</a></em></p>
 
 </div>
 </article>
 
-<section id="cta" style="margin-top: 0;">
+<section id="cta">
 <div class="container">
 <h2 class="reveal">Ready to Save $121K+ Over 3 Years?</h2>
 <p class="reveal">Join the growing number of small businesses switching from expensive receptionists to AI phone agents. Let's talk about your specific situation.</p>
@@ -635,7 +686,49 @@
 </div>
 </section>
 
-<div id="footer-container"></div>
+</main>
+    <footer class="site-footer">
+      <div class="container">
+        <div class="footer-grid">
+          <div>
+            <a class="brand" href="../" aria-label="AIssisted Consulting home">
+              <img src="/assets/logo-mark-192.png" alt="" width="40" height="40">
+              <strong>AIssisted Consulting</strong>
+            </a>
+            <p class="footer-blurb">AI and software implementation for small businesses and individuals. Certified AI Scientist and Certified AI Consultant (USAII).</p>
+          </div>
+          <div>
+            <h3>Work with us</h3>
+            <a href="../services/">Services</a>
+            <a href="../workflow-automation/">Workflow automation</a>
+            <a href="../small-business-ai-help/">Small business</a>
+            <a href="../family-ai-help/">Family</a>
+            <a href="../industries/">Industries</a>
+          </div>
+          <div>
+            <h3>Company</h3>
+            <a href="../about/">About</a>
+            <a href="../privacy-and-control/">Privacy &amp; control</a>
+            <a href="../blog/">Blog</a>
+            <a href="../book/">Book</a>
+            <a href="../contact/">Contact</a>
+          </div>
+          <div>
+            <h3>Products</h3>
+            <a href="../grail/">Grail</a>
+            <a href="../brightway/">BrightWay</a>
+            <a href="../unrealtor/">UnRealtor</a>
+            <a href="../terms/">Terms</a>
+            <a href="../privacy/">Privacy policy</a>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <p>&copy; <span data-year>2026</span> AIssisted Consulting. Ocala, FL.</p>
+          <p>Local. Trusted. AI.</p>
+        </div>
+      </div>
+    </footer>
+    <script src="/assets/site/site.js?v=20260907"></script>
     <script src="/assets/aic-google-ads-tracking.js?v=20260817"></script>
 </body>
 </html>
