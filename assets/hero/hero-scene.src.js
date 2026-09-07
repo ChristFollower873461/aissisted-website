@@ -9,7 +9,7 @@
  * the center.
  *
  * Variants: "home" plays the convergence from the start; "page" (subpage stages) starts already
- * merged. The poster for each variant is a frame of this scene (see .review/shoot.mjs poster), so
+ * merged. Each poster is a frame of this scene (scripts/verify-hero.mjs --posters), so
  * the crossfade from poster to canvas is seamless.
  *
  * Bundled with esbuild from the vendored Three.js r184 (assets/vendor, MIT) into hero-scene.min.js.
@@ -33,7 +33,6 @@ import {
   RingGeometry,
   Scene,
   ShaderMaterial,
-  SphereGeometry,
   Vector2,
   Vector3,
   WebGLRenderTarget,
@@ -43,6 +42,11 @@ import { EffectComposer } from "../vendor/postprocessing/EffectComposer.js";
 import { RenderPass } from "../vendor/postprocessing/RenderPass.js";
 import { UnrealBloomPass } from "../vendor/postprocessing/UnrealBloomPass.js";
 import { OutputPass } from "../vendor/postprocessing/OutputPass.js";
+import { createSystemDetail } from "./system-detail.js";
+import { createSourceCluster } from "./source-cluster.js";
+import { buildOrganizedNetwork, sampleOrganizedPosition } from "./organized-network.js";
+import { createSourceInterference } from "./source-interference.js";
+import { createSpatialField } from "./spatial-field.js";
 
 const DEG = Math.PI / 180;
 const FOV = 34;
@@ -56,19 +60,20 @@ const PERI_DEEP = 0x5f62d6;
 const GOLD = 0xe8b94e;
 
 // The story clock. Hubs hold at HOLD_UNTIL, travel for TRAVEL seconds (staggered), then merge.
-const HOLD_UNTIL = 1.4;
-const TRAVEL = 4.0;
-const HUB_STAGGER = 0.5;
+const HOLD_UNTIL = 2.4;
+const TRAVEL = 4.8;
+const HUB_STAGGER = 0.6;
 const MERGED_AT = HOLD_UNTIL + HUB_STAGGER * 2 + TRAVEL;
+const ORDERED_AT = MERGED_AT + 2.8;
 const POSTER_TIME = { home: 0.8, page: 16 };
-const BLOOM_BASE = 0.7;
+const BLOOM_BASE = 0.46;
 
 // Where the core sits in normalized device coordinates, the group scale relative to the stage,
 // how hard the copy column gets darkened, and where the three hubs start (also NDC fractions).
 const LAYOUTS = {
   home: {
-    desktop: { anchor: [0.46, 0.1], scale: 1, leftDark: 1, scatter: [[-0.36, 0.48], [0.86, 0.46], [0.5, -0.42]] },
-    mobile: { anchor: [0.12, 0.38], scale: 0.58, leftDark: 0.15, scatter: [[-0.55, 0.84], [0.8, 0.72], [0.66, 0.02]] },
+    desktop: { anchor: [0.46, 0.1], scale: 1, leftDark: 1, scatter: [[-0.36, 0.52], [0.70, 0.46], [0.5, -0.42]] },
+    mobile: { anchor: [0.12, 0.38], scale: 0.58, leftDark: 0.15, scatter: [[-0.48, 0.70], [0.48, 0.62], [0.38, 0.38]] },
   },
   page: {
     desktop: { anchor: [0.58, 0.02], scale: 0.86, leftDark: 0.9, scatter: [[-0.36, 0.48], [0.86, 0.46], [0.5, -0.42]] },
@@ -76,7 +81,7 @@ const LAYOUTS = {
   },
 };
 
-const HUB_TINTS = [0xc7c6ff, 0xe6ecff, 0xf3d68a];
+const HUB_TINTS = [0xb6a9ff, 0x8de0df, 0xf3cf83];
 
 const AURORA_VERTEX = /* glsl */ `
   varying vec2 vUv;
@@ -172,6 +177,7 @@ const NODE_VERTEX = /* glsl */ `
     float depth = mix(1.0, 0.5, smoothstep(uFocus - 1.5, uFocus + 4.5, dist));
     float sx = ndc.x * 0.5 + 0.5;
     vAlpha = twinkle * depth * mix(1.0, 0.3, uLeftDark * smoothstep(0.6, 0.05, sx)) * (1.0 + 1.3 * lift);
+    vAlpha *= step(0.001, aSize);
     vColor = aColor;
   }
 `;
@@ -430,7 +436,7 @@ function buildNodeGeometry(nodes, rand) {
     if (node.core) {
       tint.copy(gold).multiplyScalar(2.6);
       sizes[i] = 0;
-      node.size = 2.3;
+      node.size = 0.65;
     } else if (roll < 0.075) {
       tint.copy(gold).multiplyScalar(1.9);
       sizes[i] = 0.34 + rand() * 0.16;
@@ -439,7 +445,7 @@ function buildNodeGeometry(nodes, rand) {
       tint.copy(white).multiplyScalar(1.5);
       sizes[i] = 0.16 + rand() * 0.14;
     } else {
-      tint.copy(peri).multiplyScalar(1.45);
+      tint.set(HUB_TINTS[node.lobe]).lerp(peri, 0.55).multiplyScalar(1.3);
       sizes[i] = 0.13 + rand() * 0.12;
     }
     colors[i * 3] = tint.r;
@@ -468,7 +474,9 @@ function buildEdgeGeometry(nodes, edges, rand) {
     const nb = nodes[b];
     positions.set([na.x, na.y, na.z, nb.x, nb.y, nb.z], i * 6);
     const toCore = na.core || nb.core;
-    tint.copy(toCore ? gold : peri).multiplyScalar(toCore ? 0.95 : 0.66);
+    tint.copy(toCore ? gold : peri);
+    if (!toCore && na.lobe === nb.lobe) tint.lerp(new Color(HUB_TINTS[na.lobe]), 0.3);
+    tint.multiplyScalar(toCore ? 0.95 : 0.66);
     colors.set([tint.r, tint.g, tint.b, tint.r, tint.g, tint.b], i * 6);
     const phase = rand();
     phases[i * 2] = phase;
@@ -592,9 +600,12 @@ export function mountHeroScene(host) {
   dust.frustumCulled = false;
   scene.add(dust);
 
-  const graph = buildGraph(lite ? 104 : 176, rand);
+  const graph = buildGraph(lite ? 132 : 232, rand);
+  const organized = buildOrganizedNetwork(graph.nodes);
   const group = new Group();
   scene.add(group);
+  const spatialField = createSpatialField({ lite });
+  scene.add(spatialField.root);
 
   const edgeMaterial = new ShaderMaterial({
     uniforms: {
@@ -618,15 +629,26 @@ export function mountHeroScene(host) {
   edges.frustumCulled = false;
   group.add(edges);
 
+  const organizedEdges = [...organized.edges, ...organized.secondaryEdges];
+  const organizedGeometry = buildEdgeGeometry(graph.nodes, organizedEdges, makeRandom(SEED + 61));
+  organizedEdges.forEach(([a, b], i) => {
+    const color = new Color(HUB_TINTS[graph.nodes[b].lobe]).lerp(new Color(GOLD), a === 0 ? 0.55 : 0.15);
+    organizedGeometry.attributes.aColor.array.set([color.r, color.g, color.b, color.r, color.g, color.b], i * 6);
+  });
+  organizedGeometry.attributes.aLink.array.fill(0);
+  const organizedWires = new LineSegments(organizedGeometry, edgeMaterial);
+  organizedWires.frustumCulled = false;
+  group.add(organizedWires);
+
   const nodeMaterial = makePointMaterial(1);
   const nodeGeometry = buildNodeGeometry(graph.nodes, rand);
   const nodes = new Points(nodeGeometry, nodeMaterial);
   nodes.frustumCulled = false;
   group.add(nodes);
 
-  // The core: corona, two orbit rings, and a solid gold sphere under the big glowing point.
+  // The joined system retains all three signal colors around a structured gold core.
   const coronaMaterial = new ShaderMaterial({
-    uniforms: { uTime: { value: 0 }, uPower: { value: 0 }, uColor: { value: new Color(GOLD).multiplyScalar(lite ? 1.1 : 1.4) } },
+    uniforms: { uTime: { value: 0 }, uPower: { value: 0 }, uColor: { value: new Color(GOLD) } },
     vertexShader: CORONA_VERTEX,
     fragmentShader: CORONA_FRAGMENT,
     transparent: true,
@@ -638,14 +660,8 @@ export function mountHeroScene(host) {
   corona.frustumCulled = false;
   group.add(corona);
 
-  const orbitA = makeRing(1.02, 1.035, 0xf2d27a, 0);
-  const orbitB = makeRing(1.42, 1.432, 0xa9a8ff, 0);
-  orbitA.rotation.set(1.15, 0.2, 0);
-  orbitB.rotation.set(-0.9, 0.5, 0.3);
-  group.add(orbitA, orbitB);
-
-  const coreMaterial = new MeshBasicMaterial({ color: new Color(GOLD).multiplyScalar(lite ? 1.35 : 2.3) });
-  const core = new Mesh(new SphereGeometry(0.22, 40, 28), coreMaterial);
+  const coreDetail = createSystemDetail({ tint: GOLD, palette: HUB_TINTS, lite, core: true });
+  const core = coreDetail.root;
   core.scale.setScalar(0.0001);
   group.add(core);
 
@@ -657,37 +673,38 @@ export function mountHeroScene(host) {
     return { ring, t: -1 };
   });
 
-  // The three hubs: medium spheres, each with a short glow and a thin ring so it reads as a node,
-  // carried from their scatter positions.
+  // The small orbs are dense parts of their own networks, not independent ornaments.
   const hubs = [0, 1, 2].map((i) => {
-    const tint = new Color(HUB_TINTS[i]);
-    const mesh = new Mesh(new SphereGeometry(0.13, 32, 20), new MeshBasicMaterial({ color: tint.clone().multiplyScalar(lite ? 1.25 : 2.1) }));
-    const ring = makeRing(0.3, 0.316, tint, 0.6);
-    ring.rotation.set(1.05, 0.3 * i, 0);
-    group.add(mesh, ring);
-    return { mesh, ring, tint, start: new Vector3(), arrived: false };
+    const detail = createSourceCluster({ tint: HUB_TINTS[i], seed: i, lite });
+    const mesh = detail.root;
+    group.add(mesh);
+    return { mesh, detail, start: new Vector3(), arrived: false };
   });
-  const hubGlowPositions = new Float32Array(9);
-  const hubGlowColors = new Float32Array(9);
-  const hubGlowSizes = new Float32Array(3);
-  const hubGlowPhases = new Float32Array([0.1, 0.5, 0.9]);
-  hubs.forEach((hub, i) => {
-    const c = hub.tint.clone().multiplyScalar(2.0);
-    hubGlowColors.set([c.r, c.g, c.b], i * 3);
-    hubGlowSizes[i] = 0.8;
+
+  const sourceLinks = [];
+  hubs.forEach((hub, lobe) => {
+    const center = graph.lobes[lobe];
+    graph.nodes.map((node, index) => ({ node, index }))
+      .filter(({ node }) => !node.core && node.lobe === lobe)
+      .sort((a, b) => Math.hypot(a.node.x - center.x, a.node.y - center.y, a.node.z - center.z)
+        - Math.hypot(b.node.x - center.x, b.node.y - center.y, b.node.z - center.z))
+      .slice(0, lite ? 10 : 16)
+      .forEach(({ index }, anchor) => sourceLinks.push({ lobe, node: index, anchor: anchor * 2 }));
   });
-  const hubGlowGeometry = new BufferGeometry();
-  hubGlowGeometry.setAttribute("position", new BufferAttribute(hubGlowPositions, 3));
-  hubGlowGeometry.setAttribute("aColor", new BufferAttribute(hubGlowColors, 3));
-  hubGlowGeometry.setAttribute("aSize", new BufferAttribute(hubGlowSizes, 1));
-  hubGlowGeometry.setAttribute("aPhase", new BufferAttribute(hubGlowPhases, 1));
-  const hubGlowMaterial = makePointMaterial(1);
-  const hubGlow = new Points(hubGlowGeometry, hubGlowMaterial);
-  hubGlow.frustumCulled = false;
-  group.add(hubGlow);
+  const sourceGeometry = buildEdgeGeometry(graph.nodes, sourceLinks.map(link => [0, link.node]), makeRandom(SEED + 31));
+  sourceLinks.forEach((link, i) => {
+    const c = new Color(HUB_TINTS[link.lobe]).multiplyScalar(0.9);
+    sourceGeometry.attributes.aColor.array.set([c.r, c.g, c.b, c.r, c.g, c.b], i * 6);
+  });
+  const sourceWires = new LineSegments(sourceGeometry, edgeMaterial);
+  sourceWires.frustumCulled = false;
+  group.add(sourceWires);
+  const sourceAnchor = new Vector3();
+  const interference = createSourceInterference({ hubs, palette: HUB_TINTS, material: edgeMaterial });
+  group.add(interference.root);
 
   // Signals: bright travellers that walk the graph toward the core once it exists.
-  const SIGNALS = lite ? 6 : 12;
+  const SIGNALS = lite ? 6 : 9;
   const signalPositions = new Float32Array(SIGNALS * 3);
   const signalColors = new Float32Array(SIGNALS * 3);
   const signalSizes = new Float32Array(SIGNALS);
@@ -702,16 +719,30 @@ export function mountHeroScene(host) {
   signals.frustumCulled = false;
   group.add(signals);
 
+  const TRAIL_LENGTH = lite ? 4 : 7;
+  const trailPositions = new Float32Array(SIGNALS * TRAIL_LENGTH * 3);
+  const trailColors = new Float32Array(trailPositions.length);
+  const trailSizes = new Float32Array(SIGNALS * TRAIL_LENGTH);
+  const trailGeometry = new BufferGeometry();
+  trailGeometry.setAttribute("position", new BufferAttribute(trailPositions, 3));
+  trailGeometry.setAttribute("aColor", new BufferAttribute(trailColors, 3));
+  trailGeometry.setAttribute("aSize", new BufferAttribute(trailSizes, 1));
+  trailGeometry.setAttribute("aPhase", new BufferAttribute(new Float32Array(trailSizes.length), 1));
+  const trailMaterial = makePointMaterial(0.8);
+  const trails = new Points(trailGeometry, trailMaterial);
+  trails.frustumCulled = false;
+  group.add(trails);
+
   const signalState = [];
-  const outer = graph.nodes.map((node, i) => i).filter((i) => i > 0 && Math.hypot(graph.nodes[i].x, graph.nodes[i].y, graph.nodes[i].z) > 2.4);
+  const outer = organized.leaves;
   const spawnAt = (i, wait) => {
     const start = outer[Math.floor(rand() * outer.length)] || 1;
-    signalState[i] = { from: start, to: graph.nextHop[start], t: 0, speed: 0.9 + rand() * 0.6, wait };
-    const tint = new Color(rand() < 0.35 ? GOLD : 0xffffff).multiplyScalar(2.4);
+    signalState[i] = { from: start, to: organized.parent[start], t: 0, speed: 1.2, wait };
+    const tint = new Color(HUB_TINTS[graph.nodes[start].lobe]).multiplyScalar(1.8);
     signalColors.set([tint.r, tint.g, tint.b], i * 3);
     signalSizes[i] = 0;
     signalPhases[i] = rand();
-    signalPositions.set([graph.nodes[start].x, graph.nodes[start].y, graph.nodes[start].z], i * 3);
+    signalPositions.set(nodeGeometry.attributes.position.array.subarray(start * 3, start * 3 + 3), i * 3);
   };
   for (let i = 0; i < SIGNALS; i += 1) spawnAt(i, rand() * 4);
   let corePulse = 0;
@@ -725,23 +756,35 @@ export function mountHeroScene(host) {
       if (!merged || s.wait > 0) {
         if (merged) s.wait -= dt;
         signalSizes[i] = 0;
+        trailSizes.fill(0, i * TRAIL_LENGTH, (i + 1) * TRAIL_LENGTH);
         continue;
       }
-      const from = graph.nodes[s.from];
-      const to = graph.nodes[s.to];
-      a.set(from.x, from.y, from.z);
-      b.set(to.x, to.y, to.z);
+      a.fromArray(nodeGeometry.attributes.position.array, s.from * 3);
+      b.fromArray(nodeGeometry.attributes.position.array, s.to * 3);
       const length = Math.max(a.distanceTo(b), 0.05);
       s.t += (dt * s.speed) / length;
       if (s.t >= 1) {
         if (s.to === 0) {
           corePulse = 1;
-          spawnAt(i, 0.8 + rand() * 3.2);
+          spawnAt(i, 1.4 + (i % 3) * 0.2);
+          trailSizes.fill(0, i * TRAIL_LENGTH, (i + 1) * TRAIL_LENGTH);
           continue;
         }
         s.from = s.to;
-        s.to = graph.nextHop[s.to];
+        s.to = organized.parent[s.to];
         s.t = 0;
+        a.fromArray(nodeGeometry.attributes.position.array, s.from * 3);
+        b.fromArray(nodeGeometry.attributes.position.array, s.to * 3);
+      }
+      for (let j = 0; j < TRAIL_LENGTH; j += 1) {
+        const index = i * TRAIL_LENGTH + j;
+        const tailT = Math.max(0, s.t - (j + 1) * 0.045);
+        const fade = 1 - (j + 1) / (TRAIL_LENGTH + 1);
+        trailPositions[index * 3] = a.x + (b.x - a.x) * tailT;
+        trailPositions[index * 3 + 1] = a.y + (b.y - a.y) * tailT;
+        trailPositions[index * 3 + 2] = a.z + (b.z - a.z) * tailT;
+        trailSizes[index] = tailT > 0 ? 0.16 * fade : 0;
+        for (let c = 0; c < 3; c += 1) trailColors[index * 3 + c] = signalColors[i * 3 + c] * fade;
       }
       a.lerp(b, Math.min(s.t, 1));
       signalPositions.set([a.x, a.y, a.z], i * 3);
@@ -752,16 +795,37 @@ export function mountHeroScene(host) {
     signalGeometry.attributes.position.needsUpdate = true;
     signalGeometry.attributes.aSize.needsUpdate = true;
     signalGeometry.attributes.aColor.needsUpdate = true;
+    trailGeometry.attributes.position.needsUpdate = true;
+    trailGeometry.attributes.aSize.needsUpdate = true;
+    trailGeometry.attributes.aColor.needsUpdate = true;
   }
 
   // The story: hub progress, node positions, bridge links, core birth, waves.
   const nodePositions = nodeGeometry.attributes.position.array;
   const nodeSizes = nodeGeometry.attributes.aSize.array;
+  const initialNodeSizes = nodeSizes.slice();
+  const nodeColors = nodeGeometry.attributes.aColor.array;
+  const initialNodeColors = nodeColors.slice();
+  const organizedColors = HUB_TINTS.map(tint => new Color(tint).lerp(new Color(0xe9e8ff), 0.2));
   const edgePositions = edgeGeometry.attributes.position.array;
   const edgeLinks = edgeGeometry.attributes.aLink.array;
   const progress = [0, 0, 0];
+  const organizedPosition = { x: 0, y: 0, z: 0 };
   let storyDone = false;
-  let lastStoryT = -1;
+
+  function updateOrganizedWires(order) {
+    organizedEdges.forEach(([a, b], i) => {
+      for (let axis = 0; axis < 3; axis++) {
+        organizedGeometry.attributes.position.array[i * 6 + axis] = nodePositions[a * 3 + axis];
+        organizedGeometry.attributes.position.array[i * 6 + 3 + axis] = nodePositions[b * 3 + axis];
+      }
+      const strength = order * (i < organized.edges.length ? 1.25 : 0.62);
+      organizedGeometry.attributes.aLink.array[i * 2] = strength;
+      organizedGeometry.attributes.aLink.array[i * 2 + 1] = strength;
+    });
+    organizedGeometry.attributes.position.needsUpdate = true;
+    organizedGeometry.attributes.aLink.needsUpdate = true;
+  }
 
   function hubProgress(t, i) {
     const start = HOLD_UNTIL + i * HUB_STAGGER;
@@ -769,8 +833,20 @@ export function mountHeroScene(host) {
   }
 
   function stepStory(t, dt) {
-    const merged = t >= MERGED_AT;
-    if (storyDone && merged) return 1;
+    if (storyDone && t >= ORDERED_AT) {
+      // Only retained junctions and their wires keep moving after the coalescence.
+      for (const node of organized.nodes) {
+        sampleOrganizedPosition(node, t, networkScale, organizedPosition);
+        const i = node.source * 3;
+        nodePositions[i] = organizedPosition.x;
+        nodePositions[i + 1] = organizedPosition.y;
+        nodePositions[i + 2] = organizedPosition.z;
+      }
+      nodeGeometry.attributes.position.needsUpdate = true;
+      updateOrganizedWires(1);
+      return 1;
+    }
+    const order = smooth(MERGED_AT - 0.35, ORDERED_AT, t);
     for (let i = 0; i < 3; i += 1) progress[i] = hubProgress(t, i);
 
     // Nodes: carried from the scattered cluster to their constellation position.
@@ -780,14 +856,24 @@ export function mountHeroScene(host) {
       const hub = hubs[node.lobe];
       const lobe = graph.lobes[node.lobe];
       const e = progress[node.lobe];
-      const sx = hub.start.x + (node.x - lobe.x) * 0.62;
-      const sy = hub.start.y + (node.y - lobe.y) * 0.62;
-      const sz = hub.start.z + (node.z - lobe.z) * 0.62;
-      nodePositions[i * 3] = sx + (node.x - sx) * e;
-      nodePositions[i * 3 + 1] = sy + (node.y - sy) * e;
-      nodePositions[i * 3 + 2] = sz + (node.z - sz) * e;
+      const unrest = 0.13;
+      const sx = hub.start.x + (node.x - lobe.x) * 0.62 + Math.sin(t * 0.87 + i * 1.7) * unrest;
+      const sy = hub.start.y + (node.y - lobe.y) * 0.62 + Math.cos(t * 1.12 + i * 0.8) * unrest;
+      const sz = hub.start.z + (node.z - lobe.z) * 0.62 + Math.sin(t * 1.24 + i * 0.3) * unrest;
+      const target = organized.targets[i];
+      sampleOrganizedPosition(target, t, networkScale, organizedPosition);
+      const px = sx + (node.x - sx) * e, py = sy + (node.y - sy) * e, pz = sz + (node.z - sz) * e;
+      nodePositions[i * 3] = px + (organizedPosition.x - px) * order;
+      nodePositions[i * 3 + 1] = py + (organizedPosition.y - py) * order;
+      nodePositions[i * 3 + 2] = pz * (1 - order) + organizedPosition.z * order;
+      nodeSizes[i] = initialNodeSizes[i] * (1 - order) + (organized.retained.has(i) ? target.size : 0) * order;
+      const color = organizedColors[node.lobe];
+      nodeColors[i * 3] = initialNodeColors[i * 3] * (1 - order) + color.r * order;
+      nodeColors[i * 3 + 1] = initialNodeColors[i * 3 + 1] * (1 - order) + color.g * order;
+      nodeColors[i * 3 + 2] = initialNodeColors[i * 3 + 2] * (1 - order) + color.b * order;
     }
     nodeGeometry.attributes.position.needsUpdate = true;
+    nodeGeometry.attributes.aColor.needsUpdate = true;
 
     // Edges follow their nodes; bridges knit in as both ends come home.
     graph.edges.forEach(([p, q], i) => {
@@ -799,15 +885,16 @@ export function mountHeroScene(host) {
       edgePositions[i * 6 + 5] = nodePositions[q * 3 + 2];
       const np = graph.nodes[p];
       const nq = graph.nodes[q];
+      let link = 1;
       if (np.core || nq.core || np.lobe !== nq.lobe) {
         const ep = np.core ? 1 : progress[np.lobe];
         const eq = nq.core ? 1 : progress[nq.lobe];
         // Bridges flash as they knit, then settle to full strength.
         const s = smooth(0.72, 1, Math.min(ep, eq));
-        const link = s * (1 + 1.4 * Math.sin(s * Math.PI));
-        edgeLinks[i * 2] = link;
-        edgeLinks[i * 2 + 1] = link;
+        link = s * (1 + 1.4 * Math.sin(s * Math.PI));
       }
+      edgeLinks[i * 2] = link * (1 - order);
+      edgeLinks[i * 2 + 1] = link * (1 - order);
     });
     edgeGeometry.attributes.position.needsUpdate = true;
     edgeGeometry.attributes.aLink.needsUpdate = true;
@@ -822,13 +909,8 @@ export function mountHeroScene(host) {
       const z = hub.start.z * (1 - e);
       hub.mesh.position.set(x, y, z);
       const shrink = 1 - smooth(0.9, 1, e);
-      hub.mesh.scale.setScalar(Math.max(0.0001, shrink));
-      hub.ring.position.set(x, y, z);
-      hub.ring.rotation.y = t * 0.5 + i * 2.1;
-      hub.ring.scale.setScalar(Math.max(0.0001, shrink * (1 + e * 0.35)));
-      hub.ring.material.opacity = 0.6 * shrink;
-      hubGlowPositions.set([x, y, z], i * 3);
-      hubGlowSizes[i] = 0.8 * shrink;
+      hub.mesh.scale.setScalar(Math.max(0.0001, (0.70 + e * 0.10) * shrink));
+      hub.detail.update(t, shrink, e);
       const landed = smooth(0.94, 1, e);
       birth += landed / 3;
       if (!hub.arrived && e >= 0.97) {
@@ -838,12 +920,24 @@ export function mountHeroScene(host) {
         waves[i].t = 0;
       }
     });
-    hubGlowGeometry.attributes.position.needsUpdate = true;
-    hubGlowGeometry.attributes.aSize.needsUpdate = true;
+    interference.update(t, progress);
+    // Both ends follow actual moving nodes, continuously tying the dense orb to its outer cloud.
+    sourceLinks.forEach((link, i) => {
+      const hub = hubs[link.lobe];
+      hub.detail.getAnchor(link.anchor, sourceAnchor).multiplyScalar(hub.mesh.scale.x).add(hub.mesh.position);
+      sourceGeometry.attributes.position.array.set([sourceAnchor.x, sourceAnchor.y, sourceAnchor.z], i * 6);
+      for (let axis = 0; axis < 3; axis += 1) sourceGeometry.attributes.position.array[i * 6 + 3 + axis] = nodePositions[link.node * 3 + axis];
+      const alpha = 1 - smooth(0.62, 0.98, progress[link.lobe]);
+      sourceGeometry.attributes.aLink.array[i * 2] = alpha;
+      sourceGeometry.attributes.aLink.array[i * 2 + 1] = alpha;
+    });
+    sourceGeometry.attributes.position.needsUpdate = true;
+    sourceGeometry.attributes.aLink.needsUpdate = true;
+    updateOrganizedWires(order);
     nodeSizes[0] = graph.nodes[0].size * birth;
     nodeGeometry.attributes.aSize.needsUpdate = true;
 
-    if (merged) storyDone = true;
+    if (t >= ORDERED_AT) storyDone = true;
     return birth;
   }
 
@@ -854,7 +948,7 @@ export function mountHeroScene(host) {
     const target = new WebGLRenderTarget(1, 1, { type: HalfFloatType, samples: 4 });
     composer = new EffectComposer(renderer, target);
     composer.addPass(new RenderPass(scene, camera));
-    bloomPass = new UnrealBloomPass(new Vector2(1, 1), BLOOM_BASE, 0.42, 0.7);
+    bloomPass = new UnrealBloomPass(new Vector2(1, 1), BLOOM_BASE, 0.3, 0.82);
     composer.addPass(bloomPass);
     composer.addPass(new OutputPass());
   }
@@ -872,17 +966,21 @@ export function mountHeroScene(host) {
   let smoothY = 9;
   let pointerIn = 0;
   let layout = LAYOUTS[variant].desktop;
+  let networkScale = 1;
+  let coreScale = 1;
+  let groupBaseY = 0;
+  let finalLift = 0;
 
   function step(t, dt) {
     auroraMaterial.uniforms.uTime.value = t;
     coronaMaterial.uniforms.uTime.value = t;
-    for (const material of [nodeMaterial, edgeMaterial, dustMaterial, signalMaterial, hubGlowMaterial]) material.uniforms.uTime.value = t;
+    for (const material of [nodeMaterial, edgeMaterial, dustMaterial, signalMaterial, trailMaterial]) material.uniforms.uTime.value = t;
 
     const ease = Math.min(1, dt * 2.6);
     smoothX += (pointerX - smoothX) * ease;
     smoothY += (pointerY - smoothY) * ease;
     const strength = finePointer ? pointerIn : 0;
-    for (const material of [nodeMaterial, edgeMaterial, signalMaterial]) {
+    for (const material of [nodeMaterial, edgeMaterial, signalMaterial, trailMaterial]) {
       material.uniforms.uPointer.value.set(smoothX, -smoothY);
       material.uniforms.uPointerStrength.value = strength;
     }
@@ -890,25 +988,26 @@ export function mountHeroScene(host) {
     const tiltY = finePointer ? smoothY * pointerIn : 0;
 
     const birth = stepStory(t, dt);
-    const merged = t >= MERGED_AT;
+    const order = smooth(MERGED_AT - 0.35, ORDERED_AT, t);
+    group.scale.setScalar(layout.scale * (1 + order * (layout === LAYOUTS[variant].mobile ? 0.18 : 0.13)));
+    group.position.y = groupBaseY + finalLift * order;
+    spatialField.update(t, birth, finalLift * order);
     auroraMaterial.uniforms.uMerged.value = birth;
+    dustMaterial.uniforms.uAlpha.value = 0.38 - order * 0.25;
 
-    group.rotation.y = t * 0.03 + tiltX * 0.16;
-    group.rotation.x = Math.sin(t * 0.09) * 0.08 - tiltY * 0.1;
-    group.rotation.z = Math.sin(t * 0.05) * 0.04;
+    const motionTime = t < MERGED_AT ? t : MERGED_AT + 1.2 * (1 - Math.exp(-(t - MERGED_AT) / 3));
+    group.rotation.y = motionTime * 0.03 + tiltX * 0.16;
+    group.rotation.x = Math.sin(motionTime * 0.09) * 0.08 - tiltY * 0.1;
+    group.rotation.z = Math.sin(motionTime * 0.05) * 0.04;
 
-    stepSignals(dt, merged);
+    stepSignals(dt, t >= ORDERED_AT);
     corePulse = Math.max(0, corePulse - dt * 1.6);
     bloomSpike = Math.max(0, bloomSpike - dt * 1.4);
-    const pulse = birth * (1 + Math.sin(t * 1.3) * 0.05 + corePulse * 0.5);
+    const pulse = birth * coreScale * (1 + Math.sin(t * 0.7) * 0.012 + corePulse * 0.035);
     core.scale.setScalar(Math.max(0.0001, pulse));
-    coronaMaterial.uniforms.uPower.value = birth * (0.8 + corePulse * 0.9 + Math.sin(t * 0.9) * 0.08);
+    coreDetail.update(t, birth, corePulse);
+    coronaMaterial.uniforms.uPower.value = birth * (0.28 + corePulse * 0.16 + Math.sin(t * 0.9) * 0.04);
     corona.rotation.z = t * 0.02;
-    orbitA.material.opacity = 0.26 * birth;
-    orbitB.material.opacity = 0.16 * birth;
-    orbitA.rotation.y = t * 0.22;
-    orbitB.rotation.x = -0.9 + Math.sin(t * 0.17) * 0.25;
-    orbitB.rotation.z = t * 0.12;
     for (const wave of waves) {
       if (wave.t < 0) continue;
       wave.t += dt;
@@ -922,7 +1021,7 @@ export function mountHeroScene(host) {
       wave.ring.scale.setScalar(0.2 + Math.pow(w, 0.55) * 3.4);
       wave.ring.material.opacity = (1 - w) * (1 - w) * 0.6;
     }
-    if (bloomPass) bloomPass.strength = BLOOM_BASE + bloomSpike * 0.9;
+    if (bloomPass) bloomPass.strength = BLOOM_BASE + bloomSpike * 0.2;
 
     camera.position.x = Math.sin(t * 0.06) * 0.25;
     camera.position.y = Math.cos(t * 0.045) * 0.15;
@@ -973,9 +1072,14 @@ export function mountHeroScene(host) {
       composer.setSize(width, height);
     }
     layout = LAYOUTS[variant][width < 760 ? "mobile" : "desktop"];
+    networkScale = width < 760 ? 0.52 : Math.min(1, width / 1440);
+    coreScale = width < 760 ? 0.62 : Math.min(1, width / 1440 + 0.15);
     const halfH = Math.tan((FOV / 2) * DEG) * CAMERA_Z;
     const halfW = halfH * camera.aspect;
     group.position.set(layout.anchor[0] * halfW, layout.anchor[1] * halfH, 0);
+    groupBaseY = group.position.y;
+    finalLift = width < 760 ? halfH * 0.18 : 0;
+    spatialField.configure(group.position, layout.scale, layout.leftDark, width < 760);
     group.scale.setScalar(layout.scale);
     // Scatter positions are stage fractions; convert to group space so hubs start where the eye
     // expects them regardless of aspect.
@@ -993,7 +1097,7 @@ export function mountHeroScene(host) {
     auroraMaterial.uniforms.uAspect.value = camera.aspect;
     auroraMaterial.uniforms.uLeftDark.value = layout.leftDark;
     const pointScale = height * pixelRatio * 0.6 * layout.scale;
-    for (const material of [nodeMaterial, signalMaterial, hubGlowMaterial]) {
+    for (const material of [nodeMaterial, signalMaterial, trailMaterial]) {
       material.uniforms.uScale.value = pointScale;
       material.uniforms.uMaxSize.value = 220 * pixelRatio;
       material.uniforms.uLeftDark.value = layout.leftDark;
@@ -1005,6 +1109,7 @@ export function mountHeroScene(host) {
     dustMaterial.uniforms.uAspect.value = camera.aspect;
     edgeMaterial.uniforms.uLeftDark.value = layout.leftDark;
     edgeMaterial.uniforms.uAspect.value = camera.aspect;
+    coreDetail.setPointScale(pointScale);
   }
 
   function resize() {
@@ -1017,7 +1122,7 @@ export function mountHeroScene(host) {
     }
   }
 
-  // Poster rendering hook (used by .review/shoot.mjs poster): render one frame at a fixed CSS size,
+  // Poster rendering hook (scripts/verify-hero.mjs --posters): render at a fixed CSS size,
   // pixel ratio and story time, return it as a data URL, then restore the live state.
   function snapshot(width, height, at = POSTER_TIME[variant], quality = 0.82, pixelRatio = 1) {
     const liveW = Math.max(1, host.clientWidth);
@@ -1090,6 +1195,7 @@ export function mountHeroScene(host) {
       node.geometry?.dispose();
       if (node.material && node !== aurora) node.material.dispose?.();
     });
+    hubs.forEach(hub => hub.detail.dispose());
     auroraMaterial.dispose();
     bloomPass?.dispose();
     composer?.renderTarget1.dispose();
