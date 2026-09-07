@@ -57,11 +57,11 @@ const GOLD = 0xe8b94e;
 
 // The story clock. Hubs hold at HOLD_UNTIL, travel for TRAVEL seconds (staggered), then merge.
 const HOLD_UNTIL = 1.4;
-const TRAVEL = 3.6;
-const HUB_STAGGER = 0.3;
+const TRAVEL = 4.0;
+const HUB_STAGGER = 0.5;
 const MERGED_AT = HOLD_UNTIL + HUB_STAGGER * 2 + TRAVEL;
 const POSTER_TIME = { home: 0.8, page: 16 };
-const BLOOM_BASE = 0.9;
+const BLOOM_BASE = 0.7;
 
 // Where the core sits in normalized device coordinates, the group scale relative to the stage,
 // how hard the copy column gets darkened, and where the three hubs start (also NDC fractions).
@@ -129,9 +129,10 @@ const AURORA_FRAGMENT = /* glsl */ `
     float gold = smoothstep(0.52, 0.9, n2) * smoothstep(0.2, 0.95, uv.x) * smoothstep(0.85, 0.2, uv.y);
     float haze = smoothstep(0.5, 0.95, n3) * 0.5;
 
+    // Kept thin on purpose: colour and depth behind the graph, never fog in front of it.
     vec3 col = uInk;
-    col += uPeri * (peri * 0.44 + haze * 0.14);
-    col += uGold * gold * (0.12 + 0.24 * uMerged);
+    col += uPeri * (peri * 0.24 + haze * 0.04);
+    col += uGold * gold * (0.07 + 0.16 * uMerged);
 
     // Keep the copy column deep for contrast.
     col *= mix(1.0, 0.35, uLeftDark * smoothstep(0.62, 0.02, uv.x));
@@ -167,8 +168,8 @@ const NODE_VERTEX = /* glsl */ `
     float near = distance(ndc * vec2(uAspect, 1.0), uPointer * vec2(uAspect, 1.0));
     float lift = smoothstep(0.55, 0.0, near) * uPointerStrength;
     gl_PointSize = min(uMaxSize, aSize * uScale / max(dist, 0.5)) * (1.0 + 0.55 * lift);
-    float twinkle = 0.78 + 0.22 * sin(uTime * 1.1 + aPhase * 19.0);
-    float depth = mix(1.0, 0.42, smoothstep(uFocus - 1.5, uFocus + 4.5, dist));
+    float twinkle = 0.82 + 0.18 * sin(uTime * 1.1 + aPhase * 19.0);
+    float depth = mix(1.0, 0.5, smoothstep(uFocus - 1.5, uFocus + 4.5, dist));
     float sx = ndc.x * 0.5 + 0.5;
     vAlpha = twinkle * depth * mix(1.0, 0.3, uLeftDark * smoothstep(0.6, 0.05, sx)) * (1.0 + 1.3 * lift);
     vColor = aColor;
@@ -183,10 +184,11 @@ const NODE_FRAGMENT = /* glsl */ `
     vec2 c = gl_PointCoord - 0.5;
     float r = length(c) * 2.0;
     if (r > 1.0) discard;
-    float halo = pow(1.0 - r, 2.4);
-    float core = 1.0 - smoothstep(0.0, 0.3, r);
-    vec3 col = vColor * (halo * 0.85 + core * 1.5);
-    gl_FragColor = vec4(col, (halo * 0.9 + core) * vAlpha * uAlpha);
+    // A crisp dot with a short halo. The glow lives in the dot, not in a wash around it.
+    float halo = pow(1.0 - r, 3.4);
+    float core = 1.0 - smoothstep(0.0, 0.36, r);
+    vec3 col = vColor * (halo * 0.5 + core * 1.6);
+    gl_FragColor = vec4(col, (halo * 0.55 + core) * vAlpha * uAlpha);
     #include <tonemapping_fragment>
     #include <colorspace_fragment>
   }
@@ -211,8 +213,8 @@ const LINE_VERTEX = /* glsl */ `
     vec2 ndc = gl_Position.xy / gl_Position.w;
     float near = distance(ndc * vec2(uAspect, 1.0), uPointer * vec2(uAspect, 1.0));
     float lift = smoothstep(0.55, 0.0, near) * uPointerStrength;
-    float pulse = 0.6 + 0.4 * sin(uTime * 0.45 + aPhase * 6.2831);
-    float depth = mix(1.0, 0.3, smoothstep(uFocus - 1.5, uFocus + 4.5, dist));
+    float pulse = 0.72 + 0.28 * sin(uTime * 0.45 + aPhase * 6.2831);
+    float depth = mix(1.0, 0.4, smoothstep(uFocus - 1.5, uFocus + 4.5, dist));
     float sx = ndc.x * 0.5 + 0.5;
     vAlpha = aLink * pulse * depth * mix(1.0, 0.3, uLeftDark * smoothstep(0.6, 0.05, sx)) * (1.0 + 1.6 * lift);
     vColor = aColor;
@@ -249,10 +251,10 @@ const CORONA_FRAGMENT = /* glsl */ `
     float r = length(p) * 2.0;
     if (r > 1.0) discard;
     float ang = atan(p.y, p.x);
-    float glow = pow(1.0 - r, 3.2);
+    float glow = pow(1.0 - r, 3.8);
     float rays = pow(abs(sin(ang * 7.0 + uTime * 0.32)), 16.0) * pow(1.0 - r, 1.8) * 0.5
       + pow(abs(sin(ang * 3.0 - uTime * 0.21 + 1.3)), 24.0) * pow(1.0 - r, 1.3) * 0.32;
-    float a = (glow * 1.5 + rays) * uPower;
+    float a = (glow * 1.0 + rays) * uPower;
     gl_FragColor = vec4(uColor * a, a);
     #include <tonemapping_fragment>
     #include <colorspace_fragment>
@@ -585,8 +587,8 @@ export function mountHeroScene(host) {
   aurora.frustumCulled = false;
   scene.add(aurora);
 
-  const dustMaterial = makePointMaterial(0.55);
-  const dust = new Points(buildDust(lite ? 260 : 620, rand), dustMaterial);
+  const dustMaterial = makePointMaterial(0.38);
+  const dust = new Points(buildDust(lite ? 220 : 440, rand), dustMaterial);
   dust.frustumCulled = false;
   scene.add(dust);
 
@@ -598,7 +600,7 @@ export function mountHeroScene(host) {
     uniforms: {
       uTime: { value: 0 },
       uFocus: { value: CAMERA_Z },
-      uAlpha: { value: lite ? 0.55 : 0.46 },
+      uAlpha: { value: lite ? 0.64 : 0.58 },
       uLeftDark: { value: 1 },
       uAspect: { value: 1 },
       uPointer: { value: new Vector2(9, 9) },
@@ -632,7 +634,7 @@ export function mountHeroScene(host) {
     depthTest: false,
     blending: AdditiveBlending,
   });
-  const corona = new Mesh(new PlaneGeometry(3.2, 3.2), coronaMaterial);
+  const corona = new Mesh(new PlaneGeometry(2.7, 2.7), coronaMaterial);
   corona.frustumCulled = false;
   group.add(corona);
 
@@ -649,27 +651,30 @@ export function mountHeroScene(host) {
 
   // Shockwaves: one ring per arrival, expanding and fading.
   const waves = [0, 1, 2].map((i) => {
-    const ring = makeRing(0.9, 1, i === 2 ? 0xf3d68a : 0xd9d8ff, 0);
+    const ring = makeRing(0.984, 1, i === 2 ? 0xf3d68a : 0xd9d8ff, 0);
     ring.scale.setScalar(0.0001);
     group.add(ring);
     return { ring, t: -1 };
   });
 
-  // The three hubs: medium spheres with a glow point each, carried from their scatter positions.
+  // The three hubs: medium spheres, each with a short glow and a thin ring so it reads as a node,
+  // carried from their scatter positions.
   const hubs = [0, 1, 2].map((i) => {
     const tint = new Color(HUB_TINTS[i]);
     const mesh = new Mesh(new SphereGeometry(0.13, 32, 20), new MeshBasicMaterial({ color: tint.clone().multiplyScalar(lite ? 1.25 : 2.1) }));
-    group.add(mesh);
-    return { mesh, tint, start: new Vector3(), arrived: false };
+    const ring = makeRing(0.3, 0.316, tint, 0.6);
+    ring.rotation.set(1.05, 0.3 * i, 0);
+    group.add(mesh, ring);
+    return { mesh, ring, tint, start: new Vector3(), arrived: false };
   });
   const hubGlowPositions = new Float32Array(9);
   const hubGlowColors = new Float32Array(9);
   const hubGlowSizes = new Float32Array(3);
   const hubGlowPhases = new Float32Array([0.1, 0.5, 0.9]);
   hubs.forEach((hub, i) => {
-    const c = hub.tint.clone().multiplyScalar(2.4);
+    const c = hub.tint.clone().multiplyScalar(2.0);
     hubGlowColors.set([c.r, c.g, c.b], i * 3);
-    hubGlowSizes[i] = 1.5;
+    hubGlowSizes[i] = 0.8;
   });
   const hubGlowGeometry = new BufferGeometry();
   hubGlowGeometry.setAttribute("position", new BufferAttribute(hubGlowPositions, 3));
@@ -797,7 +802,9 @@ export function mountHeroScene(host) {
       if (np.core || nq.core || np.lobe !== nq.lobe) {
         const ep = np.core ? 1 : progress[np.lobe];
         const eq = nq.core ? 1 : progress[nq.lobe];
-        const link = smooth(0.72, 1, Math.min(ep, eq));
+        // Bridges flash as they knit, then settle to full strength.
+        const s = smooth(0.72, 1, Math.min(ep, eq));
+        const link = s * (1 + 1.4 * Math.sin(s * Math.PI));
         edgeLinks[i * 2] = link;
         edgeLinks[i * 2 + 1] = link;
       }
@@ -816,8 +823,12 @@ export function mountHeroScene(host) {
       hub.mesh.position.set(x, y, z);
       const shrink = 1 - smooth(0.9, 1, e);
       hub.mesh.scale.setScalar(Math.max(0.0001, shrink));
+      hub.ring.position.set(x, y, z);
+      hub.ring.rotation.y = t * 0.5 + i * 2.1;
+      hub.ring.scale.setScalar(Math.max(0.0001, shrink * (1 + e * 0.35)));
+      hub.ring.material.opacity = 0.6 * shrink;
       hubGlowPositions.set([x, y, z], i * 3);
-      hubGlowSizes[i] = 1.5 * shrink;
+      hubGlowSizes[i] = 0.8 * shrink;
       const landed = smooth(0.94, 1, e);
       birth += landed / 3;
       if (!hub.arrived && e >= 0.97) {
@@ -843,7 +854,7 @@ export function mountHeroScene(host) {
     const target = new WebGLRenderTarget(1, 1, { type: HalfFloatType, samples: 4 });
     composer = new EffectComposer(renderer, target);
     composer.addPass(new RenderPass(scene, camera));
-    bloomPass = new UnrealBloomPass(new Vector2(1, 1), BLOOM_BASE, 0.78, 0.5);
+    bloomPass = new UnrealBloomPass(new Vector2(1, 1), BLOOM_BASE, 0.42, 0.7);
     composer.addPass(bloomPass);
     composer.addPass(new OutputPass());
   }
@@ -907,8 +918,9 @@ export function mountHeroScene(host) {
         wave.ring.material.opacity = 0;
         continue;
       }
-      wave.ring.scale.setScalar(0.15 + Math.pow(w, 0.6) * 5.2);
-      wave.ring.material.opacity = (1 - w) * (1 - w) * 0.9;
+      // A thin, quick ripple: thin ring, modest reach, gone in 1.4 s.
+      wave.ring.scale.setScalar(0.2 + Math.pow(w, 0.55) * 3.4);
+      wave.ring.material.opacity = (1 - w) * (1 - w) * 0.6;
     }
     if (bloomPass) bloomPass.strength = BLOOM_BASE + bloomSpike * 0.9;
 
