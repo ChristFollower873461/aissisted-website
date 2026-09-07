@@ -132,6 +132,16 @@
     }).format(new Date(slot.startsAt));
   }
 
+  function formatSlotZone(slot) {
+    try {
+      const parts = new Intl.DateTimeFormat("en-US", { timeZone: slot.timezone, timeZoneName: "short" })
+        .formatToParts(new Date(slot.startsAt));
+      return (parts.find((part) => part.type === "timeZoneName") || {}).value || slot.timezone;
+    } catch (_error) {
+      return slot.timezone;
+    }
+  }
+
   function showStatus(message, kind, shouldScroll) {
     [statusBanner, submitStatus].filter(Boolean).forEach((node) => {
       node.textContent = message;
@@ -158,10 +168,10 @@
   function syncSummary() {
     const slot = getSelectedSlot();
     reservationAmount.textContent = state.reservationAmountFormatted;
-    selectedSlotLabel.textContent = slot ? slot.label : "Choose a time window";
+    selectedSlotLabel.textContent = slot ? slot.label : "Choose a time";
     selectedSlotMeta.textContent = slot
-      ? `Availability source: ${String(slot.availabilitySource || "booking API").replace("-", " ")}`
-      : "A slot remains temporary until Stripe payment succeeds.";
+      ? "Held for you once Stripe payment succeeds."
+      : "Pick an open hour above.";
   }
 
   function groupSlots(slots) {
@@ -196,7 +206,7 @@
         return `
           <button type="button" class="slot-option${selectedClass}" data-slot-id="${escapeHtml(slot.slotId)}">
             <strong>${escapeHtml(formatSlotTime(slot))}</strong>
-            <span>${escapeHtml(slot.timezone)}</span>
+            <span>${escapeHtml(formatSlotZone(slot))}</span>
           </button>
         `;
       }).join("");

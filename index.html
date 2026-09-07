@@ -23,8 +23,8 @@
     <meta name="twitter:description" content="Local. Trusted. AI. Fix how something works or build something new, with clear scope and accountable delivery.">
     <meta name="twitter:image" content="https://aissistedconsulting.com/assets/social-logo-20260713.jpg">
     <meta name="twitter:image:alt" content="AIssisted Consulting official logo.">
-    <link rel="preload" href="assets/fonts/instrument-serif-400-normal.woff2" as="font" type="font/woff2" crossorigin>
-    <link rel="preload" href="assets/fonts/inter-tight-400-700-normal.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="assets/fonts/bricolage-grotesque-var.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="assets/site/site.css?v=20260906">
     <link rel="stylesheet" href="assets/site/home.css?v=20260906">
     <script type="application/ld+json">
     {
@@ -58,20 +58,48 @@
           <strong>AIssisted Consulting</strong>
         </a>
 
-        <button class="menu-toggle" type="button" data-menu-toggle aria-expanded="false" aria-controls="site-nav">
-          Menu
-        </button>
-
-        <nav class="nav-links" id="site-nav" data-nav-links aria-label="Primary navigation">
-          <a href="./services/">Services</a>
-          <a href="./privacy-and-control/">Private AI</a>
-          <a href="./industries/">Industries</a>
-          <a href="./about/">About</a>
-          <a href="./contact/">Contact</a>
-          <a class="nav-cta" href="./book/?entry_route=home&amp;cta_id=home_nav_paid_plan">Book</a>
-        </nav>
+        <div class="nav-cluster">
+          <a class="btn btn-gold btn-sm" href="./book/?entry_route=home&amp;cta_id=home_nav_paid_plan">Book</a>
+          <button class="menu-btn" type="button" data-menu-open aria-expanded="false" aria-controls="site-menu" aria-haspopup="dialog">
+            <span class="menu-lines" aria-hidden="true"><i></i><i></i></span>
+            <span>Menu</span>
+          </button>
+        </div>
       </div>
     </header>
+
+    <div class="site-menu" id="site-menu" data-menu role="dialog" aria-modal="true" aria-label="Site menu" hidden>
+      <div class="container menu-top">
+        <a class="brand" href="./" aria-label="AIssisted Consulting home">
+          <img src="assets/logo-mark-192.png" alt="" width="40" height="40">
+          <strong>AIssisted Consulting</strong>
+        </a>
+        <button class="menu-btn is-close" type="button" data-menu-close>
+          <span class="menu-lines" aria-hidden="true"><i></i><i></i></span>
+          <span>Close</span>
+        </button>
+      </div>
+      <div class="container menu-body">
+        <nav class="menu-nav" aria-label="Primary navigation">
+          <ol>
+            <li style="--i:0"><a href="./services/"><small class="num">01</small>Services</a></li>
+            <li style="--i:1"><a href="./privacy-and-control/"><small class="num">02</small>Private AI</a></li>
+            <li style="--i:2"><a href="./industries/"><small class="num">03</small>Industries</a></li>
+            <li style="--i:3"><a href="./about/"><small class="num">04</small>About</a></li>
+            <li style="--i:4"><a href="./contact/"><small class="num">05</small>Contact</a></li>
+          </ol>
+        </nav>
+        <div class="menu-foot">
+          <p class="menu-tag">Local. Trusted. <span class="accent">AI.</span></p>
+          <a class="btn btn-gold" href="./book/?entry_route=home&amp;cta_id=home_nav_paid_plan">Book the $225 plan</a>
+          <address>
+            <a href="tel:+13528173567">(352) 817-3567</a>
+            <a href="mailto:pj@aissistedconsulting.com">pj@aissistedconsulting.com</a>
+            <span>Ocala, Florida</span>
+          </address>
+        </div>
+      </div>
+    </div>
 
     <main id="main">
       <section class="hero" id="top">
@@ -83,8 +111,8 @@
         </div>
         <div class="hero-scrim" aria-hidden="true"></div>
         <div class="container hero-copy">
-          <p class="hero-kicker">Ocala, Florida<span class="kicker-more"> &middot; AI &amp; software implementation</span></p>
-          <h1 class="hero-title"><span>Local.</span> <span>Trusted.</span> <em>AI.</em></h1>
+          <p class="kicker hero-kicker">Ocala, Florida<span class="kicker-more"> &middot; AI &amp; software implementation</span></p>
+          <h1 class="hero-title"><span>Local.</span> <span>Trusted.</span> <span class="accent">AI.</span></h1>
           <p class="hero-lede">Fix how something works.<br>Build something new.</p>
           <div class="hero-actions">
             <a class="btn btn-gold" href="./book/?entry_route=home&amp;cta_id=home_hero_paid_plan">Book the $225 plan</a>
@@ -98,7 +126,7 @@
           <div class="proof-head">
             <div class="reveal">
               <p class="kicker">Proof, not promises</p>
-              <h2 class="h2" id="proof-title">This ran on our own machine <em>this afternoon.</em></h2>
+              <h2 class="h2" id="proof-title">This ran on our own machine <span class="accent">this afternoon.</span></h2>
             </div>
             <p class="sub reveal" data-delay="1">Private Data Service: 89 messy records in, 80 clean ones out, on a Mac we own, with no internet on the lane. Demo data, real run. Nothing left the room.</p>
           </div>
@@ -267,6 +295,7 @@
 
     <script src="main.js?v=20260718"></script>
     <script src="assets/aic-google-ads-tracking.js?v=20260817"></script>
+    <script src="assets/site/site.js?v=20260906"></script>
     <script src="assets/site/home.js?v=20260906"></script>
   </body>
 </html>

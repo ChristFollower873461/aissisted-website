@@ -1,0 +1,274 @@
+/* Booking pages on top of site.css: the slot picker is the hero object, intake beside it, one sticky summary. */
+
+.book-page { padding-top: calc(var(--header-h) + 48px); }
+
+.book-head { padding: 32px 0 44px; }
+.book-head .sub { max-width: 46ch; }
+
+.book-shell {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: 32px;
+  align-items: start;
+  padding-bottom: 96px;
+}
+.book-main { display: grid; gap: 24px; min-width: 0; }
+
+.panel {
+  padding: 32px;
+  border-radius: var(--r-card);
+  background: linear-gradient(160deg, rgba(17, 21, 39, 0.85), rgba(8, 10, 20, 0.9));
+  border: 1px solid var(--line);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+.panel-head {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 6px 18px;
+  align-items: baseline;
+  margin-bottom: 22px;
+}
+.panel-head .num { font-size: 1.1rem; color: var(--gold); }
+.panel-head h2 {
+  margin: 0;
+  font-weight: 500;
+  font-size: clamp(1.6rem, 2.4vw, 2.1rem);
+  letter-spacing: -0.025em;
+  line-height: 1.05;
+  color: #fff;
+}
+.panel-head small { grid-column: 2; font-size: 0.95rem; color: var(--muted); }
+
+/* Slots (markup rendered by booking.js) */
+
+.slot-day + .slot-day { margin-top: 22px; }
+.slot-day h3 {
+  margin: 0 0 10px;
+  font-stretch: 80%;
+  font-weight: 600;
+  font-size: 0.78rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.slot-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px;
+}
+.slot-option {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 14px 16px;
+  border-radius: var(--r-input);
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.03);
+  color: #fff;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s, transform 0.25s var(--ease), box-shadow 0.25s var(--ease);
+}
+.slot-option strong { font-size: 1.25rem; font-weight: 600; letter-spacing: -0.02em; line-height: 1; }
+.slot-option span { font-size: 0.78rem; color: var(--muted); }
+.slot-option:hover { border-color: rgba(245, 211, 122, 0.6); transform: translateY(-2px); }
+.slot-option.is-selected {
+  background: linear-gradient(135deg, #f7d986, #e2ab3b);
+  border-color: transparent;
+  color: #1a1405;
+  box-shadow: 0 12px 30px rgba(232, 185, 78, 0.3);
+}
+.slot-option.is-selected span { color: rgba(26, 20, 5, 0.7); }
+.slot-option.is-booked { opacity: 0.4; cursor: not-allowed; transform: none; }
+.slot-badge { font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; }
+.loading-copy { margin: 0; color: var(--muted); }
+
+/* Status banners (classes set by booking.js) */
+
+.status-banner {
+  display: none;
+  margin: 0 0 16px;
+  padding: 12px 16px;
+  border-radius: var(--r-input);
+  font-size: 0.95rem;
+  line-height: 1.45;
+}
+.status-banner.is-visible { display: block; }
+.status-banner.is-error { background: rgba(255, 95, 87, 0.12); border: 1px solid rgba(255, 95, 87, 0.4); color: #ffb4ae; }
+.status-banner.is-success { background: rgba(126, 224, 176, 0.12); border: 1px solid rgba(126, 224, 176, 0.4); color: #b8f0d4; }
+.booking-submit-status { margin: 14px 0 0; }
+
+/* Forms */
+
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.field { display: grid; gap: 8px; }
+.field.full { grid-column: 1 / -1; }
+.field > span { font-size: 0.82rem; font-weight: 600; letter-spacing: 0.04em; color: var(--muted); }
+.field input, .field select, .field textarea {
+  width: 100%;
+  padding: 13px 14px;
+  border-radius: var(--r-input);
+  border: 1px solid rgba(138, 139, 221, 0.28);
+  background: rgba(6, 8, 15, 0.6);
+  color: #fff;
+  font: inherit;
+  font-size: 1rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.field input::placeholder, .field textarea::placeholder { color: rgba(166, 165, 196, 0.55); }
+.field input:focus, .field select:focus, .field textarea:focus {
+  outline: none;
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(232, 185, 78, 0.2);
+}
+.field select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 40px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9' viewBox='0 0 14 9'%3E%3Cpath d='M1 1l6 6 6-6' fill='none' stroke='%23e8b94e' stroke-width='2'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+}
+.field select option { color: #111; background: #fff; }
+.field textarea { resize: vertical; min-height: 120px; }
+
+.check {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin: 22px 0 0;
+  font-size: 0.98rem;
+  color: var(--text);
+}
+.check input { flex: none; width: 20px; height: 20px; margin: 2px 0 0; accent-color: var(--gold); }
+
+.form-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 18px; margin-top: 22px; }
+.fine-print { margin: 12px 0 0; font-size: 0.85rem; color: var(--muted); }
+
+/* Summary */
+
+.book-side { position: sticky; top: calc(var(--header-h) + 16px); }
+.summary {
+  display: grid;
+  gap: 22px;
+  padding: 28px;
+  border-radius: var(--r-card);
+  background: linear-gradient(160deg, rgba(138, 139, 221, 0.16), rgba(232, 185, 78, 0.07) 60%, rgba(17, 21, 39, 0.7));
+  border: 1px solid rgba(138, 139, 221, 0.28);
+  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+.summary .kicker { margin: 0; }
+.summary-price strong {
+  display: block;
+  font-size: clamp(3rem, 4vw, 4rem);
+  font-weight: 600;
+  letter-spacing: -0.05em;
+  line-height: 1;
+  color: #fff;
+}
+.summary-price span { display: block; margin-top: 8px; color: var(--muted); }
+.summary .label {
+  display: block;
+  margin-bottom: 8px;
+  font-stretch: 80%;
+  font-weight: 600;
+  font-size: 0.74rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+.summary-slot strong { display: block; font-size: 1.15rem; font-weight: 600; letter-spacing: -0.01em; color: #fff; }
+.summary-slot small { display: block; margin-top: 4px; font-size: 0.88rem; color: var(--muted); }
+.summary ul { display: grid; gap: 6px; margin: 0; padding-left: 18px; color: rgba(243, 242, 255, 0.86); }
+.summary-note { margin: 0; font-size: 0.9rem; color: var(--muted); }
+.terms summary { cursor: pointer; color: var(--gold-2); font-weight: 500; }
+.terms summary:hover { color: #fff; }
+.terms p { margin: 12px 0 0; font-size: 0.9rem; line-height: 1.55; color: var(--muted); }
+
+/* Fit call */
+
+.fit-grid {
+  display: grid;
+  grid-template-columns: 0.9fr 1.1fr;
+  gap: 48px;
+  align-items: start;
+}
+.fit-grid .h2 { max-width: 12ch; text-wrap: balance; }
+.fit-grid .sub { margin-top: 0; }
+.fit-status { margin: 12px 0 0; font-size: 0.95rem; color: var(--gold-2); }
+
+/* State pages: success and cancel */
+
+.state-page {
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  padding: calc(var(--header-h) + 40px) 0 80px;
+}
+.state-card {
+  width: min(640px, calc(100% - 48px));
+  padding: 40px;
+  border-radius: var(--r-card);
+  background: linear-gradient(160deg, rgba(138, 139, 221, 0.14), rgba(232, 185, 78, 0.06) 60%, rgba(17, 21, 39, 0.7));
+  border: 1px solid rgba(138, 139, 221, 0.28);
+  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+.state-pill {
+  display: inline-block;
+  margin-bottom: 20px;
+  padding: 7px 12px;
+  border-radius: var(--r-pill);
+  font-stretch: 80%;
+  font-weight: 600;
+  font-size: 0.74rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #1a1405;
+  background: var(--gold);
+}
+.state-card h1 {
+  margin: 0 0 14px;
+  font-weight: 500;
+  font-size: clamp(2rem, 3.6vw, 3rem);
+  letter-spacing: -0.03em;
+  line-height: 1;
+  color: #fff;
+}
+.state-card > p { margin: 0; color: var(--muted); font-size: 1.05rem; }
+.state-meta { margin-top: 26px; }
+.state-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 0;
+  border-top: 1px solid var(--line);
+  font-size: 0.95rem;
+}
+.state-row span { color: var(--muted); }
+.state-row strong { font-weight: 600; text-align: right; color: #fff; }
+.state-actions { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 26px; }
+
+/* Responsive */
+
+@media (max-width: 1000px) {
+  .book-shell { grid-template-columns: 1fr; }
+  .book-side { position: static; }
+  .fit-grid { grid-template-columns: 1fr; gap: 28px; }
+}
+
+@media (max-width: 760px) {
+  .book-page { padding-top: calc(var(--header-h) + 24px); }
+  .panel { padding: 22px 18px; }
+  .panel-head { gap: 4px 12px; }
+  .form-grid { grid-template-columns: 1fr; }
+  .slot-options { grid-template-columns: repeat(auto-fill, minmax(128px, 1fr)); }
+  .summary { padding: 22px; }
+  .state-card { padding: 28px 22px; }
+  .state-row { flex-direction: column; gap: 4px; }
+  .state-row strong { text-align: left; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .slot-option { transition: none; }
+}

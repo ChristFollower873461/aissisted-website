@@ -1,40 +1,6 @@
-/* Homepage behaviour: floating header, scroll reveals, the terminal replay and the lazy hero scene. */
+/* Homepage behaviour: the terminal replay and the lazy hero scene. Header, menu and reveals live in site.js. */
 (function () {
-  document.documentElement.classList.add("js");
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-  function initHeader() {
-    const header = document.querySelector("[data-header]");
-    if (!header) return;
-    let queued = false;
-    const update = () => {
-      queued = false;
-      header.classList.toggle("is-scrolled", window.scrollY > 24);
-    };
-    window.addEventListener("scroll", () => {
-      if (queued) return;
-      queued = true;
-      window.requestAnimationFrame(update);
-    }, { passive: true });
-    update();
-  }
-
-  function initReveal() {
-    const targets = document.querySelectorAll(".reveal");
-    if (!targets.length) return;
-    if (reducedMotion || !("IntersectionObserver" in window)) {
-      targets.forEach((node) => node.classList.add("is-in"));
-      return;
-    }
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (!entry.isIntersecting) return;
-        entry.target.classList.add("is-in");
-        observer.unobserve(entry.target);
-      });
-    }, { rootMargin: "0px 0px -12% 0px", threshold: 0.08 });
-    targets.forEach((node) => observer.observe(node));
-  }
 
   // The terminal is real output, replayed. Lines carry their own text; we only pace them.
   function initTerminal() {
@@ -146,8 +112,6 @@
     }
   }
 
-  initHeader();
-  initReveal();
   initTerminal();
   initHeroScene();
 }());
