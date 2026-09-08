@@ -35,8 +35,12 @@ async function main() {
     assert(sha256(body) === entry.sha256, `migration hash drift: ${entry.filename}`);
   }
 
+  const schema = await readFile(path.join(root, "db/booking-schema.sql"));
+  assert(sha256(schema) === manifest.freshSchemaSha256, "fresh schema hash drift");
+
   const freshDirectory = await mkdtemp(path.join(tmpdir(), "aissisted-full-migration-chain-"));
   const freshDatabase = path.join(freshDirectory, "fresh.sqlite");
+  const snapshotDatabase = path.join(freshDirectory, "snapshot.sqlite");
   try {
     for (const entry of manifest.migrations) {
       const sql = await readFile(path.join(root, "migrations", entry.filename), "utf8");
@@ -49,19 +53,30 @@ async function main() {
       "grail_workspaces",
       "booking_contracts",
       "booking_deliverables",
-      "integration_outbox"
+      "integration_outbox",
+      "contact_inquiries",
+      "contact_crm_delivery"
     ];
     const query = `SELECT name FROM sqlite_master WHERE type='table' AND name IN (${requiredTables.map((name) => `'${name}'`).join(",")}) ORDER BY name;`;
     const result = spawnSync("sqlite3", [freshDatabase, query], { encoding: "utf8" });
     assert(result.status === 0, `fresh migration table query failed: ${result.stderr || result.stdout}`);
     const observed = result.stdout.trim().split("\n").filter(Boolean);
     assert(observed.length === requiredTables.length, `fresh migration chain missing tables: ${requiredTables.filter((name) => !observed.includes(name)).join(", ")}`);
+
+    // The new delivery table must have the same columns, constraints, indexes,
+    // and immutable-event trigger in both supported database creation paths.
+    applySqlite(snapshotDatabase, schema, "db/booking-schema.sql");
+    const deliverySchemaQuery = "SELECT type, name, sql FROM sqlite_master WHERE tbl_name = 'contact_crm_delivery' ORDER BY type, name;";
+    const deliverySchemas = [freshDatabase, snapshotDatabase].map((database) => {
+      const schemaResult = spawnSync("sqlite3", [database, deliverySchemaQuery], { encoding: "utf8" });
+      assert(schemaResult.status === 0, `contact delivery schema query failed: ${schemaResult.stderr || schemaResult.stdout}`);
+      assert(schemaResult.stdout.includes("contact_crm_delivery_immutable_event"), "contact delivery immutable-event trigger missing");
+      return schemaResult.stdout;
+    });
+    assert(deliverySchemas[0] === deliverySchemas[1], "contact delivery migration/fresh-schema drift");
   } finally {
     await rm(freshDirectory, { recursive: true, force: true });
   }
-
-  const schema = await readFile(path.join(root, "db/booking-schema.sql"));
-  assert(sha256(schema) === manifest.freshSchemaSha256, "fresh schema hash drift");
 
   const legacy = JSON.parse(
     await readFile(path.join(root, manifest.legacyPolicy.repositoryPath), "utf8")
