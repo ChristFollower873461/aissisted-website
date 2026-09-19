@@ -3,6 +3,7 @@ import { readFile, readdir } from "node:fs/promises";
 import test from "node:test";
 import vm from "node:vm";
 import { onRequest } from "../functions/_middleware.js";
+import { htmlScripts } from "./helpers/html-scripts.mjs";
 
 const root = new URL("../", import.meta.url);
 const sources = await Promise.all([
@@ -35,10 +36,9 @@ test("all unblocked HTML templates keep marketing loading and SDK calls in guard
     if ([404, 410].includes(response.status)) continue;
     assert.ok([200, 301].includes(response.status), `${path}: inventory must pass the synthetic preview gate`);
     const html = await readFile(new URL(path, root), "utf8");
-    const scripts = [...html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script\s*>/gi)];
+    const scripts = htmlScripts(html);
     let guardedGoogleLoaders = 0;
-    for (const [, attributes, body] of scripts) {
-      const src = attributes.match(/\bsrc\s*=\s*["']([^"']+)["']/i)?.[1] || "";
+    for (const { src, body } of scripts) {
       if (/googletagmanager\.com|google-analytics\.com|s\.axon\.ai|res4\.applovin\.com/i.test(src)) {
         violations.push(`${path}: direct marketing loader ${src}`);
       }
