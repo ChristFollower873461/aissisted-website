@@ -1,3 +1,4 @@
+import { bookingPaymentEnabled, acceptBookingProviderEvent } from "../_lib/booking-payment-reconciliation.js";
 import {
   getBookingConfig,
   isGoogleCalendarConfigured,
@@ -344,6 +345,19 @@ export async function onRequest(context) {
   }
 
   const store = getBookingStore(context.env);
+  // Normal booking events are durably accepted before 2xx; the authenticated
+  // monitor processes receipts. Payment Link onboarding retains its separate flow.
+  try {
+    if (bookingPaymentEnabled(context.env) && !getGrailPaymentLinkPlan(event.data?.object, context.env)) {
+      const result = await acceptBookingProviderEvent({ env: context.env, config, store, event });
+      return json({ ok: true, ...result });
+    }
+  } catch (error) {
+    const conflict = error.message === "provider_event_content_conflict";
+    const invalid = error.message === "provider_event_scope_invalid";
+    return json({ ok: false, error: conflict ? "Provider event content conflicts with the stored receipt." :
+      invalid ? "Provider event scope is invalid." : "Payment reconciliation is unavailable." }, conflict ? 409 : invalid ? 400 : 503);
+  }
   await store.cleanupExpiredHolds();
 
   switch (event.type) {

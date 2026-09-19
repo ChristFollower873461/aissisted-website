@@ -2,6 +2,13 @@ function cleanString(value) {
   return String(value || "").trim();
 }
 
+function retryAfterMs(value) {
+  if (!value) return 0;
+  const seconds = /^\d+$/.test(value.trim()) ? Number(value) : NaN;
+  const delay = Number.isFinite(seconds) ? seconds * 1000 : Date.parse(value) - Date.now();
+  return Number.isFinite(delay) ? Math.max(0, Math.min(delay, 24 * 60 * 60 * 1000)) : 0;
+}
+
 function buildCrmUrl(env) {
   const rawUrl = cleanString(env.AIC_CRM_INTAKE_URL);
   if (!rawUrl) return "";
@@ -47,15 +54,15 @@ export async function relayWebsiteIntakeToAicCrm(env, payload) {
     authorization: `Bearer ${token}`
   };
 
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 3000);
   try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 3000);
     const response = await fetch(url, {
       method: "POST",
       headers,
       body: JSON.stringify(payload),
       signal: controller.signal
-    }).finally(() => clearTimeout(timeoutId));
+    });
     const text = await response.text();
     let body = {};
 
@@ -65,11 +72,13 @@ export async function relayWebsiteIntakeToAicCrm(env, payload) {
       body = { raw: text.slice(0, 240) };
     }
 
+    const submissionId = typeof body?.submission?.id === "string" ? body.submission.id.trim() : "";
     return {
-      ok: response.ok && body.ok !== false,
+      ok: response.status === 200 && body?.ok === true && Boolean(submissionId) && submissionId.length <= 200,
       status: response.status,
-      submissionId: body.submission?.id || "",
-      error: body.error || ""
+      submissionId: submissionId.length <= 200 ? submissionId : "",
+      retryAfterMs: retryAfterMs(response.headers.get("retry-after")),
+      error: body?.error || ""
     };
   } catch (error) {
     return {
@@ -77,5 +86,7 @@ export async function relayWebsiteIntakeToAicCrm(env, payload) {
       status: 0,
       error: error instanceof Error ? error.message : "CRM relay failed."
     };
+  } finally {
+    clearTimeout(timeoutId);
   }
 }

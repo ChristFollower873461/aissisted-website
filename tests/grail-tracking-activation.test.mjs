@@ -63,7 +63,7 @@ test("Grail pages retain live purchase, activation, social, and Ads wiring", () 
   const activation = read("grail/activation.html");
 
   for (const required of [
-    "AW-17956049177",
+    "/assets/aic-google-ads-tracking.js",
     "assets/grail-launch-tracking.js",
     "https://buy.stripe.com/28E7sN6EiddJagWadH00006",
     "https://buy.stripe.com/dRm00l5Ae7Tpbl01Hb00007",
@@ -74,7 +74,7 @@ test("Grail pages retain live purchase, activation, social, and Ads wiring", () 
   }
 
   for (const required of [
-    "AW-17956049177",
+    "/assets/aic-google-ads-tracking.js",
     "assets/grail-launch-tracking.js?v=20260718-2",
     "assets/grail-activation.js?v=20260809",
     'fetch("/api/contact/submit"',

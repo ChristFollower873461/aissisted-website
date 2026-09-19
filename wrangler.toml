@@ -53,6 +53,7 @@ preview_database_id = "702b49f1-4e87-4390-8b36-3da67bc126ff"
 # Pages uses env.preview for every non-production branch. Non-inheritable vars
 # and D1 bindings must both be explicit. See docs/booking/preview-isolation.md.
 [env.preview.vars]
+BOOKING_MONITOR_SCOPE = "contacts"
 PUBLIC_SITE_ORIGIN = "https://aissisted-website.pages.dev"
 BOOKING_BUSINESS_TITLE = "AIssisted Consulting"
 BOOKING_SUPPORT_EMAIL = "pj@aissistedconsulting.com"

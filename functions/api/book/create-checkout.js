@@ -1,3 +1,5 @@
+import { createCheckoutRecoveryStore, resumePreparedCheckout } from "../_lib/booking-checkout-recovery.js";
+import { bookingPaymentEnabled, verifyCheckoutPaymentScope } from "../_lib/booking-payment-reconciliation.js";
 import { listAvailableSlots } from "../_lib/availability.js";
 import { relayWebsiteIntakeToAicCrm } from "../_lib/aic-crm.js";
 import { buildCrmAttribution } from "../_lib/crm-attribution.js";
@@ -13,6 +15,7 @@ import {
 import {
   createStripeCustomer,
   createCheckoutSession,
+  buildCheckoutSessionCommand,
   expireCheckoutSession
 } from "../_lib/stripe.js";
 import { addMinutes } from "../_lib/time.js";
@@ -287,6 +290,34 @@ export function normalizeCheckoutPayload(payload, config) {
   };
 }
 
+function buildOriginalCrmIntake(normalized, slot, booking) {
+  const crmAttribution = buildCrmAttribution({
+      sourcePage: normalized.sourcePage,
+      fallbackPath: "/book/",
+      sourceChannel: "booking",
+      formName: "booking-page",
+      qualifiedSourceEventId: `website-booking-${booking.id}`
+    });
+  return {
+      name: normalized.contact.name,
+      email: normalized.contact.email,
+      phone: normalized.contact.phone,
+      companyName: normalized.contact.company,
+      inquiryType: "booking_request",
+      message: [
+        `Booking checkout started for ${slot.startsAt} to ${slot.endsAt} ${slot.timezone}.`,
+        normalized.intake.primaryGoal ? `Primary goal: ${normalized.intake.primaryGoal}` : "",
+        normalized.intake.industry ? `Industry: ${normalized.intake.industry}` : "",
+        normalized.intake.companyWebsite ? `Website: ${normalized.intake.companyWebsite}` : "",
+        normalized.intake.notes ? `Notes: ${normalized.intake.notes}` : "",
+        `Booking ID: ${booking.id}`
+      ].filter(Boolean).join("\n"),
+      ...crmAttribution,
+      consent: true,
+      websiteLeaveBlank: ""
+    };
+}
+
 export async function onRequest(context) {
   if (context.request.method !== "POST") {
     return methodNotAllowed(["POST"]);
@@ -301,17 +332,10 @@ export async function onRequest(context) {
   let requestFingerprint = "";
   let idempotencyRecord = null;
   let normalized = null;
+  let paymentScope = null;
+  let recoveryPreparationAttempted = false;
 
   try {
-    if (!config.checkoutEnabled || !config.activeRelease) {
-      return unavailable("Online checkout is temporarily unavailable. Please use the contact page.");
-    }
-    if (!isStripeConfigured(config)) {
-      return unavailable(
-        "Stripe checkout is not configured yet. Add the Stripe environment values and try again."
-      );
-    }
-
     const contentType = context.request.headers.get("content-type") || "";
     if (!contentType.includes("application/json")) {
       return unsupportedMediaType("Booking checkout requests must use application/json.");
@@ -325,22 +349,23 @@ export async function onRequest(context) {
     idempotencyKeyHash = await hashIdempotencyKey(idempotencyKey);
 
     const payload = await readJson(context.request);
-    normalized = normalizeCheckoutPayload(payload, config);
-    if (!normalized.measurement.funnelId) {
-      normalized.measurement.funnelId = `funnel_${idempotencyKeyHash.slice(0, 24)}`;
-    }
-    requestFingerprint = await createRequestFingerprint({
-      commandId: COMMAND_ID,
-      risk: RISK,
-      input: normalized
-    });
-
     store = getBookingStore(context.env);
     await store.deleteExpiredMeasurementEvents(new Date().toISOString());
-    const existing = await store.getIdempotencyRecord({
-      commandId: COMMAND_ID,
-      idempotencyKeyHash
-    });
+    const existing = await store.getIdempotencyRecord({ commandId: COMMAND_ID, idempotencyKeyHash });
+    const originalCommand = existing && context.env.BOOKING_DB && bookingPaymentEnabled(context.env)
+      ? await createCheckoutRecoveryStore(context.env.BOOKING_DB).get(existing.id) : null;
+    const originalContext = originalCommand && JSON.parse(originalCommand.context_json);
+    // Original-key comparison uses the previously accepted contract; current
+    // offer changes apply only to new admission, never to a stored command.
+    if (!originalContext?.normalization) {
+      if (!config.checkoutEnabled || !config.activeRelease) return unavailable("Online checkout is temporarily unavailable. Please use the contact page.");
+      if (!isStripeConfigured(config)) return unavailable("Stripe checkout is not configured yet. Add the Stripe environment values and try again.");
+    }
+    const normalizationConfig = originalContext?.normalization
+      ? { ...config, ...originalContext.normalization, checkoutEnabled: true } : config;
+    normalized = normalizeCheckoutPayload(payload, normalizationConfig);
+    if (!normalized.measurement.funnelId) normalized.measurement.funnelId = `funnel_${idempotencyKeyHash.slice(0, 24)}`;
+    requestFingerprint = await createRequestFingerprint({ commandId: COMMAND_ID, risk: RISK, input: normalized });
     const decision = getIdempotencyDecision(existing, requestFingerprint);
     if (decision.action === "replay") {
       await writeAudit(store, {
@@ -357,6 +382,9 @@ export async function onRequest(context) {
         safeSummaryJson: existing.requestSummaryJson
       });
       return replayResponse(existing);
+    }
+    if (decision.action === "in_progress" && bookingPaymentEnabled(context.env)) {
+      return resumePreparedCheckout({ env: context.env, config, store, record: existing });
     }
     if (decision.action !== "start") {
       const response = errorResponse(
@@ -382,6 +410,10 @@ export async function onRequest(context) {
         })
       });
       return response;
+    }
+
+    if (bookingPaymentEnabled(context.env)) {
+      paymentScope = await verifyCheckoutPaymentScope({ env: context.env, config });
     }
 
     idempotencyRecord = await store.startIdempotencyRecord({
@@ -508,6 +540,27 @@ export async function onRequest(context) {
       }
     }
 
+    if (paymentScope) {
+      const contract = await store.getBookingContract(booking.id);
+      const command = buildCheckoutSessionCommand(config, booking, { ...prospect, stripeCustomerId }, { idempotencyKey: stripeCheckoutIdempotencyKey });
+      const contextData = {
+        booking, contract, stripeCustomerId,
+        normalization: { reservationAmountCents: config.reservationAmountCents, currency: config.currency, policyVersion: config.policyVersion,
+          activeRelease: { releaseId: config.activeRelease.releaseId, offerId: config.activeRelease.offerId, offerVersion: config.activeRelease.offerVersion,
+            termsSha256: config.activeRelease.termsSha256, intakeRouteIds: [...config.activeRelease.intakeRouteIds] } },
+        intake: buildOriginalCrmIntake(normalized, slot, booking),
+        response: { ok: true, bookingId: booking.id, holdExpiresAt, funnelId: normalized.measurement.funnelId }
+      };
+      // No Session call is allowed until the original command is durable.
+      recoveryPreparationAttempted = true;
+      await createCheckoutRecoveryStore(context.env.BOOKING_DB).prepare({ record: idempotencyRecord, booking, command, scope: paymentScope, context: contextData });
+      const response = await resumePreparedCheckout({ env: context.env, config, store, record: idempotencyRecord });
+      if (response.status === 200) await writeAudit(store, { commandId: COMMAND_ID, risk: RISK, actorType: "agent_assisted",
+        idempotencyRecordId: idempotencyRecord.id, idempotencyKeyHash, requestFingerprint, targetType: "booking", targetId: booking.id,
+        result: "accepted", responseStatus: 200, safeSummaryJson: idempotencyRecord.requestSummaryJson });
+      return response;
+    }
+
     const session = await createCheckoutSession(config, booking, {
       ...prospect,
       stripeCustomerId
@@ -515,23 +568,6 @@ export async function onRequest(context) {
       idempotencyKey: stripeCheckoutIdempotencyKey
     });
     createdSessionId = session.id;
-
-    await store.attachCheckoutSession(booking.id, {
-      sessionId: session.id,
-      stripeCustomerId:
-        typeof session.customer === "string" ? session.customer : stripeCustomerId,
-      checkoutIdempotencyRecordId: idempotencyRecord.id
-    });
-    await store.logEvent({
-      bookingId,
-      eventType: "stripe.checkout.created",
-      payload: {
-        sessionId: session.id,
-        expiresAt: session.expires_at
-          ? new Date(session.expires_at * 1000).toISOString()
-          : holdExpiresAt
-      }
-    });
 
     const body = {
       ok: true,
@@ -541,41 +577,21 @@ export async function onRequest(context) {
       sessionId: session.id,
       funnelId: normalized.measurement.funnelId
     };
-    const crmAttribution = buildCrmAttribution({
-      sourcePage: normalized.sourcePage,
-      fallbackPath: "/book/",
-      sourceChannel: "booking",
-      formName: "booking-page",
-      qualifiedSourceEventId: `website-booking-${booking.id}`
-    });
-    const crmRelay = await relayWebsiteIntakeToAicCrm(context.env, {
-      name: normalized.contact.name,
-      email: normalized.contact.email,
-      phone: normalized.contact.phone,
-      companyName: normalized.contact.company,
-      inquiryType: "booking_request",
-      message: [
-        `Booking checkout started for ${slot.startsAt} to ${slot.endsAt} ${slot.timezone}.`,
-        normalized.intake.primaryGoal ? `Primary goal: ${normalized.intake.primaryGoal}` : "",
-        normalized.intake.industry ? `Industry: ${normalized.intake.industry}` : "",
-        normalized.intake.companyWebsite ? `Website: ${normalized.intake.companyWebsite}` : "",
-        normalized.intake.notes ? `Notes: ${normalized.intake.notes}` : "",
-        `Booking ID: ${booking.id}`,
-        `Stripe checkout session: ${session.id}`
-      ].filter(Boolean).join("\n"),
-      ...crmAttribution,
-      consent: true,
-      websiteLeaveBlank: ""
-    });
-    if (!crmRelay.ok && !crmRelay.skipped) {
-      console.warn("[booking] CRM relay failed.");
-    }
-    await store.markIdempotencySucceeded(idempotencyRecord.id, {
-      targetType: "booking",
-      targetId: booking.id,
-      responseStatus: 200,
-      responseBodyJson: JSON.stringify(body)
-    });
+    const crmIntake = buildOriginalCrmIntake(normalized, slot, booking);
+    crmIntake.message += `\nStripe checkout session: ${session.id}`;
+      await store.attachCheckoutSession(booking.id, {
+        sessionId: session.id,
+        stripeCustomerId: typeof session.customer === "string" ? session.customer : stripeCustomerId,
+        checkoutIdempotencyRecordId: idempotencyRecord.id
+      });
+      const crmRelay = await relayWebsiteIntakeToAicCrm(context.env, crmIntake);
+      if (!crmRelay.ok && !crmRelay.skipped) console.warn("[booking] CRM relay failed.");
+      await store.markIdempotencySucceeded(idempotencyRecord.id, {
+        targetType: "booking", targetId: booking.id, responseStatus: 200, responseBodyJson: JSON.stringify(body)
+      });
+    await store.logEvent({ bookingId, eventType: "stripe.checkout.created", payload: {
+      sessionId: session.id, expiresAt: session.expires_at ? new Date(session.expires_at * 1000).toISOString() : holdExpiresAt
+    } });
     await writeAudit(store, {
       commandId: COMMAND_ID,
       risk: RISK,
@@ -592,6 +608,9 @@ export async function onRequest(context) {
 
     return json(body);
   } catch (error) {
+    if (recoveryPreparationAttempted) {
+      return json({ ok: false, code: "checkout_recovery_pending", error: "Checkout preparation is unresolved. Retry the original request with its original idempotency key." }, 503, { "retry-after": "3" });
+    }
     if (createdSessionId && isStripeConfigured(config)) {
       try {
         await expireCheckoutSession(config, createdSessionId);

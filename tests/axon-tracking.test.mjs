@@ -27,7 +27,7 @@ function loadPixelHarness(source) {
       return [firstScript];
     }
   };
-  const window = { location: { hostname: "aissistedconsulting.com" } };
+  const window = { location: new URL("https://aissistedconsulting.com") };
   const context = vm.createContext({
     Date,
     Number,
