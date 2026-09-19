@@ -4,9 +4,12 @@ import test from "node:test";
 import vm from "node:vm";
 
 const source = await readFile(new URL("../book/fit-call.js", import.meta.url), "utf8");
+const bookingPage = await readFile(new URL("../book/index.html", import.meta.url), "utf8");
+const statusClasses = bookingPage.match(/class="([^"]+)"\s+data-fit-call-status/)?.[1];
+assert.ok(statusClasses, "the rendered booking page provides the Fit Call status container");
 
 function harness(fetchResponse) {
-  const status = { className: "contact-submit-status", textContent: "" };
+  const status = { className: statusClasses, textContent: "" };
   const button = { disabled: false };
   const values = new Map([
     ["name", "Synthetic Preview Owner"], ["email", "synthetic@example.test"],
@@ -39,6 +42,9 @@ function harness(fetchResponse) {
 }
 
 function visible(run, tone) {
+  for (const name of statusClasses.split(/\s+/)) {
+    assert.ok(run.status.className.split(/\s+/).includes(name), "feedback preserves the rendered page's status styling");
+  }
   assert.ok(run.status.className.split(/\s+/).includes("is-visible"), "the existing CSS requires is-visible to render the status");
   if (tone) assert.ok(run.status.className.split(/\s+/).includes(`is-${tone}`));
 }

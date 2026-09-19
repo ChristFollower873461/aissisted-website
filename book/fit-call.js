@@ -3,10 +3,11 @@
   if (!form) return;
   const status = form.querySelector("[data-fit-call-status]");
   const button = form.querySelector("button[type='submit']");
+  const statusBaseClasses = status.className;
 
   function setStatus(message, tone = "") {
     status.textContent = message;
-    status.className = `contact-submit-status is-visible${tone ? ` is-${tone}` : ""}`;
+    status.className = `${statusBaseClasses} is-visible${tone ? ` is-${tone}` : ""}`;
   }
 
   form.addEventListener("submit", async (event) => {
