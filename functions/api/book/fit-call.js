@@ -113,6 +113,8 @@ export async function onRequest(context) {
       inquiryType: "fit_call_request",
       message,
       ...attribution,
+      // A fit-call request is not reviewed qualification. Server-owned; ignore any submitted status.
+      qualificationStatus: "unknown",
       consent: true,
       websiteLeaveBlank: ""
     });

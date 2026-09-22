@@ -88,6 +88,9 @@ test("Grail Payment Link checkout creates an operational customer signal", async
     assert.equal(result.payload.deliveryStatus, "crm_relay_delivered");
     assert.match(result.payload.inquiryId, /^inq_/);
     assert.equal(crmPayload.inquiryType, "grail_paid_customer");
+    assert.equal(crmPayload.qualificationStatus, "marketing_qualified");
+    assert.match(crmPayload.qualifiedSourceEventId, /^stripe-grail-cs_test_grail_checkout/);
+    assert.equal(crmPayload.consent, true);
     assert.equal(crmPayload.sourceChannel, "stripe_payment_link");
     assert.equal(crmPayload.formName, "grail-payment-link");
     assert.equal(signalPayload.plan, "local_agent");
