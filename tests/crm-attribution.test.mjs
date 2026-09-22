@@ -2,6 +2,19 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { buildCrmAttribution } from "../functions/api/_lib/crm-attribution.js";
 
+test("the shared helper still defaults qualification to marketing_qualified", () => {
+  const attribution = buildCrmAttribution({
+    sourcePage: "/grail/activation?utm_source=stripe",
+    fallbackPath: "/grail/activation",
+    sourceChannel: "stripe_payment_link",
+    formName: "grail-payment-link",
+    qualifiedSourceEventId: "stripe-grail-session"
+  });
+  assert.equal(attribution.qualificationStatus, "marketing_qualified");
+  assert.equal(attribution.qualifiedSourceEventId, "stripe-grail-session");
+  assert.equal(attribution.utmSource, "stripe");
+});
+
 const ORIGIN = "https://aissistedconsulting.com";
 
 test("an absolute URL at the receiver limit retains its original encoding and fragment", () => {

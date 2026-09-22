@@ -364,6 +364,8 @@ export async function onRequest(context) {
       inquiryType: normalized.audience || "send_inquiry",
       message: normalized.message,
       ...crmAttribution,
+      // Contact intake is not reviewed qualification. Server-owned; ignore any submitted status.
+      qualificationStatus: "unknown",
       consent: true,
       websiteLeaveBlank: ""
     });

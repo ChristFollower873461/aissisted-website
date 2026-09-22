@@ -564,6 +564,8 @@ export async function onRequest(context) {
         `Stripe checkout session: ${session.id}`
       ].filter(Boolean).join("\n"),
       ...crmAttribution,
+      // Checkout creation is not a purchase or reviewed qualification. Server-owned; ignore any submitted status.
+      qualificationStatus: "unknown",
       consent: true,
       websiteLeaveBlank: ""
     });
