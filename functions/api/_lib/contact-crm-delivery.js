@@ -26,6 +26,8 @@ export async function createContactInquiryWithCrmDelivery({ store, input, kind =
       formName: fitCall ? "fit-call-request" : "contact-page",
       qualifiedSourceEventId: eventId
     }),
+    // Contact and fit-call intake remain unqualified until an operator reviews them.
+    qualificationStatus: "unknown",
     consent: input.consentToSubmit === true,
     consentedAt: input.consentAt,
     websiteLeaveBlank: ""

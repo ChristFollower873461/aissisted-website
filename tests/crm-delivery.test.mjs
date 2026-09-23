@@ -52,7 +52,7 @@ test("an accepted contact survives database reopening and retries CRM delivery t
       ? Response.json({ ok: false, error: "Synthetic unavailability" }, { status: 503 })
       : Response.json({ ok: true, submission: { id: "synthetic-crm-intake" } });
   });
-  const accepted = await submit(env);
+  const accepted = await submit(env, "synthetic-contact-retry-0001", { qualificationStatus: "qualified" });
   assert.equal(accepted.response.status, 200);
   assert.equal(accepted.body.inquiry.deliveryStatus, "crm_relay_failed");
   h.reopen();
@@ -61,6 +61,7 @@ test("an accepted contact survives database reopening and retries CRM delivery t
   assert.equal(result.status, 200);
   assert.equal(requests.length, 2, "the monitor must recover the accepted but undelivered enquiry");
   assert.deepEqual(requests[1], requests[0], "retry must preserve exact original event identity and payload");
+  assert.equal(requests[0].qualificationStatus, "unknown", "submitted qualification must not survive into delivery or retry");
   const row = h.sqlite.prepare("SELECT delivery_status FROM contact_inquiries WHERE id = ?").get(accepted.body.inquiry.id);
   assert.equal(row.delivery_status, "crm_relay_delivered");
   await runMonitor(env);

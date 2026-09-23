@@ -186,6 +186,11 @@ for (const formType of ["checkout", "fit-call"]) {
       assert.equal(attribution.landingPage, attributionMode === "stored-landing"
         ? "https://aissistedconsulting.com/small-business-ai-help/"
         : "https://aissistedconsulting.com/book/");
+      if (formType === "fit-call") {
+        assert.equal(attribution.qualificationStatus, "unknown");
+        assert.equal(attribution.consent, true);
+        assert.match(attribution.qualifiedSourceEventId, /^fit-call-/);
+      }
       if (formType === "checkout" && attributionMode === "stored-landing") {
         assert.equal(request.measurement.entryRoute, "home");
         assert.equal(request.measurement.ctaId, "home_hero_paid_plan");
@@ -225,3 +230,50 @@ for (const formType of ["checkout", "fit-call"]) {
     assert.equal(boundedUrl.searchParams.get("utm_campaign"), null, "oversized URL details remain available in structured fields");
   });
 }
+
+test("fit-call relay stays unknown when the submission claims a qualification status", async () => {
+  delete globalThis.__aissistedBookingStore;
+  const env = {
+    FIT_CALL_REQUESTS_ENABLED: "true",
+    AIC_CRM_INTAKE_URL: "https://crm.example.invalid/intake/website",
+    AIC_CRM_INTAKE_TOKEN: "synthetic-token"
+  };
+  const originalFetch = globalThis.fetch;
+  let crmPayload;
+  globalThis.fetch = async (url, options) => {
+    assert.equal(String(url), env.AIC_CRM_INTAKE_URL);
+    crmPayload = JSON.parse(options.body);
+    return Response.json({ ok: true, submission: { id: "synthetic-fit-call" } });
+  };
+  try {
+    const response = await requestFitCall({
+      request: new Request("https://aissistedconsulting.com/api/book/fit-call", {
+        method: "POST",
+        headers: { "content-type": "application/json", origin: "https://aissistedconsulting.com" },
+        body: JSON.stringify({
+          name: "Pat Owner",
+          email: "pat@example.com",
+          phone: "352-555-0199",
+          company: "Pat's Services",
+          routeId: "workflow_improvement",
+          reason: "Need a practical follow-up workflow.",
+          sourcePage: "/book/?utm_source=internal&utm_medium=qa",
+          consentToSubmit: true,
+          qualificationStatus: "customer",
+          qualification_status: "sales_qualified"
+        })
+      }),
+      env
+    });
+    assert.equal(response.status, 200);
+    assert.equal(crmPayload.qualificationStatus, "unknown");
+    assert.equal(crmPayload.inquiryType, "fit_call_request");
+    assert.equal(crmPayload.consent, true);
+    assert.match(crmPayload.qualifiedSourceEventId, /^fit-call-/);
+    assert.equal(crmPayload.utmSource, "internal");
+    assert.equal(crmPayload.utmMedium, "qa");
+  } finally {
+    globalThis.fetch = originalFetch;
+    delete globalThis.__aissistedBookingStore;
+  }
+});

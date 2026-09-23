@@ -313,6 +313,8 @@ function buildOriginalCrmIntake(normalized, slot, booking) {
         `Booking ID: ${booking.id}`
       ].filter(Boolean).join("\n"),
       ...crmAttribution,
+      // Checkout creation is not a purchase or reviewed qualification. Server-owned; ignore any submitted status.
+      qualificationStatus: "unknown",
       consent: true,
       websiteLeaveBlank: ""
     };

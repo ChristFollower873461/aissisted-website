@@ -243,7 +243,17 @@ test("booking checkout relays bounded source URLs and complete attribution to AI
     const { response, payload } = await callCheckout({
       env,
       key: "checkout-crm-relay-key-0001",
-      body: validCheckoutPayload(slot.slotId, { sourcePage })
+      body: validCheckoutPayload(slot.slotId, {
+        sourcePage,
+        qualificationStatus: "customer",
+        contact: {
+          name: "Pat Owner",
+          email: "pat@example.com",
+          phone: "352-555-0199",
+          company: "Pat's Services",
+          qualificationStatus: "sales_qualified"
+        }
+      })
     });
 
     assert.equal(response.status, 200);
@@ -263,6 +273,9 @@ test("booking checkout relays bounded source URLs and complete attribution to AI
     assert.equal(crmPayload.gclid, gclid);
     assert.equal(crmPayload.fbclid, "fbclid-booking");
     assert.match(crmPayload.qualifiedSourceEventId, /^website-booking-book_/);
+    assert.equal(crmPayload.qualificationStatus, "unknown");
+    assert.equal(crmPayload.consent, true);
+    assert.equal(crmPayload.inquiryType, "booking_request");
   } finally {
     global.fetch = originalFetch;
   }
