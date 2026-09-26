@@ -28,7 +28,15 @@
   },
   "devDependencies": {
     "@iarna/toml": "2.2.5",
-    "esbuild": "^0.28.2",
+    "esbuild": "0.28.2",
+    "miniflare": "4.20260730.0",
+    "parse5": "8.0.1",
     "playwright": "^1.59.1"
+  },
+  "overrides": {
+    "miniflare": {
+      "sharp": "0.35.4",
+      "undici": "7.29.0"
+    }
   }
 }

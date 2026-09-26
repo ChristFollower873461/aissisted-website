@@ -25,6 +25,8 @@ for (const [label, mutate, expected] of [
   ["omitted D1 group", (slot) => { delete slot.d1_databases; }, "explicit preview D1"],
   ["omitted vars group", (slot) => { delete slot.vars; }, "explicit vars"],
   ["enabled Checkout", (slot) => { slot.vars.BOOKING_CHECKOUT_ENABLED = "true"; }, "BOOKING_CHECKOUT_ENABLED"],
+  ["full fulfillment monitoring", (slot) => { slot.vars.BOOKING_MONITOR_SCOPE = "all"; }, "BOOKING_MONITOR_SCOPE"],
+  ["omitted monitor scope", (slot) => { delete slot.vars.BOOKING_MONITOR_SCOPE; }, "BOOKING_MONITOR_SCOPE"],
   ["calendar event writes", (slot) => { slot.vars.BOOKING_CREATE_GOOGLE_CALENDAR_EVENT = "true"; }, "BOOKING_CREATE_GOOGLE_CALENDAR_EVENT"],
   ["empty email provider permitting fallback", (slot) => { slot.vars.AIC_EMAIL_PROVIDER = ""; }, "AIC_EMAIL_PROVIDER"],
   ["owner webhook", (slot) => { slot.vars.BOOKING_NOTIFICATION_WEBHOOK_URL = "https://example.invalid/hook"; }, "BOOKING_NOTIFICATION_WEBHOOK_URL"],
@@ -65,8 +67,12 @@ test("preview notification handler makes no request even when fallback email cre
   assert.equal(fetch.mock.callCount(), 0);
 });
 
-test("effective preview config disables email fallbacks, webhooks and CRM", () => {
-  for (const vars of [configs["wrangler.toml"].env.preview.vars, configs["wrangler.preview.toml"].vars, configs["wrangler.preview.toml"].env.preview.vars]) {
+test("effective preview config disables email fallbacks and webhooks, with CRM configured only for the intended contact sender", () => {
+  for (const [vars, relayConfigured] of [
+    [configs["wrangler.toml"].env.preview.vars, true],
+    [configs["wrangler.preview.toml"].vars, false],
+    [configs["wrangler.preview.toml"].env.preview.vars, false]
+  ]) {
     const env = { GRAIL_EMAIL_API_KEY: "synthetic-key", ...vars };
     const config = getBookingConfig(env);
     assert.equal(config.emailProvider, "disabled");
@@ -75,7 +81,7 @@ test("effective preview config disables email fallbacks, webhooks and CRM", () =
     assert.equal(config.googleCalendarCreateEvents, false);
     assert.equal(config.internalNotificationWebhook, "");
     assert.equal(config.customerNotificationWebhook, "");
-    assert.equal(isAicCrmRelayConfigured(env), false);
+    assert.equal(isAicCrmRelayConfigured(env), relayConfigured);
   }
 });
 

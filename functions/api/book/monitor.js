@@ -1,5 +1,8 @@
+import { drainCheckoutRecovery } from "../_lib/booking-checkout-recovery.js";
+import { bookingPaymentEnabled, drainBookingPayments } from "../_lib/booking-payment-reconciliation.js";
 import { applyFulfillmentAction } from "../_lib/booking-fulfillment.js";
 import { drainBookingOutbox } from "../_lib/booking-outbox.js";
+import { drainContactCrmDeliveries } from "../_lib/contact-crm-delivery.js";
 import { getBookingConfig } from "../_lib/config.js";
 import { forbidden, json, methodNotAllowed, unavailable } from "../_lib/http.js";
 import { sendManualReviewNotification } from "../_lib/notifications.js";
@@ -31,16 +34,33 @@ export async function onRequest(context) {
   const provided = String(context.request.headers.get("authorization") || "").replace(/^Bearer\s+/i, "");
   if (!constantTimeEqual(provided, secret)) return forbidden("Monitor authorization is required.");
 
+  // Select the scope from deployed configuration, never from request input.
+  // The default preserves the existing production invoker's full behavior.
+  const scope = context.env.BOOKING_MONITOR_SCOPE ?? "all";
+  if (scope !== "all" && scope !== "contacts") return unavailable("Booking monitor scope is not configured correctly.");
+  const completedEventType = scope === "contacts"
+    ? "contact.crm_monitor.completed"
+    : "booking.fulfillment_monitor.completed";
   const now = new Date().toISOString();
   const store = getBookingStore(context.env);
-  const config = getBookingConfig(context.env, new URL(context.request.url).origin);
-  const previous = await store.getLatestEventByType("booking.fulfillment_monitor.completed");
+  const previous = await store.getLatestEventByType(completedEventType);
   const maxGapMinutes = positiveInteger(context.env.BOOKING_MONITOR_MAX_GAP_MINUTES, 20);
   const previousRunStale = isPreviousMonitorRunStale({
     previousCreatedAt: previous?.createdAt,
     now,
     maxGapMinutes
   });
+  if (scope === "contacts") {
+    const summary = {
+      scope,
+      previousRunStale,
+      crmDelivery: await drainContactCrmDeliveries({ store, env: context.env, at: now })
+    };
+    await store.logEvent({ eventType: completedEventType, payload: summary });
+    return json({ ok: true, summary });
+  }
+
+  const config = getBookingConfig(context.env, new URL(context.request.url).origin);
   const watchItems = await store.listFulfillmentWatchItems({
     nowIso: now,
     awaitingGraceMinutes: 30,
@@ -53,6 +73,12 @@ export async function onRequest(context) {
     outboxBookingsProcessed: 0,
     previousRunStale
   };
+
+  summary.crmDelivery = await drainContactCrmDeliveries({ store, env: context.env, at: now });
+  if (bookingPaymentEnabled(context.env)) {
+    summary.checkoutRecovery = await drainCheckoutRecovery({ env: context.env, config, store });
+    summary.bookingPayments = await drainBookingPayments({ env: context.env, config, store });
+  }
 
   for (const item of watchItems) {
     const booking = await store.getBookingById(item.bookingId);

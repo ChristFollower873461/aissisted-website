@@ -5,8 +5,10 @@ import TOML from "@iarna/toml";
 
 export const PREVIEW_DATABASE_ID = "febf1ca7-efa3-4629-b250-7e294ff96a47";
 const PREVIEW_DATABASE_NAME = "aissisted-booking-preview-v2-20260815";
+const PREVIEW_CRM_INTAKE_URL = "https://aiccrm-payment-rehearsal-20260926.pjaissist-0c5.workers.dev/intake/website";
 const SAFE_VARS = Object.freeze({
   PREVIEW_ACCESS_REQUIRED: "true",
+  BOOKING_MONITOR_SCOPE: "contacts",
   BOOKING_CHECKOUT_ENABLED: "false",
   STRIPE_EXPECTED_LIVEMODE: "false",
   BOOKING_REQUIRE_GOOGLE_CALENDAR: "false",
@@ -18,8 +20,7 @@ const SAFE_VARS = Object.freeze({
   AIC_EMAIL_FROM: "",
   GRAIL_EMAIL_FROM: "",
   BOOKING_NOTIFICATION_WEBHOOK_URL: "",
-  BOOKING_CONFIRMATION_WEBHOOK_URL: "",
-  AIC_CRM_INTAKE_URL: ""
+  BOOKING_CONFIRMATION_WEBHOOK_URL: ""
 });
 
 // New resource types need an explicit isolation review, not a default inherited binding.
@@ -46,6 +47,10 @@ export function validatePagesPreviewIsolation(configs) {
     for (const [key, value] of Object.entries(SAFE_VARS)) {
       requireValue(vars?.[key] === value, `${label}: ${key} must be ${JSON.stringify(value)}`);
     }
+    // Match the reviewed receiver literally: normalization must not admit a
+    // different path, query, credential, or port. An empty URL disables relay.
+    requireValue(vars?.AIC_CRM_INTAKE_URL === "" || vars?.AIC_CRM_INTAKE_URL === PREVIEW_CRM_INTAKE_URL,
+      `${label}: AIC_CRM_INTAKE_URL must be empty or the exact isolated receiver ${PREVIEW_CRM_INTAKE_URL}`);
     requireValue(vars?.PUBLIC_SITE_ORIGIN === `https://${projectName}.pages.dev`, `${label}: origin must identify this preview project`);
     for (const key of Object.keys(top.vars || {})) {
       requireValue(Object.hasOwn(vars || {}, key), `${label}: non-inherited variable ${key} must be explicit`);
