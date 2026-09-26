@@ -4,6 +4,7 @@ pages_build_output_dir = "."
 
 # Isolated E4 preview configuration. Never bind a production resource here.
 [vars]
+BOOKING_MONITOR_SCOPE = "contacts"
 # PREVIEW_ACCESS_TOKEN must be a platform secret; missing secret denies access.
 PREVIEW_ACCESS_REQUIRED = "true"
 PUBLIC_SITE_ORIGIN = "https://aissisted-offer-v2-preview.pages.dev"
@@ -50,6 +51,7 @@ preview_database_id = "febf1ca7-efa3-4629-b250-7e294ff96a47"
 # Pages uses env.preview for every non-production branch. Non-inheritable vars
 # and D1 bindings must both be explicit. See docs/booking/preview-isolation.md.
 [env.preview.vars]
+BOOKING_MONITOR_SCOPE = "contacts"
 PUBLIC_SITE_ORIGIN = "https://aissisted-offer-v2-preview.pages.dev"
 PREVIEW_ACCESS_LABEL = "AIssisted Offer v2 Preview"
 BOOKING_BUSINESS_TITLE = "AIssisted Consulting"

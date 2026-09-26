@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
+import { webcrypto } from "node:crypto";
 import { buildCrmAttribution } from "../functions/api/_lib/crm-attribution.js";
 import { getBookingConfig } from "../functions/api/_lib/config.js";
 import { normalizeCheckoutPayload } from "../functions/api/book/create-checkout.js";
@@ -73,7 +74,11 @@ async function submitForm(formType, attributionMode, campaignQuery = CAMPAIGN_QU
     URL,
     URLSearchParams,
     console,
-    crypto: { randomUUID: () => "00000000-0000-4000-8000-000000000001" },
+    crypto: { randomUUID: () => "00000000-0000-4000-8000-000000000001", subtle: webcrypto.subtle },
+    TextEncoder,
+    AbortController,
+    setTimeout,
+    clearTimeout,
     FormData: class { get(key) { return FORM_VALUES[key] ?? ""; } },
     CustomEvent: class { constructor(type, options) { this.type = type; this.detail = options.detail; } },
     dispatchEvent() {},

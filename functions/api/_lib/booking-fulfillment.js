@@ -135,16 +135,18 @@ export async function applyFulfillmentAction({ store, bookingId, action, actorRe
           : "aissisted_canceled"
       };
       break;
-    case "refund_reconciled":
-      patch = {
-        status: "refunded",
-        remedyStatus: "refunded",
-        refundReference: String(data.refundReference || "").trim()
+    case "refund_reconciled": {
+      const refundReference = String(data.refundReference || "").trim();
+      if (!refundReference || !store.reconcileVerifiedRefund) {
+        throw new Error("Refund reconciliation requires current provider-verified full-refund evidence.");
+      }
+      await store.reconcileVerifiedRefund({ bookingId, refundReference, actorRef, idempotencyKey, at: actionAt });
+      return {
+        replayed: false,
+        deliverable: await store.getBookingDeliverable(bookingId),
+        event: (await store.listBookingContractEvents(bookingId)).find((item) => item.idempotencyKey === idempotencyKey)
       };
-      if (!patch.refundReference) throw new Error("Refund reconciliation requires a provider reference.");
-      expectedStatuses = ["refund_requested"];
-      eventType = "refund_reconciled";
-      break;
+    }
     case "correction_requested": {
       const requestedAt = requireIso(data.requestedAt || actionAt, "Correction request time");
       const priorRound = events.find((event) => event.eventType === "correction_requested" && Number(event.roundNumber) === 1);

@@ -248,7 +248,7 @@ assertIncludes("contact/contact.js", [
   "AicAdsTracking?.attributionSourcePage",
   "aissistedAxon"
 ]);
-assertIncludes("book/booking.js", ["aic_booking_checkout_start", "AicAdsTracking.emit"]);
+assertIncludes("book/booking.js", ["aic_booking_checkout_start", "AicAdsTracking?.emit"]);
 assertIncludes("book/status.js", ["aic_booking_confirmed", "AicAdsTracking.emit", "localStorage", "transaction_id"]);
 assertIncludes("assets/aic-google-ads-tracking.js", [
   "AW-17956049177",

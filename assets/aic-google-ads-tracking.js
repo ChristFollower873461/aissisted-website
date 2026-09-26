@@ -50,17 +50,10 @@
   var MAX_ATTRIBUTION_SOURCE_LENGTH = 500;
 
   function isTrackingSuppressed() {
-    var hostname = String(window.location.hostname || "").toLowerCase();
-    return (
-      window.location.protocol === "file:" ||
-      hostname === "localhost" ||
-      hostname.slice(-10) === ".localhost" ||
-      hostname === "127.0.0.1" ||
-      hostname === "::1" ||
-      hostname === "[::1]" ||
-      hostname === "aissisted-offer-v2-preview.pages.dev" ||
-      hostname.endsWith(".aissisted-offer-v2-preview.pages.dev")
-    );
+    // New preview projects and branch hosts must stay silent by default.
+    var origin = String(window.location.origin || "").toLowerCase();
+    return origin !== "https://aissistedconsulting.com" &&
+      origin !== "https://www.aissistedconsulting.com";
   }
 
   function safeJsonParse(value) {
@@ -296,10 +289,14 @@
       detail || {}
     );
 
+    // Keep attribution and the return value available to forms, but do not
+    // publish preview events to an existing SDK, data layer or tracking listener.
+    if (isTrackingSuppressed()) return payload;
+
     window.dataLayer = window.dataLayer || [];
     window.dataLayer.push(payload);
 
-    if (!isTrackingSuppressed() && typeof window.gtag === "function") {
+    if (typeof window.gtag === "function") {
       window.gtag("event", eventName, payload);
     }
 

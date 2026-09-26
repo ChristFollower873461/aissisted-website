@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "source": "aissisted-website",
+  "sourceEnvironment": "staging",
+  "providerAccountId": "acct_synthetic",
+  "livemode": false,
+  "bookingId": "booking_synthetic",
+  "rootQualifiedSourceEventId": "website-booking-booking_synthetic",
+  "eventId": "booking-start:booking_synthetic:cs_test_synthetic:v1",
+  "bookingRevision": 1,
+  "eventType": "booking.checkout_started",
+  "observedAt": "2026-09-05T16:00:00.000Z",
+  "checkoutSessionId": "cs_test_synthetic",
+  "paymentIntentId": "",
+  "chargeId": "",
+  "contract": {
+    "releaseId": "aissisted_booking_v2_2026_08_15",
+    "offerId": "workflow_map_build_discovery",
+    "offerVersion": 2,
+    "amountCents": 22500,
+    "currency": "usd",
+    "termsVersion": "synthetic_v1",
+    "termsSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  "snapshot": {
+    "checkoutStatus": "open",
+    "paymentStatus": "unpaid",
+    "paidAmountCents": 0,
+    "succeededRefundAmountCents": 0,
+    "refundStatus": "none",
+    "bookingStatus": "hold"
+  },
+  "provenance": {
+    "providerEventId": "",
+    "providerEventType": "checkout.session.created",
+    "providerCreatedAt": 1788624000,
+    "verifiedAt": "2026-09-05T16:00:00.000Z"
+  },
+  "intake": {
+    "name": "Synthetic Booking",
+    "email": "synthetic@example.test",
+    "companyName": "Synthetic Company",
+    "inquiryType": "booking_request",
+    "message": "Synthetic booking fixture; no delivery.",
+    "consent": true,
+    "qualifiedSourceEventId": "website-booking-booking_synthetic",
+    "sourceChannel": "booking",
+    "sourcePage": "https://example.test/book/",
+    "sourceUrl": "https://example.test/book/"
+  },
+  "payloadHash": "c1daa521331fd7b4a802046d58569ead96e8955b369d3d5bb04149bc1d6d21f4"
+}

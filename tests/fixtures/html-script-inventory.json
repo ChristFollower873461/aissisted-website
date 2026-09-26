@@ -1,0 +1,52 @@
+[
+  {
+    "name": "end tag attributes do not hide an external marketing loader",
+    "html": "<script src=\"https://www.googletagmanager.com/gtag/js?id=synthetic\"></script\t\n bar>",
+    "scripts": [{ "src": "https://www.googletagmanager.com/gtag/js?id=synthetic", "body": "" }]
+  },
+  {
+    "name": "self-closing end tag does not hide an inline SDK call",
+    "html": "<script>gtag('event', 'synthetic-inline');</script/>",
+    "scripts": [{ "src": "", "body": "gtag('event', 'synthetic-inline');" }]
+  },
+  {
+    "name": "unquoted source attributes are included",
+    "html": "<script src=https://s.axon.ai/pixel.js></script>",
+    "scripts": [{ "src": "https://s.axon.ai/pixel.js", "body": "" }]
+  },
+  {
+    "name": "mixed-case tags and attributes match browser normalization",
+    "html": "<ScRiPt SrC='https://res4.applovin.com/p/l/loader.iife.js'></sCrIpT>",
+    "scripts": [{ "src": "https://res4.applovin.com/p/l/loader.iife.js", "body": "" }]
+  },
+  {
+    "name": "greater-than signs inside quoted attributes do not truncate the source",
+    "html": "<script data-note='x > y' src=\"https://www.googletagmanager.com/gtag/js?id=synthetic\"></script>",
+    "scripts": [{ "src": "https://www.googletagmanager.com/gtag/js?id=synthetic", "body": "" }]
+  },
+  {
+    "name": "source character references are decoded before destination checking",
+    "html": "<script src='https://www.googletagmanager&#46;com/gtag/js?id=synthetic'></script>",
+    "scripts": [{ "src": "https://www.googletagmanager.com/gtag/js?id=synthetic", "body": "" }]
+  },
+  {
+    "name": "a longer tag name does not prematurely end script text",
+    "html": "<script>const text = '</scriptx>'; gtag('event', 'synthetic-longer-name');</script>",
+    "scripts": [{ "src": "", "body": "const text = '</scriptx>'; gtag('event', 'synthetic-longer-name');" }]
+  },
+  {
+    "name": "commented and textarea markup is not an executable script",
+    "html": "<!-- <script src='https://s.axon.ai/comment.js'></script> --><textarea><script>gtag('event', 'synthetic-text');</script></textarea>",
+    "scripts": []
+  },
+  {
+    "name": "duplicate guarded loaders remain separately visible",
+    "html": "<script src='/assets/aic-google-ads-tracking.js'></script><script src=/assets/aic-google-ads-tracking.js></script>",
+    "scripts": [{ "src": "/assets/aic-google-ads-tracking.js", "body": "" }, { "src": "/assets/aic-google-ads-tracking.js", "body": "" }]
+  },
+  {
+    "name": "inert template contents remain in the conservative source inventory",
+    "html": "<template><script>window.dataLayer = [];</script></template>",
+    "scripts": [{ "src": "", "body": "window.dataLayer = [];" }]
+  }
+]
