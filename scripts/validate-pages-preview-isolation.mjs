@@ -5,7 +5,7 @@ import TOML from "@iarna/toml";
 
 export const PREVIEW_DATABASE_ID = "febf1ca7-efa3-4629-b250-7e294ff96a47";
 const PREVIEW_DATABASE_NAME = "aissisted-booking-preview-v2-20260815";
-const PREVIEW_CRM_INTAKE_URL = "https://aiccrm-staging.pjaissist-0c5.workers.dev/intake/website";
+const PREVIEW_CRM_INTAKE_URL = "https://aiccrm-payment-rehearsal-20260926.pjaissist-0c5.workers.dev/intake/website";
 const SAFE_VARS = Object.freeze({
   PREVIEW_ACCESS_REQUIRED: "true",
   BOOKING_MONITOR_SCOPE: "contacts",
@@ -48,7 +48,7 @@ export function validatePagesPreviewIsolation(configs) {
       requireValue(vars?.[key] === value, `${label}: ${key} must be ${JSON.stringify(value)}`);
     }
     // Match the reviewed receiver literally: normalization must not admit a
-    // different path, query, credential, or port. Checked-in values stay empty.
+    // different path, query, credential, or port. An empty URL disables relay.
     requireValue(vars?.AIC_CRM_INTAKE_URL === "" || vars?.AIC_CRM_INTAKE_URL === PREVIEW_CRM_INTAKE_URL,
       `${label}: AIC_CRM_INTAKE_URL must be empty or the exact isolated receiver ${PREVIEW_CRM_INTAKE_URL}`);
     requireValue(vars?.PUBLIC_SITE_ORIGIN === `https://${projectName}.pages.dev`, `${label}: origin must identify this preview project`);

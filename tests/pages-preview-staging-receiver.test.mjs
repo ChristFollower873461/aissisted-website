@@ -6,19 +6,20 @@ import { onRequest as middleware } from "../functions/_middleware.js";
 import { onRequest as monitor } from "../functions/api/book/monitor.js";
 
 const configs = await readPagesConfigs();
-const stagingUrl = "https://aiccrm-staging.pjaissist-0c5.workers.dev/intake/website";
+const stagingUrl = "https://aiccrm-payment-rehearsal-20260926.pjaissist-0c5.workers.dev/intake/website";
 const slots = [
-  ["wrangler.toml env.preview", (copy) => copy["wrangler.toml"].env.preview],
-  ["wrangler.preview.toml default/production", (copy) => copy["wrangler.preview.toml"]],
-  ["wrangler.preview.toml env.preview", (copy) => copy["wrangler.preview.toml"].env.preview]
+  ["wrangler.toml env.preview", (copy) => copy["wrangler.toml"].env.preview, stagingUrl],
+  ["wrangler.preview.toml default/production", (copy) => copy["wrangler.preview.toml"], ""],
+  ["wrangler.preview.toml env.preview", (copy) => copy["wrangler.preview.toml"].env.preview, ""]
 ];
 
 const rejectedDestinations = [
   ["production custom host", "https://crm.aissistedconsulting.com/intake/website"],
   ["production Worker", "https://aiccrm.pjaissist-0c5.workers.dev/intake/website"],
+  ["previous staging Worker is no longer the reviewed target", "https://aiccrm-staging.pjaissist-0c5.workers.dev/intake/website"],
   ["Render staging is a different receiver", "https://aiccrm-staging.aissistedconsulting.com/intake/website"],
   ["different Worker", "https://other.pjaissist-0c5.workers.dev/intake/website"],
-  ["host suffix", "https://aiccrm-staging.pjaissist-0c5.workers.dev.example.invalid/intake/website"],
+  ["host suffix", stagingUrl.replace(".workers.dev/", ".workers.dev.example.invalid/")],
   ["insecure scheme", stagingUrl.replace("https:", "http:")],
   ["base origin only", new URL(stagingUrl).origin],
   ["alternate path", stagingUrl.replace("/intake/website", "/intake/website/booking-events")],
@@ -72,13 +73,15 @@ const unsafeChanges = [
     .map((key) => [key, (slot) => { slot[key] = []; }, `resource ${key}`])
 ];
 
-for (const [label, select] of slots) {
-  test(`${label}: checked-in relay stays empty and only the exact isolated receiver is additionally allowed`, () => {
-    assert.equal(select(configs).vars.AIC_CRM_INTAKE_URL, "");
+for (const [label, select, configuredUrl] of slots) {
+  test(`${label}: checked-in target is intentional and only empty or the exact isolated receiver is allowed`, () => {
+    assert.equal(select(configs).vars.AIC_CRM_INTAKE_URL, configuredUrl);
     assert.deepEqual(validatePagesPreviewIsolation(configs), []);
-    const copy = structuredClone(configs);
-    select(copy).vars.AIC_CRM_INTAKE_URL = stagingUrl;
-    assert.deepEqual(validatePagesPreviewIsolation(copy), []);
+    for (const url of ["", stagingUrl]) {
+      const copy = structuredClone(configs);
+      select(copy).vars.AIC_CRM_INTAKE_URL = url;
+      assert.deepEqual(validatePagesPreviewIsolation(copy), []);
+    }
   });
 
   test(`${label}: receiver allowlist rejects alternate destinations and URL normalization`, () => {

@@ -11,11 +11,12 @@ The website has two Pages project configurations. A project's name containing
 Both preview slots and the dedicated project's production slot use the existing
 `aissisted-booking-preview-v2-20260815` database. They keep Checkout, Google
 Calendar requirements and event creation, open-session expiry, email, notification
-webhooks, and CRM relay disabled. `AIC_EMAIL_PROVIDER = "disabled"` is intentional:
+webhooks disabled. `AIC_EMAIL_PROVIDER = "disabled"` is intentional:
 an empty value falls back to `GRAIL_EMAIL_PROVIDER` in the application. Every
-checked-in CRM URL remains empty. The configuration gate also permits the exact
-isolated receiver below for a separately verified staging integration; this
-allowlist does not configure or enable forwarding.
+dedicated-project CRM URL remains empty. The canonical `wrangler.toml` preview
+slot selects the exact isolated contact receiver below; it still requires a
+matching intake secret and enabled receiver before forwarding can succeed.
+The configuration gate permits only an empty URL or that exact receiver.
 Fit-call/contact persistence remains available against the isolated database.
 
 The browser's Google Ads/GA4, Axon and Grail wrappers also allow measurement only on
@@ -68,29 +69,34 @@ the remote Pages preview database. See the official
 ## Isolated CRM receiver prerequisite
 
 The only additional allowed `AIC_CRM_INTAKE_URL` is
-`https://aiccrm-staging.pjaissist-0c5.workers.dev/intake/website`. The gate requires
+`https://aiccrm-payment-rehearsal-20260926.pjaissist-0c5.workers.dev/intake/website`. The gate requires
 literal equality: a different host or path, trailing slash, query, fragment,
 userinfo, port (including explicit `:443`), or whitespace is rejected. The rule
 applies independently to all three isolated slots in the table. Production
-receiver URLs and the separately hosted Render/Neon staging application are not
-interchangeable with this Worker target. All other isolation requirements stay
-in force when this URL is selected.
+receiver URLs, the previous `aiccrm-staging` Worker and the separately hosted
+Render/Neon staging application are not interchangeable with this Worker target.
+All other isolation requirements stay in force when this URL is selected.
 
-The 2026-09-05 staging readback bound Cloudflare Worker `aiccrm-staging`, version
-`65a35f60-8733-4623-92ab-f304ca625d9e`, to AICCRM receiver commit
-`108e2391dc1a32edf249c113f8bd2acd736f7282`. The deployed bundle matched all 16
-committed source inputs. Its staging D1 binding was
-`dd4f9c66-9f77-4ec5-83cd-bbb3733bfffc`, with all 15 reviewed migrations including
-`0015_website_booking_events.sql`. That database is separate from production CRM
+The 2026-09-26 disabled-receiver readback bound Cloudflare Worker
+`aiccrm-payment-rehearsal-20260926`, version
+`87c5fa1d-73d4-4fc7-975a-dded046a4cb2`, to the reviewed AICCRM receiver bundle from
+commit `108e2391dc1a32edf249c113f8bd2acd736f7282`. Its D1 binding was
+`0d010056-b6c4-4002-af1f-3790c1ec20e5`, with all 15 reviewed migrations including
+`0015_website_booking_events.sql`. Both contact and booking-event intake were
+disabled and no secret bindings were present. That database is separate from the
+previous staging D1 `dd4f9c66-9f77-4ec5-83cd-bbb3733bfffc`, production CRM
 D1 `d6d66c29-66e8-4fda-a918-11eafdd4b42c` and from the website's preview D1
 `febf1ca7-efa3-4629-b250-7e294ff96a47`. These are dated deployment observations;
 recheck the actual Worker version, source and database bindings immediately
 before configuring a sender. A hostname or a successful source check alone does
 not prove current isolation.
 
-The sender requires `AIC_CRM_INTAKE_TOKEN` matching the existing staging Worker's
-`PUBLIC_INTAKE_TOKEN`. Retrieve its approved location without recording its value;
-do not substitute a Render credential or rotate an existing secret as setup.
+The sender requires `AIC_CRM_INTAKE_TOKEN` matching this new Worker's separately
+scoped `PUBLIC_INTAKE_TOKEN`, and the receiver requires `PUBLIC_INTAKE_ENABLED`
+to be enabled. Configure the matching contact credential only on this receiver
+and the intended sender, without recording its value. Preserve the previous
+staging and production receivers and credentials. Keep financial intake and
+Apollo disabled on this receiver during contact acceptance.
 `isAicCrmRelayConfigured` identifies a configured URL only. The actual relay
 separately rejects a missing or blank intake token with `missing_token` and makes
 no network request. Preview access and monitor tokens cannot supply that authority.
@@ -98,7 +104,7 @@ Keep `PREVIEW_ACCESS_TOKEN` and `BOOKING_MONITOR_TOKEN` as separately scoped
 platform secrets, and keep `BOOKING_MONITOR_SCOPE = "contacts"`.
 
 Before hosted contact/Fit Call acceptance, the reviewed sender still needs its
-intended environment configured with this exact URL and the staging intake
+intended environment configured with this exact URL and the new receiver's contact
 credential, followed by a deployed-source and effective-setting readback. Then
 verify the original durable queue items, receiver acknowledgements and stored
 records, exact retry identity, and authenticated scheduled recovery. A successful

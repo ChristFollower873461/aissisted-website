@@ -67,8 +67,12 @@ test("preview notification handler makes no request even when fallback email cre
   assert.equal(fetch.mock.callCount(), 0);
 });
 
-test("effective preview config disables email fallbacks, webhooks and CRM", () => {
-  for (const vars of [configs["wrangler.toml"].env.preview.vars, configs["wrangler.preview.toml"].vars, configs["wrangler.preview.toml"].env.preview.vars]) {
+test("effective preview config disables email fallbacks and webhooks, with CRM configured only for the intended contact sender", () => {
+  for (const [vars, relayConfigured] of [
+    [configs["wrangler.toml"].env.preview.vars, true],
+    [configs["wrangler.preview.toml"].vars, false],
+    [configs["wrangler.preview.toml"].env.preview.vars, false]
+  ]) {
     const env = { GRAIL_EMAIL_API_KEY: "synthetic-key", ...vars };
     const config = getBookingConfig(env);
     assert.equal(config.emailProvider, "disabled");
@@ -77,7 +81,7 @@ test("effective preview config disables email fallbacks, webhooks and CRM", () =
     assert.equal(config.googleCalendarCreateEvents, false);
     assert.equal(config.internalNotificationWebhook, "");
     assert.equal(config.customerNotificationWebhook, "");
-    assert.equal(isAicCrmRelayConfigured(env), false);
+    assert.equal(isAicCrmRelayConfigured(env), relayConfigured);
   }
 });
 
