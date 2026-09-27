@@ -35,13 +35,13 @@ function node() {
   return { textContent: "", innerHTML: "", className: "", disabled: false, listeners: {}, classList: { add() {} },
     addEventListener(type, listener) { this.listeners[type] = listener; }, scrollIntoView() {} };
 }
-async function harness({ storage = new Map(), now = Date.now(), form = values, storageFails = false, manualTimers = false, crypto = webcrypto, checkout = unavailable } = {}) {
+async function harness({ storage = new Map(), now = Date.now(), form = values, storageFails = false, manualTimers = false, crypto = webcrypto, checkout = unavailable, query = "" } = {}) {
   const nodes = new Map(); const requests = []; const timers = new Set(); const data = { ...form }; let availabilityCalls = 0; let sequence = 0;
   const requestStarted = deferredSignal();
   const buttons = slots.map((s) => ({ ...node(), getAttribute: () => s.slotId }));
   const document = { getElementById(id) { if (!nodes.has(id)) nodes.set(id, node()); return nodes.get(id); } };
   document.getElementById("availability-root").querySelectorAll = () => buttons;
-  const location = new URL("https://aissistedconsulting.com/book/");
+  const location = new URL(`https://aissistedconsulting.com/book/?${query}`);
   const context = vm.createContext({ document, location, URL, URLSearchParams, TextEncoder, AbortController,
     setTimeout: manualTimers ? (callback) => { timers.add(callback); return callback; } : setTimeout,
     clearTimeout: manualTimers ? (callback) => timers.delete(callback) : clearTimeout, console,
@@ -154,6 +154,24 @@ test("a changed attribution URL on reload must match the original fingerprint be
   const first = await harness(); first.select(); await first.submit();
   const second = await harness({ storage: first.storage }); second.context.AicAdsTracking.attributionSourcePage = () => "/book/?utm_source=different";
   await second.submit(); assert.equal(second.requests.length, 0); assert.equal(second.saved().key, first.saved().key);
+});
+
+test("booking attribution change on reload cannot rewrite an uncertain checkout request", async () => {
+  const first = await harness({ query: "entry_route=home&cta_id=home_hero_paid_plan" });
+  first.select(); await first.submit();
+  const original = first.saved();
+  const second = await harness({ storage: first.storage, query: "entry_route=contact&cta_id=contact_aside_paid_plan" });
+  const currentFunnel = JSON.parse(second.storage.get("aic_paid_plan_funnel_v1"));
+  assert.equal(currentFunnel.entryRoute, "contact");
+  assert.equal(currentFunnel.ctaId, "contact_aside_paid_plan");
+  assert.deepEqual(second.saved(), original, "new attribution selection must not rewrite checkout recovery storage");
+  await second.submit();
+  assert.equal(second.availabilityCalls, 0);
+  assert.equal(second.requests.length, 1);
+  assert.equal(second.requests[0].key, first.requests[0].key);
+  assert.equal(second.requests[0].body, first.requests[0].body);
+  assert.equal(second.saved().fingerprint, original.fingerprint);
+  assert.deepEqual(JSON.parse(second.requests[0].body).measurement, original.measurement);
 });
 
 for (const age of [23 * 60 * 60 * 1000 + 1, -1000]) test(`reload with invalid recovery age ${age} retains the key and requires review`, async () => {

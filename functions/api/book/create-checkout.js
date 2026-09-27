@@ -39,8 +39,30 @@ const RISK = "financial";
 const FUNNEL_ID = /^funnel_[A-Za-z0-9_-]{8,80}$/;
 const FUNNEL_RETENTION_DAYS = 180;
 const MEASUREMENT_CONTRACT_ID = "aissisted_paid_plan_pilot_v1";
-const ENTRY_ROUTES = new Set(["book", "home", "services", "navigation", "other"]);
-const CTA_IDS = new Set([
+const MEASUREMENT_NORMALIZATION_VERSION = 2;
+const ENTRY_ROUTE_BY_CTA = new Map([
+  ["book_direct", "book"], ["other", "other"],
+  ["home_nav_paid_plan", "home"], ["home_hero_paid_plan", "home"],
+  ["home_catalog_paid_plan", "home"], ["home_footer_paid_plan", "home"],
+  ["services_nav_paid_plan", "services"], ["services_hero_paid_plan", "services"],
+  ["services_plan_paid_plan", "services"], ["services_footer_paid_plan", "services"],
+  ["primary_nav_book", "navigation"],
+  ["contact_nav_paid_plan", "contact"], ["contact_aside_paid_plan", "contact"],
+  ["workflow_automation_nav_paid_plan", "workflow_automation"], ["workflow_automation_footer_paid_plan", "workflow_automation"],
+  ["industries_nav_paid_plan", "industries"], ["industries_footer_paid_plan", "industries"],
+  ["industries_plumbing_nav_paid_plan", "industries"], ["industries_plumbing_footer_paid_plan", "industries"],
+  ["industries_hvac_nav_paid_plan", "industries"], ["industries_hvac_footer_paid_plan", "industries"],
+  ["industries_pest_control_nav_paid_plan", "industries"], ["industries_pest_control_footer_paid_plan", "industries"],
+  ["privacy_nav_paid_plan", "privacy"], ["privacy_footer_paid_plan", "privacy"],
+  ["family_nav_paid_plan", "family"], ["guide_nav_paid_plan", "guide"],
+  ["about_nav_paid_plan", "about"], ["about_footer_paid_plan", "about"],
+  ["404_nav_paid_plan", "404"],
+  ["small_business_nav_paid_plan", "small_business"], ["small_business_footer_paid_plan", "small_business"],
+  ["blog_nav_paid_plan", "blog"]
+]);
+// Only unversioned, previously accepted requests may use these old rules.
+const LEGACY_ENTRY_ROUTES = new Set(["book", "home", "services", "navigation", "other"]);
+const LEGACY_CTA_IDS = new Set([
   "book_direct",
   "home_hero_paid_plan",
   "home_catalog_paid_plan",
@@ -66,6 +88,20 @@ const FIELD_LIMITS = {
 };
 
 class ValidationError extends Error {}
+
+function hasLegacyMeasurementSummary(record) {
+  try {
+    const summary = JSON.parse(record.requestSummaryJson);
+    return summary && typeof summary === "object" && !Array.isArray(summary)
+      && !Object.hasOwn(summary, "measurementNormalizationVersion")
+      && ["slotId", "email", "currency", "policyVersion", "releaseId", "offerId", "termsSha256"]
+        .every((field) => typeof summary[field] === "string" && summary[field].length > 0)
+      && Number.isSafeInteger(summary.amountCents) && summary.amountCents > 0
+      && Number.isSafeInteger(summary.offerVersion) && summary.offerVersion > 0;
+  } catch (_) {
+    return false;
+  }
+}
 
 function cleanString(value) {
   return String(value || "").trim();
@@ -198,6 +234,7 @@ export function normalizeCheckoutPayload(payload, config) {
     40
   );
   const ctaIdCandidate = limitString(submittedMeasurement.ctaId, "CTA ID", 80);
+  const validMeasurementPair = ENTRY_ROUTE_BY_CTA.has(ctaIdCandidate) && ENTRY_ROUTE_BY_CTA.get(ctaIdCandidate) === entryRouteCandidate;
 
   if (!slotId || !name || !email) {
     throw new ValidationError("Name, email, and an appointment window are required.");
@@ -282,8 +319,8 @@ export function normalizeCheckoutPayload(payload, config) {
     },
     measurement: {
       funnelId: FUNNEL_ID.test(submittedFunnelId) ? submittedFunnelId : "",
-      entryRoute: ENTRY_ROUTES.has(entryRouteCandidate) ? entryRouteCandidate : "book",
-      ctaId: CTA_IDS.has(ctaIdCandidate) ? ctaIdCandidate : "book_direct",
+      entryRoute: validMeasurementPair ? entryRouteCandidate : "book",
+      ctaId: validMeasurementPair ? ctaIdCandidate : "book_direct",
       laneId: routeId
     },
     sourcePage
@@ -368,6 +405,23 @@ export async function onRequest(context) {
     normalized = normalizeCheckoutPayload(payload, normalizationConfig);
     if (!normalized.measurement.funnelId) normalized.measurement.funnelId = `funnel_${idempotencyKeyHash.slice(0, 24)}`;
     requestFingerprint = await createRequestFingerprint({ commandId: COMMAND_ID, risk: RISK, input: normalized });
+    if (existing && existing.requestFingerprint !== requestFingerprint && hasLegacyMeasurementSummary(existing)) {
+      const submitted = payload.measurement || {};
+      const entryRoute = limitString(submitted.entryRoute, "Entry route", 40);
+      const ctaId = limitString(submitted.ctaId, "CTA ID", 80);
+      const legacyNormalized = { ...normalized, measurement: {
+        ...normalized.measurement,
+        entryRoute: LEGACY_ENTRY_ROUTES.has(entryRoute) ? entryRoute : "book",
+        ctaId: LEGACY_CTA_IDS.has(ctaId) ? ctaId : "book_direct"
+      } };
+      const legacyFingerprint = await createRequestFingerprint({ commandId: COMMAND_ID, risk: RISK, input: legacyNormalized });
+      // Match every original field before reusing an old response or command.
+      // New records are versioned below and can never enter this compatibility path.
+      if (legacyFingerprint === existing.requestFingerprint) {
+        normalized = legacyNormalized;
+        requestFingerprint = legacyFingerprint;
+      }
+    }
     const decision = getIdempotencyDecision(existing, requestFingerprint);
     if (decision.action === "replay") {
       await writeAudit(store, {
@@ -424,6 +478,7 @@ export async function onRequest(context) {
       idempotencyKeyHash,
       requestFingerprint,
       requestSummaryJson: createSafeJsonBody({
+        measurementNormalizationVersion: MEASUREMENT_NORMALIZATION_VERSION,
         slotId: normalized.slotId,
         email: normalized.contact.email,
         amountCents: normalized.confirmedReservationAmountCents,

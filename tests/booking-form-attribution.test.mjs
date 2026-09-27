@@ -1,8 +1,10 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
 import vm from "node:vm";
 import { webcrypto } from "node:crypto";
+import { parse } from "parse5";
 import { buildCrmAttribution } from "../functions/api/_lib/crm-attribution.js";
 import { getBookingConfig } from "../functions/api/_lib/config.js";
 import { normalizeCheckoutPayload } from "../functions/api/book/create-checkout.js";
@@ -43,7 +45,7 @@ function createNode() {
   };
 }
 
-async function submitForm(formType, attributionMode, campaignQuery = CAMPAIGN_QUERY) {
+async function submitForm(formType, attributionMode, campaignQuery = CAMPAIGN_QUERY, browser = {}) {
   const requests = [];
   const nodes = new Map();
   const documentListeners = {};
@@ -71,9 +73,9 @@ async function submitForm(formType, attributionMode, campaignQuery = CAMPAIGN_QU
   document.getElementById("availability-root").querySelectorAll = () => [slotButton];
   const context = vm.createContext({
     document,
-    location: new URL(`https://aissistedconsulting.com/book/?${campaignQuery}`),
+    location: new URL(`https://aissistedconsulting.com/book/?${browser.query ?? campaignQuery}`),
     localStorage: createStorage(),
-    sessionStorage: createStorage(),
+    sessionStorage: browser.sessionStorage || createStorage(),
     URL,
     URLSearchParams,
     console,
@@ -113,6 +115,7 @@ async function submitForm(formType, attributionMode, campaignQuery = CAMPAIGN_QU
     }
   });
   context.window = context;
+  if (browser.saved !== undefined) context.sessionStorage.setItem("aic_paid_plan_funnel_v1", browser.saved);
 
   if (attributionMode !== "missing-tracker") {
     const trackingSource = readFileSync("assets/aic-google-ads-tracking.js", "utf8");
@@ -144,6 +147,89 @@ async function submitForm(formType, attributionMode, campaignQuery = CAMPAIGN_QU
   }
   return requests[0];
 }
+
+function publicBookingPairs() {
+  const pairs = new Map();
+  const root = new URL("../", import.meta.url);
+  const files = execFileSync("git", ["ls-files", "-z", "*.html"], { cwd: root, encoding: "utf8" }).split("\0").filter(Boolean);
+  for (const file of files) {
+    const visit = (node) => {
+      if (node.tagName === "a") {
+        const href = node.attrs.find((attr) => attr.name === "href")?.value;
+        if (href) {
+          const url = new URL(href, `https://aissistedconsulting.com/${file}`);
+          if (url.origin === "https://aissistedconsulting.com" && ["/book/", "/book"].includes(url.pathname)
+              && (url.searchParams.has("entry_route") || url.searchParams.has("cta_id"))) {
+            const pair = { entryRoute: url.searchParams.get("entry_route"), ctaId: url.searchParams.get("cta_id") };
+            pairs.set(JSON.stringify(pair), pair);
+          }
+        }
+      }
+      for (const child of node.childNodes || []) visit(child);
+    };
+    visit(parse(readFileSync(new URL(file, root), "utf8")));
+  }
+  return [...pairs.values()];
+}
+
+const savedFunnel = { funnelId: "funnel_original_12345", entryRoute: "home", ctaId: "home_hero_paid_plan" };
+const measurementConfig = () => getBookingConfig({
+  BOOKING_CHECKOUT_ENABLED: "true", ACTIVE_BOOKING_RELEASE: "legacy_v1_2026_04_06",
+  STRIPE_BOOKING_PRICE_ID: "price_legacy_test"
+}, "https://aissistedconsulting.com");
+
+test("booking attribution preserves every emitted public CTA pair through browser and server", async (t) => {
+  const pairs = publicBookingPairs();
+  assert.ok(pairs.length >= 31, "inventory includes the known public CTA surface");
+  for (const pair of [...pairs, { entryRoute: "book", ctaId: "book_direct" }, { entryRoute: "other", ctaId: "other" }]) {
+    await t.test(`${pair.entryRoute}/${pair.ctaId}`, async () => {
+      const query = new URLSearchParams({ entry_route: pair.entryRoute, cta_id: pair.ctaId }).toString();
+      const request = await submitForm("checkout", "missing-tracker", "", { query, saved: JSON.stringify(savedFunnel) });
+      assert.deepEqual(request.measurement, { ...savedFunnel, ...pair });
+      const normalized = normalizeCheckoutPayload(request, measurementConfig());
+      assert.equal(normalized.measurement.entryRoute, pair.entryRoute);
+      assert.equal(normalized.measurement.ctaId, pair.ctaId);
+      assert.equal(normalized.measurement.funnelId, savedFunnel.funnelId);
+      assert.equal(normalized.measurement.laneId, FORM_VALUES.routeId);
+    });
+  }
+});
+
+test("booking attribution chooses current parameters atomically instead of borrowing saved credit", async (t) => {
+  for (const query of [
+    "entry_route=unknown&cta_id=unknown", "entry_route=services", "cta_id=services_hero_paid_plan",
+    "entry_route=&cta_id=", "entry_route=services&cta_id=", "entry_route=&cta_id=services_hero_paid_plan",
+    "entry_route=services&cta_id=home_hero_paid_plan", "entry_route=home&cta_id=services_hero_paid_plan"
+  ]) {
+    await t.test(query, async () => {
+      const request = await submitForm("checkout", "missing-tracker", "", { query, saved: JSON.stringify(savedFunnel) });
+      assert.deepEqual(request.measurement, { ...savedFunnel, entryRoute: "book", ctaId: "book_direct" });
+    });
+  }
+  const retained = await submitForm("checkout", "missing-tracker", "", { query: "utm_source=synthetic", saved: JSON.stringify(savedFunnel) });
+  assert.deepEqual(retained.measurement, savedFunnel, "only absent current pair preserves valid session continuity");
+});
+
+test("booking attribution tolerates invalid or unavailable funnel storage without inventing a pair", async (t) => {
+  for (const saved of ["{", "null", "42", '"text"', "[]", JSON.stringify({ ...savedFunnel, entryRoute: "services" }), JSON.stringify({ ...savedFunnel, ctaId: "unknown" })]) {
+    await t.test(saved, async () => {
+      const request = await submitForm("checkout", "missing-tracker", "", { query: "", saved });
+      assert.equal(request.measurement.entryRoute, "book");
+      assert.equal(request.measurement.ctaId, "book_direct");
+      assert.match(request.measurement.funnelId, /^funnel_[A-Za-z0-9_-]{8,80}$/);
+    });
+  }
+  const storage = createStorage();
+  const unavailable = {
+    getItem(key) { if (key === "aic_paid_plan_funnel_v1") throw new Error("Synthetic funnel storage unavailable"); return storage.getItem(key); },
+    setItem(key, value) { if (key === "aic_paid_plan_funnel_v1") throw new Error("Synthetic funnel storage unavailable"); storage.setItem(key, value); }
+  };
+  const request = await submitForm("checkout", "missing-tracker", "", {
+    query: "entry_route=contact&cta_id=contact_aside_paid_plan", sessionStorage: unavailable
+  });
+  assert.equal(request.measurement.entryRoute, "contact");
+  assert.equal(request.measurement.ctaId, "contact_aside_paid_plan");
+});
 
 async function relayAttribution(formType, request) {
   if (formType === "checkout") {
