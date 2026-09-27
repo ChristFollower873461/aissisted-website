@@ -155,6 +155,7 @@ test("contact requires a valid explicit receipt instead of treating HTTP success
     ["204 empty body", () => ({ ok: true, status: 204, text: async () => "" })],
     ["200 null", () => response(null)],
     ["200 malformed body", () => ({ ok: true, status: 200, text: async () => '<script>private-provider-debug</script>' })],
+    ["200 uppercase malformed body", () => ({ ok: true, status: 200, text: async () => '<SCRIPT>PRIVATE-PROVIDER-DEBUG</SCRIPT>' })],
     ["200 ok without inquiry", () => response({ ok: true })],
     ["200 empty inquiry id", () => response(receipt({ inquiry: { id: "" } }))],
     ["200 non-string inquiry id", () => response(receipt({ inquiry: { id: 42 } }))],
@@ -165,7 +166,9 @@ test("contact requires a valid explicit receipt instead of treating HTTP success
       const run = harness(makeResponse);
       await run.submit();
       uncertain(run);
-      assert.doesNotMatch(run.status.textContent, /private-provider-debug|<script>/);
+      assert.doesNotMatch(run.status.textContent, /private-provider-debug/i);
+      assert.equal(run.status.textContent.includes("<"), false);
+      assert.equal(run.status.textContent.includes(">"), false);
       assert.deepEqual(run.tracks, { axon: 0, ads: 0 });
     });
   }
