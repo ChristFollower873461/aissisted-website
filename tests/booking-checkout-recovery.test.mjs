@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { Miniflare, Log, LogLevel } from 'miniflare';
 import { migrateBookingD1 } from './helpers/booking-payments/migrations.mjs';
-import { onRequest as checkout } from '../functions/api/book/create-checkout.js';
+import { onRequest as checkout, normalizeCheckoutPayload } from '../functions/api/book/create-checkout.js';
 import { onRequest as availability } from '../functions/api/book/availability.js';
 import { createCheckoutRecoveryStore, drainCheckoutRecovery } from '../functions/api/_lib/booking-checkout-recovery.js';
 import { getBookingStore } from '../functions/api/_lib/storage.js';
@@ -10,14 +10,24 @@ import { createBookingPaymentStore } from '../functions/api/_lib/booking-payment
 import { buildBookingStartEvent } from '../functions/api/_lib/booking-payment-reconciliation.js';
 import { sendCheckoutSessionCommand } from '../functions/api/_lib/stripe.js';
 import { getBookingConfig } from '../functions/api/_lib/config.js';
+import { createRequestFingerprint } from '../functions/api/_lib/transaction-safety.js';
 
 const origin = 'https://website.example.test';
 async function fixture(t) {
   const mf = new Miniflare({ modules:true, script:'export default {fetch(){return new Response("local synthetic database");}}', compatibilityDate:'2026-05-18', host:'127.0.0.1', port:0, cf:false, d1Persist:false, log:new Log(LogLevel.ERROR), d1Databases:{DB:'synthetic-checkout-recovery'}, outboundService(){throw new Error('No outbound runtime requests');} });
   t.after(()=>mf.dispose());
   const db=await mf.getD1Database('DB');await migrateBookingD1(db);
-  const faults={attach:0,reads:0,providerReply:0,checkpointReply:0,prepare:0,commandRead:0};
-  const wrap=(inner,sql)=>({inner,sql,bind(...args){return wrap(inner.bind(...args),sql);},
+  const faults={attach:0,reads:0,providerReply:0,checkpointReply:0,prepare:0,commandRead:0,legacyFingerprint:null};
+  const wrap=(inner,sql)=>({inner,sql,bind(...args){
+    if(faults.legacyFingerprint && /INSERT INTO agent_idempotency_records/.test(sql)) {
+      assert.equal(args[1],'create_booking_checkout');
+      assert.match(faults.legacyFingerprint,/^[a-f0-9]{64}$/);
+      const summary=JSON.parse(args[5]);assert.equal(summary.measurementNormalizationVersion,2);
+      delete summary.measurementNormalizationVersion;
+      args[4]=faults.legacyFingerprint;args[5]=JSON.stringify(summary);faults.legacyFingerprint=null;
+    }
+    return wrap(inner.bind(...args),sql);
+  },
     async first(){if(faults.commandRead && /SELECT \* FROM booking_checkout_commands/.test(sql)){faults.commandRead--;throw new Error('Synthetic command read unavailable');}if(faults.reads && /agent_idempotency_records/.test(sql)){faults.reads--;throw new Error('Synthetic read unavailable');}return inner.first();},
     all:()=>inner.all(),async run(){if(faults.prepare && /INSERT INTO booking_checkout_commands/.test(sql)){faults.prepare--;throw new Error('Synthetic preparation failure');}const r=await inner.run();if(faults.checkpointReply && /SET session_json=/.test(sql)){faults.checkpointReply--;throw new Error('Synthetic checkpoint reply lost');}return r;}});
   const wrapped={prepare(sql){return wrap(db.prepare(sql),sql);},async batch(statements){if(faults.attach && statements.some(s=>/INSERT INTO booking_payment_state/.test(s.sql))){faults.attach--;faults.reads=1;throw new Error('Synthetic attachment failed before commit');}return db.batch(statements.map(s=>s.inner));}};
@@ -45,6 +55,50 @@ async function fixture(t) {
 }
 
 test('uncommitted attachment with unavailable readback resumes original booking and Session',async(t)=>{const h=await fixture(t);h.faults.attach=1;const first=await h.send();assert.equal(first.status,503);assert.equal((await h.db.prepare('SELECT COUNT(*) AS n FROM booking_payment_state').first()).n,0);const command=await h.row();assert.ok(command.session_json);const retry=await h.send();assert.equal(retry.status,200,JSON.stringify(retry));assert.equal(retry.body.bookingId,command.booking_id);assert.equal(retry.body.sessionId,JSON.parse(command.session_json).id);assert.equal(h.postCount(),1);assert.equal(h.sessionCount(),1);assert.equal((await h.row()).state,'attached');});
+
+test('booking attribution legacy fingerprint resumes the exact durable D1 command and Session', async (t) => {
+  const h = await fixture(t);
+  h.body.measurement = { funnelId: 'funnel_legacy_d1_12345', entryRoute: 'home', ctaId: 'book_direct' };
+  const normalized = normalizeCheckoutPayload(h.body, getBookingConfig(h.env, origin));
+  const currentFingerprint = await createRequestFingerprint({ commandId: 'create_booking_checkout', risk: 'financial', input: normalized });
+  const legacyNormalized = { ...normalized, measurement: { ...normalized.measurement, entryRoute: 'home' } };
+  const legacyFingerprint = await createRequestFingerprint({ commandId: 'create_booking_checkout', risk: 'financial', input: legacyNormalized });
+  assert.notEqual(legacyFingerprint, currentFingerprint);
+  // Seed the historical record at INSERT, before the immutable command exists.
+  // No trigger or stored provider command is changed to prepare this fixture.
+  h.faults.legacyFingerprint = legacyFingerprint;
+  h.faults.attach = 1;
+  assert.equal((await h.send()).status, 503);
+  const original = await h.row();
+  assert.ok(original.session_json);
+  assert.equal(h.faults.legacyFingerprint, null);
+  assert.equal(original.request_fingerprint, legacyFingerprint);
+  const record = await h.db.prepare('SELECT * FROM agent_idempotency_records WHERE id=?').bind(original.idempotency_record_id).first();
+  assert.equal(record.request_fingerprint, legacyFingerprint);
+  assert.equal(Object.hasOwn(JSON.parse(record.request_summary_json), 'measurementNormalizationVersion'), false);
+  const changed = await h.send({ ...h.body, contact: { ...h.body.contact, email: 'changed@example.test' } });
+  assert.equal(changed.status, 409);
+  assert.equal(changed.body.code, 'idempotency_conflict');
+  assert.deepEqual(await h.row(), original);
+  const retry = await h.send();
+  assert.equal(retry.status, 200, JSON.stringify(retry));
+  assert.equal(retry.body.bookingId, original.booking_id);
+  assert.equal(retry.body.sessionId, JSON.parse(original.session_json).id);
+  const after = await h.row();
+  assert.equal(after.state, 'attached');
+  for (const field of ['request_fingerprint', 'stripe_request_body', 'stripe_idempotency_key', 'stripe_api_version', 'context_json', 'session_json', 'booking_id']) {
+    assert.equal(after[field], original[field], `recovery must preserve original ${field}`);
+  }
+  assert.equal(h.postCount(), 1, 'a persisted original Session needs no replacement provider POST');
+  assert.equal(h.sessionCount(), 1);
+  const replay = await h.send();
+  assert.equal(replay.status, 200);
+  assert.equal(replay.body.replayed, true);
+  assert.equal(replay.body.bookingId, original.booking_id);
+  assert.equal(replay.body.sessionId, retry.body.sessionId);
+  assert.equal(h.postCount(), 1);
+  assert.equal(h.sessionCount(), 1);
+});
 
 test('lost Session response replays exact persisted provider body/key/version once',async(t)=>{const h=await fixture(t);h.faults.providerReply=1;assert.equal((await h.send()).status,503);const command=await h.row();assert.equal(command.session_json,null);h.env.STRIPE_API_VERSION='changed-config-version';const retry=await h.send();assert.equal(retry.status,200,JSON.stringify(retry));assert.equal(h.postCount(),2);assert.equal(h.sessionCount(),1);assert.equal((await h.row()).stripe_request_body,command.stripe_request_body);});
 

@@ -304,6 +304,19 @@ test("v2 checkout acceptance rejects stale or tampered offer fields and route ID
     ctaId: "book_direct",
     laneId: "custom_development"
   });
+  for (const [entryRoute, ctaId] of [
+    ["services", "home_hero_paid_plan"], ["home", "services_hero_paid_plan"],
+    ["navigation", "book_direct"], ["other", "primary_nav_book"],
+    ["contact", "home_hero_paid_plan"], ["services", ""], ["", "services_hero_paid_plan"]
+  ]) {
+    const result = normalizeCheckoutPayload({ ...payload, measurement: { ...payload.measurement, entryRoute, ctaId } }, config);
+    assert.deepEqual(result.measurement, {
+      funnelId: payload.measurement.funnelId, entryRoute: "book", ctaId: "book_direct", laneId: "custom_development"
+    }, `mismatched ${entryRoute}/${ctaId} must fall back as a complete pair`);
+  }
+  for (const [field, length] of [["funnelId", 97], ["entryRoute", 41], ["ctaId", 81]]) {
+    assert.throws(() => normalizeCheckoutPayload({ ...payload, measurement: { ...payload.measurement, [field]: "x".repeat(length) } }, config), /characters or fewer/);
+  }
   assert.throws(
     () => normalizeCheckoutPayload({ ...payload, confirmedAmountCents: 12500 }, config),
     /current booking amount/

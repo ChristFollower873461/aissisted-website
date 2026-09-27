@@ -144,27 +144,41 @@
   }
 
   function createFunnelContext() {
-    const entryRoutes = new Set(["book", "home", "services", "navigation", "other"]);
-    const ctaIds = new Set([
-      "book_direct", "home_hero_paid_plan", "home_catalog_paid_plan",
-      "home_footer_paid_plan", "services_hero_paid_plan", "primary_nav_book", "other"
+    const entryRouteByCta = new Map([
+      ["book_direct", "book"], ["other", "other"],
+      ["home_nav_paid_plan", "home"], ["home_hero_paid_plan", "home"],
+      ["home_catalog_paid_plan", "home"], ["home_footer_paid_plan", "home"],
+      ["services_nav_paid_plan", "services"], ["services_hero_paid_plan", "services"],
+      ["services_plan_paid_plan", "services"], ["services_footer_paid_plan", "services"],
+      ["primary_nav_book", "navigation"],
+      ["contact_nav_paid_plan", "contact"], ["contact_aside_paid_plan", "contact"],
+      ["workflow_automation_nav_paid_plan", "workflow_automation"], ["workflow_automation_footer_paid_plan", "workflow_automation"],
+      ["industries_nav_paid_plan", "industries"], ["industries_footer_paid_plan", "industries"],
+      ["industries_plumbing_nav_paid_plan", "industries"], ["industries_plumbing_footer_paid_plan", "industries"],
+      ["industries_hvac_nav_paid_plan", "industries"], ["industries_hvac_footer_paid_plan", "industries"],
+      ["industries_pest_control_nav_paid_plan", "industries"], ["industries_pest_control_footer_paid_plan", "industries"],
+      ["privacy_nav_paid_plan", "privacy"], ["privacy_footer_paid_plan", "privacy"],
+      ["family_nav_paid_plan", "family"], ["guide_nav_paid_plan", "guide"],
+      ["about_nav_paid_plan", "about"], ["about_footer_paid_plan", "about"],
+      ["404_nav_paid_plan", "404"],
+      ["small_business_nav_paid_plan", "small_business"], ["small_business_footer_paid_plan", "small_business"],
+      ["blog_nav_paid_plan", "blog"]
     ]);
     const params = new URLSearchParams(window.location.search);
-    const submittedEntryRoute = params.get("entry_route") || "";
-    const submittedCtaId = params.get("cta_id") || "";
     let saved = {};
     try { saved = JSON.parse(sessionStorage.getItem(FUNNEL_STORAGE_KEY) || "{}"); } catch (_error) { saved = {}; }
+    if (!saved || typeof saved !== "object" || Array.isArray(saved)) saved = {};
     const funnelId = /^funnel_[A-Za-z0-9_-]{8,80}$/.test(saved.funnelId || "")
       ? saved.funnelId
       : `funnel_${globalThis.crypto?.randomUUID?.() || `${Date.now().toString(36)}_${Math.random().toString(36).slice(2)}`}`;
+    // A present but invalid current pair must never inherit an earlier CTA.
+    const candidate = params.has("entry_route") || params.has("cta_id")
+      ? { entryRoute: params.get("entry_route"), ctaId: params.get("cta_id") } : saved;
+    const validPair = entryRouteByCta.has(candidate.ctaId) && entryRouteByCta.get(candidate.ctaId) === candidate.entryRoute;
     const context = {
       funnelId,
-      entryRoute: entryRoutes.has(submittedEntryRoute)
-        ? submittedEntryRoute
-        : (entryRoutes.has(saved.entryRoute) ? saved.entryRoute : "book"),
-      ctaId: ctaIds.has(submittedCtaId)
-        ? submittedCtaId
-        : (ctaIds.has(saved.ctaId) ? saved.ctaId : "book_direct")
+      entryRoute: validPair ? candidate.entryRoute : "book",
+      ctaId: validPair ? candidate.ctaId : "book_direct"
     };
     try { sessionStorage.setItem(FUNNEL_STORAGE_KEY, JSON.stringify(context)); } catch (_error) { /* best effort */ }
     return context;
