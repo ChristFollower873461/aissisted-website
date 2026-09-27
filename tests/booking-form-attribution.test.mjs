@@ -40,6 +40,7 @@ function createNode() {
     classList: { add() {} },
     listeners: {},
     addEventListener(event, listener) { this.listeners[event] = listener; },
+    setAttribute() {},
     scrollIntoView() {},
     reset() {}
   };
