@@ -13,6 +13,7 @@
   const FUNNEL_STORAGE_KEY = "aic_paid_plan_funnel_v1";
   const CHECKOUT_STORAGE_KEY = "aic_checkout_retry_v1";
   const CHECKOUT_RETRY_MAX_AGE_MS = 23 * 60 * 60 * 1000;
+  const AVAILABILITY_TIMEOUT_MS = 15_000;
   const OFFER_FIELDS = ["timezone", "reservationAmountCents", "currency", "reservationAmountFormatted",
     "policyVersion", "policySha256", "releaseId", "offerId", "offerVersion"];
   const REVIEW_MESSAGE = "Your previous checkout needs checking. Call 352-817-3567 or email pj@aissistedconsulting.com before starting another checkout.";
@@ -34,6 +35,7 @@
     offerId: "",
     offerVersion: 0,
     submitting: false,
+    loadingAvailability: false,
     usingPreviewSlots: false,
     pendingCheckout: null,
     recoveryBlocked: false,
@@ -343,15 +345,39 @@
     syncSummary();
   }
 
-  async function loadAvailability() {
+  async function loadAvailability(fromRetry = false) {
+    if (state.loadingAvailability || state.pendingCheckout || state.recoveryBlocked || state.completed) return;
+    state.loadingAvailability = true;
+    // A fresh availability read must not leave a stale time eligible for checkout.
+    // Pending checkout recovery bypasses this path and retains its original time.
+    state.slots = [];
+    state.selectedSlotId = "";
+    syncSummary();
+    availabilityRoot.setAttribute("aria-busy", "true");
     availabilityRoot.innerHTML = '<p class="loading-copy">Checking upcoming availability...</p>';
+    if (fromRetry) availabilityRoot.focus({ preventScroll: true });
+    const controller = new AbortController();
+    let timer;
+    const deadline = new Promise((_, reject) => {
+      timer = setTimeout(() => {
+        reject(new Error("availability_timeout"));
+        controller.abort();
+      }, AVAILABILITY_TIMEOUT_MS);
+    });
 
     try {
-      const response = await fetch("/api/book/availability?days=14", {
-        headers: { accept: "application/json" }
-      });
-      const payload = await response.json();
-      if (!response.ok || !payload.ok) throw new Error(payload.error || "Availability could not be loaded.");
+      // Only the winning, fully read response may change state or render slots.
+      // A late response cannot overwrite a subsequent manual retry.
+      const { response, payload } = await Promise.race([
+        (async () => {
+          const response = await fetch("/api/book/availability?days=14", {
+            headers: { accept: "application/json" }, signal: controller.signal
+          });
+          return { response, payload: await response.json() };
+        })(),
+        deadline
+      ]);
+      if (!response.ok || payload?.ok !== true) throw new Error("availability_unavailable");
 
       state.slots = payload.slots || [];
       state.timezone = payload.timezone || state.timezone;
@@ -370,10 +396,15 @@
         policyAcceptanceText.textContent = payload.policyAcceptanceText;
       }
       renderAvailability();
-    } catch (error) {
+    } catch (_error) {
+      state.slots = [];
       if (!isLocalPreview) {
-        availabilityRoot.innerHTML = '<p class="loading-copy">Availability is temporarily unavailable. Call 352-817-3567 or email pj@aissistedconsulting.com while the booking service is being checked.</p>';
-        showStatus(error.message, "error");
+        availabilityRoot.innerHTML = `
+          <p class="loading-copy">We couldn't load appointment times. Try again, or contact us for help.</p>
+          <p><button type="button" class="btn btn-gold btn-sm" data-retry-availability>Try availability again</button></p>
+          <p class="loading-copy"><a class="link" href="../contact/">Contact us</a> or <a class="link" href="#fit-call">request a free Fit Call</a>.</p>
+        `;
+        availabilityRoot.querySelector("[data-retry-availability]").addEventListener("click", () => loadAvailability(true));
         syncSummary();
         return;
       }
@@ -382,6 +413,15 @@
       state.usingPreviewSlots = true;
       showStatus("Preview slots are shown locally. Stripe checkout is not called from this preview.", "error");
       renderAvailability();
+    } finally {
+      clearTimeout(timer);
+      state.loadingAvailability = false;
+      availabilityRoot.setAttribute("aria-busy", "false");
+      if (fromRetry && document.activeElement === availabilityRoot) {
+        const nextControl = availabilityRoot.querySelector("[data-slot-id]:not([disabled])")
+          || availabilityRoot.querySelector("[data-retry-availability]");
+        nextControl?.focus({ preventScroll: true });
+      }
     }
   }
 

@@ -15,6 +15,10 @@ const slots = [1, 2].map((n) => ({ slotId: `slot_${n}`, startsAt: `2030-01-0${n}
 const successful = () => Response.json({ ok: true, bookingId: "booking_synthetic", sessionId: "cs_test_synthetic",
   checkoutUrl: "https://checkout.stripe.com/c/pay/cs_test_synthetic" });
 const unavailable = (code) => Response.json({ ok: false, code, error: "Synthetic unavailable" }, { status: code === "in_progress" ? 409 : 503 });
+const availablePayload = (overrides = {}) => ({ ok: true, slots, reservationAmountCents: 22500, currency: "usd", reservationAmountFormatted: "$225.00",
+  policyVersion: "synthetic-terms", policySha256: "a".repeat(64), releaseId: "synthetic-release", offerId: "synthetic-offer", offerVersion: 2, ...overrides });
+const available = () => Response.json(availablePayload());
+const flush = () => new Promise(setImmediate);
 
 function deferredSignal() {
   let resolve;
@@ -31,21 +35,33 @@ async function waitForSignal(promise, description) {
   } finally { clearTimeout(timer); }
 }
 
-function node() {
-  return { textContent: "", innerHTML: "", className: "", disabled: false, listeners: {}, classList: { add() {} },
-    addEventListener(type, listener) { this.listeners[type] = listener; }, scrollIntoView() {} };
+function node(onFocus = () => {}) {
+  const attributes = new Map();
+  return { textContent: "", innerHTML: "", className: "", disabled: false, listeners: {}, focusCalls: 0, classList: { add() {} },
+    addEventListener(type, listener) { this.listeners[type] = listener; }, scrollIntoView() {}, focus() { this.focusCalls++; onFocus(this); },
+    setAttribute(key, value) { attributes.set(key, String(value)); }, getAttribute(key) { return attributes.get(key) ?? null; },
+    removeAttribute(key) { attributes.delete(key); }, querySelector() { return null; } };
 }
-async function harness({ storage = new Map(), now = Date.now(), form = values, storageFails = false, manualTimers = false, crypto = webcrypto, checkout = unavailable, query = "" } = {}) {
-  const nodes = new Map(); const requests = []; const timers = new Set(); const data = { ...form }; let availabilityCalls = 0; let sequence = 0;
+async function harness({ storage = new Map(), now = Date.now(), form = values, storageFails = false, manualTimers = false, crypto = webcrypto, checkout = unavailable, availability = available, query = "" } = {}) {
+  const nodes = new Map(); const requests = []; const timers = new Map(); const data = { ...form }; const availabilityRequests = []; let sequence = 0; let elapsed = 0;
   const requestStarted = deferredSignal();
-  const buttons = slots.map((s) => ({ ...node(), getAttribute: () => s.slotId }));
-  const document = { getElementById(id) { if (!nodes.has(id)) nodes.set(id, node()); return nodes.get(id); } };
-  document.getElementById("availability-root").querySelectorAll = () => buttons;
+  const focusNode = (value) => { document.activeElement = value; };
+  const buttons = slots.map((s) => ({ ...node(focusNode), getAttribute: () => s.slotId }));
+  const document = { activeElement: null, getElementById(id) { if (!nodes.has(id)) nodes.set(id, node(focusNode)); return nodes.get(id); } };
+  const availabilityRoot = document.getElementById("availability-root");
+  let availabilityHtml = ""; let retryButton = null;
+  Object.defineProperty(availabilityRoot, "innerHTML", {
+    get: () => availabilityHtml,
+    set(value) { availabilityHtml = String(value); retryButton = availabilityHtml.includes("data-retry-availability") ? node(focusNode) : null; }
+  });
+  availabilityRoot.querySelectorAll = () => buttons.filter((button, index) => availabilityHtml.includes(`data-slot-id="${slots[index].slotId}"`));
+  availabilityRoot.querySelector = (selector) => selector === "[data-retry-availability]" ? retryButton
+    : selector === "[data-slot-id]:not([disabled])" ? availabilityRoot.querySelectorAll(selector)[0] ?? null : null;
   const location = new URL(`https://aissistedconsulting.com/book/?${query}`);
   const context = vm.createContext({ document, location, URL, URLSearchParams, TextEncoder, AbortController,
-    setTimeout: manualTimers ? (callback) => { timers.add(callback); return callback; } : setTimeout,
+    setTimeout: manualTimers ? (callback, delay = 0) => { timers.set(callback, elapsed + delay); return callback; } : setTimeout,
     clearTimeout: manualTimers ? (callback) => timers.delete(callback) : clearTimeout, console,
-    Date: class extends Date { static now() { return now; } },
+    Date: class extends Date { static now() { return now + elapsed; } },
     crypto: { randomUUID: () => `00000000-0000-4000-8000-${String(++sequence).padStart(12, "0")}`, subtle: crypto?.subtle },
     sessionStorage: { getItem: (key) => storage.get(key) ?? null,
       setItem(key, value) { if (storageFails && key === storageKey) throw new Error("Synthetic storage blocked"); storage.set(key, String(value)); } },
@@ -53,9 +69,9 @@ async function harness({ storage = new Map(), now = Date.now(), form = values, s
     AicAdsTracking: { attributionSourcePage: () => "/book/?utm_source=synthetic", emit() {} },
     async fetch(url, options) {
       if (url === "/api/book/availability?days=14") {
-        availabilityCalls++;
-        return Response.json({ ok: true, slots, reservationAmountCents: 22500, currency: "usd", reservationAmountFormatted: "$225.00",
-          policyVersion: "synthetic-terms", policySha256: "a".repeat(64), releaseId: "synthetic-release", offerId: "synthetic-offer", offerVersion: 2 });
+        const request = { url, ...options };
+        availabilityRequests.push(request);
+        return availability(request, availabilityRequests.length);
       }
       assert.equal(url, "/api/book/create-checkout", "No actual browser or external dispatch is allowed");
       const request = { key: options.headers["idempotency-key"], body: options.body, signal: options.signal };
@@ -66,16 +82,145 @@ async function harness({ storage = new Map(), now = Date.now(), form = values, s
   });
   context.window = context;
   vm.runInContext(source, context);
-  await new Promise(setImmediate);
-  return { nodes, buttons, data, requests, storage, context, location,
-    get availabilityCalls() { return availabilityCalls; },
+  await flush();
+  return { nodes, buttons, data, requests, availabilityRequests, storage, context, location, flush,
+    get availabilityCalls() { return availabilityRequests.length; },
+    get retryButton() { return retryButton; },
+    get activeTimers() { return timers.size; },
     waitForRequest() { return waitForSignal(requestStarted.promise, "checkout request start"); },
-    expireRequest() { for (const callback of [...timers]) callback(); },
+    advance(milliseconds) { elapsed += milliseconds; for (const [callback, due] of [...timers]) if (due <= elapsed) { timers.delete(callback); callback(); } },
+    expireRequest() { for (const callback of [...timers.keys()]) { timers.delete(callback); callback(); } },
+    dispose() { timers.clear(); },
+    retry() { assert.ok(retryButton, "An explicit availability retry control must be rendered"); return retryButton.listeners.click({ preventDefault() {} }); },
     select(index = 0) { buttons[index].listeners.click(); },
     submit() { return nodes.get("booking-form").listeners.submit({ preventDefault() {} }); },
     status() { return nodes.get("booking-submit-status").textContent; },
     saved() { return JSON.parse(storage.get(storageKey) || "null"); } };
 }
+
+for (const phase of ["request", "response body"]) test(`availability deadline bounds a stalled ${phase} even when abort is ignored`, async () => {
+  const pending = deferredSignal();
+  const h = await harness({ manualTimers: true, availability: () => phase === "request" ? pending.promise : { ok: true, json: () => pending.promise } });
+  try {
+    assert.match(h.nodes.get("availability-root").innerHTML, /Checking upcoming availability/);
+    h.advance(14_999); await h.flush();
+    assert.match(h.nodes.get("availability-root").innerHTML, /Checking upcoming availability/);
+    h.advance(1); await h.flush();
+    assert.doesNotMatch(h.nodes.get("availability-root").innerHTML, /Checking upcoming availability/, "The entire availability operation must settle after 15 seconds");
+    assert.ok(h.retryButton, "An unavailable response must expose manual recovery");
+    assert.equal(h.nodes.get("availability-root").getAttribute("aria-busy"), "false");
+    assert.equal(h.availabilityRequests[0].signal.aborted, true);
+    assert.equal(h.availabilityCalls, 1, "No automatic retry");
+    assert.equal(h.requests.length, 0, "Availability must never dispatch checkout");
+    assert.deepEqual(h.data, values); assert.equal(h.saved(), null); assert.equal(h.activeTimers, 0);
+  } finally {
+    pending.resolve(phase === "request" ? available() : availablePayload());
+    await h.flush(); h.dispose();
+  }
+});
+
+test("availability manual recovery preserves form edits, prevents overlap and restores keyboard focus", async () => {
+  const pending = deferredSignal();
+  const h = await harness({ manualTimers: true, availability: (_request, attempt) => attempt === 1
+    ? Response.json({ ok: false, error: "Synthetic unavailable" }, { status: 503 }) : pending.promise });
+  try {
+    const root = h.nodes.get("availability-root");
+    assert.ok(h.retryButton); assert.equal(h.context.document.activeElement, null, "Initial failure must not steal focus");
+    h.data.notes = "Newer unsent intake"; h.data.email = "edited@example.test";
+    const edited = { ...h.data }; const retry = h.retryButton; retry.focus();
+    const click = retry.listeners.click;
+    click({ preventDefault() {} }); await h.flush();
+    assert.equal(h.context.document.activeElement, root); assert.equal(root.getAttribute("aria-busy"), "true");
+    click({ preventDefault() {} }); await h.flush();
+    assert.equal(h.availabilityCalls, 2, "A repeated click must not overlap the active availability load");
+    assert.equal(h.requests.length, 0); assert.deepEqual(h.data, edited);
+    pending.resolve(available()); await h.flush();
+    assert.match(root.innerHTML, /data-slot-id="slot_1"/); assert.equal(root.getAttribute("aria-busy"), "false");
+    assert.equal(h.context.document.activeElement, h.buttons[0]); assert.equal(h.buttons[0].focusCalls, 1);
+    assert.equal(h.retryButton, null); assert.equal(h.activeTimers, 0); assert.deepEqual(h.data, edited);
+    assert.equal(h.saved(), null); assert.equal(h.requests.length, 0);
+  } finally { pending.resolve(available()); await h.flush(); h.dispose(); }
+});
+
+test("availability completion never steals focus after the customer moves back to the form", async () => {
+  const pending = deferredSignal();
+  const h = await harness({ manualTimers: true, availability: (_request, attempt) => attempt === 1
+    ? Response.json({ ok: false }, { status: 503 }) : pending.promise });
+  try {
+    h.retry(); await h.flush();
+    const form = h.nodes.get("booking-form"); form.focus();
+    pending.resolve(available()); await h.flush();
+    assert.equal(h.context.document.activeElement, form); assert.equal(h.buttons[0].focusCalls, 0);
+    assert.equal(h.activeTimers, 0); assert.equal(h.requests.length, 0);
+  } finally { pending.resolve(available()); await h.flush(); h.dispose(); }
+});
+
+test("a failed manual availability retry focuses the new retry control without automatic requests", async () => {
+  const h = await harness({ manualTimers: true, availability: () => Response.json({ ok: false }, { status: 503 }) });
+  try {
+    const originalRetry = h.retryButton; h.retry(); await h.flush();
+    assert.notEqual(h.retryButton, originalRetry, "The newly rendered retry control replaces the removed DOM node");
+    assert.equal(h.context.document.activeElement, h.retryButton); assert.equal(h.retryButton.focusCalls, 1);
+    h.advance(60_000); await h.flush();
+    assert.equal(h.availabilityCalls, 2); assert.equal(h.requests.length, 0); assert.equal(h.activeTimers, 0);
+  } finally { h.dispose(); }
+});
+
+for (const phase of ["request", "response body"]) test(`late availability ${phase} cannot overwrite a successful manual retry`, async () => {
+  const late = deferredSignal();
+  const h = await harness({ manualTimers: true, availability: (_request, attempt) => attempt === 1
+    ? phase === "request" ? late.promise : { ok: true, json: () => late.promise }
+    : Response.json(availablePayload({ slots: [slots[1]], reservationAmountFormatted: "$225.00" })) });
+  try {
+    h.advance(15_000); await h.flush(); h.retry(); await h.flush();
+    const root = h.nodes.get("availability-root"); const accepted = root.innerHTML;
+    assert.match(accepted, /data-slot-id="slot_2"/); assert.doesNotMatch(accepted, /data-slot-id="slot_1"/);
+    const stalePayload = availablePayload({ slots: [slots[0]], reservationAmountFormatted: "$999.00", offerVersion: 99 });
+    late.resolve(phase === "request" ? Response.json(stalePayload) : stalePayload); await h.flush();
+    assert.equal(root.innerHTML, accepted); assert.equal(h.nodes.get("reservation-amount").textContent, "$225.00");
+    assert.equal(root.getAttribute("aria-busy"), "false"); assert.equal(h.activeTimers, 0);
+    assert.equal(h.availabilityCalls, 2); assert.equal(h.requests.length, 0); assert.equal(h.saved(), null);
+  } finally { late.resolve(phase === "request" ? available() : availablePayload()); await h.flush(); h.dispose(); }
+});
+
+for (const outcome of ["uncertain", "blocked", "completed"]) test(`an old availability retry cannot modify ${outcome} checkout identity`, async () => {
+  const h = await harness({ manualTimers: true, availability: (_request, attempt) => attempt === 1
+    ? Response.json({ ok: false }, { status: 503 }) : available(),
+  checkout: () => outcome === "completed" ? successful() : outcome === "blocked"
+    ? Response.json({ ok: false, code: "checkout_recovery_expired" }, { status: 409 }) : unavailable() });
+  try {
+    const staleClick = h.retryButton.listeners.click;
+    h.retry(); await h.flush(); h.select(); await h.submit();
+    const original = h.storage.get(storageKey); const label = h.nodes.get("selected-slot-label").textContent;
+    const markup = h.nodes.get("availability-root").innerHTML;
+    staleClick({ preventDefault() {} }); await h.flush();
+    assert.equal(h.availabilityCalls, 2); assert.equal(h.requests.length, 1);
+    assert.equal(h.storage.get(storageKey), original); assert.equal(h.nodes.get("selected-slot-label").textContent, label);
+    assert.equal(h.nodes.get("availability-root").innerHTML, markup); assert.equal(h.activeTimers, 0);
+    if (outcome !== "completed") assert.ok(h.saved()?.key, "Uncertain/blocked identity remains durable");
+  } finally { h.dispose(); }
+});
+
+test("confirmed slot rejection unlocks checkout even when the availability refresh body stalls", async () => {
+  const stalledBody = deferredSignal(); const refreshStarted = deferredSignal();
+  const h = await harness({ manualTimers: true, availability: (_request, attempt) => {
+    if (attempt !== 2) return available();
+    return { ok: true, json() { refreshStarted.resolve(); return stalledBody.promise; } };
+  }, checkout: () => Response.json({ ok: false, code: "slot_unavailable", error: "That selected time is unavailable." }, { status: 409 }) });
+  h.select(); const submitted = h.submit();
+  try {
+    await waitForSignal(refreshStarted.promise, "confirmed-rejection availability refresh");
+    assert.equal(h.nodes.get("booking-submit").disabled, true); assert.equal(h.saved(), null);
+    h.data.notes = "Preserve an edit while availability refreshes";
+    h.advance(15_000); await waitForSignal(submitted, "confirmed-rejection timeout cleanup");
+    assert.equal(h.nodes.get("booking-submit").disabled, false); assert.equal(h.nodes.get("booking-submit").textContent, "Continue to Stripe");
+    assert.match(h.status(), /That selected time is unavailable/); assert.ok(h.retryButton);
+    assert.equal(h.nodes.get("selected-slot-label").textContent, "Choose a time");
+    assert.equal(h.data.notes, "Preserve an edit while availability refreshes"); assert.equal(h.activeTimers, 0);
+    await h.submit(); assert.equal(h.requests.length, 1, "A stale selected time must not start another checkout");
+    h.retry(); await h.flush(); assert.equal(h.availabilityCalls, 3); assert.equal(h.requests.length, 1);
+  } finally { stalledBody.resolve(availablePayload()); await h.flush(); await waitForSignal(submitted, "refresh teardown"); h.dispose(); }
+});
 
 for (const kind of ["network", "503", "in_progress", "checkout_recovery_paused", "malformed_ack"]) test(`${kind} retry uses the same key and exact request without clearing the selected time`, async () => {
   const h = await harness({ checkout: (_request, attempt) => {
