@@ -137,8 +137,9 @@
 }
 .split { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: start; }
 .split-form { grid-template-columns: 1.25fr 0.75fr; }
+.split-form > * { min-width: 0; }
 .split .sub { max-width: 46ch; }
-.form, .form-grid, .form input, .form select, .form textarea { min-width: 0; }
+.form, .form-grid, .form label, .form input, .form select, .form textarea { min-width: 0; }
 
 /* FAQ -------------------------------------------------------------------------------------- */
 
@@ -207,7 +208,7 @@
 .form textarea { min-height: 150px; resize: vertical; }
 .form-note { margin: 0; font-size: 0.82rem; color: var(--muted); }
 .form .check { display: flex; align-items: flex-start; gap: 12px; font-stretch: 87.5%; font-size: 0.9rem; letter-spacing: 0; text-transform: none; color: var(--text); }
-.form .check input { width: 18px; height: 18px; margin-top: 2px; accent-color: var(--gold); }
+.form .check input { width: 18px; height: 18px; flex-shrink: 0; margin-top: 2px; accent-color: var(--gold); }
 .form-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; padding-top: 6px; }
 .contact-submit-status { min-height: 1.4em; color: var(--gold-2); font-size: 0.9rem; }
 .contact-submit-status.is-error { color: #ff9b8f; }
@@ -215,7 +216,7 @@
 
 .contact-aside { display: grid; gap: 12px; align-content: start; }
 .contact-aside .card { gap: 8px; }
-.contact-aside a { color: #fff; font-size: 1.05rem; }
+.contact-aside a { color: #fff; font-size: 1.05rem; overflow-wrap: anywhere; }
 .contact-aside a:hover { color: var(--gold-2); }
 
 /* CTA band ---------------------------------------------------------------------------------- */

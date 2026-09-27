@@ -4,6 +4,11 @@
 
   const submitButton = form.querySelector("[data-contact-submit]");
   const statusNode = document.getElementById("contact-submit-status");
+  const pendingAttempts = new Map();
+  const trackedInquiries = new Set();
+  const requestTimeoutMs = 15000;
+  const uncertainMessage = "We couldn't confirm receipt. Your message is still here. Keep it unchanged and choose Send inquiry to retry.";
+  let inFlight = false;
 
   function createIdempotencyKey() {
     if (globalThis.crypto?.randomUUID) {
@@ -27,24 +32,8 @@
     statusNode.className = "contact-submit-status";
   }
 
-  async function readPayload(response) {
-    const text = await response.text();
-    if (!text) return {};
-
-    try {
-      return JSON.parse(text);
-    } catch (error) {
-      return { ok: false, error: text.slice(0, 240) };
-    }
-  }
-
-  function buildPayload() {
+  function readFormFields() {
     const formData = new FormData(form);
-    const fallbackSourcePage = formData.get("sourcePage") || "/contact/";
-    const sourcePage =
-      globalThis.AicAdsTracking?.attributionSourcePage?.(fallbackSourcePage) ||
-      fallbackSourcePage;
-
     return {
       name: formData.get("name"),
       email: formData.get("email"),
@@ -52,57 +41,116 @@
       company: formData.get("company"),
       audience: formData.get("audience"),
       message: formData.get("message"),
-      sourcePage,
       websiteLeaveBlank: formData.get("websiteLeaveBlank"),
       consentToSubmit: formData.get("consentToSubmit") === "on"
     };
   }
 
+  function getAttempt(fields, signature) {
+    if (pendingAttempts.has(signature)) return pendingAttempts.get(signature);
+    const fallbackSourcePage = new FormData(form).get("sourcePage") || "/contact/";
+    let sourcePage = fallbackSourcePage;
+    try {
+      sourcePage = globalThis.AicAdsTracking?.attributionSourcePage?.(fallbackSourcePage) || fallbackSourcePage;
+    } catch (_) {
+      // Attribution is optional and cannot prevent the enquiry from being sent.
+    }
+    const payload = { ...fields, sourcePage };
+    const attempt = { key: createIdempotencyKey(), body: JSON.stringify(payload), payload };
+    // Keep uncertain requests in this page only, including when the user edits then reverts.
+    pendingAttempts.set(signature, attempt);
+    return attempt;
+  }
+
+  async function sendAttempt(attempt) {
+    const controller = new AbortController();
+    let timer;
+    const deadline = new Promise((_, reject) => {
+      timer = setTimeout(() => {
+        reject(new Error(uncertainMessage));
+        controller.abort();
+      }, requestTimeoutMs);
+    });
+    try {
+      return await Promise.race([
+        (async () => {
+          const response = await fetch("/api/contact/submit", {
+            method: "POST",
+            headers: {
+              accept: "application/json",
+              "content-type": "application/json",
+              "idempotency-key": attempt.key
+            },
+            body: attempt.body,
+            signal: controller.signal
+          });
+          const result = JSON.parse(await response.text());
+          if (!response.ok || result?.ok !== true) {
+            if (result?.ok === false && typeof result.error === "string" && result.error.trim()) {
+              return { error: result.error };
+            }
+            throw new Error(uncertainMessage);
+          }
+          if (typeof result.inquiry?.id !== "string" || !result.inquiry.id.trim()) {
+            throw new Error(uncertainMessage);
+          }
+          return { inquiryId: result.inquiry.id };
+        })(),
+        deadline
+      ]);
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
+  function bestEffort(callback) {
+    try {
+      Promise.resolve(callback()).catch(() => {});
+    } catch (_) {
+      // Analytics must never change a confirmed submission outcome.
+    }
+  }
+
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
+    if (inFlight) return;
     clearStatus();
 
     if (!form.reportValidity()) return;
 
-    const idempotencyKey = createIdempotencyKey();
-    const payload = buildPayload();
-
+    inFlight = true;
     submitButton.disabled = true;
     submitButton.textContent = "Sending...";
 
     try {
-      const response = await fetch("/api/contact/submit", {
-        method: "POST",
-        headers: {
-          accept: "application/json",
-          "content-type": "application/json",
-          "idempotency-key": idempotencyKey
-        },
-        body: JSON.stringify(payload)
-      });
-      const result = await readPayload(response);
-
-      if (!response.ok || result.ok === false) {
-        throw new Error(result.error || "The inquiry could not be sent.");
+      const fields = readFormFields();
+      const signature = JSON.stringify(fields);
+      const attempt = getAttempt(fields, signature);
+      const result = await sendAttempt(attempt);
+      if (result.error) {
+        setStatus(result.error, "error");
+        return;
       }
 
-      setStatus("Inquiry received. AIssisted Consulting will reply directly.", "success");
-      globalThis.aissistedAxon?.trackGenerateLead({
-        currency: "USD",
-        value: 25
-      });
-      if (globalThis.AicAdsTracking) {
-        globalThis.AicAdsTracking.emit("aic_contact_submit", {
+      pendingAttempts.delete(signature);
+      const fieldsUnchanged = JSON.stringify(readFormFields()) === signature;
+      if (fieldsUnchanged) form.reset();
+      setStatus(fieldsUnchanged
+        ? "Inquiry received. AIssisted Consulting will reply directly."
+        : "Inquiry received. Your newer edits are still here and have not been sent.", "success");
+      if (!trackedInquiries.has(result.inquiryId)) {
+        trackedInquiries.add(result.inquiryId);
+        bestEffort(() => globalThis.aissistedAxon?.trackGenerateLead?.({ currency: "USD", value: 25 }));
+        bestEffort(() => globalThis.AicAdsTracking?.emit?.("aic_contact_submit", {
           channel: "website_contact",
           creative_angle: "local_ai_implementation",
-          inquiry_topic: payload.audience || "not_selected"
-        });
+          inquiry_topic: attempt.payload.audience || "not_selected"
+        }));
       }
-      form.reset();
-    } catch (error) {
-      const message = error instanceof Error ? error.message : "The inquiry could not be sent.";
-      setStatus(message, "error");
+    } catch (_) {
+      setStatus(uncertainMessage, "error");
     } finally {
+      inFlight = false;
       submitButton.disabled = false;
       submitButton.textContent = "Send inquiry";
     }
