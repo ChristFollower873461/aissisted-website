@@ -52,6 +52,9 @@ async function submitForm(formType, attributionMode, campaignQuery = CAMPAIGN_QU
   const fitForm = createNode();
   const fitStatus = createNode();
   const fitButton = createNode();
+  let fitResetCount = 0;
+  fitForm.reportValidity = () => true;
+  fitForm.reset = () => { fitResetCount += 1; };
   fitForm.querySelector = (selector) => selector === "[data-fit-call-status]" ? fitStatus : fitButton;
   const document = {
     title: "Synthetic booking test",
@@ -79,7 +82,10 @@ async function submitForm(formType, attributionMode, campaignQuery = CAMPAIGN_QU
     AbortController,
     setTimeout,
     clearTimeout,
-    FormData: class { get(key) { return FORM_VALUES[key] ?? ""; } },
+    FormData: class {
+      constructor() { this.values = { ...FORM_VALUES }; }
+      get(key) { return this.values[key] ?? ""; }
+    },
     CustomEvent: class { constructor(type, options) { this.type = type; this.detail = options.detail; } },
     dispatchEvent() {},
     async fetch(url, options) {
@@ -98,7 +104,12 @@ async function submitForm(formType, attributionMode, campaignQuery = CAMPAIGN_QU
       }
       assert.equal(url, formType === "checkout" ? "/api/book/create-checkout" : "/api/book/fit-call");
       requests.push(JSON.parse(options.body));
-      return Response.json({ ok: true, checkoutUrl: "https://example.invalid/synthetic-checkout" });
+      return Response.json(formType === "checkout"
+        ? { ok: true, checkoutUrl: "https://example.invalid/synthetic-checkout" }
+        : {
+          ok: true, inquiryId: "contact_synthetic_fit", status: "pending_manual_review",
+          durationMinutes: 15, weeklyCapacity: 2, scheduled: false, paymentRequired: false
+        });
     }
   });
   context.window = context;
@@ -126,6 +137,11 @@ async function submitForm(formType, attributionMode, campaignQuery = CAMPAIGN_QU
   const form = formType === "checkout" ? nodes.get("booking-form") : fitForm;
   await form.listeners.submit({ preventDefault() {} });
   assert.equal(requests.length, 1, "the browser form must submit exactly one request");
+  if (formType === "fit-call") {
+    assert.equal(fitResetCount, 1, "the actual Fit Call receipt is accepted before resetting");
+    assert.match(fitStatus.textContent, /^Request received\./);
+    assert.equal(fitButton.disabled, false);
+  }
   return requests[0];
 }
 
