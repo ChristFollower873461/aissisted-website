@@ -38,8 +38,9 @@ async function flush() {
   for (let i = 0; i < 24; i += 1) await Promise.resolve();
 }
 
-function harness(transport, { axonThrows = false, adsThrows = false } = {}) {
+function harness(transport, { axonThrows = false, adsThrows = false, search = "", initialAudience = initialValues.audience } = {}) {
   const values = new Map(Object.entries(initialValues));
+  values.set("audience", initialAudience);
   const status = { className: "contact-submit-status", textContent: "" };
   status.classList = {
     add: (...names) => { status.className = [...new Set([...status.className.split(/\s+/), ...names])].join(" "); }
@@ -55,8 +56,12 @@ function harness(transport, { axonThrows = false, adsThrows = false } = {}) {
   let storageCalls = 0;
   let listener;
   let sourcePage = "/services/?utm_source=synthetic&utm_campaign=first";
+  const audience = {
+    get value() { return values.get("audience"); },
+    set value(value) { values.set("audience", value); }
+  };
   const form = {
-    querySelector: () => button,
+    querySelector: (selector) => selector === 'select[name="audience"]' ? audience : button,
     addEventListener: (name, callback) => { if (name === "submit") listener = callback; },
     reportValidity: () => true,
     reset: () => { resetCount += 1; values.clear(); }
@@ -71,7 +76,8 @@ function harness(transport, { axonThrows = false, adsThrows = false } = {}) {
       getElementById: () => status
     },
     FormData: class { get(name) { return values.get(name) ?? ""; } },
-    Error, AbortController,
+    Error, AbortController, URLSearchParams,
+    location: { search },
     crypto: { randomUUID: () => `00000000-0000-4000-8000-${String(++uuid).padStart(12, "0")}` },
     localStorage: storage, sessionStorage: storage,
     setTimeout: (callback, delay) => {
@@ -112,6 +118,33 @@ function harness(transport, { axonThrows = false, adsThrows = false } = {}) {
     }
   };
 }
+
+test("contact Build link presets its supported topic and submits the visitor's later choice", async () => {
+  const services = await readFile(new URL("../services/index.html", import.meta.url), "utf8");
+  const buildLane = services.match(/<a class="lane" href="([^"]+)">\s*<span class="num">02<\/span>\s*<h3>Build something new<\/h3>/);
+  assert.ok(buildLane, "the Services Build lane must remain an actual navigable link");
+  const destination = new URL(buildLane[1], "https://aissistedconsulting.com/services/");
+  assert.equal(destination.pathname, "/contact/");
+  assert.equal(destination.searchParams.get("topic"), "custom_development");
+  const run = harness(() => response(receipt()), { search: destination.search, initialAudience: "small_business_workflow" });
+  assert.equal(run.values.get("audience"), "custom_development");
+  run.values.set("audience", "individual_software_build");
+  await run.submit();
+  assert.equal(JSON.parse(run.requests[0].body).audience, "individual_software_build");
+  assert.equal(run.storageCalls, 0);
+});
+
+test("contact topic preset uses exact supported values without overriding restored input", () => {
+  for (const search of ["", "?topic=", "?topic=other", "?topic=CUSTOM_DEVELOPMENT", "?topic=custom_development_extra"]) {
+    const run = harness(() => response(receipt()), { search, initialAudience: "small_business_workflow" });
+    assert.equal(run.values.get("audience"), "small_business_workflow", search);
+  }
+  const preset = harness(() => response(receipt()), { search: "?topic=custom_development", initialAudience: "small_business_workflow" });
+  assert.equal(preset.values.get("audience"), "custom_development");
+  const restored = harness(() => response(receipt()), { search: "?topic=custom_development", initialAudience: "family_ai_question" });
+  assert.equal(restored.values.get("audience"), "family_ai_question");
+  assert.equal(restored.storageCalls, 0);
+});
 
 function confirmed(run, resets = 1) {
   assert.match(run.status.className, /\bis-visible\b/);

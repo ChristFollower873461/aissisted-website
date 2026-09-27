@@ -2,6 +2,12 @@
   const form = document.querySelector("[data-contact-form]");
   if (!form) return;
 
+  const topicField = form.querySelector('select[name="audience"]');
+  if (topicField?.value === "small_business_workflow"
+      && new URLSearchParams(globalThis.location?.search || "").get("topic") === "custom_development") {
+    topicField.value = "custom_development";
+  }
+
   const submitButton = form.querySelector("[data-contact-submit]");
   const statusNode = document.getElementById("contact-submit-status");
   const pendingAttempts = new Map();
