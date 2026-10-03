@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
+import { fileURLToPath } from "node:url";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 
@@ -42,7 +43,7 @@ import {
   validateReleaseParity
 } from "../scripts/public-truth.mjs";
 
-const root = path.resolve(new URL("..", import.meta.url).pathname);
+const root = fileURLToPath(new URL("..", import.meta.url));
 const manifest = JSON.parse(readFileSync(path.join(root, "config/public-truth/manifest.v2.json"), "utf8"));
 const v2Terms = JSON.parse(readFileSync(path.join(root, "config/booking/terms/workflow-map-v2.json"), "utf8"));
 const measurementContract = JSON.parse(
