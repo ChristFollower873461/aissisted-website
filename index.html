@@ -26,6 +26,7 @@
     <link rel="preload" href="assets/fonts/martian-mono-var.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="assets/site/site.css?v=20260907">
     <link rel="stylesheet" href="assets/site/home.css?v=20260907">
+    <link rel="stylesheet" href="assets/site/council.css?v=20261003">
     <script type="application/ld+json">
     {
           "@context": "https://schema.org",
@@ -287,16 +288,39 @@
             <a href="./privacy/">Privacy policy</a>
           </div>
         </div>
-        <div class="footer-bottom">
+        <div class="footer-bottom council-footer-row">
           <p>&copy; <span data-year>2026</span> AIssisted Consulting. Ocala, FL.</p>
-          <p>Local. Trusted. AI.</p>
+          <p class="council-footer-note">Local. Trusted. AI.
+            <a class="council-paw" data-council-open href="https://play.dripcouncil.org/" aria-label="Discover the Drip Council">
+              <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" focusable="false">
+                <ellipse cx="7" cy="12" rx="3.2" ry="4.3" transform="rotate(-24 7 12)"/>
+                <ellipse cx="13" cy="7" rx="3.1" ry="4.2" transform="rotate(-8 13 7)"/>
+                <ellipse cx="21" cy="7.5" rx="3.1" ry="4.2" transform="rotate(12 21 7.5)"/>
+                <ellipse cx="26" cy="13" rx="3" ry="4" transform="rotate(28 26 13)"/>
+                <path d="M8.2 23.1c0-3.2 4.6-10.2 8.1-10.2s8.1 7 8.1 10.2c0 2.9-2.1 4.2-4.5 4.2-1.5 0-2.4-.8-3.6-.8s-2.1.8-3.6.8c-2.4 0-4.5-1.3-4.5-4.2Z"/>
+              </svg>
+            </a>
+          </p>
         </div>
       </div>
     </footer>
+
+    <dialog class="council-dialog" id="council-dialog" aria-labelledby="council-title" aria-describedby="council-description">
+      <div class="council-dialog-content">
+        <p class="council-eyebrow">Drip Council</p>
+        <h2 id="council-title">You found the Council.</h2>
+        <p id="council-description">Your ship is waiting.</p>
+        <div class="council-actions">
+          <a class="council-sail" href="https://play.dripcouncil.org/" autofocus>Set sail <span aria-hidden="true">→</span></a>
+          <button class="council-close" type="button" data-council-close>Back to AIssisted</button>
+        </div>
+      </div>
+    </dialog>
 
     <script src="main.js?v=20260718"></script>
     <script src="assets/aic-google-ads-tracking.js?v=20260817"></script>
     <script src="assets/site/site.js?v=20260907"></script>
     <script src="assets/site/home.js?v=20260907"></script>
+    <script src="assets/site/council.js?v=20261003"></script>
   </body>
 </html>
