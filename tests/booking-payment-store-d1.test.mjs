@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test as nodeTest } from "node:test";
-import { Miniflare, Log, LogLevel } from "miniflare";
+import { Miniflare, Log, LogLevel, convertV4MiniflareOptions } from "miniflare";
 import { createBookingPaymentStore } from "../functions/api/_lib/booking-payment-store.js";
 import { getBookingStore } from "../functions/api/_lib/storage.js";
 import { sealBookingEvent } from "../functions/api/_lib/booking-events.js";
@@ -9,12 +9,13 @@ import { migrateBookingD1 } from "./helpers/booking-payments/migrations.mjs";
 const vector = JSON.parse(readFileSync(new URL("./fixtures/booking-event-v1.json", import.meta.url), "utf8"));
 // Execute the actual store against all checked-in migrations on isolated D1.
 // No ambient platform configuration, customer data or outbound requests are used.
+// Miniflare v5 keeps D1 ephemeral when resourcePersistencePath is omitted.
 nodeTest("booking payment store transactions on local Cloudflare D1", { timeout: 60_000 }, async (t) => {
   let outboundRequests = 0;
-  const mf = new Miniflare({ modules: true, script: 'export default { fetch(){return new Response("Synthetic local D1 only");} };', compatibilityDate: "2026-05-18", host: "127.0.0.1", port: 0, cf: false, d1Persist: false, log: new Log(LogLevel.ERROR), d1Databases: { DB: "synthetic-booking-store-tests" }, outboundService() {
+  const mf = new Miniflare(convertV4MiniflareOptions({ modules: true, script: 'export default { fetch(){return new Response("Synthetic local D1 only");} };', compatibilityDate: "2026-05-18", host: "127.0.0.1", port: 0, cf: false, log: new Log(LogLevel.ERROR), d1Databases: { DB: "synthetic-booking-store-tests" }, outboundService() {
     outboundRequests++;
     throw new Error("External requests forbidden in booking store tests");
-  } });
+  } }));
   const at = "2026-09-05T17:00:00.000Z";
   const plus = (seconds) => new Date(Date.parse(at) + seconds * 1e3).toISOString();
   const scope = { sourceEnvironment: "staging", providerAccountId: "acct_synthetic", livemode: false };
