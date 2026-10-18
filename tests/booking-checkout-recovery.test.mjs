@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { Miniflare, Log, LogLevel } from 'miniflare';
+import { Miniflare, Log, LogLevel, convertV4MiniflareOptions } from 'miniflare';
 import { migrateBookingD1 } from './helpers/booking-payments/migrations.mjs';
 import { onRequest as checkout, normalizeCheckoutPayload } from '../functions/api/book/create-checkout.js';
 import { onRequest as availability } from '../functions/api/book/availability.js';
@@ -14,7 +14,8 @@ import { createRequestFingerprint } from '../functions/api/_lib/transaction-safe
 
 const origin = 'https://website.example.test';
 async function fixture(t) {
-  const mf = new Miniflare({ modules:true, script:'export default {fetch(){return new Response("local synthetic database");}}', compatibilityDate:'2026-05-18', host:'127.0.0.1', port:0, cf:false, d1Persist:false, log:new Log(LogLevel.ERROR), d1Databases:{DB:'synthetic-checkout-recovery'}, outboundService(){throw new Error('No outbound runtime requests');} });
+  // Miniflare v5 keeps D1 ephemeral when resourcePersistencePath is omitted.
+  const mf = new Miniflare(convertV4MiniflareOptions({ modules:true, script:'export default {fetch(){return new Response("local synthetic database");}}', compatibilityDate:'2026-05-18', host:'127.0.0.1', port:0, cf:false, log:new Log(LogLevel.ERROR), d1Databases:{DB:'synthetic-checkout-recovery'}, outboundService(){throw new Error('No outbound runtime requests');} }));
   t.after(()=>mf.dispose());
   const db=await mf.getD1Database('DB');await migrateBookingD1(db);
   const faults={attach:0,reads:0,providerReply:0,checkpointReply:0,prepare:0,commandRead:0,legacyFingerprint:null};
