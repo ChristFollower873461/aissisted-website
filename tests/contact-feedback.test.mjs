@@ -134,16 +134,41 @@ test("contact Build link presets its supported topic and submits the visitor's l
   assert.equal(run.storageCalls, 0);
 });
 
+test("both privacy setup links preset the existing privacy topic and preserve the visitor's later choice", async () => {
+  const privacy = await readFile(new URL("../privacy-and-control/index.html", import.meta.url), "utf8");
+  const contact = await readFile(new URL("../contact/index.html", import.meta.url), "utf8");
+  assert.match(contact, /<option value="privacy_and_control">Private data or local AI<\/option>/);
+  const setupLinks = [...privacy.matchAll(/<a\b[^>]*href="([^"]+)"[^>]*>Talk through your setup<\/a>/g)];
+  assert.equal(setupLinks.length, 2, "both privacy setup calls to action must remain navigable links");
+  for (const [, href] of setupLinks) {
+    const destination = new URL(href, "https://aissistedconsulting.com/privacy-and-control/");
+    assert.equal(destination.pathname, "/contact/");
+    assert.equal(destination.searchParams.get("topic"), "privacy_and_control");
+    const run = harness(() => response(receipt()), { search: destination.search, initialAudience: "small_business_workflow" });
+    assert.equal(run.values.get("audience"), "privacy_and_control");
+    run.values.set("audience", "family_ai_question");
+    await run.submit();
+    assert.equal(JSON.parse(run.requests[0].body).audience, "family_ai_question");
+    assert.equal(run.storageCalls, 0);
+  }
+});
+
 test("contact topic preset uses exact supported values without overriding restored input", () => {
-  for (const search of ["", "?topic=", "?topic=other", "?topic=CUSTOM_DEVELOPMENT", "?topic=custom_development_extra"]) {
+  for (const search of [
+    "", "?topic=", "?topic=other", "?topic=CUSTOM_DEVELOPMENT", "?topic=custom_development_extra",
+    "?topic=PRIVACY_AND_CONTROL", "?topic=privacy_and_control_extra", "?topic=privacy",
+    "?topic=%20privacy_and_control", "?topic=privacy_and_control%20"
+  ]) {
     const run = harness(() => response(receipt()), { search, initialAudience: "small_business_workflow" });
     assert.equal(run.values.get("audience"), "small_business_workflow", search);
   }
-  const preset = harness(() => response(receipt()), { search: "?topic=custom_development", initialAudience: "small_business_workflow" });
-  assert.equal(preset.values.get("audience"), "custom_development");
-  const restored = harness(() => response(receipt()), { search: "?topic=custom_development", initialAudience: "family_ai_question" });
-  assert.equal(restored.values.get("audience"), "family_ai_question");
-  assert.equal(restored.storageCalls, 0);
+  for (const topic of ["custom_development", "privacy_and_control"]) {
+    const preset = harness(() => response(receipt()), { search: `?topic=${topic}`, initialAudience: "small_business_workflow" });
+    assert.equal(preset.values.get("audience"), topic);
+    const restored = harness(() => response(receipt()), { search: `?topic=${topic}`, initialAudience: "family_ai_question" });
+    assert.equal(restored.values.get("audience"), "family_ai_question");
+    assert.equal(restored.storageCalls, 0);
+  }
 });
 
 function confirmed(run, resets = 1) {

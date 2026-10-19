@@ -3,9 +3,11 @@
   if (!form) return;
 
   const topicField = form.querySelector('select[name="audience"]');
+  const topicPreset = new URLSearchParams(globalThis.location?.search || "").get("topic");
+  const supportedTopicPresets = new Set(["custom_development", "privacy_and_control"]);
   if (topicField?.value === "small_business_workflow"
-      && new URLSearchParams(globalThis.location?.search || "").get("topic") === "custom_development") {
-    topicField.value = "custom_development";
+      && supportedTopicPresets.has(topicPreset)) {
+    topicField.value = topicPreset;
   }
 
   const submitButton = form.querySelector("[data-contact-submit]");
