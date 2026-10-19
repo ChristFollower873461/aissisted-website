@@ -66,12 +66,18 @@ function loadContactHarness(source, response) {
     ["websiteLeaveBlank", ""],
     ["consentToSubmit", "on"]
   ]);
+  const topicField = {
+    get value() { return formValues.get("audience"); },
+    set value(value) { formValues.set("audience", value); }
+  };
   const form = {
     addEventListener(name, callback) {
       if (name === "submit") submitListener = callback;
     },
-    querySelector() {
-      return submitButton;
+    querySelector(selector) {
+      if (selector === 'select[name="audience"]') return topicField;
+      if (selector === "[data-contact-submit]") return submitButton;
+      return null;
     },
     reportValidity() {
       return true;
@@ -89,6 +95,8 @@ function loadContactHarness(source, response) {
     Date,
     Error,
     AbortController,
+    URLSearchParams,
+    location: new URL("https://aissistedconsulting.com/contact/"),
     setTimeout,
     clearTimeout,
     FormData: FakeFormData,
