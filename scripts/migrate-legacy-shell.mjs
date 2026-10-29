@@ -94,7 +94,7 @@ function shell(base, route) {
             <h3>Products</h3>
             <a href="${base}grail/">Grail</a>
             <a href="${base}brightway/">BrightWay</a>
-            <a href="${base}unrealtor/">UnRealtor</a>
+            <a href="https://apps.apple.com/us/app/unrealtor/id6762566315">UnRealtor</a>
             <a href="${base}terms/">Terms</a>
             <a href="${base}privacy/">Privacy policy</a>
           </div>

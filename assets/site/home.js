@@ -1,4 +1,5 @@
-/* Homepage behaviour: the terminal replay. Header, menu, reveals and the hero scene live in site.js. */
+/* Homepage behaviour: the terminal replay and the AI Guy clips. Header, menu, reveals and the hero
+   scene live in site.js. */
 (function () {
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -74,5 +75,56 @@
     observer.observe(terminal);
   }
 
+  // AI Guy clips: muted loops that load and play only while on screen. Tap a clip for its sound;
+  // one clip has sound at a time. Reduced motion or Save-Data: nothing plays until tapped.
+  function initAiGuy() {
+    const band = document.querySelector("[data-aiguy]");
+    if (!band) return;
+    const clips = Array.from(band.querySelectorAll("video"));
+    const buttons = Array.from(band.querySelectorAll("[data-aiguy-sound]"));
+    const saveData = Boolean(navigator.connection && navigator.connection.saveData);
+    const autoplay = !reducedMotion && !saveData;
+
+    const start = (video) => {
+      if (!video.getAttribute("src") && video.dataset.src) video.src = video.dataset.src;
+      const playing = video.play();
+      if (playing && playing.catch) playing.catch(() => {});
+    };
+    const setSound = (video, on) => {
+      video.muted = !on;
+      const button = buttons[clips.indexOf(video)];
+      if (button) button.setAttribute("aria-pressed", on ? "true" : "false");
+    };
+    const toggle = (video) => {
+      const on = video.muted || video.paused;
+      clips.forEach((other) => {
+        if (other !== video) setSound(other, false);
+      });
+      setSound(video, on);
+      if (on) start(video);
+      else if (!autoplay) video.pause();
+    };
+
+    clips.forEach((video, i) => {
+      video.addEventListener("click", () => toggle(video));
+      if (buttons[i]) buttons[i].addEventListener("click", () => toggle(video));
+    });
+
+    // Leaving the screen always pauses and mutes, even for a clip started by hand.
+    if (!("IntersectionObserver" in window)) return;
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          if (autoplay) start(entry.target);
+        } else {
+          setSound(entry.target, false);
+          entry.target.pause();
+        }
+      });
+    }, { threshold: 0.5 });
+    clips.forEach((video) => observer.observe(video));
+  }
+
   initTerminal();
+  initAiGuy();
 }());
