@@ -7,8 +7,11 @@
 /workflow-automation /workflow-automation/ 301
 /guides/workflow-automation-with-control /workflow-automation/ 301
 /guides/workflow-automation-with-control/ /workflow-automation/ 301
-/guides/public-evidence-aissisted-consulting-blog /blog/ 301
-/guides/public-evidence-aissisted-consulting-blog/ /blog/ 301
+/guides/public-evidence-aissisted-consulting-blog / 301
+/guides/public-evidence-aissisted-consulting-blog/ / 301
+/blog / 301
+/blog/ / 301
+/blog/* / 301
 /guides/public-evidence-contact-aissisted-consulting /contact/ 301
 /guides/public-evidence-contact-aissisted-consulting/ /contact/ 301
 /services /services/ 301
