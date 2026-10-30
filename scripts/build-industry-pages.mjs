@@ -260,7 +260,6 @@ ${t.steps.map(([h, p]) => `            <li>
             <h3>Company</h3>
             <a href="${base}about/">About</a>
             <a href="${base}privacy-and-control/">Privacy &amp; control</a>
-            <a href="${base}blog/">Blog</a>
             <a href="${base}book/">Book</a>
             <a href="${base}contact/">Contact</a>
           </div>

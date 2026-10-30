@@ -25,7 +25,6 @@ const headerHTML=`<nav id="nav">
 <a href="${routes.compare}">Compare</a>
 <a href="${routes.about}">About</a>
 <a href="${routes.caseStudies}">Case Studies</a>
-<a href="${routes.blog}">Blog</a>
 <a href="${routes.book}" class="btn nav-reserve" style="background:transparent;border:2px solid var(--gold-mid);color:var(--gold-mid);padding:10px 20px;font-size:.85rem">Book the $225 Plan</a>
 <a href="${routes.contact}" class="btn btn-primary nav-cta">Contact AIssisted Consulting</a>
 </div>

@@ -181,7 +181,8 @@ const measurementConfig = () => getBookingConfig({
 
 test("booking attribution preserves every emitted public CTA pair through browser and server", async (t) => {
   const pairs = publicBookingPairs();
-  assert.ok(pairs.length >= 31, "inventory includes the known public CTA surface");
+  // 30 since the old blog and its blog/blog_nav_paid_plan button were retired on 2026-10-29.
+  assert.ok(pairs.length >= 30, "inventory includes the known public CTA surface");
   for (const pair of [...pairs, { entryRoute: "book", ctaId: "book_direct" }, { entryRoute: "other", ctaId: "other" }]) {
     await t.test(`${pair.entryRoute}/${pair.ctaId}`, async () => {
       const query = new URLSearchParams({ entry_route: pair.entryRoute, cta_id: pair.ctaId }).toString();

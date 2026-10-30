@@ -26,7 +26,6 @@ const footerHTML=`<footer>
 <a href="${routes.pricing}">Pricing</a>
 <a href="${routes.about}">About</a>
 <a href="${routes.caseStudies}">Case Studies</a>
-<a href="${routes.blog}">Blog</a>
 </div>
 <div class="footer-col">
 <h4>Resources</h4>
