@@ -176,6 +176,11 @@ export async function createCheckoutSession(config, booking, prospect, options =
   return session;
 }
 
+// One-time payment Session from already-built params (used by the book store).
+export async function createPaymentCheckoutSession(config, params) {
+  return stripeRequest(config, "/checkout/sessions", { body: asFormUrlEncoded(params) });
+}
+
 export async function retrieveCheckoutSession(config, sessionId, options = {}) {
   const expand = options.expandContract === true
     ? "?expand[]=line_items.data.price.product"

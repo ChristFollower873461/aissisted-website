@@ -28,6 +28,20 @@ const OTHER_RESOURCE_KEYS = [
   "kv_namespaces", "r2_buckets", "services", "analytics_engine_datasets",
   "ai", "vectorize", "hyperdrive", "durable_objects", "queues", "browser"
 ];
+// Reviewed 2026-11-01: the private book-download bucket, production slot of
+// wrangler.toml only. R2 bindings do not inherit into env.preview, so preview
+// deployments get no files and the store download route returns 503 there.
+export const REVIEWED_PRODUCTION_R2 = Object.freeze([
+  Object.freeze({ binding: "BOOK_FILES", bucket_name: "aic-store-private" })
+]);
+
+function isReviewedProductionR2(value) {
+  return Array.isArray(value) && value.length === REVIEWED_PRODUCTION_R2.length
+    && value.every((entry, index) => entry && typeof entry === "object"
+      && Object.keys(entry).length === 2
+      && entry.binding === REVIEWED_PRODUCTION_R2[index].binding
+      && entry.bucket_name === REVIEWED_PRODUCTION_R2[index].bucket_name);
+}
 
 export async function readPagesConfigs(root = fileURLToPath(new URL("../", import.meta.url))) {
   const entries = await Promise.all(["wrangler.toml", "wrangler.preview.toml"].map(async (file) => [
@@ -68,9 +82,13 @@ export function validatePagesPreviewIsolation(configs) {
       requireValue(db[0].remote !== true, `${label}: local D1 must not opt into remote access`);
     }
     for (const key of OTHER_RESOURCE_KEYS) {
-      requireValue(!Object.hasOwn(top, key) && !Object.hasOwn(slot, key), `${label}: resource ${key} needs an explicit isolation review`);
+      const reviewedTop = key === "r2_buckets" && slot !== top && reviewedR2Top === top
+        && isReviewedProductionR2(top[key]);
+      requireValue((reviewedTop || !Object.hasOwn(top, key)) && !Object.hasOwn(slot, key), `${label}: resource ${key} needs an explicit isolation review`);
     }
   }
+  // Only the main project's production slot may carry the reviewed R2 binding.
+  const reviewedR2Top = configs["wrangler.toml"];
   for (const [file, projectName, dedicated] of [
     ["wrangler.toml", "aissisted-website", false],
     ["wrangler.preview.toml", "aissisted-offer-v2-preview", true]
