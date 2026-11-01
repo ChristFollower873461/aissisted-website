@@ -6,16 +6,26 @@ PDF, EPUB and the toolkit zip (10 templates as Word and Markdown).
 ## Flow
 
 1. The buy button POSTs `/api/store/checkout`. The function creates a Stripe Checkout
-   Session (`mode=payment`, inline `price_data` 2900 usd, no pre-created Product or
-   Price) with `metadata[store_product]=sell_them_a_hammer_digital_v1`. Success returns to
+   Session (`mode=payment`, `payment_method_types[0]=card`, inline `price_data` 2900 usd,
+   no pre-created Product or Price) with `metadata[store_product]=sell_them_a_hammer_digital_v1`. Success returns to
    `/sell-them-a-hammer/thanks/?session_id={CHECKOUT_SESSION_ID}`; cancel returns to the page.
 2. The thanks page calls `GET /api/store/session?session_id=...`, which retrieves the
    Session from Stripe and lists the three files when it is paid.
 3. Each link is `GET /api/store/download?session_id=...&file=pdf|epub|toolkit`. The function
-   retrieves the Session again and requires all of: matching id, `status=complete`,
-   `payment_status=paid`, our `store_product` metadata, `livemode` equal to
-   `STRIPE_EXPECTED_LIVEMODE`, and Session creation within the last 30 days. It then
+   retrieves the Session again (with `expand[]=payment_intent.latest_charge`) and requires
+   all of: matching id, `status=complete`, `payment_status=paid`, our `store_product`
+   metadata, `livemode` equal to `STRIPE_EXPECTED_LIVEMODE`, Session creation within the
+   last 30 days, and an expanded charge that is not refunded. It then
    streams the object from the private R2 binding with `Content-Disposition: attachment`.
+
+Card only: Apple Pay and Google Pay are card wallets, so they still appear where Stripe
+offers them. Bank debits and other delayed methods are off, so a completed Checkout is
+always already paid when the buyer reaches the thanks page.
+
+Refunds end access. Stripe leaves `payment_status=paid` on a refunded Session, so the check
+reads the charge: `refunded=true` or any `amount_refunded > 0` (a partial refund too) gives
+403 "This order was refunded." If the charge is missing or not expanded, access is denied
+(fail closed, code `unverified_charge`).
 
 Unknown or malformed sessions get 404, unpaid or wrong-product or expired sessions get
 403, an unknown `file` value gets 400, and a missing binding or object gets 503. Each
@@ -58,6 +68,6 @@ npx wrangler r2 object put "aic-store-private/sell-them-a-hammer/v1/Sell-Them-a-
 ## Tests
 
 `tests/book-store.test.mjs` covers checkout parameters, origin and kill-switch handling,
-paid downloads, unpaid, wrong product, wrong mode, expiry, unknown and malformed sessions,
+card-only, paid downloads, full and partial refunds, missing charge, unpaid, wrong product, wrong mode, expiry, unknown and malformed sessions,
 the file whitelist, missing storage, and the R2 isolation gate. Stripe is mocked through
 `globalThis.fetch`, as in the booking tests.

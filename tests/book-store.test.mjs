@@ -49,8 +49,19 @@ function paidSession(overrides = {}) {
     amount_total: 2900,
     currency: "usd",
     metadata: { store_product: STORE_PRODUCT_ID },
+    payment_intent: {
+      id: "pi_test_1",
+      object: "payment_intent",
+      latest_charge: { id: "ch_test_1", object: "charge", paid: true, refunded: false, amount_refunded: 0 }
+    },
     ...overrides
   };
+}
+
+function withCharge(charge) {
+  const session = paidSession();
+  session.payment_intent.latest_charge = { ...session.payment_intent.latest_charge, ...charge };
+  return session;
 }
 
 function mockStripe(t, handler) {
@@ -89,6 +100,8 @@ test("checkout creates a one-time $29 Session with inline price data and product
   assert.equal(calls[0].options.method, "POST");
   const body = new URLSearchParams(calls[0].options.body);
   assert.equal(body.get("mode"), "payment");
+  assert.equal(body.get("payment_method_types[0]"), "card");
+  assert.equal(body.get("payment_method_types[1]"), null, "card only");
   assert.equal(body.get("line_items[0][price_data][unit_amount]"), "2900");
   assert.equal(body.get("line_items[0][price_data][currency]"), "usd");
   assert.match(body.get("line_items[0][price_data][product_data][name]"), /Sell Them a Hammer/);
@@ -121,7 +134,7 @@ test("checkout refuses a Session from the wrong Stripe mode", async (t) => {
 
 test("paid session lists all three files and each download streams the right object", async (t) => {
   const calls = mockStripe(t, (url) => {
-    assert.equal(url, `https://api.stripe.com/v1/checkout/sessions/${SESSION_ID}`);
+    assert.equal(url, `https://api.stripe.com/v1/checkout/sessions/${SESSION_ID}?expand[]=payment_intent.latest_charge`);
     return stripeJson(paidSession());
   });
   const environment = env();
@@ -151,7 +164,11 @@ for (const [label, session, code] of [
   ["no metadata", paidSession({ metadata: undefined }), "wrong_product"],
   ["wrong Stripe mode", paidSession({ livemode: true }), "wrong_mode"],
   ["mismatched id", paidSession({ id: "cs_test_someoneElse123" }), "unknown_session"],
-  ["expired", paidSession({ created: NOW_S - (STORE_DOWNLOAD_DAYS * 86400 + 60) }), "expired"]
+  ["expired", paidSession({ created: NOW_S - (STORE_DOWNLOAD_DAYS * 86400 + 60) }), "expired"],
+  ["refunded", withCharge({ refunded: true, amount_refunded: 2900 }), "refunded"],
+  ["partly refunded", withCharge({ refunded: false, amount_refunded: 500 }), "refunded"],
+  ["unexpanded charge", paidSession({ payment_intent: "pi_test_1" }), "unverified_charge"],
+  ["no payment intent", paidSession({ payment_intent: null }), "unverified_charge"]
 ]) {
   test(`${label} session gets 403 and no file`, async (t) => {
     mockStripe(t, () => stripeJson(session));
@@ -166,6 +183,19 @@ for (const [label, session, code] of [
     assert.deepEqual(environment.BOOK_FILES.keysRequested, []);
   });
 }
+
+test("refunded order says so in plain words", async (t) => {
+  mockStripe(t, () => stripeJson(withCharge({ refunded: true, amount_refunded: 2900 })));
+  const payload = await (await get(download, downloadPath("pdf"))).json();
+  assert.equal(payload.error, "This order was refunded.");
+});
+
+test("not-refunded charge still downloads", async (t) => {
+  mockStripe(t, () => stripeJson(withCharge({ refunded: false, amount_refunded: 0 })));
+  const response = await get(download, downloadPath("epub"));
+  assert.equal(response.status, 200);
+  assert.equal(await response.text(), "bytes of Sell-Them-a-Hammer.epub");
+});
 
 test("missing or malformed session_id is 404 without calling Stripe", async (t) => {
   const calls = mockStripe(t, () => { throw new Error("unexpected Stripe call"); });

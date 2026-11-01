@@ -75,6 +75,9 @@ export function buildStoreCheckoutParams(config) {
   const page = `${config.siteOrigin}${STORE_PAGE_PATH}`;
   return {
     mode: "payment",
+    // Card only (Apple Pay and Google Pay ride on card): payment is final at
+    // checkout, so the thanks page never sees a pending bank payment.
+    "payment_method_types[0]": "card",
     success_url: `${page}thanks/?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: page,
     submit_type: "pay",
@@ -101,7 +104,7 @@ export async function verifyPaidStoreSession(config, sessionId, now = Date.now()
 
   let session;
   try {
-    session = await retrieveCheckoutSession(config, sessionId);
+    session = await retrieveCheckoutSession(config, sessionId, { expandCharge: true });
   } catch (_error) {
     console.warn("[store] Stripe checkout lookup failed.");
     return { ok: false, status: 404, code: "unknown_session", message: "We could not find that purchase. Use the link from your checkout page." };
@@ -119,6 +122,14 @@ export async function verifyPaidStoreSession(config, sessionId, now = Date.now()
     return denied("wrong_mode");
   }
   if (session.status !== "complete" || session.payment_status !== "paid") return denied("unpaid");
+
+  // A refund (full or partial) ends access. Stripe keeps payment_status=paid
+  // after a refund, so read the charge. If it is not there, fail closed.
+  const charge = session.payment_intent?.latest_charge;
+  if (!charge || typeof charge !== "object") return denied("unverified_charge");
+  if (charge.refunded === true || Number(charge.amount_refunded) > 0) {
+    return { ok: false, status: 403, code: "refunded", message: "This order was refunded." };
+  }
 
   const createdMs = Number(session.created) * 1000;
   if (!Number.isFinite(createdMs) || createdMs <= 0) return denied("unknown_session");

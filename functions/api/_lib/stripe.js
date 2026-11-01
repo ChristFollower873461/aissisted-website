@@ -184,7 +184,9 @@ export async function createPaymentCheckoutSession(config, params) {
 export async function retrieveCheckoutSession(config, sessionId, options = {}) {
   const expand = options.expandContract === true
     ? "?expand[]=line_items.data.price.product"
-    : "";
+    : options.expandCharge === true
+      ? "?expand[]=payment_intent.latest_charge"
+      : "";
   return stripeRequest(config, `/checkout/sessions/${encodeURIComponent(sessionId)}${expand}`, {
     method: "GET"
   });
