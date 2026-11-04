@@ -235,6 +235,10 @@ body[data-page="for-parents"] .menu-tag {
 
 /* Doodles -------------------------------------------------------------------------------------- */
 
+.fp-defs { position: absolute; width: 0; height: 0; overflow: hidden; }
+body[data-page="for-parents"] main { overflow-x: clip; }
+.fp-section > .container { position: relative; z-index: 1; }
+
 .doodle {
   position: absolute;
   fill: none;
@@ -242,7 +246,40 @@ body[data-page="for-parents"] .menu-tag {
   stroke-linecap: round;
   stroke-linejoin: round;
   pointer-events: none;
+  filter: url(#fp-crayon);
 }
+
+/* Background doodles: low contrast, kept in gutters and section padding, away from text.
+   .dd-* are placed per section; gutter ones only show when there is real room for them. */
+.dd { width: 48px; height: auto; opacity: 0.55; stroke-width: 3.2; }
+.dd-hero-cloud { width: 70px; top: 96px; left: 40%; stroke: var(--sky); fill: rgba(109, 182, 232, 0.14); }
+.dd-hero-plane { width: 54px; top: 168px; left: 54%; stroke: var(--coral); transform: rotate(-8deg); }
+.dd-hero-notes { width: 44px; bottom: 30%; left: 1.6%; stroke: var(--lilac); opacity: 0.8; }
+.dd-hero-swirl { width: 50px; bottom: 26px; left: 22%; stroke: var(--leaf); }
+
+.dd-why-pencil { width: 52px; top: 30%; left: 2.2%; stroke: var(--marigold); transform: rotate(-14deg); opacity: 0.75; }
+.dd-why-star { width: 38px; top: 18%; right: 2.6%; stroke: var(--coral); fill: rgba(242, 125, 94, 0.14); transform: rotate(12deg); }
+
+.dd-made-plane { width: 64px; top: 64px; right: 9%; stroke: var(--coral); transform: rotate(6deg); }
+.dd-made-sun { width: 60px; top: 46px; right: 22%; stroke: var(--marigold); opacity: 0.75; }
+.dd-made-star { width: 40px; top: 34%; left: 2%; stroke: var(--marigold); fill: rgba(244, 182, 63, 0.2); transform: rotate(-10deg); opacity: 0.8; }
+.dd-made-heart { width: 40px; top: 58%; right: 2.4%; stroke: var(--coral); fill: rgba(242, 125, 94, 0.14); transform: rotate(8deg); }
+.dd-made-squiggle { width: 70px; bottom: 24px; left: 44%; stroke: var(--sky); opacity: 0.8; }
+.dd-made-swirl { width: 46px; bottom: 14%; left: 2.4%; stroke: var(--lilac); opacity: 0.9; }
+
+.dd-could-cloud { width: 78px; top: 58px; right: 12%; stroke: var(--sky); fill: rgba(109, 182, 232, 0.12); }
+.dd-could-notes { width: 46px; top: 44%; left: 2%; stroke: var(--coral); transform: rotate(-6deg); }
+.dd-could-flower { width: 46px; bottom: 16%; right: 2.4%; stroke: var(--leaf); opacity: 0.75; }
+.dd-could-star { width: 34px; top: 92px; right: 24%; stroke: var(--marigold); fill: rgba(244, 182, 63, 0.22); transform: rotate(16deg); opacity: 0.8; }
+
+.dd-safe-house { width: 62px; top: 60px; right: 11%; stroke: var(--coral); transform: rotate(-4deg); }
+.dd-safe-heart { width: 40px; top: 50%; left: 2.2%; stroke: var(--coral); fill: rgba(242, 125, 94, 0.14); transform: rotate(-10deg); }
+.dd-safe-swirl { width: 46px; top: 92px; right: 23%; stroke: var(--sky); }
+.dd-safe-star { width: 36px; bottom: 28px; right: 6%; stroke: var(--marigold); fill: rgba(244, 182, 63, 0.22); transform: rotate(-14deg); opacity: 0.8; }
+
+.dd-how-pencil { width: 50px; top: 24px; left: 6%; stroke: var(--sky); transform: rotate(-24deg); }
+.dd-how-sun { width: 56px; bottom: 18px; right: 8%; stroke: var(--marigold); opacity: 0.75; }
+.dd-how-squiggle { width: 64px; bottom: 30px; left: 40%; stroke: var(--leaf); }
 .doodle-star { width: 44px; top: 128px; left: 4%; stroke: var(--marigold); fill: rgba(244, 182, 63, 0.25); transform: rotate(-12deg); }
 .doodle-sun { width: 66px; top: 104px; right: 5%; stroke: var(--marigold); }
 .doodle-heart { width: 36px; bottom: 56px; left: 46%; stroke: var(--coral); fill: rgba(242, 125, 94, 0.2); transform: rotate(10deg); }
@@ -338,10 +375,96 @@ body[data-page="for-parents"] .menu-tag {
   gap: clamp(24px, 4vw, 56px);
   align-items: center;
   padding: clamp(28px, 4vw, 48px);
-  border-radius: 28px;
   background: #fff;
-  border: 2px solid var(--warm-line);
   box-shadow: var(--shadow-soft);
+  rotate: -0.4deg;
+  --r: 30px 220px 24px 260px / 210px 22px 240px 26px;
+  --r2: 22px 260px 30px 200px / 240px 30px 200px 20px;
+  --line: rgba(43, 36, 32, 0.62);
+}
+
+/* Hand-drawn crayon outlines --------------------------------------------------------------------
+   The fill keeps one wobbly shape (--r); the crayon line is a pseudo-element with a slightly
+   different shape (--r2), its own color, and a roughen filter. Only the pseudo-element is
+   filtered, so the text stays crisp. Each box picks a different variant below. */
+
+.fp-note, .made-card, .idea, .tile, .fp-contact-lines {
+  position: relative;
+  border: 0;
+  border-radius: var(--r);
+}
+.fp-note::before, .made-card::before, .idea::before, .tile::before, .fp-contact-lines::before, .fp-contact::before {
+  content: "";
+  position: absolute;
+  inset: var(--in, -4px -3px -3px -5px);
+  border: var(--lw, 2.5px) solid var(--line, rgba(43, 36, 32, 0.6));
+  border-radius: var(--r2);
+  filter: var(--rough, url(#fp-rough-a));
+  pointer-events: none;
+}
+
+.made-card, .tile {
+  --r: 255px 18px 225px 20px / 18px 225px 20px 255px;
+  --r2: 240px 24px 250px 14px / 14px 250px 24px 230px;
+  --line: rgba(43, 36, 32, 0.6);
+}
+.made-card:nth-child(6n+2), .tile:nth-child(4n+2) {
+  --r: 24px 240px 18px 210px / 230px 16px 250px 22px;
+  --r2: 16px 220px 26px 250px / 250px 22px 210px 14px;
+  --line: rgba(168, 64, 31, 0.55);
+  --rough: url(#fp-rough-b);
+  --in: -3px -5px -4px -3px;
+  rotate: 0.5deg;
+}
+.made-card:nth-child(6n+3), .tile:nth-child(4n+3) {
+  --r: 210px 26px 240px 16px / 26px 200px 18px 240px;
+  --r2: 230px 16px 220px 28px / 20px 230px 26px 210px;
+  --line: rgba(41, 110, 158, 0.55);
+  --rough: url(#fp-rough-c);
+  --lw: 3px;
+  --in: -5px -4px -3px -4px;
+  rotate: -0.6deg;
+}
+.made-card:nth-child(6n+4), .tile:nth-child(4n) {
+  --r: 18px 250px 22px 230px / 250px 20px 220px 18px;
+  --r2: 26px 230px 16px 250px / 220px 14px 250px 24px;
+  --line: rgba(54, 122, 82, 0.6);
+  --in: -3px -4px -5px -4px;
+  rotate: 0.35deg;
+}
+.made-card:nth-child(6n+5) {
+  --r: 240px 14px 255px 24px / 22px 240px 16px 220px;
+  --r2: 250px 22px 230px 16px / 16px 220px 26px 250px;
+  --line: rgba(110, 82, 170, 0.6);
+  --rough: url(#fp-rough-b);
+  rotate: -0.4deg;
+}
+.made-card:nth-child(6n) {
+  --r: 22px 220px 20px 250px / 220px 24px 250px 16px;
+  --r2: 14px 250px 26px 220px / 250px 16px 220px 26px;
+  --line: rgba(43, 36, 32, 0.78);
+  --rough: url(#fp-rough-c);
+  --lw: 3px;
+  rotate: 0.6deg;
+}
+.made-card:nth-child(6n+1) { rotate: -0.3deg; }
+.tile:nth-child(4n+1) { rotate: -0.4deg; }
+
+/* Speech-bubble tail on the note: a rotated corner that covers the outline where it joins. */
+.fp-note::after, .idea::after {
+  content: "";
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  bottom: -12px;
+  left: 12%;
+  background: inherit;
+  border-right: var(--lw, 2.5px) solid var(--line);
+  border-bottom: var(--lw, 2.5px) solid var(--line);
+  border-bottom-right-radius: 5px;
+  transform: rotate(40deg) skew(8deg, 8deg);
+  filter: url(#fp-wobble);
+  pointer-events: none;
 }
 
 /* Made cards ----------------------------------------------------------------------------------- */
@@ -352,10 +475,8 @@ body[data-page="for-parents"] .menu-tag {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  padding: 16px 16px 26px;
-  border-radius: 22px;
+  padding: 18px 18px 28px;
   background: #fff;
-  border: 2px solid rgba(43, 36, 32, 0.08);
   box-shadow: var(--shadow-soft);
   color: var(--ink-warm);
   transition: transform 0.25s ease, translate 0.25s ease, box-shadow 0.25s ease;
@@ -419,7 +540,6 @@ body[data-page="for-parents"] .menu-tag {
   justify-content: center;
   padding: 32px 22px;
   background: var(--marigold);
-  border-color: rgba(43, 36, 32, 0.14);
 }
 .made-card-point h3 { font-size: clamp(1.5rem, 2.2vw, 1.85rem); line-height: 1.18; }
 .made-card-point p { color: var(--ink-warm); }
@@ -436,13 +556,32 @@ body[data-page="for-parents"] .menu-tag {
   flex-direction: column;
   gap: 10px;
   padding: 26px 26px 28px;
-  border-radius: 6px 6px 22px 6px;
+  margin-bottom: 10px;
   background: #fff6d6;
   box-shadow: 0 1px 0 rgba(43, 36, 32, 0.06), 0 10px 22px rgba(120, 78, 40, 0.1);
   rotate: -0.8deg;
+  --r: 20px 200px 26px 230px / 190px 20px 210px 24px;
+  --r2: 26px 230px 18px 200px / 210px 26px 190px 18px;
+  --line: rgba(176, 120, 20, 0.6);
 }
-.idea:nth-child(even) { rotate: 0.8deg; background: #fdeadf; }
-.idea:nth-child(3n) { background: #eaf4fb; }
+.idea:nth-child(even) {
+  rotate: 0.8deg;
+  background: #fdeadf;
+  --r: 220px 22px 200px 18px / 22px 200px 24px 220px;
+  --r2: 200px 16px 230px 24px / 16px 220px 18px 200px;
+  --line: rgba(168, 64, 31, 0.5);
+  --rough: url(#fp-rough-b);
+  --in: -3px -5px -4px -3px;
+}
+.idea:nth-child(3n) {
+  background: #eaf4fb;
+  --line: rgba(41, 110, 158, 0.55);
+  --rough: url(#fp-rough-c);
+  --lw: 3px;
+}
+.idea:nth-child(5n) { --r: 30px 190px 20px 220px / 200px 30px 190px 20px; --in: -5px -3px -3px -5px; }
+.idea:nth-child(even)::after { left: auto; right: 14%; transform: rotate(50deg) skew(-8deg, -8deg); }
+.idea:nth-child(3n)::after { left: 30%; }
 .idea h3 { margin: 0; font-size: 1.24rem; font-weight: 800; line-height: 1.22; }
 .idea p { margin: 0; color: var(--ink-soft); font-size: 1.06rem; line-height: 1.6; }
 .idea-tag {
@@ -457,7 +596,7 @@ body[data-page="for-parents"] .menu-tag {
   font-size: 0.88rem;
   font-weight: 800;
 }
-.idea-done { background: #dff2e6 !important; outline: 3px solid var(--leaf); outline-offset: -3px; }
+.idea-done { background: #dff2e6 !important; --line: rgba(54, 140, 88, 0.85); --lw: 3.5px; }
 .idea-done .idea-tag { border: 0; padding: 4px 14px 4px 10px; background: var(--leaf); color: var(--ink-warm); }
 .idea-tag svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 3.2; stroke-linecap: round; stroke-linejoin: round; }
 
@@ -469,7 +608,6 @@ body[data-page="for-parents"] .menu-tag {
   flex-direction: column;
   gap: 10px;
   padding: 26px 24px 28px;
-  border-radius: 24px;
   background: #fff;
   box-shadow: var(--shadow-soft);
 }
@@ -503,11 +641,16 @@ body[data-page="for-parents"] .menu-tag {
   gap: clamp(28px, 5vw, 64px);
   align-items: end;
   padding: clamp(36px, 5.5vw, 72px);
-  border-radius: 36px;
+  border-radius: 40px 260px 36px 300px / 260px 40px 300px 36px;
   background: var(--pale-peach);
-  border: 2px solid rgba(242, 125, 94, 0.35);
   overflow: hidden;
+  --r2: 36px 300px 30px 260px / 300px 30px 260px 40px;
+  --in: 6px 7px 6px 5px;
+  --line: rgba(168, 64, 31, 0.5);
+  --lw: 3px;
+  --rough: url(#fp-rough-c);
 }
+.fp-contact > :not(.doodle) { position: relative; }
 .fp-contact .fp-kicker { border-color: rgba(43, 36, 32, 0.3); }
 .fp-contact .fp-h2 { margin-bottom: 16px; }
 .fp-contact .fp-actions { margin-top: 28px; }
@@ -515,8 +658,12 @@ body[data-page="for-parents"] .menu-tag {
   display: grid;
   gap: 10px;
   padding: 24px 26px;
-  border-radius: 22px;
   background: #fff;
+  rotate: 0.8deg;
+  --r: 200px 20px 180px 24px / 24px 160px 20px 180px;
+  --r2: 180px 26px 200px 16px / 18px 180px 26px 160px;
+  --line: rgba(43, 36, 32, 0.45);
+  --rough: url(#fp-rough-b);
   font-style: normal;
   font-size: 1.1rem;
   color: var(--ink-soft);
@@ -529,7 +676,14 @@ body[data-page="for-parents"] .menu-tag {
 
 /* Responsive ----------------------------------------------------------------------------------- */
 
+/* Gutter doodles need the empty space either side of the 1180px container. */
+@media (max-width: 1320px) {
+  .dd-hero-notes, .dd-why-pencil, .dd-why-star, .dd-made-star, .dd-made-heart, .dd-made-swirl,
+  .dd-could-notes, .dd-could-flower, .dd-safe-heart { display: none; }
+}
+
 @media (max-width: 1000px) {
+  .dd-hero-cloud, .dd-hero-plane { display: none; }
   .fp-grid { grid-template-columns: repeat(2, 1fr); }
   .tiles { grid-template-columns: repeat(2, 1fr); }
   .fp-hero-grid { grid-template-columns: 1fr; }
@@ -548,6 +702,14 @@ body[data-page="for-parents"] .menu-tag {
   .doodle-sun { display: none; }
   .doodle-heart { bottom: 20px; left: 8%; }
   .doodle-squiggle { bottom: 18px; right: 6%; width: 84px; }
+  /* Fewer doodles on phones: one or two per section, only in the empty padding. */
+  .dd-hero-swirl, .dd-made-sun, .dd-made-squiggle, .dd-could-star, .dd-safe-swirl, .dd-safe-star,
+  .dd-how-sun, .dd-how-pencil { display: none; }
+  .dd-made-plane { top: 22px; right: 6%; width: 46px; }
+  .dd-could-cloud { top: 20px; right: 6%; width: 58px; }
+  .dd-safe-house { top: 22px; right: 7%; width: 46px; }
+  .dd-how-squiggle { bottom: 14px; left: auto; right: 10%; width: 54px; }
+  .fp-note::after { left: 18%; }
   .snap { padding: 7px 7px 20px; }
   .snap::before { width: 64px; height: 20px; margin-left: -32px; top: -9px; }
 }
@@ -555,7 +717,11 @@ body[data-page="for-parents"] .menu-tag {
 @media (max-width: 640px) {
   .fp-grid, .tiles { grid-template-columns: 1fr; }
   .fp-actions .pill { flex: 1 1 auto; }
-  .fp-contact { padding: 30px 22px; border-radius: 28px; }
+  .fp-contact {
+    padding: 30px 22px;
+    border-radius: 26px 90px 22px 110px / 90px 24px 110px 20px;
+    --r2: 20px 110px 26px 80px / 110px 20px 80px 26px;
+  }
   .doodle-contact-heart { display: none; }
 }
 
