@@ -204,14 +204,82 @@ body[data-page="for-parents"] .menu-tag {
   color: var(--ink-warm) !important;
   transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
-.pill-marigold { background: var(--marigold); box-shadow: 0 4px 0 var(--ink-warm); }
-.pill-coral { background: var(--coral); box-shadow: 0 4px 0 var(--ink-warm); }
+.pill-marigold { background: var(--marigold); }
+.pill-coral { background: var(--coral); }
 .pill-outline { background: #fff; }
 .pill-big { min-height: 60px; padding: 16px 34px; font-size: 1.2rem; }
 @media (hover: hover) and (prefers-reduced-motion: no-preference) {
-  .pill:hover { transform: translateY(-2px); }
-  .pill-marigold:hover, .pill-coral:hover { box-shadow: 0 6px 0 var(--ink-warm); }
+  .pill:hover { transform: translateY(-2px) rotate(var(--tilt, 0deg)); }
+  .pill:hover::after { translate: 1px 2px; }
   .pill-outline:hover { background: var(--paper-2); }
+}
+
+/* Crayon buttons: same trick as the cards. The fill has one wobbly shape (--r); a roughened
+   crayon line (::before) and a scribbled offset shadow (::after) sit around it, so only the
+   decoration is filtered and the label stays crisp. Every button gets its own shape, line
+   color, tilt and roughness. */
+.pill, body[data-page="for-parents"] .btn-gold, body[data-page="for-parents"] .menu-btn {
+  position: relative;
+  isolation: isolate;
+  border: 0;
+  border-radius: var(--r);
+  rotate: var(--tilt, 0deg);
+  --r: 40px 22px 44px 18px / 22px 40px 18px 44px;
+  --r2: 34px 28px 40px 22px / 28px 36px 24px 40px;
+}
+body[data-page="for-parents"] .btn-gold, body[data-page="for-parents"] .btn-gold:hover { box-shadow: none; }
+.pill::before, body[data-page="for-parents"] .btn-gold::before, body[data-page="for-parents"] .menu-btn::before {
+  content: "";
+  position: absolute;
+  inset: var(--in, -3px -2px -2px -4px);
+  border: var(--lw, 2.6px) solid var(--line, var(--ink-warm));
+  border-radius: var(--r2);
+  filter: var(--rough, url(#fp-rough-a));
+  pointer-events: none;
+}
+.pill-marigold::after, .pill-coral::after, body[data-page="for-parents"] .btn-gold::after {
+  content: "";
+  position: absolute;
+  inset: 5px -3px -5px 3px;
+  z-index: -1;
+  border-radius: var(--r);
+  background: var(--shade, rgba(43, 36, 32, 0.8));
+  filter: url(#fp-rough-b);
+  transition: translate 0.2s ease;
+  pointer-events: none;
+}
+.pill-marigold { --tilt: -0.8deg; --rough: url(#fp-rough-a); }
+.pill-outline {
+  --r: 22px 44px 18px 40px / 40px 20px 44px 22px;
+  --r2: 28px 38px 22px 46px / 36px 26px 40px 18px;
+  --line: rgba(41, 110, 158, 0.85);
+  --rough: url(#fp-rough-c);
+  --lw: 3px;
+  --in: -2px -4px -4px -2px;
+  --tilt: 0.7deg;
+}
+.pill-coral {
+  --r: 50px 26px 56px 20px / 30px 52px 22px 56px;
+  --r2: 44px 34px 50px 28px / 36px 46px 30px 52px;
+  --line: rgba(84, 38, 22, 0.9);
+  --rough: url(#fp-rough-c);
+  --lw: 3px;
+  --shade: rgba(168, 64, 31, 0.75);
+  --tilt: -0.5deg;
+}
+body[data-page="for-parents"] .btn-gold {
+  --r: 26px 38px 22px 34px / 34px 24px 38px 22px;
+  --r2: 30px 32px 28px 40px / 28px 30px 34px 26px;
+  --rough: url(#fp-rough-b);
+  --shade: rgba(208, 145, 42, 0.95);
+  --tilt: 0.6deg;
+}
+body[data-page="for-parents"] .menu-btn {
+  --r: 30px 20px 34px 24px / 22px 32px 20px 30px;
+  --r2: 26px 26px 30px 20px / 26px 28px 24px 34px;
+  --line: rgba(54, 122, 82, 0.9);
+  --rough: url(#fp-rough-c);
+  --tilt: -0.6deg;
 }
 
 .fp-section { position: relative; padding: clamp(72px, 9vw, 120px) 0; scroll-margin-top: 72px; }
