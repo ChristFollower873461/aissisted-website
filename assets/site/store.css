@@ -1,0 +1,39 @@
+/* Book sale page and its thanks page (/sell-them-a-hammer/). Builds on site.css + page.css. */
+
+.store-main { padding-top: calc(var(--header-h) + clamp(40px, 7vw, 96px)); }
+.store-hero { display: grid; grid-template-columns: minmax(220px, 0.8fr) 1.2fr; gap: clamp(36px, 6vw, 88px); align-items: start; }
+.store-cover { margin: 0; }
+.store-cover img {
+  display: block;
+  width: 100%;
+  max-width: 440px;
+  height: auto;
+  border-radius: 6px;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55), 0 0 0 1px var(--line);
+}
+.store-copy .h1 { font-size: clamp(2.1rem, 5vw, 4.2rem); max-width: 14ch; }
+.store-subtitle { margin: 14px 0 0; color: var(--text); font-size: clamp(1rem, 1.5vw, 1.2rem); line-height: 1.45; max-width: 44ch; }
+.store-author { margin: 14px 0 0; color: var(--gold); font-size: 0.86rem; letter-spacing: 0.08em; text-transform: uppercase; }
+.store-blurb { margin-top: 28px; display: grid; gap: 14px; max-width: 60ch; color: var(--muted); }
+.store-blurb p { margin: 0; }
+.store-buy { margin-top: 32px; display: flex; flex-wrap: wrap; align-items: center; gap: 18px 24px; }
+.store-price { font-size: clamp(1.8rem, 3vw, 2.4rem); font-weight: 700; color: #fff; letter-spacing: -0.04em; }
+.store-note { margin: 14px 0 0; font-size: 0.86rem; color: var(--muted); max-width: 56ch; }
+.store-status { margin: 12px 0 0; min-height: 1.4em; font-size: 0.9rem; color: var(--gold); }
+.store-includes { margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--line); }
+.store-includes li { display: grid; grid-template-columns: 160px 1fr; gap: 24px; padding: 18px 0; border-bottom: 1px solid var(--line); }
+.store-includes strong { color: #fff; font-weight: 600; }
+.store-includes span { color: var(--muted); }
+
+.store-downloads { margin: 28px 0 0; padding: 0; list-style: none; display: grid; gap: 14px; max-width: 560px; }
+.store-downloads a { width: 100%; justify-content: space-between; gap: 16px; }
+.store-downloads small { font-size: 0.7rem; opacity: 0.75; }
+.store-thanks { max-width: 760px; }
+.store-thanks .h1 { font-size: clamp(2rem, 4.4vw, 3.4rem); max-width: 18ch; }
+
+@media (max-width: 860px) {
+  .store-hero { grid-template-columns: 1fr; }
+  .store-cover img { max-width: 300px; }
+  .store-includes li { grid-template-columns: 1fr; gap: 6px; }
+  .store-downloads small { display: none; }
+}
