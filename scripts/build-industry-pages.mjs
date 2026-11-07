@@ -254,6 +254,7 @@ ${t.steps.map(([h, p]) => `            <li>
             <a href="${base}workflow-automation/">Workflow automation</a>
             <a href="${base}small-business-ai-help/">Small business</a>
             <a href="${base}family-ai-help/">Family</a>
+            <a href="${base}for-parents/">For parents</a>
             <a href="${base}industries/">Industries</a>
           </div>
           <div>
