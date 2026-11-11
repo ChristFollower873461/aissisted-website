@@ -51,7 +51,7 @@ test("BrightWay public pages identify AIssisted Consulting LLC as operator", asy
 
   for (const path of ["brightway/terms/index.html", "privacy/brightway/index.html"]) {
     const source = await read(path);
-    assert.match(source, /Effective date:<\/strong> August 25, 2026/, path);
+    assert.match(source, /Effective date:<\/strong> November 10, 2026/, path);
   }
 });
 
