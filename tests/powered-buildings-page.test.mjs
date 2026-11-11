@@ -8,10 +8,12 @@ const html = readFileSync(new URL("powered-buildings/index.html", root), "utf8")
 test("Powered Buildings page links every worksheet file, and each file is committed", () => {
   const files = [...html.matchAll(/href="\/powered-buildings\/worksheets\/([^"]+)"/g)].map((match) => match[1]);
   assert.deepEqual([...new Set(files)].sort(), [
-    "Building-Scorecard.pdf",
-    "Building-Scorecard.xlsx",
+    "Deal-Readiness-Tracker.pdf",
+    "Deal-Readiness-Tracker.xlsx",
     "First-Call-Script.pdf",
+    "Five-Gates-Card.pdf",
     "Powered-Buildings-Worksheet-Pack.pdf",
+    "Sample-Documents.pdf",
     "State-Questions-Worksheet.pdf",
     "Thirty-Day-Plan.pdf",
     "Vendor-Bench-Checklist.pdf"
