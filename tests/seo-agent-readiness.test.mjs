@@ -181,7 +181,7 @@ test("local and private AI signals connect service, privacy, and discovery paths
   assert.match(localPage, /guides\/local-and-on-prem-ai\//);
   assert.match(read("privacy-and-control/index.html"), /guides\/local-and-on-prem-ai\//);
   assert.match(localPage, /Ocala AI Help for Small Business/);
-  assert.match(localPage, /Florida AI help, grounded in a local operator\./);
+  assert.match(localPage, /Florida AI help, grounded in real small-business workflows\./);
   assert.match(localPage, /AI help for Florida small businesses/);
   assert.match(localPage, /"@type": "State",\s+"name": "Florida"/);
 });

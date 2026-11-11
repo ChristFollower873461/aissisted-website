@@ -1,4 +1,7 @@
+import { createBookingPaymentStore } from "./booking-payment-store.js";
 import { intervalOverlaps } from "./time.js";
+import { createBookingContractSnapshot } from "./booking-contract.js";
+import { shouldCreateImplementationCredit } from "./booking-releases.js";
 
 export class SlotUnavailableError extends Error {
   constructor(message = "That appointment window is no longer available.") {
@@ -47,6 +50,7 @@ function normalizeBooking(record) {
     bookingStatus: record.bookingStatus,
     paymentStatus: record.paymentStatus,
     reservationAmount: Number(record.reservationAmount || 0),
+    amountCents: Number(record.amountCents ?? record.reservationAmount ?? 0),
     currency: record.currency || "usd",
     stripeCheckoutSessionId: record.stripeCheckoutSessionId || "",
     stripePaymentReference: record.stripePaymentReference || "",
@@ -73,7 +77,27 @@ function normalizeBooking(record) {
     depositCreditApplied: toBoolean(record.depositCreditApplied),
     depositCreditAppliedAt: record.depositCreditAppliedAt || null,
     depositCreditAppliedInvoiceReference:
-      record.depositCreditAppliedInvoiceReference || null
+      record.depositCreditAppliedInvoiceReference || null,
+    releaseId: record.releaseId || "",
+    offerId: record.offerId || "",
+    offerVersion: Number(record.offerVersion || 0) || null,
+    termsVersion: record.termsVersion || record.policyVersion || "",
+    termsSha256: record.termsSha256 || "",
+    stripeProductRef: record.stripeProductRef || "",
+    stripePriceRef: record.stripePriceRef || "",
+    paymentMethodPolicy: record.paymentMethodPolicy || "",
+    stripePaymentMethodConfigurationRef:
+      record.stripePaymentMethodConfigurationRef || "",
+    stripeCustomerCopyJson: record.stripeCustomerCopyJson || "",
+    implementationCreditEnabled:
+      record.implementationCreditEnabled === undefined || record.implementationCreditEnabled === null
+        ? null
+        : toBoolean(record.implementationCreditEnabled),
+    deliveryCalendarId: record.deliveryCalendarId || "",
+    deliverableId: record.deliverableId || "",
+    deliverableStatus: record.deliverableStatus || "",
+    deliverableDueAt: record.deliverableDueAt || null,
+    deliverableDeliveredAt: record.deliverableDeliveredAt || null
   };
 }
 
@@ -184,6 +208,74 @@ function normalizeContactInquiry(record) {
   };
 }
 
+function normalizeCrmDelivery(record) {
+  if (!record) return null;
+  return {
+    id: record.id,
+    inquiryId: record.inquiryId ?? record.inquiry_id,
+    eventId: record.eventId ?? record.event_id,
+    payloadJson: record.payloadJson ?? record.payload_json,
+    state: record.state,
+    attempts: Number(record.attempts),
+    nextAttemptAt: record.nextAttemptAt ?? record.next_attempt_at ?? null,
+    leaseToken: record.leaseToken ?? record.lease_token ?? null,
+    leaseExpiresAt: record.leaseExpiresAt ?? record.lease_expires_at ?? null,
+    lastSafeErrorCode: record.lastSafeErrorCode ?? record.last_safe_error_code ?? "",
+    submissionId: record.submissionId ?? record.submission_id ?? "",
+    createdAt: record.createdAt ?? record.created_at,
+    updatedAt: record.updatedAt ?? record.updated_at
+  };
+}
+
+function createCrmDelivery(inquiryId, input, timestamp) {
+  if (typeof input.eventId !== "string" || !input.eventId.trim()) {
+    throw new Error("CRM delivery requires an event ID");
+  }
+  if (typeof input.payloadJson !== "string") {
+    throw new Error("CRM delivery requires a JSON payload");
+  }
+  JSON.parse(input.payloadJson);
+  return {
+    id: createId("crm"),
+    inquiryId,
+    eventId: input.eventId,
+    payloadJson: input.payloadJson,
+    state: "pending",
+    attempts: 0,
+    nextAttemptAt: timestamp,
+    leaseToken: null,
+    leaseExpiresAt: null,
+    lastSafeErrorCode: "",
+    submissionId: "",
+    createdAt: timestamp,
+    updatedAt: timestamp
+  };
+}
+
+function crmDeliveryLimit(limit) {
+  const value = Number(limit);
+  return Number.isFinite(value) ? Math.max(0, Math.min(10, Math.trunc(value))) : 10;
+}
+
+function isCrmDeliveryDue(delivery, at) {
+  return (delivery.state === "pending" && (!delivery.nextAttemptAt || delivery.nextAttemptAt <= at))
+    || (delivery.state === "processing" && delivery.leaseExpiresAt && delivery.leaseExpiresAt <= at);
+}
+
+function validateCrmDeliveryLease({ at, leaseToken, leaseExpiresAt }) {
+  if (typeof leaseToken !== "string" || !leaseToken.trim()
+    || typeof leaseExpiresAt !== "string" || leaseExpiresAt <= at) {
+    throw new Error("CRM delivery requires a token and a future lease expiry");
+  }
+}
+
+function validateCrmDeliveryFinish({ state, deliveryStatus }) {
+  if (!["pending", "delivered", "needs_attention"].includes(state)
+    || typeof deliveryStatus !== "string" || !deliveryStatus) {
+    throw new Error("CRM delivery requires a finish state and contact delivery status");
+  }
+}
+
 function getMemoryState() {
   if (!globalThis.__aissistedBookingStore) {
     globalThis.__aissistedBookingStore = {
@@ -192,12 +284,20 @@ function getMemoryState() {
       bookings: new Map(),
       bookingsBySession: new Map(),
       depositCredits: new Map(),
+      bookingContracts: new Map(),
+      bookingDeliverables: new Map(),
+      checkoutIntents: new Map(),
+      integrationOutbox: new Map(),
+      bookingContractEvents: [],
       agentIdempotencyRecords: new Map(),
       agentIdempotencyRecordsById: new Map(),
       agentIdempotencyByTarget: new Map(),
       agentTransactionAudits: [],
       contactInquiries: new Map(),
       contactInquiryIdsByDuplicateFingerprint: new Map(),
+      contactCrmDeliveries: new Map(),
+      contactCrmDeliveryIdsByInquiry: new Map(),
+      contactCrmDeliveryIdsByEvent: new Map(),
       events: []
     };
   }
@@ -220,6 +320,15 @@ function getMemoryState() {
   if (!globalThis.__aissistedBookingStore.contactInquiryIdsByDuplicateFingerprint) {
     globalThis.__aissistedBookingStore.contactInquiryIdsByDuplicateFingerprint = new Map();
   }
+  for (const key of ["bookingContracts", "bookingDeliverables", "checkoutIntents", "integrationOutbox",
+    "contactCrmDeliveries", "contactCrmDeliveryIdsByInquiry", "contactCrmDeliveryIdsByEvent"]) {
+    if (!globalThis.__aissistedBookingStore[key]) {
+      globalThis.__aissistedBookingStore[key] = new Map();
+    }
+  }
+  if (!globalThis.__aissistedBookingStore.bookingContractEvents) {
+    globalThis.__aissistedBookingStore.bookingContractEvents = [];
+  }
 
   return globalThis.__aissistedBookingStore;
 }
@@ -234,6 +343,8 @@ function createMemoryStore() {
 
     const prospect = state.prospects.get(booking.prospectId) || null;
     const deposit = state.depositCredits.get(booking.id) || null;
+    const contract = state.bookingContracts.get(booking.id) || null;
+    const deliverable = state.bookingDeliverables.get(booking.id) || null;
 
     return normalizeBooking({
       ...booking,
@@ -248,7 +359,12 @@ function createMemoryStore() {
       depositCreditApplied: deposit?.depositCreditApplied || 0,
       depositCreditAppliedAt: deposit?.depositCreditAppliedAt || null,
       depositCreditAppliedInvoiceReference:
-        deposit?.depositCreditAppliedInvoiceReference || null
+        deposit?.depositCreditAppliedInvoiceReference || null,
+      ...(contract || {}),
+      deliverableId: deliverable?.id || "",
+      deliverableStatus: deliverable?.status || "",
+      deliverableDueAt: deliverable?.dueAt || null,
+      deliverableDeliveredAt: deliverable?.deliveredAt || null
     });
   }
 
@@ -430,6 +546,16 @@ function createMemoryStore() {
         createdAt: timestamp,
         updatedAt: timestamp
       };
+      const delivery = input.crmDelivery
+        ? createCrmDelivery(inquiry.id, input.crmDelivery, timestamp) : null;
+      // Validate every constraint before either map changes. There is no await
+      // between validation and committing the inquiry and its outbox record.
+      if (state.contactCrmDeliveryIdsByInquiry.has(inquiry.id)
+        || (delivery && (state.contactInquiries.has(inquiry.id)
+          || state.contactCrmDeliveries.has(delivery.id)
+          || state.contactCrmDeliveryIdsByEvent.has(delivery.eventId)))) {
+        throw new Error("CRM delivery inquiry and event IDs must be unique");
+      }
       state.contactInquiries.set(inquiry.id, inquiry);
       const duplicateIds =
         state.contactInquiryIdsByDuplicateFingerprint.get(inquiry.duplicateFingerprint) || [];
@@ -438,7 +564,69 @@ function createMemoryStore() {
         inquiry.duplicateFingerprint,
         duplicateIds
       );
+      if (delivery) {
+        state.contactCrmDeliveries.set(delivery.id, delivery);
+        state.contactCrmDeliveryIdsByInquiry.set(inquiry.id, delivery.id);
+        state.contactCrmDeliveryIdsByEvent.set(delivery.eventId, delivery.id);
+      }
       return normalizeContactInquiry(inquiry);
+    },
+
+    async getCrmDeliveryByInquiryId(inquiryId) {
+      return normalizeCrmDelivery(state.contactCrmDeliveries.get(
+        state.contactCrmDeliveryIdsByInquiry.get(inquiryId)
+      ));
+    },
+
+    async listDueCrmDeliveries({ at = nowIso(), limit = 10 } = {}) {
+      const dueAt = (delivery) => delivery.state === "processing"
+        ? delivery.leaseExpiresAt : delivery.nextAttemptAt || delivery.createdAt;
+      return [...state.contactCrmDeliveries.values()]
+        .filter((delivery) => isCrmDeliveryDue(delivery, at))
+        .sort((a, b) => dueAt(a).localeCompare(dueAt(b))
+          || a.createdAt.localeCompare(b.createdAt) || a.id.localeCompare(b.id))
+        .slice(0, crmDeliveryLimit(limit)).map(normalizeCrmDelivery);
+    },
+
+    async claimCrmDelivery(id, { at = nowIso(), leaseToken, leaseExpiresAt }) {
+      validateCrmDeliveryLease({ at, leaseToken, leaseExpiresAt });
+      const delivery = state.contactCrmDeliveries.get(id);
+      if (!delivery || !isCrmDeliveryDue(delivery, at)) return null;
+      Object.assign(delivery, {
+        state: "processing", attempts: delivery.attempts + 1,
+        leaseToken, leaseExpiresAt, updatedAt: at
+      });
+      return normalizeCrmDelivery(delivery);
+    },
+
+    async finishCrmDelivery(id, { leaseToken, state: nextState, at = nowIso(),
+      nextAttemptAt = null, lastSafeErrorCode = "", submissionId = "", deliveryStatus }) {
+      validateCrmDeliveryFinish({ state: nextState, deliveryStatus });
+      const delivery = state.contactCrmDeliveries.get(id);
+      const inquiry = delivery && state.contactInquiries.get(delivery.inquiryId);
+      if (!inquiry || delivery.state !== "processing" || !leaseToken
+        || delivery.leaseToken !== leaseToken) return false;
+      Object.assign(delivery, {
+        state: nextState, nextAttemptAt, lastSafeErrorCode, submissionId,
+        leaseToken: null, leaseExpiresAt: null, updatedAt: at
+      });
+      inquiry.deliveryStatus = deliveryStatus;
+      inquiry.updatedAt = at;
+      return true;
+    },
+
+    async getCrmDeliverySummary({ at = nowIso() } = {}) {
+      const summary = { pending: 0, processing: 0, delivered: 0, needsAttention: 0,
+        due: 0, oldestUnresolvedCreatedAt: null };
+      for (const delivery of state.contactCrmDeliveries.values()) {
+        summary[delivery.state === "needs_attention" ? "needsAttention" : delivery.state] += 1;
+        if (isCrmDeliveryDue(delivery, at)) summary.due += 1;
+        if (delivery.state !== "delivered" && (!summary.oldestUnresolvedCreatedAt
+          || delivery.createdAt < summary.oldestUnresolvedCreatedAt)) {
+          summary.oldestUnresolvedCreatedAt = delivery.createdAt;
+        }
+      }
+      return summary;
     },
 
     async getContactInquiryById(id) {
@@ -449,6 +637,14 @@ function createMemoryStore() {
       const inquiry = state.contactInquiries.get(id);
       if (!inquiry) return null;
       inquiry.deliveryStatus = deliveryStatus;
+      inquiry.updatedAt = updatedAt;
+      return normalizeContactInquiry(inquiry);
+    },
+
+    async updateContactInquiryStatus(id, status, updatedAt = nowIso()) {
+      const inquiry = state.contactInquiries.get(id);
+      if (!inquiry) return null;
+      inquiry.status = status;
       inquiry.updatedAt = updatedAt;
       return normalizeContactInquiry(inquiry);
     },
@@ -553,6 +749,28 @@ function createMemoryStore() {
         intakeSummary: input.intakeSummary || ""
       };
 
+      if (input.contractInput) {
+        const contract = createBookingContractSnapshot({
+          bookingId: booking.id,
+          ...input.contractInput
+        });
+        state.bookingContracts.set(booking.id, contract);
+        state.checkoutIntents.set(booking.id, {
+          id: createId("checkout_intent"),
+          bookingId: booking.id,
+          stripeIdempotencyKey: input.stripeCheckoutIdempotencyKey,
+          releaseId: contract.releaseId,
+          offerId: contract.offerId,
+          offerVersion: contract.offerVersion,
+          termsVersion: contract.termsVersion,
+          termsSha256: contract.termsSha256,
+          state: "prepared",
+          stripeSessionRef: "",
+          createdAt: input.createdAt,
+          updatedAt: input.createdAt
+        });
+      }
+
       state.bookings.set(booking.id, booking);
       return hydrate(booking);
     },
@@ -570,6 +788,12 @@ function createMemoryStore() {
       booking.checkoutAuditId = input.checkoutAuditId || booking.checkoutAuditId || null;
       booking.updatedAt = nowIso();
       state.bookingsBySession.set(input.sessionId, booking.id);
+      const checkoutIntent = state.checkoutIntents.get(booking.id);
+      if (checkoutIntent) {
+        checkoutIntent.state = "attached";
+        checkoutIntent.stripeSessionRef = input.sessionId;
+        checkoutIntent.updatedAt = booking.updatedAt;
+      }
 
       if (input.stripeCustomerId) {
         const prospect = state.prospects.get(booking.prospectId);
@@ -604,6 +828,90 @@ function createMemoryStore() {
     async getBookingBySessionId(sessionId) {
       const bookingId = state.bookingsBySession.get(sessionId);
       return bookingId ? hydrate(state.bookings.get(bookingId)) : null;
+    },
+
+    async getBookingContract(bookingId) {
+      return state.bookingContracts.get(bookingId) || null;
+    },
+
+    async getCheckoutIntent(bookingId) {
+      return state.checkoutIntents.get(bookingId) || null;
+    },
+
+    async markBookingManualReview(input) {
+      const booking = state.bookings.get(input.bookingId);
+      if (!booking) return null;
+      const timestamp = input.at || nowIso();
+      booking.bookingStatus = "manual_review";
+      booking.paymentStatus = input.paymentStatus || "paid_manual_review";
+      booking.updatedAt = timestamp;
+      booking.temporaryHoldExpiresAt = null;
+      return hydrate(booking);
+    },
+
+    async getBookingDeliverable(bookingId) {
+      return state.bookingDeliverables.get(bookingId) || null;
+    },
+
+    async updateBookingDeliverable(input) {
+      const deliverable = state.bookingDeliverables.get(input.bookingId);
+      if (!deliverable || !input.expectedStatuses.includes(deliverable.status)) return null;
+      Object.assign(deliverable, input.patch, { updatedAt: input.at || nowIso() });
+      return { ...deliverable };
+    },
+
+    async appendBookingContractEvent(input) {
+      const existing = state.bookingContractEvents.find(
+        (event) => event.idempotencyKey === input.idempotencyKey
+      );
+      if (existing) return { ...existing };
+      const event = { id: createId("contract_event"), ...input, createdAt: input.createdAt || nowIso() };
+      state.bookingContractEvents.push(event);
+      return { ...event };
+    },
+
+    async listBookingContractEvents(bookingId) {
+      return state.bookingContractEvents
+        .filter((event) => event.bookingId === bookingId)
+        .map((event) => ({ ...event }));
+    },
+
+    async listBookingOutbox(bookingId = "") {
+      return Array.from(state.integrationOutbox.values())
+        .filter((item) => !bookingId || item.bookingId === bookingId)
+        .filter((item) => ["pending", "failed"].includes(item.state))
+        .map((item) => ({ ...item }));
+    },
+
+    async claimBookingOutbox(id, at = nowIso()) {
+      const item = Array.from(state.integrationOutbox.values()).find((candidate) => candidate.id === id);
+      if (!item || !["pending", "failed"].includes(item.state)) return null;
+      item.state = "processing";
+      item.attempts += 1;
+      item.updatedAt = at;
+      return { ...item };
+    },
+
+    async finishBookingOutbox(id, input) {
+      const item = Array.from(state.integrationOutbox.values()).find((candidate) => candidate.id === id);
+      if (!item || item.state !== "processing") return null;
+      item.state = input.state;
+      item.lastSafeErrorCode = input.lastSafeErrorCode || null;
+      item.sentAt = input.state === "sent" ? input.at : null;
+      item.updatedAt = input.at;
+      return { ...item };
+    },
+
+    async listFulfillmentWatchItems(input) {
+      const nowMs = new Date(input.nowIso).getTime();
+      const awaitingCutoff = nowMs - input.awaitingGraceMinutes * 60 * 1000;
+      const deadlineHorizon = nowMs + input.deadlineLeadMinutes * 60 * 1000;
+      return Array.from(state.bookingDeliverables.values())
+        .filter((item) =>
+          (item.status === "awaiting_session" && new Date(item.expectedSessionEndAt).getTime() <= awaitingCutoff) ||
+          (item.status === "pending" && item.dueAt && new Date(item.dueAt).getTime() <= deadlineHorizon)
+        )
+        .map((item) => ({ ...item }));
     },
 
     async listActiveSlotReservations({ startIso, endIso, nowTimeIso = nowIso() }) {
@@ -686,18 +994,66 @@ function createMemoryStore() {
       booking.temporaryHoldExpiresAt = null;
       booking.updatedAt = timestamp;
 
-      const existingCredit = state.depositCredits.get(booking.id);
-      state.depositCredits.set(booking.id, {
-        id: existingCredit?.id || createId("credit"),
-        bookingId: booking.id,
-        prospectId: booking.prospectId,
-        depositCreditAvailable: 1,
-        depositCreditAmount: booking.reservationAmount,
-        depositCreditApplied: existingCredit?.depositCreditApplied || 0,
+      const contract = state.bookingContracts.get(booking.id) || null;
+      if (!contract || shouldCreateImplementationCredit(contract)) {
+        const existingCredit = state.depositCredits.get(booking.id);
+        state.depositCredits.set(booking.id, {
+          id: existingCredit?.id || createId("credit"),
+          bookingId: booking.id,
+          prospectId: booking.prospectId,
+          depositCreditAvailable: 1,
+          depositCreditAmount: booking.reservationAmount,
+          depositCreditApplied: existingCredit?.depositCreditApplied || 0,
           depositCreditAppliedAt: existingCredit?.depositCreditAppliedAt || null,
           depositCreditAppliedInvoiceReference:
             existingCredit?.depositCreditAppliedInvoiceReference || null
-      });
+        });
+      } else if (!state.bookingDeliverables.has(booking.id)) {
+        state.bookingDeliverables.set(booking.id, {
+          id: createId("deliverable"),
+          bookingId: booking.id,
+          deliverableType: "workflow_map_first_build_plan",
+          status: "awaiting_session",
+          expectedSessionEndAt: booking.selectedTimeWindowEnd,
+          sessionCompletedAt: null,
+          dueAt: null,
+          deliveredAt: null,
+          createdAt: timestamp,
+          updatedAt: timestamp
+        });
+        const validationKey = `${booking.id}:contract_validated:${input.sessionId}`;
+        if (!state.bookingContractEvents.some((event) => event.idempotencyKey === validationKey)) {
+          state.bookingContractEvents.push({
+            id: createId("contract_event"),
+            bookingId: booking.id,
+            eventType: "contract_validated",
+            priorState: "hold",
+            newState: "confirmed",
+            actorRef: "stripe_webhook",
+            eventAt: timestamp,
+            idempotencyKey: validationKey,
+            safeMetadataJson: JSON.stringify({
+              releaseId: contract.releaseId,
+              termsSha256: contract.termsSha256
+            }),
+            createdAt: timestamp
+          });
+        }
+        for (const effectType of ["calendar", "customer_notification", "internal_notification"]) {
+          const dedupeKey = `${booking.id}:payment_confirmed:${effectType}`;
+          state.integrationOutbox.set(dedupeKey, {
+            id: createId("outbox"),
+            bookingId: booking.id,
+            eventType: "payment_confirmed",
+            effectType,
+            dedupeKey,
+            state: "pending",
+            attempts: 0,
+            createdAt: timestamp,
+            updatedAt: timestamp
+          });
+        }
+      }
 
       return { state: "confirmed", booking: hydrate(booking), reason: null };
     },
@@ -733,6 +1089,27 @@ function createMemoryStore() {
         payloadJson: JSON.stringify(event.payload || {}),
         createdAt: nowIso()
       });
+    },
+
+    async deleteExpiredMeasurementEvents(at = nowIso()) {
+      const kept = state.events.filter((event) => {
+        if (event.eventType !== "paid_plan_start") return true;
+        try {
+          const deleteAfter = JSON.parse(event.payloadJson || "{}").retentionDeleteAfter;
+          return !deleteAfter || deleteAfter > at;
+        } catch (_error) {
+          return true;
+        }
+      });
+      const removed = state.events.length - kept.length;
+      state.events.splice(0, state.events.length, ...kept);
+      return removed;
+    },
+
+    async getLatestEventByType(eventType) {
+      return [...state.events]
+        .filter((event) => event.eventType === eventType)
+        .sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)))[0] || null;
     }
   };
 }
@@ -772,10 +1149,28 @@ const BOOKING_SELECT = `
     d.deposit_credit_amount AS depositCreditAmount,
     d.deposit_credit_applied AS depositCreditApplied,
     d.deposit_credit_applied_at AS depositCreditAppliedAt,
-    d.deposit_credit_applied_invoice_reference AS depositCreditAppliedInvoiceReference
+    d.deposit_credit_applied_invoice_reference AS depositCreditAppliedInvoiceReference,
+    c.release_id AS releaseId,
+    c.offer_id AS offerId,
+    c.offer_version AS offerVersion,
+    c.terms_version AS termsVersion,
+    c.terms_sha256 AS termsSha256,
+    c.stripe_product_ref AS stripeProductRef,
+    c.stripe_price_ref AS stripePriceRef,
+    c.payment_method_policy AS paymentMethodPolicy,
+    c.stripe_payment_method_configuration_ref AS stripePaymentMethodConfigurationRef,
+    c.stripe_customer_copy_json AS stripeCustomerCopyJson,
+    c.implementation_credit_enabled AS implementationCreditEnabled,
+    c.delivery_calendar_id AS deliveryCalendarId,
+    v.id AS deliverableId,
+    v.status AS deliverableStatus,
+    v.due_at AS deliverableDueAt,
+    v.delivered_at AS deliverableDeliveredAt
   FROM bookings b
   LEFT JOIN prospects p ON p.id = b.prospect_id
   LEFT JOIN deposit_credits d ON d.booking_id = b.id
+  LEFT JOIN booking_contracts c ON c.booking_id = b.id
+  LEFT JOIN booking_deliverables v ON v.booking_id = b.id
 `;
 
 function createD1Store(db) {
@@ -785,6 +1180,35 @@ function createD1Store(db) {
       .bind(value)
       .first();
     return normalizeBooking(record);
+  }
+
+  async function fetchBookingContract(bookingId) {
+    return db
+      .prepare(
+        `SELECT
+          booking_id AS bookingId,
+          release_id AS releaseId,
+          offer_id AS offerId,
+          offer_version AS offerVersion,
+          terms_version AS termsVersion,
+          terms_sha256 AS termsSha256,
+          terms_snapshot_json AS termsSnapshotJson,
+          amount_cents AS amountCents,
+          currency,
+          stripe_product_ref AS stripeProductRef,
+          stripe_price_ref AS stripePriceRef,
+          payment_method_policy AS paymentMethodPolicy,
+          stripe_payment_method_configuration_ref AS stripePaymentMethodConfigurationRef,
+          stripe_customer_copy_json AS stripeCustomerCopyJson,
+          implementation_credit_enabled AS implementationCreditEnabled,
+          implementation_credit_terms_json AS implementationCreditTermsJson,
+          delivery_calendar_id AS deliveryCalendarId,
+          accepted_at AS acceptedAt,
+          created_at AS createdAt
+        FROM booking_contracts WHERE booking_id = ?1 LIMIT 1`
+      )
+      .bind(bookingId)
+      .first();
   }
 
   async function fetchIdempotencyRecord(whereClause, ...values) {
@@ -1092,7 +1516,9 @@ function createD1Store(db) {
     async createContactInquiry(input) {
       const timestamp = input.createdAt || nowIso();
       const id = input.id || createId("inq");
-      await db
+      const delivery = input.crmDelivery
+        ? createCrmDelivery(id, input.crmDelivery, timestamp) : null;
+      const inquiryStatement = db
         .prepare(
           `
             INSERT INTO contact_inquiries (
@@ -1138,10 +1564,101 @@ function createD1Store(db) {
           input.deliveryStatus || "local_record_only",
           input.idempotencyRecordId,
           timestamp
-        )
-        .run();
+        );
+
+      if (delivery) {
+        // D1 batch commits both records, or rolls both back on any constraint
+        // failure. An accepted inquiry must never lose its required retry job.
+        await db.batch([
+          inquiryStatement,
+          db.prepare(`
+            INSERT INTO contact_crm_delivery (
+              id, inquiry_id, event_id, payload_json, state, attempts,
+              next_attempt_at, created_at, updated_at
+            ) VALUES (?1, ?2, ?3, ?4, 'pending', 0, ?5, ?5, ?5)
+          `).bind(delivery.id, id, delivery.eventId, delivery.payloadJson, timestamp)
+        ]);
+      } else {
+        await inquiryStatement.run();
+      }
 
       return this.getContactInquiryById(id);
+    },
+
+    async getCrmDeliveryByInquiryId(inquiryId) {
+      return normalizeCrmDelivery(await db.prepare(
+        "SELECT * FROM contact_crm_delivery WHERE inquiry_id = ?1 LIMIT 1"
+      ).bind(inquiryId).first());
+    },
+
+    async listDueCrmDeliveries({ at = nowIso(), limit = 10 } = {}) {
+      const result = await db.prepare(`
+        SELECT * FROM contact_crm_delivery
+        WHERE (state = 'pending' AND (next_attempt_at IS NULL OR next_attempt_at <= ?1))
+          OR (state = 'processing' AND lease_expires_at <= ?1)
+        ORDER BY CASE WHEN state = 'processing' THEN lease_expires_at
+          ELSE COALESCE(next_attempt_at, created_at) END, created_at, id
+        LIMIT ?2
+      `).bind(at, crmDeliveryLimit(limit)).all();
+      return result.results.map(normalizeCrmDelivery);
+    },
+
+    async claimCrmDelivery(id, { at = nowIso(), leaseToken, leaseExpiresAt }) {
+      validateCrmDeliveryLease({ at, leaseToken, leaseExpiresAt });
+      return normalizeCrmDelivery(await db.prepare(`
+        UPDATE contact_crm_delivery
+        SET state = 'processing', attempts = attempts + 1,
+          lease_token = ?3, lease_expires_at = ?4, updated_at = ?2
+        WHERE id = ?1 AND (
+          (state = 'pending' AND (next_attempt_at IS NULL OR next_attempt_at <= ?2))
+          OR (state = 'processing' AND lease_expires_at <= ?2)
+        )
+        RETURNING *
+      `).bind(id, at, leaseToken, leaseExpiresAt).first());
+    },
+
+    async finishCrmDelivery(id, { leaseToken, state, at = nowIso(),
+      nextAttemptAt = null, lastSafeErrorCode = "", submissionId = "", deliveryStatus }) {
+      validateCrmDeliveryFinish({ state, deliveryStatus });
+      if (!leaseToken) return false;
+      // Both predicates observe the same claim within D1's ordered transaction.
+      // Updating the contact first keeps the lease available for its predicate;
+      // if the outbox update fails, D1 rolls the contact update back as well.
+      const results = await db.batch([
+        db.prepare(`
+          UPDATE contact_inquiries SET delivery_status = ?3, updated_at = ?4
+          WHERE id = (SELECT inquiry_id FROM contact_crm_delivery
+            WHERE id = ?1 AND state = 'processing' AND lease_token = ?2)
+        `).bind(id, leaseToken, deliveryStatus, at),
+        db.prepare(`
+          UPDATE contact_crm_delivery
+          SET state = ?3, updated_at = ?4, next_attempt_at = ?5,
+            last_safe_error_code = ?6, submission_id = ?7,
+            lease_token = NULL, lease_expires_at = NULL
+          WHERE id = ?1 AND state = 'processing' AND lease_token = ?2
+            AND EXISTS (SELECT 1 FROM contact_inquiries WHERE id = inquiry_id)
+        `).bind(id, leaseToken, state, at, nextAttemptAt, lastSafeErrorCode, submissionId)
+      ]);
+      return Number(results[1].meta.changes) === 1;
+    },
+
+    async getCrmDeliverySummary({ at = nowIso() } = {}) {
+      const result = await db.prepare(`
+        SELECT
+          COUNT(CASE WHEN state = 'pending' THEN 1 END) AS pending,
+          COUNT(CASE WHEN state = 'processing' THEN 1 END) AS processing,
+          COUNT(CASE WHEN state = 'delivered' THEN 1 END) AS delivered,
+          COUNT(CASE WHEN state = 'needs_attention' THEN 1 END) AS needsAttention,
+          COUNT(CASE WHEN (state = 'pending' AND (next_attempt_at IS NULL OR next_attempt_at <= ?1))
+            OR (state = 'processing' AND lease_expires_at <= ?1) THEN 1 END) AS due,
+          MIN(CASE WHEN state != 'delivered' THEN created_at END) AS oldestUnresolvedCreatedAt
+        FROM contact_crm_delivery
+      `).bind(at).first();
+      return {
+        pending: Number(result.pending), processing: Number(result.processing),
+        delivered: Number(result.delivered), needsAttention: Number(result.needsAttention),
+        due: Number(result.due), oldestUnresolvedCreatedAt: result.oldestUnresolvedCreatedAt
+      };
     },
 
     async getContactInquiryById(id) {
@@ -1225,6 +1742,24 @@ function createD1Store(db) {
           `
         )
         .bind(input.duplicateFingerprint, input.sinceIso || "")
+        .first();
+      return normalizeContactInquiry(record);
+    },
+
+    async updateContactInquiryStatus(id, status, updatedAt = nowIso()) {
+      await db
+        .prepare("UPDATE contact_inquiries SET status = ?1, updated_at = ?2 WHERE id = ?3")
+        .bind(status, updatedAt, id)
+        .run();
+      const record = await db
+        .prepare(
+          `SELECT id, status, name, email, email_normalized, phone, company,
+             audience, audience_normalized, message, message_hash,
+             duplicate_fingerprint, source_page, consent_to_submit, consent_at,
+             delivery_status, idempotency_record_id, created_at, updated_at
+           FROM contact_inquiries WHERE id = ?1 LIMIT 1`
+        )
+        .bind(id)
         .first();
       return normalizeContactInquiry(record);
     },
@@ -1334,61 +1869,119 @@ function createD1Store(db) {
       }
 
       const bookingId = createId("book");
+      const bookingInsert = db
+        .prepare(
+          `
+            INSERT INTO bookings (
+              id, prospect_id, slot_id, selected_time_window_start,
+              selected_time_window_end, selected_time_zone, booking_status,
+              payment_status, reservation_amount, currency,
+              stripe_checkout_session_id, stripe_payment_reference,
+              confirmed_at, canceled_at, temporary_hold_expires_at,
+              checkout_started_at, created_at, updated_at, policy_version,
+              policy_accepted_at, checkout_idempotency_record_id,
+              checkout_audit_id, intake_summary
+            )
+            VALUES (
+              ?1, ?2, ?3, ?4, ?5, ?6,
+              'hold', 'hold_created', ?7, ?8, NULL, NULL,
+              NULL, NULL, ?9, ?10, ?10, ?10, ?11, ?12, ?13, ?14, ?15
+            )
+          `
+        )
+        .bind(
+          bookingId,
+          input.prospectId,
+          input.slotId,
+          input.selectedTimeWindowStart,
+          input.selectedTimeWindowEnd,
+          input.selectedTimeZone,
+          input.reservationAmount,
+          input.currency,
+          input.temporaryHoldExpiresAt,
+          input.createdAt,
+          input.policyVersion,
+          input.policyAcceptedAt,
+          input.checkoutIdempotencyRecordId || null,
+          input.checkoutAuditId || null,
+          input.intakeSummary || null
+        );
 
       try {
-        await db
-          .prepare(
-            `
-              INSERT INTO bookings (
-                id,
-                prospect_id,
-                slot_id,
-                selected_time_window_start,
-                selected_time_window_end,
-                selected_time_zone,
-                booking_status,
-                payment_status,
-                reservation_amount,
-                currency,
-                stripe_checkout_session_id,
-                stripe_payment_reference,
-                confirmed_at,
-                canceled_at,
-                temporary_hold_expires_at,
-                checkout_started_at,
-                created_at,
-                updated_at,
-                policy_version,
-                policy_accepted_at,
-                checkout_idempotency_record_id,
-                checkout_audit_id,
-                intake_summary
-              )
-              VALUES (
-                ?1, ?2, ?3, ?4, ?5, ?6,
-                'hold', 'hold_created', ?7, ?8, NULL, NULL,
-                NULL, NULL, ?9, ?10, ?10, ?10, ?11, ?12, ?13, ?14, ?15
-              )
-            `
-          )
-          .bind(
+        if (!input.contractInput) {
+          await bookingInsert.run();
+        } else {
+          const contract = createBookingContractSnapshot({
             bookingId,
-            input.prospectId,
-            input.slotId,
-            input.selectedTimeWindowStart,
-            input.selectedTimeWindowEnd,
-            input.selectedTimeZone,
-            input.reservationAmount,
-            input.currency,
-            input.temporaryHoldExpiresAt,
-            input.createdAt,
-            input.policyVersion,
-            input.policyAcceptedAt,
-            input.checkoutIdempotencyRecordId || null,
-            input.checkoutAuditId || null,
-            input.intakeSummary || null
-          )
-          .run();
+            ...input.contractInput
+          });
+          if (!input.stripeCheckoutIdempotencyKey) {
+            throw new Error("A stable Stripe idempotency key is required for a versioned booking.");
+          }
+          await db.batch([
+            bookingInsert,
+            db.prepare(
+              `INSERT INTO booking_contracts (
+                booking_id, release_id, offer_id, offer_version, terms_version,
+                terms_sha256, terms_snapshot_json, amount_cents, currency,
+                stripe_product_ref, stripe_price_ref,
+                payment_method_policy, stripe_payment_method_configuration_ref,
+                stripe_customer_copy_json,
+                implementation_credit_enabled, implementation_credit_terms_json,
+                delivery_calendar_id, accepted_at, created_at
+              ) VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,?12,?13,?14,?15,?16,?17,?18,?19)`
+            ).bind(
+              contract.bookingId,
+              contract.releaseId,
+              contract.offerId,
+              contract.offerVersion,
+              contract.termsVersion,
+              contract.termsSha256,
+              contract.termsSnapshotJson,
+              contract.amountCents,
+              contract.currency,
+              contract.stripeProductRef,
+              contract.stripePriceRef,
+              contract.paymentMethodPolicy,
+              contract.stripePaymentMethodConfigurationRef || null,
+              contract.stripeCustomerCopyJson,
+              contract.implementationCreditEnabled ? 1 : 0,
+              contract.implementationCreditTermsJson,
+              contract.deliveryCalendarId,
+              contract.acceptedAt,
+              contract.createdAt
+            ),
+            db.prepare(
+              `INSERT INTO booking_contract_events (
+                id, booking_id, event_type, prior_state, new_state,
+                actor_ref, event_at, idempotency_key, safe_metadata_json, created_at
+              ) VALUES (?1,?2,'contract_created',NULL,'accepted','website',?3,?4,?5,?3)`
+            ).bind(
+              createId("contract_event"),
+              bookingId,
+              input.createdAt,
+              `${bookingId}:contract_created`,
+              JSON.stringify({ releaseId: contract.releaseId, termsSha256: contract.termsSha256 })
+            ),
+            db.prepare(
+              `INSERT INTO checkout_intents (
+                id, booking_id, stripe_idempotency_key, release_id, offer_id,
+                offer_version, terms_version, terms_sha256, state,
+                stripe_session_ref, created_at, updated_at
+              ) VALUES (?1,?2,?3,?4,?5,?6,?7,?8,'prepared',NULL,?9,?9)`
+            ).bind(
+              createId("checkout_intent"),
+              bookingId,
+              input.stripeCheckoutIdempotencyKey,
+              contract.releaseId,
+              contract.offerId,
+              contract.offerVersion,
+              contract.termsVersion,
+              contract.termsSha256,
+              input.createdAt
+            )
+          ]);
+        }
       } catch (error) {
         if (String(error.message || "").includes("UNIQUE")) {
           throw new SlotUnavailableError();
@@ -1402,8 +1995,8 @@ function createD1Store(db) {
 
     async attachCheckoutSession(bookingId, input) {
       const timestamp = nowIso();
-      await db
-        .prepare(
+      await db.batch([
+        db.prepare(
           `
             UPDATE bookings
             SET stripe_checkout_session_id = ?1,
@@ -1420,8 +2013,13 @@ function createD1Store(db) {
           input.checkoutAuditId || null,
           timestamp,
           bookingId
-        )
-        .run();
+        ),
+        db.prepare(
+          `UPDATE checkout_intents
+           SET state = 'attached', stripe_session_ref = ?1, updated_at = ?2
+           WHERE booking_id = ?3 AND state IN ('prepared','session_created')`
+        ).bind(input.sessionId, timestamp, bookingId)
+      ]);
 
       await updateProspectStripeCustomer(bookingId, input.stripeCustomerId, timestamp);
 
@@ -1454,6 +2052,231 @@ function createD1Store(db) {
 
     async getBookingBySessionId(sessionId) {
       return fetchBooking("b.stripe_checkout_session_id = ?1", sessionId);
+    },
+
+    async getBookingContract(bookingId) {
+      const record = await fetchBookingContract(bookingId);
+      if (!record) return null;
+      return {
+        ...record,
+        offerVersion: Number(record.offerVersion),
+        amountCents: Number(record.amountCents),
+        implementationCreditEnabled: toBoolean(record.implementationCreditEnabled)
+      };
+    },
+
+    async getCheckoutIntent(bookingId) {
+      return db
+        .prepare(
+          `SELECT id, booking_id AS bookingId,
+             stripe_idempotency_key AS stripeIdempotencyKey,
+             release_id AS releaseId, offer_id AS offerId,
+             offer_version AS offerVersion, terms_version AS termsVersion,
+             terms_sha256 AS termsSha256, state,
+             stripe_session_ref AS stripeSessionRef,
+             last_safe_error_code AS lastSafeErrorCode,
+             created_at AS createdAt, updated_at AS updatedAt
+           FROM checkout_intents WHERE booking_id = ?1 LIMIT 1`
+        )
+        .bind(bookingId)
+        .first();
+    },
+
+    async markBookingManualReview(input) {
+      return markBookingForManualReview({
+        bookingId: input.bookingId,
+        sessionId: input.sessionId || null,
+        paymentReference: input.paymentReference || null,
+        stripeCustomerId: input.stripeCustomerId || null,
+        at: input.at || nowIso()
+      });
+    },
+
+    async getBookingDeliverable(bookingId) {
+      return db
+        .prepare(
+          `SELECT id, booking_id AS bookingId, deliverable_type AS deliverableType,
+             status, expected_session_end_at AS expectedSessionEndAt,
+             session_completed_at AS sessionCompletedAt, due_at AS dueAt,
+             delivered_at AS deliveredAt, artifact_ref AS artifactRef,
+             artifact_sha256 AS artifactSha256, late_detected_at AS lateDetectedAt,
+             remedy_status AS remedyStatus, refund_reference AS refundReference,
+             created_at AS createdAt, updated_at AS updatedAt
+           FROM booking_deliverables WHERE booking_id = ?1 LIMIT 1`
+        )
+        .bind(bookingId)
+        .first();
+    },
+
+    async updateBookingDeliverable(input) {
+      const allowed = new Set([
+        "awaiting_session", "pending", "delivered", "late",
+        "refund_requested", "refunded", "canceled"
+      ]);
+      if (!Array.isArray(input.expectedStatuses) || !input.expectedStatuses.length ||
+          !input.expectedStatuses.every((status) => allowed.has(status)) ||
+          !allowed.has(input.patch.status)) {
+        throw new Error("Invalid deliverable transition state.");
+      }
+      const placeholders = input.expectedStatuses.map((_, index) => `?${index + 12}`).join(",");
+      const result = await db
+        .prepare(
+          `UPDATE booking_deliverables SET
+             status = ?1,
+             expected_session_end_at = COALESCE(?2, expected_session_end_at),
+             session_completed_at = COALESCE(?3, session_completed_at),
+             due_at = COALESCE(?4, due_at),
+             delivered_at = COALESCE(?5, delivered_at),
+             artifact_ref = COALESCE(?6, artifact_ref),
+             artifact_sha256 = COALESCE(?7, artifact_sha256),
+             late_detected_at = COALESCE(?8, late_detected_at),
+             remedy_status = COALESCE(?9, remedy_status),
+             refund_reference = COALESCE(?10, refund_reference),
+             updated_at = ?11
+           WHERE booking_id = ?${11 + input.expectedStatuses.length + 1}
+             AND status IN (${placeholders})`
+        )
+        .bind(
+          input.patch.status,
+          input.patch.expectedSessionEndAt || null,
+          input.patch.sessionCompletedAt || null,
+          input.patch.dueAt || null,
+          input.patch.deliveredAt || null,
+          input.patch.artifactRef || null,
+          input.patch.artifactSha256 || null,
+          input.patch.lateDetectedAt || null,
+          input.patch.remedyStatus || null,
+          input.patch.refundReference || null,
+          input.at || nowIso(),
+          ...input.expectedStatuses,
+          input.bookingId
+        )
+        .run();
+      return result.meta?.changes ? this.getBookingDeliverable(input.bookingId) : null;
+    },
+
+    async appendBookingContractEvent(input) {
+      await db
+        .prepare(
+          `INSERT INTO booking_contract_events (
+             id, booking_id, event_type, prior_state, new_state, actor_ref,
+             event_at, idempotency_key, round_number, safe_metadata_json, created_at
+           ) VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11)
+           ON CONFLICT(idempotency_key) DO NOTHING`
+        )
+        .bind(
+          createId("contract_event"), input.bookingId, input.eventType,
+          input.priorState || null, input.newState || null, input.actorRef,
+          input.eventAt, input.idempotencyKey, input.roundNumber || null,
+          input.safeMetadataJson || null, input.createdAt || input.eventAt
+        )
+        .run();
+      const record = await db
+        .prepare(
+          `SELECT id, booking_id AS bookingId, event_type AS eventType,
+             prior_state AS priorState, new_state AS newState,
+             actor_ref AS actorRef, event_at AS eventAt,
+             idempotency_key AS idempotencyKey, round_number AS roundNumber,
+             safe_metadata_json AS safeMetadataJson, created_at AS createdAt
+           FROM booking_contract_events WHERE idempotency_key = ?1 LIMIT 1`
+        )
+        .bind(input.idempotencyKey)
+        .first();
+      return record;
+    },
+
+    async listBookingContractEvents(bookingId) {
+      const results = await db
+        .prepare(
+          `SELECT id, booking_id AS bookingId, event_type AS eventType,
+             prior_state AS priorState, new_state AS newState,
+             actor_ref AS actorRef, event_at AS eventAt,
+             idempotency_key AS idempotencyKey, round_number AS roundNumber,
+             safe_metadata_json AS safeMetadataJson, created_at AS createdAt
+           FROM booking_contract_events WHERE booking_id = ?1 ORDER BY event_at, id`
+        )
+        .bind(bookingId)
+        .all();
+      return results.results || [];
+    },
+
+    async listBookingOutbox(bookingId = "") {
+      const where = bookingId
+        ? "WHERE booking_id = ?1 AND state IN ('pending','failed')"
+        : "WHERE state IN ('pending','failed')";
+      const statement = db.prepare(
+        `SELECT id, booking_id AS bookingId, event_type AS eventType,
+           effect_type AS effectType, dedupe_key AS dedupeKey,
+           safe_payload_json AS safePayloadJson, state, attempts,
+           next_attempt_at AS nextAttemptAt, last_safe_error_code AS lastSafeErrorCode,
+           created_at AS createdAt, updated_at AS updatedAt, sent_at AS sentAt
+         FROM integration_outbox ${where} ORDER BY created_at, id`
+      );
+      const results = bookingId ? await statement.bind(bookingId).all() : await statement.all();
+      return results.results || [];
+    },
+
+    async claimBookingOutbox(id, at = nowIso()) {
+      const result = await db
+        .prepare(
+          `UPDATE integration_outbox SET state='processing', attempts=attempts+1, updated_at=?1
+           WHERE id=?2 AND state IN ('pending','failed')`
+        )
+        .bind(at, id)
+        .run();
+      if (!result.meta?.changes) return null;
+      return db
+        .prepare(
+          `SELECT id, booking_id AS bookingId, event_type AS eventType,
+             effect_type AS effectType, dedupe_key AS dedupeKey, state, attempts,
+             updated_at AS updatedAt FROM integration_outbox WHERE id=?1`
+        )
+        .bind(id)
+        .first();
+    },
+
+    async finishBookingOutbox(id, input) {
+      if (!["sent", "failed"].includes(input.state)) throw new Error("Invalid outbox result state.");
+      await db
+        .prepare(
+          `UPDATE integration_outbox SET state=?1, last_safe_error_code=?2,
+             sent_at=CASE WHEN ?1='sent' THEN ?3 ELSE sent_at END,
+             next_attempt_at=CASE WHEN ?1='failed' THEN ?4 ELSE NULL END,
+             updated_at=?3 WHERE id=?5 AND state='processing'`
+        )
+        .bind(
+          input.state,
+          input.lastSafeErrorCode || null,
+          input.at,
+          input.nextAttemptAt || null,
+          id
+        )
+        .run();
+      return true;
+    },
+
+    async listFulfillmentWatchItems(input) {
+      const awaitingCutoff = new Date(
+        new Date(input.nowIso).getTime() - input.awaitingGraceMinutes * 60 * 1000
+      ).toISOString();
+      const deadlineHorizon = new Date(
+        new Date(input.nowIso).getTime() + input.deadlineLeadMinutes * 60 * 1000
+      ).toISOString();
+      const results = await db
+        .prepare(
+          `SELECT id, booking_id AS bookingId, deliverable_type AS deliverableType,
+             status, expected_session_end_at AS expectedSessionEndAt,
+             session_completed_at AS sessionCompletedAt, due_at AS dueAt,
+             delivered_at AS deliveredAt, late_detected_at AS lateDetectedAt,
+             remedy_status AS remedyStatus, updated_at AS updatedAt
+           FROM booking_deliverables
+           WHERE (status='awaiting_session' AND expected_session_end_at <= ?1)
+              OR (status='pending' AND due_at IS NOT NULL AND due_at <= ?2)
+           ORDER BY COALESCE(due_at, expected_session_end_at), id`
+        )
+        .bind(awaitingCutoff, deadlineHorizon)
+        .all();
+      return results.results || [];
     },
 
     async listActiveSlotReservations({ startIso, endIso, nowTimeIso = nowIso() }) {
@@ -1546,34 +2369,105 @@ function createD1Store(db) {
         };
       }
 
-      try {
-        const result = await db
-          .prepare(
-            `
-              UPDATE bookings
-              SET booking_status = 'confirmed',
-                  payment_status = 'paid',
-                  stripe_checkout_session_id = COALESCE(?1, stripe_checkout_session_id),
-                  stripe_payment_reference = COALESCE(?2, stripe_payment_reference),
-                  confirmed_at = COALESCE(confirmed_at, ?3),
-                  canceled_at = NULL,
-                  temporary_hold_expires_at = NULL,
-                  updated_at = ?3
-              WHERE id = ?4
-                AND booking_status = 'hold'
-                AND temporary_hold_expires_at IS NOT NULL
-                AND temporary_hold_expires_at > ?3
-            `
-          )
-          .bind(
-            input.sessionId || null,
-            input.paymentReference || null,
-            timestamp,
-            input.bookingId
-          )
-          .run();
+      const contract = await fetchBookingContract(input.bookingId);
+      const confirmationStatements = [
+        db.prepare(
+          `UPDATE bookings
+           SET booking_status = 'confirmed', payment_status = 'paid',
+               stripe_checkout_session_id = COALESCE(?1, stripe_checkout_session_id),
+               stripe_payment_reference = COALESCE(?2, stripe_payment_reference),
+               confirmed_at = COALESCE(confirmed_at, ?3), canceled_at = NULL,
+               temporary_hold_expires_at = NULL, updated_at = ?3
+           WHERE id = ?4 AND booking_status = 'hold'
+             AND temporary_hold_expires_at IS NOT NULL
+             AND temporary_hold_expires_at > ?3`
+        ).bind(
+          input.sessionId || null,
+          input.paymentReference || null,
+          timestamp,
+          input.bookingId
+        )
+      ];
 
-        if (!result.meta?.changes) {
+      if (!contract || toBoolean(contract.implementationCreditEnabled)) {
+        confirmationStatements.push(
+          db.prepare(
+            `INSERT INTO deposit_credits (
+              id, booking_id, prospect_id, deposit_credit_available,
+              deposit_credit_amount, deposit_credit_applied,
+              deposit_credit_applied_at, deposit_credit_applied_invoice_reference,
+              created_at, updated_at
+            ) SELECT ?1,b.id,b.prospect_id,1,b.reservation_amount,0,NULL,NULL,?3,?3
+              FROM bookings b
+              WHERE b.id = ?2 AND b.booking_status = 'confirmed' AND b.confirmed_at = ?3
+            ON CONFLICT(booking_id) DO UPDATE SET
+              deposit_credit_available = 1,
+              deposit_credit_amount = excluded.deposit_credit_amount,
+              updated_at = excluded.updated_at`
+          ).bind(
+            createId("credit"),
+            currentBooking.id,
+            timestamp
+          )
+        );
+      } else {
+        confirmationStatements.push(
+          db.prepare(
+            `INSERT INTO booking_deliverables (
+              id, booking_id, deliverable_type, status,
+              expected_session_end_at, remedy_status, created_at, updated_at
+            ) SELECT ?1,b.id,'workflow_map_first_build_plan','awaiting_session',?3,'none',?4,?4
+              FROM bookings b
+              WHERE b.id = ?2 AND b.booking_status = 'confirmed' AND b.confirmed_at = ?4
+            ON CONFLICT(booking_id, deliverable_type) DO NOTHING`
+          ).bind(
+            createId("deliverable"),
+            currentBooking.id,
+            currentBooking.selectedTimeWindowEnd,
+            timestamp
+          ),
+          db.prepare(
+            `INSERT INTO booking_contract_events (
+              id, booking_id, event_type, prior_state, new_state,
+              actor_ref, event_at, idempotency_key, safe_metadata_json, created_at
+            ) SELECT ?1,b.id,'contract_validated','hold','confirmed','stripe_webhook',?3,?4,?5,?3
+              FROM bookings b
+              WHERE b.id = ?2 AND b.booking_status = 'confirmed' AND b.confirmed_at = ?3
+            ON CONFLICT(idempotency_key) DO NOTHING`
+          ).bind(
+            createId("contract_event"),
+            currentBooking.id,
+            timestamp,
+            `${currentBooking.id}:contract_validated:${input.sessionId}`,
+            JSON.stringify({ releaseId: contract.releaseId, termsSha256: contract.termsSha256 })
+          )
+        );
+        for (const effectType of ["calendar", "customer_notification", "internal_notification"]) {
+          confirmationStatements.push(
+            db.prepare(
+              `INSERT INTO integration_outbox (
+                id, booking_id, event_type, effect_type, dedupe_key,
+                safe_payload_json, state, attempts, next_attempt_at,
+                created_at, updated_at
+              ) SELECT ?1,b.id,'payment_confirmed',?3,?4,?5,'pending',0,?6,?6,?6
+                FROM bookings b
+                WHERE b.id = ?2 AND b.booking_status = 'confirmed' AND b.confirmed_at = ?6
+              ON CONFLICT(dedupe_key) DO NOTHING`
+            ).bind(
+              createId("outbox"),
+              currentBooking.id,
+              effectType,
+              `${currentBooking.id}:payment_confirmed:${effectType}`,
+              JSON.stringify({ bookingId: currentBooking.id, releaseId: contract.releaseId }),
+              timestamp
+            )
+          );
+        }
+      }
+
+      try {
+        const results = await db.batch(confirmationStatements);
+        if (!results[0]?.meta?.changes) {
           return {
             state: "manual_review",
             booking: await markBookingForManualReview({
@@ -1614,37 +2508,6 @@ function createD1Store(db) {
       if (!booking) {
         return { state: "missing", booking: null, reason: "booking_missing" };
       }
-
-      await db
-        .prepare(
-          `
-            INSERT INTO deposit_credits (
-              id,
-              booking_id,
-              prospect_id,
-              deposit_credit_available,
-              deposit_credit_amount,
-              deposit_credit_applied,
-              deposit_credit_applied_at,
-              deposit_credit_applied_invoice_reference,
-              created_at,
-              updated_at
-            )
-            VALUES (?1, ?2, ?3, 1, ?4, 0, NULL, NULL, ?5, ?5)
-            ON CONFLICT(booking_id) DO UPDATE SET
-              deposit_credit_available = 1,
-              deposit_credit_amount = excluded.deposit_credit_amount,
-              updated_at = excluded.updated_at
-          `
-        )
-        .bind(
-          createId("credit"),
-          booking.id,
-          booking.prospectId,
-          booking.reservationAmount,
-          timestamp
-        )
-        .run();
 
       return {
         state: "confirmed",
@@ -1695,10 +2558,43 @@ function createD1Store(db) {
           nowIso()
         )
         .run();
+    },
+
+    async deleteExpiredMeasurementEvents(at = nowIso()) {
+      const result = await db
+        .prepare(
+          `DELETE FROM booking_events
+           WHERE event_type='paid_plan_start'
+             AND json_extract(payload_json, '$.retentionDeleteAfter') IS NOT NULL
+             AND json_extract(payload_json, '$.retentionDeleteAfter') <= ?1`
+        )
+        .bind(at)
+        .run();
+      return Number(result.meta?.changes || 0);
+    },
+
+    async getLatestEventByType(eventType) {
+      return db
+        .prepare(
+          `SELECT id, booking_id AS bookingId, event_type AS eventType,
+             payload_json AS payloadJson, created_at AS createdAt
+           FROM booking_events WHERE event_type=?1 ORDER BY created_at DESC LIMIT 1`
+        )
+        .bind(eventType)
+        .first();
     }
   };
 }
 
 export function getBookingStore(env) {
-  return env.BOOKING_DB ? createD1Store(env.BOOKING_DB) : createMemoryStore();
+  const store = env.BOOKING_DB ? createD1Store(env.BOOKING_DB) : createMemoryStore();
+  if (env.BOOKING_DB && env.AIC_CRM_BOOKING_EVENTS_ENABLED === "true") {
+    const payments = createBookingPaymentStore(env.BOOKING_DB);
+    store.reconcileVerifiedRefund = (input) => payments.reconcileVerifiedRefund(input);
+    store.getBookingByPaymentIntentId = async (id) => {
+      const bookingId = await payments.findBookingIdByPaymentIntent(id);
+      return bookingId ? store.getBookingById(bookingId) : null;
+    };
+  }
+  return store;
 }

@@ -27,7 +27,7 @@ function loadPixelHarness(source) {
       return [firstScript];
     }
   };
-  const window = { location: { hostname: "aissistedconsulting.com" } };
+  const window = { location: new URL("https://aissistedconsulting.com") };
   const context = vm.createContext({
     Date,
     Number,
@@ -66,12 +66,18 @@ function loadContactHarness(source, response) {
     ["websiteLeaveBlank", ""],
     ["consentToSubmit", "on"]
   ]);
+  const topicField = {
+    get value() { return formValues.get("audience"); },
+    set value(value) { formValues.set("audience", value); }
+  };
   const form = {
     addEventListener(name, callback) {
       if (name === "submit") submitListener = callback;
     },
-    querySelector() {
-      return submitButton;
+    querySelector(selector) {
+      if (selector === 'select[name="audience"]') return topicField;
+      if (selector === "[data-contact-submit]") return submitButton;
+      return null;
     },
     reportValidity() {
       return true;
@@ -88,6 +94,11 @@ function loadContactHarness(source, response) {
   const context = vm.createContext({
     Date,
     Error,
+    AbortController,
+    URLSearchParams,
+    location: new URL("https://aissistedconsulting.com/contact/"),
+    setTimeout,
+    clearTimeout,
     FormData: FakeFormData,
     JSON,
     Map,
@@ -219,8 +230,18 @@ test("contact form tracks a lead only after the API confirms success", async () 
   const source = await readFile(new URL("../contact/contact.js", import.meta.url), "utf8");
   const harness = loadContactHarness(source, {
     ok: true,
+    status: 200,
     async text() {
-      return JSON.stringify({ ok: true });
+      return JSON.stringify({
+        ok: true,
+        replayed: false,
+        inquiry: {
+          id: "inq_0123456789abcdef0123456789abcdef",
+          status: "received",
+          createdAt: "2026-09-27T12:00:00.000Z",
+          deliveryStatus: "crm_relay_delivered"
+        }
+      });
     }
   });
   const result = await harness.submit();
@@ -235,6 +256,7 @@ test("contact form does not track a lead when submission fails", async () => {
   const source = await readFile(new URL("../contact/contact.js", import.meta.url), "utf8");
   const harness = loadContactHarness(source, {
     ok: false,
+    status: 400,
     async text() {
       return JSON.stringify({ ok: false, error: "Rejected" });
     }

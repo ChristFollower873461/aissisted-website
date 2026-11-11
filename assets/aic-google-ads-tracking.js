@@ -49,6 +49,13 @@
   ];
   var MAX_ATTRIBUTION_SOURCE_LENGTH = 500;
 
+  function isTrackingSuppressed() {
+    // New preview projects and branch hosts must stay silent by default.
+    var origin = String(window.location.origin || "").toLowerCase();
+    return origin !== "https://aissistedconsulting.com" &&
+      origin !== "https://www.aissistedconsulting.com";
+  }
+
   function safeJsonParse(value) {
     try {
       return value ? JSON.parse(value) : {};
@@ -75,6 +82,11 @@
   }
 
   function ensureGoogleTag() {
+    if (isTrackingSuppressed()) {
+      window.__aicTrackingSuppressed = "nonproduction_preview";
+      return false;
+    }
+
     window.dataLayer = window.dataLayer || [];
     if (typeof window.gtag !== "function") {
       window.gtag = function () {
@@ -116,6 +128,8 @@
       script.src = "https://www.googletagmanager.com/gtag/js?id=" + encodeURIComponent(GOOGLE_ADS_TAG_ID);
       document.head.appendChild(script);
     }
+
+    return true;
   }
 
   function currentTouch() {
@@ -232,6 +246,7 @@
   }
 
   function recordGoogleAdsConversion(eventName, payload, explicitLabel) {
+    if (isTrackingSuppressed()) return false;
     if (typeof window.gtag !== "function") return false;
 
     var conversion = normalizedConversionConfig(eventName, explicitLabel, payload);
@@ -273,6 +288,10 @@
       touch,
       detail || {}
     );
+
+    // Keep attribution and the return value available to forms, but do not
+    // publish preview events to an existing SDK, data layer or tracking listener.
+    if (isTrackingSuppressed()) return payload;
 
     window.dataLayer = window.dataLayer || [];
     window.dataLayer.push(payload);
@@ -347,6 +366,7 @@
     attributionSourcePage: attributionSourcePage,
     emit: emit,
     recordGoogleAdsConversion: recordGoogleAdsConversion,
-    ensureGoogleTag: ensureGoogleTag
+    ensureGoogleTag: ensureGoogleTag,
+    isTrackingSuppressed: isTrackingSuppressed
   };
 })();

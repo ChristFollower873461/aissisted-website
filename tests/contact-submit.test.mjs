@@ -103,7 +103,9 @@ test("contact submit relays structured attribution to AICCRM", async () => {
     const { response, payload } = await submitContact(
       validPayload({
         sourcePage:
-          "/contact/?utm_source=codex&utm_medium=production_smoke&utm_campaign=aiccrm_relay&gclid=gclid-contact"
+          "/contact/?utm_source=codex&utm_medium=production_smoke&utm_campaign=aiccrm_relay&gclid=gclid-contact",
+        qualificationStatus: "customer",
+        qualification_status: "sales_qualified"
       }),
       "contact-crm-relay-key-0001",
       {
@@ -123,6 +125,8 @@ test("contact submit relays structured attribution to AICCRM", async () => {
     assert.equal(crmPayload.utmCampaign, "aiccrm_relay");
     assert.equal(crmPayload.gclid, "gclid-contact");
     assert.match(crmPayload.qualifiedSourceEventId, /^website-contact-inq_/);
+    assert.equal(crmPayload.qualificationStatus, "unknown");
+    assert.equal(crmPayload.consent, true);
     assert.equal(payload.inquiry.deliveryStatus, "crm_relay_delivered");
     const store = getBookingStore({});
     const inquiry = await store.getContactInquiryById(payload.inquiry.id);

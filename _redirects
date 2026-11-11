@@ -7,6 +7,13 @@
 /workflow-automation /workflow-automation/ 301
 /guides/workflow-automation-with-control /workflow-automation/ 301
 /guides/workflow-automation-with-control/ /workflow-automation/ 301
+/guides/public-evidence-aissisted-consulting-blog / 301
+/guides/public-evidence-aissisted-consulting-blog/ / 301
+/blog / 301
+/blog/ / 301
+/blog/* / 301
+/guides/public-evidence-contact-aissisted-consulting /contact/ 301
+/guides/public-evidence-contact-aissisted-consulting/ /contact/ 301
 /services /services/ 301
 /services.html /services/ 301
 /privacy-and-control /privacy-and-control/ 301
@@ -23,6 +30,9 @@
 /grail/fit-check/* /grail/ 301
 /grail/activation.html /grail/activation 301
 /grail/support /grail/support/ 301
+/grail/delete-account /grail/delete-account/ 301
+/grail/account-deletion /grail/delete-account/ 301
+/grail/account-deletion/ /grail/delete-account/ 301
 /grail/privacy /privacy/grail/ 301
 /grail/privacy/ /privacy/grail/ 301
 /grail/terms /grail/terms/ 301
@@ -36,6 +46,7 @@
 /docs/mcp /docs/mcp.html 200
 /docs/mcp/ /docs/mcp.html 200
 /family-ai-help /family-ai-help/ 301
+/for-parents /for-parents/ 301
 /privacy/unrealtor /privacy/unrealtor/ 301
 /privacy/unrealtor.html /privacy/unrealtor/ 301
 /industries /industries/ 301
@@ -51,9 +62,13 @@
 /guides/what-not-to-share-with-ai /guides/what-not-to-share-with-ai/ 301
 /guides/ai-tools-for-household-admin /guides/ai-tools-for-household-admin/ 301
 
-# Legacy AIssisted routes from the current production site that are safe to consolidate.
-# Campaign/funnel routes /openclaw, /openclaw-florida, /reserve, /thank-you, /blog/,
-# and /tools intentionally remain live files because they carry Axos/Axon tracking.
+# Legacy AIssisted routes consolidated into the approved company and offer paths.
+/reserve /book/ 301
+/reserve.html /book/ 301
+/openclaw /services/ 301
+/openclaw.html /services/ 301
+/openclaw-florida /services/ 301
+/openclaw-florida.html /services/ 301
 /pricing /book/ 301
 /pricing.html /book/ 301
 /case-studies /small-business-ai-help/ 301

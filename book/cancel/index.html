@@ -6,6 +6,7 @@
     <title>Booking Canceled | AIssisted Consulting</title>
     <meta name="description" content="The AIssisted Consulting appointment checkout was canceled before confirmation.">
     <meta name="robots" content="noindex, nofollow">
+    <meta name="theme-color" content="#06080f">
     <link rel="canonical" href="https://aissistedconsulting.com/book/cancel/">
     <meta property="og:type" content="website">
     <meta property="og:title" content="Booking Canceled | AIssisted Consulting">
@@ -16,8 +17,9 @@
     <meta name="twitter:title" content="Booking Canceled | AIssisted Consulting">
     <meta name="twitter:description" content="The AIssisted Consulting appointment checkout was canceled before confirmation.">
     <meta name="twitter:image" content="https://aissistedconsulting.com/assets/og-image.jpg">
-    <link rel="stylesheet" href="../../styles.css?v=11.11.4">
-    <link rel="stylesheet" href="../booking.css?v=11.11.4">
+    <link rel="preload" href="../../assets/fonts/martian-mono-var.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="../../assets/site/site.css?v=20260907">
+    <link rel="stylesheet" href="../../assets/site/book.css?v=20260907">
     <script type="application/ld+json">
     {
           "@context": "https://schema.org",
@@ -43,55 +45,78 @@
   <body data-page="book">
     <a class="skip-link" href="#main">Skip to content</a>
 
-    <header class="site-header">
+    <header class="site-header" data-header>
       <div class="container nav-wrap">
         <a class="brand" href="../../" aria-label="AIssisted Consulting home">
-          <img src="../../assets/logo.png" alt="AIssisted Consulting logo" width="58" height="44">
-          <span>
-            <strong>AIssisted Consulting</strong>
-            <small>Ocala AI help</small>
-          </span>
+          <img src="../../assets/logo-mark-192.png" alt="" width="40" height="40">
+          <strong>AIssisted Consulting</strong>
         </a>
-        <button class="menu-toggle" type="button" data-menu-toggle aria-expanded="false" aria-controls="site-nav">
-          Menu
-        </button>
-        <nav class="nav-links" id="site-nav" data-nav-links aria-label="Primary navigation">
-          <a href="../../small-business-ai-help/">Small business</a>
-          <a href="../../services/">Services</a>
-          <a href="../../family-ai-help/">Family</a>
-          <a href="../../industries/">Industries</a>
-          <a href="../../privacy-and-control/">Privacy</a>
-          <a href="../../about/">About</a>
-          <a href="../">Book</a>
-          <a href="../../contact/">Contact</a>
-        </nav>
+        <div class="nav-cluster">
+          <a class="btn btn-gold btn-sm" href="../">Book</a>
+          <button class="menu-btn" type="button" data-menu-open aria-expanded="false" aria-controls="site-menu" aria-haspopup="dialog">
+            <span class="menu-lines" aria-hidden="true"><i></i><i></i></span>
+            <span>Menu</span>
+          </button>
+        </div>
       </div>
     </header>
 
-    <main id="main" class="state-page">
-      <div class="state-wrap">
-        <section class="state-card">
-          <span class="state-pill">Checkout canceled</span>
-          <h1>Your appointment was not confirmed.</h1>
-          <p>Stripe checkout was canceled before payment completion. The appointment window remains unconfirmed, and any temporary hold will expire automatically if it has not already.</p>
-          <div class="state-meta">
-            <div class="state-row">
-              <span>What to do next</span>
-              <strong>Return to booking and choose an open slot.</strong>
-            </div>
-            <div class="state-row">
-              <span>Need a manual handoff?</span>
-              <strong>Email pj@aissistedconsulting.com or call 352-817-3567.</strong>
-            </div>
-          </div>
-          <div class="state-actions">
-            <a class="btn btn-primary" href="../">Return to booking</a>
-            <a class="btn btn-secondary" href="../../contact/">Contact AIssisted</a>
-          </div>
-        </section>
+    <div class="site-menu" id="site-menu" data-menu role="dialog" aria-modal="true" aria-label="Site menu" hidden>
+      <div class="container menu-top">
+        <a class="brand" href="../../" aria-label="AIssisted Consulting home">
+          <img src="../../assets/logo-mark-192.png" alt="" width="40" height="40">
+          <strong>AIssisted Consulting</strong>
+        </a>
+        <button class="menu-btn is-close" type="button" data-menu-close>
+          <span class="menu-lines" aria-hidden="true"><i></i><i></i></span>
+          <span>Close</span>
+        </button>
       </div>
+      <div class="container menu-body">
+        <nav class="menu-nav" aria-label="Primary navigation">
+          <ol>
+            <li style="--i:0"><a href="../../services/"><small class="num">01</small>Services</a></li>
+            <li style="--i:1"><a href="../../privacy-and-control/"><small class="num">02</small>Private AI</a></li>
+            <li style="--i:2"><a href="../../industries/"><small class="num">03</small>Industries</a></li>
+            <li style="--i:3"><a href="../../about/"><small class="num">04</small>About</a></li>
+            <li style="--i:4"><a href="../../contact/"><small class="num">05</small>Contact</a></li>
+          </ol>
+        </nav>
+        <div class="menu-foot">
+          <p class="menu-tag">Local. Trusted. <span class="accent">AI.</span></p>
+          <a class="btn btn-gold" href="../?entry_route=navigation&amp;cta_id=primary_nav_book">Book the $225 plan</a>
+          <address>
+            <a href="tel:+13528173567">(352) 817-3567</a>
+            <a href="mailto:pj@aissistedconsulting.com">pj@aissistedconsulting.com</a>
+            <span>Ocala, Florida</span>
+          </address>
+        </div>
+      </div>
+    </div>
+
+    <main id="main" class="state-page">
+      <section class="state-card">
+        <span class="state-pill">Checkout canceled</span>
+        <h1>Your time was not confirmed.</h1>
+        <p>Checkout was canceled before payment completed. Nothing is held, and any temporary hold expires on its own.</p>
+        <div class="state-meta">
+          <div class="state-row">
+            <span>Next</span>
+            <strong>Return to booking and pick an open hour.</strong>
+          </div>
+          <div class="state-row">
+            <span>Rather talk to a person?</span>
+            <strong>Email pj@aissistedconsulting.com or call (352) 817-3567.</strong>
+          </div>
+        </div>
+        <div class="state-actions">
+          <a class="btn btn-gold" href="../">Return to booking</a>
+          <a class="btn btn-ghost" href="../../contact/">Contact us</a>
+        </div>
+      </section>
     </main>
 
     <script src="../../main.js?v=20260718" defer></script>
+    <script src="../../assets/site/site.js?v=20260907" defer></script>
   </body>
 </html>

@@ -8,8 +8,7 @@ import {
   unsupportedMediaType,
   readJson
 } from "../_lib/http.js";
-import { relayWebsiteIntakeToAicCrm } from "../_lib/aic-crm.js";
-import { buildCrmAttribution } from "../_lib/crm-attribution.js";
+import { createContactInquiryWithCrmDelivery, deliverContactInquiryToCrm } from "../_lib/contact-crm-delivery.js";
 import { getBookingConfig } from "../_lib/config.js";
 import { sendContactInquiryNotification } from "../_lib/notifications.js";
 import { getBookingStore } from "../_lib/storage.js";
@@ -339,44 +338,20 @@ export async function onRequest(context) {
     }
 
     const createdAt = new Date().toISOString();
-    const inquiry = await store.createContactInquiry({
-      ...normalized,
-      messageHash,
-      duplicateFingerprint,
-      consentAt: createdAt,
-      createdAt,
-      status: "received",
-      deliveryStatus: "local_record_only",
-      idempotencyRecordId: idempotencyRecord.id
+    const inquiry = await createContactInquiryWithCrmDelivery({
+      store,
+      input: {
+        ...normalized,
+        messageHash,
+        duplicateFingerprint,
+        consentAt: createdAt,
+        createdAt,
+        status: "received",
+        deliveryStatus: "local_record_only",
+        idempotencyRecordId: idempotencyRecord.id
+      }
     });
-    const crmAttribution = buildCrmAttribution({
-      sourcePage: normalized.sourcePage,
-      fallbackPath: "/contact/",
-      sourceChannel: "website",
-      formName: "contact-page",
-      qualifiedSourceEventId: `website-contact-${inquiry.id}`
-    });
-    const crmRelay = await relayWebsiteIntakeToAicCrm(context.env, {
-      name: normalized.name,
-      email: normalized.email,
-      phone: normalized.phone,
-      companyName: normalized.company,
-      inquiryType: normalized.audience || "send_inquiry",
-      message: normalized.message,
-      ...crmAttribution,
-      consent: true,
-      websiteLeaveBlank: ""
-    });
-    if (!crmRelay.ok && !crmRelay.skipped) {
-      console.warn("[contact] CRM relay failed.");
-    }
-    const deliveryStatus = crmRelay.ok
-      ? "crm_relay_delivered"
-      : crmRelay.skipped
-        ? "local_record_only"
-        : "crm_relay_failed";
-    const updatedInquiry =
-      (await store.updateContactInquiryDeliveryStatus(inquiry.id, deliveryStatus)) || inquiry;
+    const updatedInquiry = await deliverContactInquiryToCrm({ store, env: context.env, inquiry });
     const body = inquiryResponse(updatedInquiry);
     await store.markIdempotencySucceeded(idempotencyRecord.id, {
       targetType: "contact_inquiry",

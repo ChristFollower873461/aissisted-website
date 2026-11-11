@@ -1,9 +1,12 @@
 import { formatCurrency, formatDetailedSlot } from "./time.js";
 
-async function postJson(url, payload) {
+async function postJson(url, payload, idempotencyKey = "") {
   const response = await fetch(url, {
     method: "POST",
-    headers: { "content-type": "application/json" },
+    headers: {
+      "content-type": "application/json",
+      ...(idempotencyKey ? { "idempotency-key": idempotencyKey } : {})
+    },
     body: JSON.stringify(payload)
   });
 
@@ -59,6 +62,8 @@ async function sendResendEmail({
 function contactTopicLabel(value) {
   const labels = {
     small_business_workflow: "Small business workflow",
+    custom_development: "Custom software development",
+    individual_software_build: "Individual software build",
     family_ai_question: "Family AI question",
     privacy_and_control: "Privacy and control",
     booking_or_consult: "Booking or consult",
@@ -178,7 +183,11 @@ export async function sendBookingNotifications({ config, booking }) {
     depositCreditAvailable: Boolean(booking.depositCreditAvailable)
   };
 
-  console.log("[booking-confirmed]", summary);
+  console.log("[booking-confirmed]", {
+    bookingId: booking.id,
+    offerId: booking.offerId || "legacy",
+    offerVersion: booking.offerVersion || 1
+  });
 
   if (config.internalNotificationWebhook) {
     try {
@@ -205,6 +214,37 @@ export async function sendBookingNotifications({ config, booking }) {
   }
 }
 
+export async function sendBookingNotificationEffect({ config, booking, effectType, dedupeKey }) {
+  const summary = {
+    bookingId: booking.id,
+    company: booking.prospectCompany || "",
+    customerName: booking.prospectName || "",
+    customerEmail: booking.prospectEmail || "",
+    slot: formatDetailedSlot(
+      booking.selectedTimeWindowStart,
+      booking.selectedTimeWindowEnd,
+      booking.selectedTimeZone
+    ),
+    amount: formatCurrency(booking.reservationAmount, booking.currency),
+    offerId: booking.offerId || "legacy",
+    offerVersion: booking.offerVersion || 1,
+    implementationCreditAvailable: Boolean(booking.depositCreditAvailable)
+  };
+  const isInternal = effectType === "internal_notification";
+  const url = isInternal
+    ? config.internalNotificationWebhook
+    : effectType === "customer_notification"
+      ? config.customerNotificationWebhook
+      : "";
+  if (!url) return { status: "skipped", reason: "not_configured" };
+  await postJson(url, {
+    type: "booking.confirmed",
+    audience: isInternal ? "internal" : "customer",
+    summary
+  }, dedupeKey);
+  return { status: "delivered" };
+}
+
 export async function sendManualReviewNotification({ config, booking, reason, eventId }) {
   const summary = {
     bookingId: booking.id,
@@ -221,7 +261,11 @@ export async function sendManualReviewNotification({ config, booking, reason, ev
     amount: formatCurrency(booking.reservationAmount, booking.currency)
   };
 
-  console.error("[booking-manual-review]", summary);
+  console.error("[booking-manual-review]", {
+    bookingId: booking.id,
+    reason,
+    eventId: eventId || ""
+  });
 
   if (config.internalNotificationWebhook) {
     try {

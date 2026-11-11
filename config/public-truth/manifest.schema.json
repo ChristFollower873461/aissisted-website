@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aissistedconsulting.com/schemas/public-truth-manifest-v2.json",
+  "title": "AIssisted Public Truth Manifest v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "registryId", "registryVersion", "approvedRegistrySha256", "approvedPublicProjectionSha256", "status", "approvedBy", "approvedAt", "company", "lanes", "offer", "fitCall", "proof", "products"],
+  "properties": {
+    "schemaVersion": {"const": 2},
+    "registryId": {"const": "aissisted_public_truth"},
+    "registryVersion": {"type": "string", "minLength": 1},
+    "approvedRegistrySha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "approvedPublicProjectionSha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "status": {"enum": ["approved_not_effective", "effective", "retired"]},
+    "approvedBy": {"type": "string", "minLength": 1},
+    "approvedAt": {"type": "string", "format": "date-time"},
+    "company": {"type": "object"},
+    "lanes": {"type": "array", "minItems": 2, "maxItems": 2},
+    "offer": {"type": "object"},
+    "fitCall": {"type": "object"},
+    "proof": {"type": "object"},
+    "products": {"type": "object"}
+  }
+}

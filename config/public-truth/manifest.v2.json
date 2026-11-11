@@ -1,0 +1,78 @@
+{
+  "schemaVersion": 2,
+  "registryId": "aissisted_public_truth",
+  "registryVersion": "2026-09-02.1",
+  "approvedRegistrySha256": "3ca531e1a0fcf19268f6182e6510f965a9328738f1885dc3e197027874b19923",
+  "approvedPublicProjectionSha256": "926f671cb3cfb776e493c132dfad626a8bfba62bf74cca01f493ab8a504c0fc2",
+  "status": "effective",
+  "approvedBy": "PJ Standley",
+  "approvedAt": "2026-09-02T06:52:07-04:00",
+  "company": {
+    "brand": "AIssisted Consulting",
+    "category": "AI and software implementation company",
+    "oneLiner": "AIssisted Consulting helps small businesses and individuals improve how work gets done and build useful software with clear scope, human review, and accountable delivery.",
+    "founder": "PJ Standley",
+    "audiences": ["small_businesses", "individuals"],
+    "geography": "Central and North Central Florida plus remote work across the United States"
+  },
+  "lanes": [
+    {
+      "laneId": "workflow_improvement",
+      "label": "Fix how something works",
+      "audiences": ["small_business"]
+    },
+    {
+      "laneId": "custom_development",
+      "label": "Build something new",
+      "audiences": ["small_business", "individual"]
+    }
+  ],
+  "offer": {
+    "releaseId": "aissisted_booking_v2_2026_08_15",
+    "offerId": "workflow_map_build_discovery_225",
+    "offerVersion": 2,
+    "title": "Workflow Map & First-Build Plan",
+    "amountCents": 22500,
+    "currency": "usd",
+    "sessionMinutes": 60,
+    "deliverable": "One company-reviewed, one-page plan",
+    "delivery": {
+      "timezone": "America/New_York",
+      "dueLocalTime": "17:00",
+      "businessDayOrdinal": 2,
+      "calendarId": "aissisted_us_federal_observed_2026_v1",
+      "observedDates": ["2026-01-01", "2026-01-19", "2026-02-16", "2026-05-25", "2026-06-19", "2026-07-03", "2026-09-07", "2026-10-12", "2026-11-11", "2026-11-26", "2026-12-25"]
+    },
+    "publicOutcomes": [
+      "Problem or build goal",
+      "Recommended direction and material known constraints",
+      "Smallest useful first build",
+      "Next decision and validation needed before a reliable implementation quote"
+    ],
+    "internalChecklistIds": ["IC-01_current_state", "IC-02_target_outcome", "IC-03_recommended_direction", "IC-04_smallest_first_build", "IC-05_inputs_and_integrations", "IC-06_controls_and_risks", "IC-07_unknowns_and_validation", "IC-08_next_decision"],
+    "termsVersion": "workflow_map_build_discovery_225_terms_2026-09-02_v2",
+    "termsSha256": "7a0bec864c09b07e987044909b366ebc32562902cb7cf84c99b4ded52941ebc2",
+    "implementationCreditEnabled": false,
+    "paymentMethodPolicy": "synchronous_card_only",
+    "confirmationRequires": "paid",
+    "stripePriceEnvKey": "BOOKING_V2_STRIPE_PRICE_ID",
+    "stripeProductEnvKey": "BOOKING_V2_STRIPE_PRODUCT_ID",
+    "stripePaymentMethodConfigurationEnvKey": "BOOKING_V2_PAYMENT_METHOD_CONFIGURATION_ID"
+  },
+  "fitCall": {
+    "offerId": "fit_call_15",
+    "title": "15-Minute Fit Call",
+    "durationMinutes": 15,
+    "initialWeeklyCapacity": 2,
+    "requestBased": true,
+    "stripeBookable": false
+  },
+  "proof": {
+    "websiteAllowlistId": "aissisted_website_proof_v2_empty",
+    "websiteCustomerClaimIds": []
+  },
+  "products": {
+    "hierarchy": "secondary_products_and_r_and_d",
+    "mayImplyConsultingTractionOrRevenue": false
+  }
+}

@@ -1,4 +1,5 @@
 const SITE_ORIGIN = "https://aissistedconsulting.com";
+const MAX_CRM_URL_LENGTH = 500;
 
 function cleanString(value) {
   return String(value || "").trim();
@@ -26,6 +27,26 @@ export function normalizeCrmSourcePage(value, fallbackPath = "/") {
   }
 }
 
+function boundedSourceUrl(url) {
+  if (url.href.length <= MAX_CRM_URL_LENGTH) return url.href;
+
+  const bounded = new URL(url);
+  bounded.search = "";
+  bounded.hash = "";
+  // Optional URL fields stay empty when even the original path cannot fit.
+  if (bounded.href.length > MAX_CRM_URL_LENGTH) return "";
+
+  // The receiver limits the absolute URL, including its origin. Keep only
+  // complete pairs here; the original source page and structured fields survive.
+  for (const [key, value] of url.searchParams) {
+    const candidate = new URL(bounded);
+    candidate.searchParams.append(key, value);
+    if (candidate.href.length <= MAX_CRM_URL_LENGTH) bounded.search = candidate.search;
+  }
+  if ((bounded.href + url.hash).length <= MAX_CRM_URL_LENGTH) bounded.hash = url.hash;
+  return bounded.href;
+}
+
 export function buildCrmAttribution({
   sourcePage,
   fallbackPath,
@@ -36,9 +57,10 @@ export function buildCrmAttribution({
   const normalizedSourcePage = normalizeCrmSourcePage(sourcePage, fallbackPath);
   const sourceUrl = new URL(normalizedSourcePage, SITE_ORIGIN);
   const params = sourceUrl.searchParams;
+  const landingPage = `${sourceUrl.origin}${sourceUrl.pathname}`;
 
   return {
-    sourceUrl: sourceUrl.toString(),
+    sourceUrl: boundedSourceUrl(sourceUrl),
     sourcePage: normalizedSourcePage,
     sourceChannel: safeLimit(sourceChannel, 120),
     formName: safeLimit(formName, 120),
@@ -49,7 +71,7 @@ export function buildCrmAttribution({
     utmTerm: safeLimit(params.get("utm_term"), 160),
     gclid: safeLimit(params.get("gclid"), 300),
     fbclid: safeLimit(params.get("fbclid"), 300),
-    landingPage: `${sourceUrl.origin}${sourceUrl.pathname}`,
+    landingPage: landingPage.length <= MAX_CRM_URL_LENGTH ? landingPage : "",
     qualificationStatus: "marketing_qualified",
     qualifiedSourceEventId: safeLimit(qualifiedSourceEventId, 160)
   };

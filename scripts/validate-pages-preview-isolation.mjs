@@ -1,0 +1,121 @@
+import { readFile } from "node:fs/promises";
+import { fileURLToPath, pathToFileURL } from "node:url";
+import path from "node:path";
+import TOML from "@iarna/toml";
+
+export const PREVIEW_DATABASE_ID = "febf1ca7-efa3-4629-b250-7e294ff96a47";
+const PREVIEW_DATABASE_NAME = "aissisted-booking-preview-v2-20260815";
+const PREVIEW_CRM_INTAKE_URL = "https://aiccrm-payment-rehearsal-20260926.pjaissist-0c5.workers.dev/intake/website";
+const SAFE_VARS = Object.freeze({
+  PREVIEW_ACCESS_REQUIRED: "true",
+  BOOKING_MONITOR_SCOPE: "contacts",
+  BOOKING_CHECKOUT_ENABLED: "false",
+  STRIPE_EXPECTED_LIVEMODE: "false",
+  BOOKING_REQUIRE_GOOGLE_CALENDAR: "false",
+  BOOKING_CREATE_GOOGLE_CALENDAR_EVENT: "false",
+  GOOGLE_CALENDAR_SEND_UPDATES: "none",
+  BOOKING_OPEN_SESSION_EXPIRY_ENABLED: "false",
+  AIC_EMAIL_PROVIDER: "disabled",
+  GRAIL_EMAIL_PROVIDER: "disabled",
+  AIC_EMAIL_FROM: "",
+  GRAIL_EMAIL_FROM: "",
+  BOOKING_NOTIFICATION_WEBHOOK_URL: "",
+  BOOKING_CONFIRMATION_WEBHOOK_URL: ""
+});
+
+// New resource types need an explicit isolation review, not a default inherited binding.
+const OTHER_RESOURCE_KEYS = [
+  "kv_namespaces", "r2_buckets", "services", "analytics_engine_datasets",
+  "ai", "vectorize", "hyperdrive", "durable_objects", "queues", "browser"
+];
+// Reviewed 2026-11-01: the private book-download bucket, production slot of
+// wrangler.toml only. R2 bindings do not inherit into env.preview, so preview
+// deployments get no files and the store download route returns 503 there.
+export const REVIEWED_PRODUCTION_R2 = Object.freeze([
+  Object.freeze({ binding: "BOOK_FILES", bucket_name: "aic-store-private" })
+]);
+
+function isReviewedProductionR2(value) {
+  return Array.isArray(value) && value.length === REVIEWED_PRODUCTION_R2.length
+    && value.every((entry, index) => entry && typeof entry === "object"
+      && Object.keys(entry).length === 2
+      && entry.binding === REVIEWED_PRODUCTION_R2[index].binding
+      && entry.bucket_name === REVIEWED_PRODUCTION_R2[index].bucket_name);
+}
+
+export async function readPagesConfigs(root = fileURLToPath(new URL("../", import.meta.url))) {
+  const entries = await Promise.all(["wrangler.toml", "wrangler.preview.toml"].map(async (file) => [
+    file, TOML.parse(await readFile(path.join(root, file), "utf8"))
+  ]));
+  return Object.fromEntries(entries);
+}
+
+export function validatePagesPreviewIsolation(configs) {
+  const errors = [];
+  const requireValue = (condition, message) => { if (!condition) errors.push(message); };
+  function checkSlot(slot, label, projectName, top) {
+    requireValue(Boolean(slot), `${label}: explicit environment is required`);
+    if (!slot) return;
+    const vars = slot.vars;
+    requireValue(Boolean(vars), `${label}: explicit vars are required`);
+    for (const [key, value] of Object.entries(SAFE_VARS)) {
+      requireValue(vars?.[key] === value, `${label}: ${key} must be ${JSON.stringify(value)}`);
+    }
+    // Match the reviewed receiver literally: normalization must not admit a
+    // different path, query, credential, or port. An empty URL disables relay.
+    requireValue(vars?.AIC_CRM_INTAKE_URL === "" || vars?.AIC_CRM_INTAKE_URL === PREVIEW_CRM_INTAKE_URL,
+      `${label}: AIC_CRM_INTAKE_URL must be empty or the exact isolated receiver ${PREVIEW_CRM_INTAKE_URL}`);
+    requireValue(vars?.PUBLIC_SITE_ORIGIN === `https://${projectName}.pages.dev`, `${label}: origin must identify this preview project`);
+    for (const key of Object.keys(top.vars || {})) {
+      requireValue(Object.hasOwn(vars || {}, key), `${label}: non-inherited variable ${key} must be explicit`);
+    }
+    for (const key of Object.keys(vars || {})) {
+      requireValue(!/(?:TOKEN|SECRET|API_KEY|PRIVATE_KEY|CREDENTIAL)(?:_|$)/.test(key), `${label}: ${key} belongs in platform secrets, not committed vars`);
+    }
+    const db = slot.d1_databases;
+    requireValue(Array.isArray(db) && db.length === 1, `${label}: exactly one explicit preview D1 binding is required`);
+    if (Array.isArray(db) && db.length === 1) {
+      requireValue(db[0].binding === "BOOKING_DB", `${label}: D1 binding must be BOOKING_DB`);
+      requireValue(db[0].database_name === PREVIEW_DATABASE_NAME, `${label}: D1 name must identify the isolated database`);
+      requireValue(db[0].database_id === PREVIEW_DATABASE_ID, `${label}: D1 database_id must identify the isolated database`);
+      requireValue(db[0].preview_database_id === PREVIEW_DATABASE_ID, `${label}: D1 preview_database_id must identify the isolated database`);
+      requireValue(db[0].remote !== true, `${label}: local D1 must not opt into remote access`);
+    }
+    for (const key of OTHER_RESOURCE_KEYS) {
+      const reviewedTop = key === "r2_buckets" && slot !== top && reviewedR2Top === top
+        && isReviewedProductionR2(top[key]);
+      requireValue((reviewedTop || !Object.hasOwn(top, key)) && !Object.hasOwn(slot, key), `${label}: resource ${key} needs an explicit isolation review`);
+    }
+  }
+  // Only the main project's production slot may carry the reviewed R2 binding.
+  const reviewedR2Top = configs["wrangler.toml"];
+  for (const [file, projectName, dedicated] of [
+    ["wrangler.toml", "aissisted-website", false],
+    ["wrangler.preview.toml", "aissisted-offer-v2-preview", true]
+  ]) {
+    const config = configs[file];
+    requireValue(Boolean(config), `${file}: config is required`);
+    if (!config) continue;
+    requireValue(config.name === projectName, `${file}: unexpected Pages project name`);
+    requireValue(config.pages_build_output_dir === ".", `${file}: Pages build output must remain explicit`);
+    for (const name of Object.keys(config.env || {})) {
+      requireValue(["production", "preview"].includes(name), `${file}: Pages does not support environment ${name}`);
+    }
+    checkSlot(config.env?.preview, `${file} env.preview`, projectName, config);
+    if (dedicated) {
+      checkSlot(config, `${file} default/production`, projectName, config);
+      if (config.env?.production) checkSlot(config.env.production, `${file} env.production`, projectName, config);
+    }
+  }
+  return errors;
+}
+
+if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {
+  const errors = validatePagesPreviewIsolation(await readPagesConfigs());
+  if (errors.length) {
+    console.error(errors.join("\n"));
+    process.exitCode = 1;
+  } else {
+    console.log("Pages preview isolation: both projects have explicit isolated preview settings; dedicated production slot is isolated.");
+  }
+}

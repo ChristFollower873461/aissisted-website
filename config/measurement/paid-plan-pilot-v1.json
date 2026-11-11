@@ -1,0 +1,69 @@
+{
+  "schemaVersion": 1,
+  "measurementContractId": "aissisted_paid_plan_pilot_v1",
+  "status": "approved_for_preview",
+  "analyticsRetentionDays": 180,
+  "subjectIdentifiers": {
+    "booking": "opaque booking_id",
+    "fitCall": "opaque inquiry_id",
+    "funnel": "opaque first-party funnel_id"
+  },
+  "automaticFields": [
+    "paid_plan_start",
+    "entry_route",
+    "cta_id",
+    "lane",
+    "funnel_id",
+    "booking_id",
+    "payment_status",
+    "session_completed_at",
+    "delivery_due_at",
+    "delivered_at",
+    "correction_event",
+    "refund_or_dispute_state",
+    "fit_call_disposition"
+  ],
+  "ownerRecordedFields": {
+    "intake_review_minutes": { "type": "integer", "minimum": 0, "maximum": 480 },
+    "session_minutes": { "type": "integer", "minimum": 0, "maximum": 480 },
+    "drafting_review_minutes": { "type": "integer", "minimum": 0, "maximum": 960 },
+    "administration_minutes": { "type": "integer", "minimum": 0, "maximum": 480 },
+    "fit_call_scheduling_admin_minutes": { "type": "integer", "minimum": 0, "maximum": 240 },
+    "fit_call_minutes": { "type": "integer", "minimum": 0, "maximum": 120 },
+    "expectation_mismatch_category": {
+      "type": "enum",
+      "values": ["none", "excluded_deliverable", "scope_assumption", "timing", "implementation_included", "other_approved_category"]
+    },
+    "buyer_clarity_score": { "type": "integer_or_null", "minimum": 1, "maximum": 5 },
+    "implementation_follow_on": {
+      "type": "enum",
+      "values": ["none", "proposed", "accepted_unverified", "verified_paid", "declined"]
+    },
+    "fit_call_disposition": {
+      "type": "enum",
+      "values": ["pending", "no_fit", "paid_plan", "direct_quote", "capacity_turn_away"]
+    }
+  },
+  "derivedFields": {
+    "total_founder_minutes": "sum of the four paid-plan founder-minute fields",
+    "delivery_on_time": "delivered_at is on or before delivery_due_at",
+    "start_to_purchase_reconciled": "one paid_plan_start funnel_id joins to one paid booking",
+    "clarity_response_rate": "responses divided by eligible delivered plans; always report both counts"
+  },
+  "prohibitedAnalyticsFields": [
+    "name",
+    "email",
+    "phone",
+    "ip_address",
+    "raw_referrer",
+    "raw_query_string",
+    "free_text_intake",
+    "plan_body",
+    "payment_card_data"
+  ],
+  "deletion": {
+    "analyticsProjection": "delete row-level analytics events 180 days after recording",
+    "operationalRecords": "retain separately under the booking, accounting, and customer-record policies; do not copy them into analytics",
+    "aggregateAfterDeletion": "retain only non-identifying counts and rates with denominators"
+  }
+}

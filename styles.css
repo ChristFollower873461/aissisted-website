@@ -273,11 +273,16 @@ main > section {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  min-width: 0;
+  max-width: 100%;
   min-height: 48px;
   border: 1px solid transparent;
   border-radius: 999px;
   padding: 12px 18px;
   font-weight: 800;
+  text-align: center;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .btn-primary {
@@ -825,6 +830,10 @@ address strong {
   align-items: center;
 }
 
+.page-hero-layout > * {
+  min-width: 0;
+}
+
 .page-hero h1 {
   max-width: 820px;
   color: #f8f7ff;
@@ -1308,7 +1317,7 @@ address strong {
   .contact-layout,
   .family-letter-layout,
   .footer-layout {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .credential-intro {
@@ -2839,6 +2848,7 @@ body[data-page="home"] {
   --home-line: #ddd2c0;
   --home-line-soft: rgba(52, 42, 28, 0.14);
   --home-gold: #c8952d;
+  --home-gold-text: #8a6817;
   --home-gold-soft: #f4dfae;
   --home-green: #2f7d5b;
   --home-blue: #2e5874;
@@ -2904,7 +2914,7 @@ body[data-page="home"] .nav-links a[aria-current="page"] {
 body[data-page="home"] .eyebrow,
 body[data-page="home"] .row-label,
 body[data-page="home"] .process-meta {
-  color: var(--home-gold);
+  color: var(--home-gold-text);
 }
 
 body[data-page="home"] .btn {
@@ -2937,7 +2947,7 @@ body[data-page="home"] .btn-secondary:hover {
 body[data-page="home"] .hero {
   min-height: auto;
   isolation: isolate;
-  padding: clamp(54px, 7vw, 86px) 0 clamp(48px, 6vw, 74px);
+  padding: clamp(40px, 4.2vw, 56px) 0 clamp(48px, 6vw, 74px);
   background:
     linear-gradient(90deg, rgba(247, 241, 230, 0.98) 0%, rgba(247, 241, 230, 0.94) 48%, rgba(247, 241, 230, 0.72) 66%, rgba(247, 241, 230, 0.1) 100%),
     url("assets/photography/business-computer-team.webp"),
@@ -2989,7 +2999,7 @@ body[data-page="home"] .hero-logo-settle {
   aspect-ratio: 1541.1 / 1209.9;
   transform: translate(-50%, -44%) scale(0.84);
   opacity: 0;
-  animation: heroLogoSettle 3.7s cubic-bezier(0.2, 0.72, 0.2, 1) both;
+  animation: heroLogoSettle 1.8s cubic-bezier(0.2, 0.72, 0.2, 1) both;
 }
 
 body[data-page="home"] .hero-logo-settle img {
@@ -3006,7 +3016,7 @@ body[data-page="home"] .hero-layout {
   align-items: center;
   opacity: 0;
   transform: translateY(14px);
-  animation: heroContentReveal 760ms ease-out 3.05s both;
+  animation: heroContentReveal 560ms ease-out 120ms both;
 }
 
 body[data-page="home"] .hero-copy {
@@ -3050,7 +3060,7 @@ body[data-page="home"] .hero-pretitle {
 body[data-page="home"] .hero h1 {
   max-width: 800px;
   color: var(--home-ink);
-  font-size: clamp(3.2rem, 6.4vw, 6rem);
+  font-size: clamp(2.7rem, 4.4vw, 3.5rem);
   line-height: 1.02;
 }
 
@@ -3073,7 +3083,7 @@ body[data-page="home"] .hero-baseline div + div {
 }
 
 body[data-page="home"] .hero-baseline dt {
-  color: var(--home-gold);
+  color: var(--home-gold-text);
 }
 
 body[data-page="home"] .hero-baseline dd {
@@ -3557,6 +3567,34 @@ body[data-page="home"] address a {
 }
 
 @media (max-width: 980px) {
+  body[data-page="home"] .menu-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  body[data-page="home"] .nav-links {
+    position: absolute;
+    inset: 100% 15px auto;
+    display: none;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 4px;
+    border: 1px solid var(--home-line);
+    border-radius: var(--radius);
+    background: rgba(255, 253, 247, 0.98);
+    box-shadow: var(--shadow-strong);
+    padding: 10px;
+  }
+
+  body[data-page="home"] .nav-links.is-open {
+    display: flex;
+  }
+
+  body[data-page="home"] .nav-links a {
+    padding: 11px 12px;
+  }
+
   body[data-page="home"] .hero {
     background:
       linear-gradient(180deg, rgba(247, 241, 230, 0.98) 0%, rgba(247, 241, 230, 0.94) 58%, rgba(247, 241, 230, 0.84) 100%),
@@ -3605,11 +3643,6 @@ body[data-page="home"] address a {
 }
 
 @media (max-width: 760px) {
-  body[data-page="home"] .nav-links {
-    border-color: var(--home-line);
-    background: rgba(255, 253, 247, 0.98);
-  }
-
   body[data-page="home"] .hero {
     padding: 40px 0 46px;
   }
@@ -3631,7 +3664,7 @@ body[data-page="home"] address a {
   }
 
   body[data-page="home"] .hero h1 {
-    font-size: clamp(2.35rem, 11vw, 3.7rem);
+    font-size: clamp(2.35rem, 11vw, 2.7rem);
     line-height: 1.05;
   }
 
@@ -3717,6 +3750,7 @@ body:not([data-page="home"]):not([data-page="book"]) {
   --site-line: #ddd2c0;
   --site-line-soft: rgba(52, 42, 28, 0.14);
   --site-gold: #c8952d;
+  --site-gold-text: #8a6817;
   --site-gold-soft: #f4dfae;
   --site-green: #2f7d5b;
   --site-dark: #111827;
@@ -3761,7 +3795,7 @@ body:not([data-page="home"]):not([data-page="book"]) .nav-links a[aria-current="
 
 body:not([data-page="home"]):not([data-page="book"]) .eyebrow,
 body:not([data-page="home"]):not([data-page="book"]) .row-label {
-  color: var(--site-gold);
+  color: var(--site-gold-text);
 }
 
 body:not([data-page="home"]):not([data-page="book"]) .btn {

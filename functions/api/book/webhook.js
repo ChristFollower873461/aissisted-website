@@ -1,3 +1,4 @@
+import { bookingPaymentEnabled, acceptBookingProviderEvent } from "../_lib/booking-payment-reconciliation.js";
 import {
   getBookingConfig,
   isGoogleCalendarConfigured,
@@ -13,7 +14,10 @@ import {
   sendManualReviewNotification
 } from "../_lib/notifications.js";
 import { verifyStripeWebhook } from "../_lib/stripe.js";
+import { retrieveCheckoutSession } from "../_lib/stripe.js";
 import { getBookingStore } from "../_lib/storage.js";
+import { validateCheckoutSessionAgainstContract } from "../_lib/booking-contract.js";
+import { drainBookingOutbox } from "../_lib/booking-outbox.js";
 import {
   createContactDuplicateFingerprint,
   normalizeContactAudience,
@@ -195,6 +199,49 @@ async function createCalendarEventAfterPayment(store, config, booking) {
   }
 }
 
+  const contract = await store.getBookingContract(booking.id);
+  if (contract && Number(contract.offerVersion) >= 2) {
+    let verifiedSession = session;
+    try {
+      verifiedSession = await retrieveCheckoutSession(config, sessionId, { expandContract: true });
+    } catch (error) {
+      verifiedSession = null;
+    }
+    const reconciliation = validateCheckoutSessionAgainstContract({
+      session: verifiedSession,
+      contract: {
+        ...contract,
+        bookingId: booking.id,
+        stripeCheckoutSessionId: booking.stripeCheckoutSessionId
+      },
+      expectedLivemode: config.stripeExpectedLivemode
+    });
+    if (!reconciliation.ok) {
+      booking = await store.markBookingManualReview({
+        bookingId: booking.id,
+        sessionId,
+        paymentReference:
+          typeof session.payment_intent === "string" ? session.payment_intent : null,
+        stripeCustomerId: typeof session.customer === "string" ? session.customer : null,
+        paymentStatus: session.payment_status === "paid" ? "paid_manual_review" : "unpaid_manual_review",
+        at: new Date().toISOString()
+      });
+      const reason = `stripe_contract_mismatch:${reconciliation.reasons.join(",")}`;
+      await store.logEvent({
+        bookingId: booking.id,
+        eventType: "stripe.checkout.contract_mismatch",
+        payload: { eventId: event.id, sessionId, reasons: reconciliation.reasons }
+      });
+      await sendManualReviewNotification({ config, booking, reason, eventId: event.id });
+      return json({
+        ok: true,
+        bookingId: booking.id,
+        confirmationState: "manual_review",
+        reason
+      });
+    }
+  }
+
   const confirmationResult = await store.confirmBookingFromCheckout({
     bookingId: booking.id,
     sessionId,
@@ -226,9 +273,13 @@ async function createCalendarEventAfterPayment(store, config, booking) {
     }
   });
 
-  if (confirmationResult.state === "confirmed") {
-    await createCalendarEventAfterPayment(store, config, booking);
-    await sendBookingNotifications({ config, booking });
+  if (["confirmed", "already_confirmed"].includes(confirmationResult.state)) {
+    if (Number(booking.offerVersion) >= 2) {
+      await drainBookingOutbox({ store, config, bookingId: booking.id });
+    } else if (confirmationResult.state === "confirmed") {
+      await createCalendarEventAfterPayment(store, config, booking);
+      await sendBookingNotifications({ config, booking });
+    }
   } else if (confirmationResult.state === "manual_review") {
     await sendManualReviewNotification({
       config,
@@ -294,10 +345,25 @@ export async function onRequest(context) {
   }
 
   const store = getBookingStore(context.env);
+  // Normal booking events are durably accepted before 2xx; the authenticated
+  // monitor processes receipts. Payment Link onboarding retains its separate flow.
+  try {
+    if (bookingPaymentEnabled(context.env) && !getGrailPaymentLinkPlan(event.data?.object, context.env)) {
+      const result = await acceptBookingProviderEvent({ env: context.env, config, store, event });
+      return json({ ok: true, ...result });
+    }
+  } catch (error) {
+    const conflict = error.message === "provider_event_content_conflict";
+    const invalid = error.message === "provider_event_scope_invalid";
+    return json({ ok: false, error: conflict ? "Provider event content conflicts with the stored receipt." :
+      invalid ? "Provider event scope is invalid." : "Payment reconciliation is unavailable." }, conflict ? 409 : invalid ? 400 : 503);
+  }
   await store.cleanupExpiredHolds();
 
   switch (event.type) {
     case "checkout.session.completed":
+      return handleCompletedCheckout(store, event, config, context.env);
+    case "checkout.session.async_payment_succeeded":
       return handleCompletedCheckout(store, event, config, context.env);
     case "checkout.session.expired":
       return handleSessionOutcome(store, event, "expired", "expired");
