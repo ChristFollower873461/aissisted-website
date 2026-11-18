@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0e1830">
+<title>The Road to Bethlehem</title>
+<meta name="description" content="A free kids' game following the wise men's journey in Matthew 2, from the East to the house in Bethlehem. KJV verses, about 6 minutes, works on phones.">
+<meta property="og:title" content="The Road to Bethlehem: the journey of the wise men">
+<meta property="og:description" content="A free kids' game following Matthew 2. Tap to jump the camels from the East to Bethlehem.">
+<meta property="og:image" content="https://aissistedconsulting.com/play/road-to-bethlehem/assets/share.png">
+<meta property="og:type" content="website">
+
+<link rel="icon" href="data:,">
+<style>
+html,body{margin:0;padding:0;height:100%;background:#1a1c2c;overflow:hidden;overscroll-behavior:none}
+body{touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
+#view{position:fixed;left:0;top:0;width:100vw;height:100vh;height:100dvh;display:block;cursor:pointer;image-rendering:pixelated}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+</style>
+</head>
+<body>
+<canvas id="view" aria-label="The Road to Bethlehem, a game about the wise men following the star"></canvas>
+<div id="verse" class="sr" aria-live="polite"></div>
+<audio id="music" src="assets/music.mp3" loop preload="auto"></audio>
+<script src="assets/data.js"></script>
+<script src="game.js"></script>
+</body>
+</html>
