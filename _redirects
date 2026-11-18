@@ -82,3 +82,5 @@
 /pay.html /book/ 301
 /pay-success /book/success/ 301
 /pay-success.html /book/success/ 301
+/play /play/road-to-bethlehem/ 302
+/play/ /play/road-to-bethlehem/ 302
