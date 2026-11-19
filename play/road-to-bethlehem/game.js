@@ -107,9 +107,9 @@ function assetList() {
   const L = [];
   for (const v of VARS) {
     L.push(['atlas-' + v, 'assets/atlas-' + v + '.png'], ['sky-' + v, 'assets/sky-' + v + '.png']);
-    for (const k of ['far', 'mid', 'near']) L.push([k + '-' + v, 'assets/' + k + '-' + v + '.png']);
-    for (const k of ['sand', 'rock', 'pit', 'water', 'street']) L.push(['tile-' + k + '-' + v, 'assets/tile-' + k + '-' + v + '.png']);
+    for (const k of ['sand', 'rock', 'pit', 'water', 'street', 'brick']) L.push(['tile-' + k + '-' + v, 'assets/tile-' + k + '-' + v + '.png']);
   }
+  for (const lv in D.v3) for (const v of D.v3[lv].tods || []) for (const k of ['far', 'mid', 'near']) L.push([k + '-' + lv + '-' + v, 'assets/' + k + '-' + lv + '-' + v + '.png']);
   L.push(['bhills', 'assets/bhills-night.png'], ['bhuts', 'assets/bhuts-night.png'], ['jerfar', 'assets/jer-far.png'], ['jermid', 'assets/jer-mid.png'], ['endcard', 'assets/endcard.png']);
   for (const k in D.clips) L.push(['clip-' + k, 'assets/clips/' + k + '.png']);
   return L;
@@ -260,145 +260,391 @@ const Snd = {
 
 // ---------------- levels ----------------
 
-// ---------------- levels: the Fertile Crescent caravan road ----------------
-const SPEED = () => (G.easy ? 56 : 72);
-const SP = 56;                       // spacing of the caravan camels
-const G = { easy: localStorage.getItem('rtb-easy') === '1', best: parseFloat(localStorage.getItem('rtb-best') || '0') || 0 };
-const OB = { // hitbox half-width, height, sprite, draw offset
-  rock0: { hw: 7, h: 9, s: 'rock_0', dx: -9, dy: -10 }, rock1: { hw: 11, h: 13, s: 'rock_1', dx: -13, dy: -14 }, rock2: { hw: 5, h: 6, s: 'rock_2', dx: -6, dy: -7 },
-  thorn: { hw: 7, h: 10, s: 'thorn', dx: -11, dy: -15 }, crate: { hw: 9, h: 11, s: 'crate', dx: -12, dy: -17 }, jars: { hw: 10, h: 12, s: 'jars', dx: -13, dy: -17 },
-  basket: { hw: 9, h: 10, s: 'basket', dx: -11, dy: -12 }, wall: { hw: 13, h: 10, s: 'wall', dx: -15, dy: -12 }, bush: { hw: 7, h: 8, s: 'bush', dx: -9, dy: -10 },
+// ======================= v3: difficulty, levels, scrolls =======================
+// Jump physics: tap = a short hop, hold = a big jump (lower gravity while held), and a mid-air second
+// hop on Easy and Normal. Every required gap and step below is sized from these numbers with a margin.
+const DIFFS = {
+  easy: { key: 'easy', name: 'EASY', col: 'mintlight', speed: 60, g: 440, gh: 100, v0: 135, hold: .28, dbl: 130, off: 1, startW: 14, drainW: 11, drainD: 22, jug: 3, pick: 900, hz: .5, gap: .8, sinkDelay: .7, sinkRate: 6, cps: 4, fall: 1, hit: 1, wind: .42 },
+  normal: { key: 'normal', name: 'NORMAL', col: 'goldlight', speed: 76, g: 560, gh: 120, v0: 130, hold: .25, dbl: 125, off: .75, startW: 10, drainW: 6, drainD: 16, jug: 2, pick: 1200, hz: 1, gap: 1, sinkDelay: .4, sinkRate: 10, cps: 3, fall: 2, hit: 1, wind: .62 },
+  wise: { key: 'wise', name: 'WISE', col: 'coral', speed: 92, g: 600, gh: 130, v0: 135, hold: .25, dbl: 0, off: .4, startW: 10, drainW: 6.5, drainD: 14, jug: 2, pick: 1500, hz: 1.4, gap: 1.12, sinkDelay: .2, sinkRate: 18, cps: 2, fall: 3, hit: 2, wind: .8 },
 };
-const ROADLV = {
-  lv1: { n: 1, x0: LV.START, x1: LV.L1, cps: [LV.START, 900], banners: [[230, 'LEVEL 1: THE EAST'], [640, 'THE CARAVAN SETS OUT']] },
-  lv2: { n: 2, x0: LV.L1, x1: LV.L2, cps: [LV.L1, 2250, 3080], banners: [[LV.L1 + 30, 'LEVEL 2: ALONG THE EUPHRATES'], [2190, 'CROSSING THE RIVER']] },
-  lv3: { n: 3, x0: LV.L2, x1: LV.L3, cps: [LV.L2, 4360, 5200], banners: [[LV.L2 + 30, 'LEVEL 3: THE SYRIAN DESERT'], [3900, 'THE DESERT ROAD'], [LV.STORM0, 'SANDSTORM! STAY ON THE ROAD'], [5860, 'THE STORM HAS PASSED'], [6200, 'TADMOR (PALMYRA) AHEAD']] },
-  lv4: { n: 4, x0: LV.L3, x1: LV.ROAD_END, cps: [LV.L3, 7500, 8480], banners: [[LV.L3 + 30, 'LEVEL 4: DAMASCUS TO THE JORDAN'], [LV.PASS0, 'THE HILL ROAD SOUTH'], [8440, 'THE JORDAN FORD, NEAR JERICHO']] },
-};
-const PLAY = new Set(['lv1', 'lv2', 'lv3', 'lv4', 'market', 'beth', 'home']);
-function obsList(a) { return a.map(([x, k]) => ({ x, k, hit: false })); }
-function makePicks(L, x0, x1, gap = 170) {
-  const picks = []; let n = 0;
-  for (let x = x0 + 180; x < x1 - 160; x += gap + Math.floor(hsh(x) * 90)) {
-    if ((L.RAV || []).some(r => Math.abs(x - r) < 40)) continue;
-    const ob = L.obs.find(o => Math.abs(o.x - x) < 34);
-    let hgt = ob ? 78 : (n % 3 === 2 ? 92 : 56);
-    if (L.STONES && x > L.R0 - 20 && x < L.R1 + 20) { const s = L.STONES.reduce((a, b) => Math.abs(b - x) < Math.abs(a - x) ? b : a); if (Math.abs(s - x) > 24) continue; x = s; hgt = 60; }
-    picks.push({ x, kind: n % 2 ? 'dates' : 'jug', hgt, got: false }); n++;
-  }
-  return picks;
-}
-function makeRoad() {
-  const N = LV.ROAD_END + 700; const gb = new Float32Array(N), kind = new Uint8Array(N);
-  const P0 = LV.PASS0, P1 = LV.PASS1, D0 = LV.DUNE0;
-  const RAV = [1150, 7600]; const STONES = []; for (let k = 0; k < LV.NST; k++) STONES.push(LV.R0 + 26 + k * LV.STEP);
-  const R0 = LV.R0, R1 = STONES[LV.NST - 1] + 30;
-  for (let x = 0; x < N; x++) {
-    let y = 140 + 2.5 * Math.sin(x / 70) + 1.5 * Math.sin(x / 31 + 1) - 40 * ss(D0, D0 + 200, x) + 40 * ss(D0 + 260, D0 + 380, x);
-    for (let k = 0; k < 4; k++) y -= 10 * ss(P0 + 60 + k * 120, P0 + 90 + k * 120, x);
-    for (let k = 0; k < 4; k++) y += 10 * ss(P0 + 800 + k * 110, P0 + 830 + k * 110, x);
-    y += 7 * ss(LV.J0 - 14, LV.J0 + 6, x) * (1 - ss(LV.J1 - 6, LV.J1 + 14, x));
-    gb[x] = y; kind[x] = (x > P0 - 40 + 8 * hsh(x) && x < P1 + 8 * hsh(x)) ? 1 : 0;
-    for (const rv of RAV) if (Math.abs(x - rv) < 13) kind[x] = 2;
-    if (x > R0 && x < R1) kind[x] = 3;
-    if (x > LV.J0 && x < LV.J1) kind[x] = 5;
-  }
-  const L = {
-    name: 'road', isRoad: true, N, gb, kind, WL: gb[R0 - 10] + 6, JWL: gb[LV.J0 - 24] + 1, STONES, R0, R1, RAV,
-    obs: obsList([[520, 'rock2'], [760, 'rock0'], [980, 'thorn'], [1380, 'rock0'], [1500, 'thorn'],
-      [1800, 'rock0'], [1980, 'thorn'], [2150, 'rock2'], [3200, 'rock0'], [3380, 'thorn'], [3560, 'rock1'],
-      [3820, 'rock2'], [4500, 'rock0'], [4700, 'thorn'], [4880, 'rock1'], [5060, 'rock2'], [5240, 'rock0'], [5420, 'thorn'], [5600, 'rock1'], [5800, 'rock0'], [6000, 'thorn'], [6200, 'rock2'],
-      [6800, 'rock0'], [P0 + 140, 'rock2'], [P0 + 260, 'rock0'], [P0 + 380, 'thorn'], [7800, 'rock1'], [7950, 'rock2'], [8150, 'rock0'], [8380, 'thorn'], [8720, 'rock2'], [8860, 'rock2'], [9100, 'rock0']]),
-    tod: [[0, 'night'], [1150, 'night'], [1550, 'dawn'], [1850, 'day'], [4300, 'day'], [4520, 'storm'], [5600, 'storm'], [5900, 'dusk'], [6250, 'night'], [6700, 'night'], [6950, 'dawn'], [7250, 'day'], [8250, 'day'], [8650, 'dusk'], [1e9, 'dusk']],
-    night: x => x < 1400 || (x > 6150 && x < 6900),
-    storm: x => ss(LV.STORM0, LV.STORM0 + 140, x) * (1 - ss(LV.STORM1 - 100, LV.STORM1 + 100, x)),
-  };
-  L.picks = makePicks(L, LV.START, LV.ROAD_END);
-  return L;
-}
-function makeMarket() {
-  const N = LV.MARKET_END + 500, gb = new Float32Array(N).fill(165), kind = new Uint8Array(N).fill(4);
-  const L = { name: 'market', N, gb, kind, end: LV.MARKET_END, cps: [LV.START, 1400], banners: [[230, 'LEVEL 5: JERUSALEM'], [1100, 'THE MARKET'], [2260, "HEROD'S PALACE"]], tod: [[0, 'day'], [1e9, 'day']], night: () => false, GATE: LV.MARKET_END + 86 };
-  L.obs = obsList([[480, 'basket'], [700, 'crate'], [930, 'jars'], [1150, 'basket'], [1340, 'crate'], [1560, 'jars'], [1760, 'basket'], [1960, 'crate'], [2180, 'jars'], [2380, 'basket']]);
-  L.picks = makePicks(L, LV.START, LV.MARKET_END);
-  L.stalls = []; let sx = 20, k = 0; while (sx < LV.MARKET_END + 300) { if (Math.abs(sx - 760) > 70 && Math.abs(sx - 1720) > 70) L.stalls.push([sx, k++ % 4]); sx += 64 + Math.floor(hsh(sx) * 60); }
-  L.back = []; L.front = []; L.lane = [];
-  for (let i = 0; i < 34; i++) L.back.push({ x: hsh(i + 1) * (LV.MARKET_END + 400), k: i % 7, c: i % 3, v: (hsh(i + 9) < .5 ? -1 : 1) * (8 + hsh(i + 4) * 14) });
-  for (let i = 0; i < 9; i++) L.front.push({ x: 200 + hsh(i + 40) * (LV.MARKET_END), k: (i + 3) % 7, c: (i + 1) % 3, v: (hsh(i + 19) < .5 ? -1 : 1) * (10 + hsh(i + 14) * 12) });
-  for (let i = 0; i < 9; i++) L.lane.push({ x: 600 + i * 230 + hsh(i + 70) * 60, k: (i + 5) % 7, c: i % 3, v: 14, step: 0 });
-  return L;
-}
-function makeBeth() {
-  const N = LV.BETH_END + 600, gb = new Float32Array(N), kind = new Uint8Array(N);
-  for (let x = 0; x < N; x++) gb[x] = 161 + 1.5 * Math.sin(x / 40);
-  const L = { name: 'beth', N, gb, kind, end: LV.BETH_END, cps: [LV.START], banners: [[230, 'LEVEL 6: THE ROAD TO BETHLEHEM']], tod: [[0, 'night'], [1e9, 'night']], night: () => true, HOUSE: LV.BETH_END + 43 };
-  L.obs = obsList([[520, 'wall'], [760, 'bush'], [980, 'wall'], [1200, 'bush'], [1430, 'wall'], [1640, 'bush']]);
-  L.picks = makePicks(L, LV.START, LV.BETH_END - 150);
-  return L;
-}
-function makeHome() {
-  const N = LV.HOME_END + 600, gb = new Float32Array(N), kind = new Uint8Array(N);
-  for (let x = 0; x < N; x++) gb[x] = 140 + 2.5 * Math.sin(x / 70) + 1.5 * Math.sin(x / 31 + 1);
-  const L = { name: 'home', isRoad: true, home: true, N, gb, kind, RAV: [], STONES: null, R0: -1e9, R1: -1e9, WL: 0, JWL: 0, stripOff: LV.HOME_OFF, end: LV.HOME_END, cps: [LV.START],
-    banners: [[230, 'HOME ANOTHER WAY']], tod: [[0, 'dawn'], [700, 'dawn'], [1150, 'day'], [1e9, 'day']], night: () => false, storm: () => 0 };
-  L.obs = obsList([[520, 'rock2'], [760, 'thorn'], [1000, 'rock0'], [1240, 'rock2']]);
-  L.picks = makePicks(L, LV.START, LV.HOME_END, 200);
-  return L;
-}
-function todAt(lv, x) { const K = lv.tod; for (let k = 0; k < K.length - 1; k++) { const [t0, a] = K[k], [t1, b] = K[k + 1]; if (x < t1) return a === b ? { a, b, p: 0 } : { a, b, p: ss(t0, t1, x) }; } return { a: 'night', b: 'night', p: 0 }; }
+const STEP_UP = 6, HW = 7;
+let DIF = DIFFS[localStorage.getItem('rtb3-diff') || 'normal'] || DIFFS.normal;
 
-// ---------------- game state ----------------
+const LORDER = ['lv1', 'lv2', 'lv3', 'lv4', 'market', 'beth', 'home'];
+const LCFG = {
+  lv1: { n: 1, title: 'THE EAST', short: 'THE EAST', len: D.v3.lv1.len, theme: 'desert', strip: 'lv1',
+    tod: [[0, 'night'], [.55, 'night'], [.75, 'dawn'], [.9, 'day'], [9, 'day']], night: f => f < .7, star: f => f < .72 },
+  lv2: { n: 2, title: 'ALONG THE EUPHRATES', short: 'EUPHRATES', len: D.v3.lv2.len, theme: 'river', strip: 'lv2', tod: [[0, 'dawn'], [.12, 'dawn'], [.25, 'day'], [9, 'day']], night: () => false },
+  lv3: { n: 3, title: 'THE SYRIAN DESERT', short: 'SYRIAN DESERT', len: D.v3.lv3.len, theme: 'storm', strip: 'lv3', storm: [.32, .52],
+    tod: [[0, 'day'], [.28, 'day'], [.32, 'storm'], [.57, 'storm'], [.66, 'dusk'], [.85, 'night'], [9, 'night']], night: f => f > .8 },
+  lv4: { n: 4, title: 'DAMASCUS TO THE JORDAN', short: 'TO THE JORDAN', len: D.v3.lv4.len, theme: 'hills', strip: 'lv4',
+    tod: [[0, 'night'], [.06, 'night'], [.14, 'dawn'], [.24, 'day'], [.76, 'day'], [.9, 'dusk'], [9, 'dusk']], night: f => f < .1 },
+  market: { n: 5, title: 'JERUSALEM', short: 'JERUSALEM', len: D.v3.market.len, theme: 'market', tod: [[0, 'day'], [9, 'day']], night: () => false },
+  beth: { n: 6, title: 'THE ROAD TO BETHLEHEM', short: 'TO BETHLEHEM', len: D.v3.beth.len, theme: 'beth', tod: [[0, 'night'], [9, 'night']], night: () => true },
+  home: { n: 7, title: 'HOME ANOTHER WAY', short: 'HOME', len: D.v3.home.len, theme: 'home', strip: 'home', tod: [[0, 'dawn'], [.35, 'dawn'], [.6, 'day'], [9, 'day']], night: () => false },
+};
+// Three hidden travel scrolls per level: one-line notes of plain history.
+const SCROLLS = {
+  lv1: ['Babylon stood on the Euphrates, in what is now Iraq.', "Matthew says only that the wise men came 'from the east'.", 'Babylonian astronomers kept records of the stars for centuries.'],
+  lv2: ['The Euphrates is the longest river of western Asia.', 'Date palms have grown along the Euphrates for thousands of years.', 'Rafts floated on inflated animal skins were used on the Euphrates.'],
+  lv3: ['Tadmor was a caravan city on the road between the Euphrates and Damascus.', "Greeks and Romans called Tadmor 'Palmyra', a name often linked to its palms.", 'Camels can travel for days with little water.'],
+  lv4: ['Damascus is one of the oldest cities in the world still lived in.', "The Bible calls Jericho 'the city of palm trees' (Deuteronomy 34:3).", 'The Jordan flows from the Sea of Galilee down to the Dead Sea.'],
+  market: ['Herod the Great rebuilt the Temple in Jerusalem on a grand scale.', 'Herod ruled Judea as a king under Rome.', 'Jerusalem stands on hills about 2,500 feet above the sea.'],
+  beth: ['Bethlehem is about six miles south of Jerusalem.', 'Bethlehem was the home town of King David (1 Samuel 16).', 'Frankincense and myrrh are fragrant resins from trees.'],
+  home: ["Matthew 2:12 says only that they went home 'another way'.", "The King's Highway was an old road east of the Jordan (Numbers 20:17).", 'The shores of the Dead Sea are the lowest dry land on Earth.'],
+};
+const MAT = { none: 0, sand: 1, rock: 2, brick: 3, street: 4, crate: 5, cart: 6, post: 7 };
+
+function hashStr(s) { let h = 2166136261; for (const c of s) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); } return h >>> 0; }
+function mkRng(seed) { let s = seed || 1; return () => { s ^= s << 13; s >>>= 0; s ^= s >>> 17; s ^= s << 5; s >>>= 0; return s / 4294967296; }; }
+
+function genLevel(name, dk) {
+  const cfg = LCFG[name], Dd = DIFFS[dk], r = mkRng(hashStr(name + ':' + dk));
+  const base = name === 'market' ? 165 : name === 'beth' ? 160 : 140;
+  const L = { name, cfg, n: cfg.n, len: cfg.len, base, blocks: [], plats: [], water: [], hazards: [], picks: [], scrolls: [], cairns: [], cps: [], banners: [[230, 'LEVEL ' + cfg.n + ': ' + cfg.title]], decor: [], roofs: [], stalls: [] };
+  let x = 0, gy = base;
+  const theme = cfg.theme, mat0 = theme === 'market' ? 'street' : theme === 'beth' ? 'sand' : 'sand';
+  const ground = (x0, x1, y, mat = mat0, extra = {}) => { if (x1 > x0) L.blocks.push(Object.assign({ x0: Math.round(x0), x1: Math.round(x1), y: Math.round(y), mat }, extra)); };
+  const gw = w => Math.round(w * Dd.gap);
+  const pick = (px, py, kind) => L.picks.push({ x: px, y: py, kind: kind || (r() < .6 ? 'jug' : 'dates'), got: false });
+  const offPick = (px, py) => { if (r() < Dd.off) pick(px, py); };
+  const scrollAt = (px, py) => { if (L.scrolls.length < 3) L.scrolls.push({ x: px, y: py, i: L.scrolls.length, got: false }); };
+  const stormAt = px => cfg.storm && px > cfg.storm[0] * cfg.len - 150 && px < cfg.storm[1] * cfg.len + 150;
+  const hz = (px, w = 16) => { if (!stormAt(px)) L.hazards.push({ x: px, w, h: 10, y: gy, kind: 'thorn' }); };   // no thorns in the storm's gust zones
+  const maxR = maxRise(Dd); L.towers = []; L.jugDrop = [false, false];
+  // FIX-V3-1 #2: hidden things sit above anything the low road can reach with the best possible jump
+  const needS = Math.min(84 + 66, Math.ceil(maxR + 70 + 8)), needP = Math.min(84 + 62, Math.ceil(maxR + 66 + 6));
+  let nextPick = 600, scrollPlan = [.2, .48, .74].map(f => f * cfg.len);
+  const wantScroll = () => scrollPlan.length && x >= scrollPlan[0] ? (scrollPlan.shift(), true) : false;
+  const cpFracs = Array.from({ length: Dd.cps - 1 }, (_, i) => (i + 1) / Dd.cps * cfg.len); L.cps.push(200);
+  const pathPick = () => { if (x > nextPick) { pick(x + 20, gy - 38); nextPick = x + Dd.pick * (.8 + .4 * r()); } };
+  const inStorm = () => cfg.storm && x > cfg.storm[0] * cfg.len && x < cfg.storm[1] * cfg.len;
+
+  const C = {
+    run(len) { if (!len) len = 160 + Math.round(r() * 200); ground(x, x + len, gy); pathPick(); if (theme !== 'market' && r() < .25) L.decor.push({ x: x + len * r(), kind: 'tuft' }); x += len; },
+    camp() { ground(x, x + 160, gy); L.cps.push(x + 60); pick(x + 120, gy - 38, 'jug'); x += 160; },
+    rocks() { const h = 12 + Math.round(r() * 12), w = 30 + Math.round(r() * 30); ground(x, x + 30, gy); ground(x + 30, x + 30 + w, gy - h, 'rock');
+      if (r() < .4) offPick(x + 30 + w / 2, gy - h - 34); x += 30 + w; ground(x, x + 40, gy); x += 40; },
+    gap(kind) { ground(x, x + 50, gy); x += 50; let w = Dd.key === 'wise' && r() < .35 ? 50 + Math.round(r() * 6) : gw(24 + r() * 20); if (stormAt(x)) { w = Math.min(28, Math.round(w * .8)); L.cairns.push(x - 30); }   // the wind shortens jumps, so storm gaps stay short
+      if (kind === 'channel') L.water.push({ x0: x, x1: x + w, y: gy + 8, kind: 'channel' }); else L.decor.push({ x, w, kind: 'pit' });
+      if (r() < .35) offPick(x + w / 2, gy - 52); x += w; ground(x, x + 50, gy); x += 50; },
+    thorns() { ground(x, x + 220, gy); hz(x + 70); if (Dd.key === 'wise') { hz(x + 160); } else if (r() < Dd.hz - .4) hz(x + 160); x += 220; },
+    steps() { const n = 2 + Math.round(r()), up = []; ground(x, x + 30, gy); x += 30;
+      for (let i = 0; i < n; i++) { const h = 12 + Math.round(r() * 10); gy -= h; up.push(h); const w = 60 + Math.round(r() * 40); ground(x, x + w, gy, 'rock'); x += w; }
+      offPick(x - 30, gy - 40);
+      for (let i = n - 1; i >= 0; i--) { gy += up[i]; const w = 40 + Math.round(r() * 30); ground(x, x + w, i ? gy - 0 : gy, i ? 'rock' : mat0); x += w; } },
+    highlow() { // low road: ground with thorns and a few dates; high road: a deliberate climb of three tiers
+      // (each 28 px, so it takes a held jump) to a top run with the water jugs and, if due, a travel scroll
+      const len = 560; ground(x, x + len, gy); const sc = wantScroll(); const kind = theme === 'market' ? 'roof' : 'ledge';
+      const tiers = [[50, 72, 28], [138, 72, 56], [226, 150, 84], [392, 56, 56], [464, 56, 28]];
+      for (const [dx, w, h] of tiers) { L.plats.push({ x0: x + dx, x1: x + dx + w, y: gy - h, kind }); if (kind === 'roof') L.roofs.push({ x: x + dx, w, y: gy - h, gy }); }
+      if (sc) scrollAt(x + 300, gy - needS);
+      pick(x + 250, gy - needP, 'jug');
+      const half = x < cfg.len / 2 ? 0 : 1; if (Dd.key !== 'wise' || L.jugDrop[half]) pick(x + 350, gy - needP, 'jug'); else L.jugDrop[half] = true;   // Wise: one lean tower per half
+      pick(x + 270, gy - 38, 'dates');
+      hz(x + 160); hz(x + 320, 20); if (Dd.hz > 1) hz(x + 480);
+      L.towers.push({ x0: x, x1: x + len }); x += len; },
+    stones(n) { ground(x, x + 60, gy); x += 60; const wy = gy + 8, x0 = x; const wise = Dd.key === 'wise';
+      const small = { easy: 20, normal: 22, wise: 23 }[Dd.key], sw = { easy: 50, normal: 46, wise: 54 }[Dd.key]; let sx = x + small + Math.round(r() * 3);
+      for (let i = 0; i < n; i++) { const w_ = wise && i % 4 === 2 ? 34 : sw; L.plats.push({ x0: sx, x1: sx + w_, y: gy + 1, kind: 'stone', st: { sinkT: null } });
+        // stones are wide enough to land, look and jump again; Wise chains are longer and mix short hops with long held jumps
+        sx += w_ + (wise && i % 3 === 1 ? 56 + Math.round(r() * 3) : small + Math.round(r() * 2)); }   // the long Wise gaps need a held jump
+      L.water.push({ x0, x1: sx, y: wy, kind: 'river' }); x = sx; ground(x, x + 60, gy); x += 60; },
+    raft() { ground(x, x + 70, gy); ground(x + 64, x + 70, gy - 24, 'post'); x += 70; const w = 190, x0 = x;
+      L.water.push({ x0, x1: x0 + w, y: gy + 8, kind: 'river' });
+      L.plats.push({ x0: x0 + 4, x1: x0 + 68, bx0: x0, bx1: x0 + w, y: gy, kind: 'raft', a: x0 + 4, b: x0 + w - 68, ph: r() * 6 });
+      x = x0 + w; ground(x, x + 70, gy); offPick(x0 + w / 2, gy - 50); x += 70; },
+    dune() { for (let i = 0; i < 5; i++) { gy -= 5; ground(x, x + 30, gy); x += 30; } ground(x, x + 60, gy); x += 60; for (let i = 0; i < 5; i++) { gy += 5; ground(x, x + 30, gy); x += 30; } },
+    // ---- Jerusalem market: hop onto carts, up to the awnings, over the rooftops ----
+    stall() { ground(x, x + 40, gy); x += 40; ground(x, x + 46, gy - 22, 'cart'); const ax = x + 50;
+      L.plats.push({ x0: ax, x1: ax + 54, y: gy - 44, kind: 'awning' }); L.stalls.push({ x: ax, y: gy - 46 });
+      offPick(ax + 27, gy - 76);
+      ground(x + 46, x + 140, gy); x += 140; },
+    crates() { ground(x, x + 40, gy); x += 40; const n = 1 + Math.round(r() * (Dd.hz > 1 ? 2 : 1)); for (let i = 0; i < n; i++) { ground(x, x + 24, gy - 16, 'crate'); x += 24; ground(x, x + 50 + r() * 30, gy); x = L.blocks[L.blocks.length - 1].x1; } },
+    roofs() { ground(x, x + 40, gy); x += 40; ground(x, x + 46, gy - 22, 'cart'); let rx = x + 56;
+      for (let i = 0; i < 3; i++) { const ry = gy - 44 - (i % 2) * 14; const w = 52; L.plats.push({ x0: rx, x1: rx + w, y: ry, kind: 'roof' }); L.roofs.push({ x: rx, w, y: ry, gy });
+        offPick(rx + w / 2, ry - 30); rx += w + gw(30 + r() * 10); }
+      ground(x + 46, rx + 20, gy); x = rx + 20; },
+    cistern() { ground(x, x + 60, gy); x += 60; const w = gw(22 + r() * 10); L.decor.push({ x, w, kind: 'pit' }); x += w; ground(x, x + 60, gy); x += 60; },
+    // ---- Bethlehem: terraced hillsides ----
+    terrace() { const h = 12 + Math.round(r() * 12); ground(x, x + 40, gy); x += 40; gy -= h; ground(x, x + 120, gy, 'brick'); if (r() < .5) hz(x + 70); x += 120; gy += h; ground(x, x + 40, gy); x += 40; },
+  };
+  const T = {
+    desert: [['run', 3], ['rocks', 3], ['gap', 3], ['thorns', 2], ['highlow', 1.4], ['steps', 1.2], ['dune', 1]],
+    river: [['run', 2], ['stones', 2.6], ['raft', 1.3], ['gap', 2], ['rocks', 2], ['highlow', 1.2], ['thorns', 1]],
+    storm: [['run', 3], ['rocks', 2], ['gap', 2.6], ['thorns', 1.6], ['dune', 2], ['highlow', 1], ['steps', .8]],
+    hills: [['run', 2], ['steps', 3], ['rocks', 2], ['gap', 2.4], ['thorns', 1.4], ['highlow', 1.2]],
+    market: [['run', 2], ['stall', 3], ['crates', 2.4], ['roofs', 1.6], ['cistern', 1.6], ['highlow', .8]],
+    beth: [['run', 2.4], ['terrace', 3], ['thorns', 1.6], ['gap', 1.6], ['rocks', 1.6], ['highlow', 1]],
+    home: [['run', 3], ['rocks', 3], ['gap', 2.4], ['thorns', 2], ['highlow', 1.2], ['steps', 1]],
+  };
+  const pickChunk = list => { const tot = list.reduce((a, b) => a + b[1], 0); let q = r() * tot; for (const [n, w] of list) { if ((q -= w) <= 0) return n; } return list[0][0]; };
+  C.run(420); let last = '';
+  while (x < cfg.len - 500) {
+    if (cpFracs.length && x >= cpFracs[0]) { cpFracs.shift(); C.camp(); continue; }
+    let list = T[theme];
+    if (name === 'lv4' && x > cfg.len * .82) list = [['run', 1], ['stones', 3], ['rocks', 1]];          // the Jordan ford near Jericho
+    if (name === 'lv4' && x < cfg.len * .12) list = [['run', 2], ['rocks', 2], ['thorns', 1]];        // leaving Damascus
+    let c = pickChunk(list); if (c === last && c !== 'run') c = 'run'; last = c;
+    if (scrollPlan.length && x >= scrollPlan[0]) c = 'highlow';
+    if (x > cfg.len - 1300 && ['stones', 'highlow', 'raft', 'steps'].includes(c)) c = 'run';   // nothing long may run past the end of the level
+    if (c === 'gap') C.gap(theme === 'river' ? 'channel' : 'pit'); else if (c === 'stones') C.stones(Dd.key === 'wise' ? 7 + Math.round(r() * 2) : name === 'lv4' ? 6 : 4 + Math.round(r() * 3)); else C[c]();
+    if (c !== 'run' && c !== 'camp') C.run(80 + Math.round(r() * 120));
+  }
+  ground(x, cfg.len + 600, gy = base); x = cfg.len + 600;
+  if (L.scrolls.length < 3) console.warn('level ' + name + ' has only ' + L.scrolls.length + ' scrolls');
+  if (cfg.storm) { L.storm = [cfg.storm[0] * cfg.len, cfg.storm[1] * cfg.len]; for (let cx = L.storm[0] + 80; cx < L.storm[1]; cx += 260) L.cairns.push(cx); }
+  // theme banners
+  const firstOf = kind => { const p = L.plats.find(q => q.kind === kind); return p ? p.x0 - 160 : null; };
+  if (name === 'lv1') L.banners.push([700, 'THE CARAVAN SETS OUT']);
+  if (name === 'lv2') { const s = firstOf('stone'); if (s) L.banners.push([s, 'STEPPING STONES: THEY SINK!']); const f = firstOf('raft'); if (f) L.banners.push([f - 60, 'WAIT FOR THE RAFT, THEN JUMP']); }
+  if (L.storm) { L.banners.push([L.storm[0] - 100, 'SANDSTORM! FOLLOW THE CAIRNS']); L.banners.push([L.storm[1] + 60, 'THE STORM HAS PASSED']); L.banners.push([cfg.len - 900, 'TADMOR (PALMYRA) AHEAD']); }
+  if (name === 'lv4') { L.banners.push([cfg.len * .3, 'THE HILL ROAD SOUTH']); L.banners.push([cfg.len * .82, 'THE JORDAN FORD, NEAR JERICHO']); }
+  if (name === 'market') { L.banners.push([900, 'HOP ONTO CARTS AND AWNINGS']); L.banners.push([cfg.len - 500, "HEROD'S PALACE"]); }
+  if (name === 'beth') L.banners.push([cfg.len - 900, 'BETHLEHEM']);
+  // Jerusalem market: a fixed set of shoppers and merchants (decoration only: no collision, never in a needed path)
+  if (name === 'market') { const pr = mkRng(hashStr('people:' + dk)); L.people = [];
+    const busy = px => L.hazards.some(h => Math.abs(h.x - px) < 40) || L.decor.some(d => d.kind === 'pit' && px > d.x - 30 && px < d.x + d.w + 30) || L.blocks.some(b => (b.mat === 'cart' || b.mat === 'crate') && px > b.x0 - 24 && px < b.x1 + 24);
+    for (let px = 300, k = 0; px < cfg.len - 200; px += 110 + Math.round(pr() * 70), k++) { if (busy(px)) continue;
+      L.people.push({ x: px, k: k % 7, c: k % 3, walk: pr() < .5, ph: pr() * 6.28, range: 14 + Math.round(pr() * 14), st: 0 }); } }
+  // index the world for fast lookups
+  const N = Math.ceil(cfg.len + 700); L.N = N; L.gt = new Float32Array(N).fill(Infinity); L.gm = new Uint8Array(N); L.gb = new Float32Array(N).fill(Infinity);
+  for (const b of L.blocks) for (let i = Math.max(0, b.x0); i < Math.min(N, b.x1); i++) { L.gt[i] = b.y; L.gm[i] = MAT[b.mat]; L.gb[i] = b.mat === 'crate' || b.mat === 'cart' || b.mat === 'post' ? base : b.y; }
+  // object blocks keep the terrain under them for drawing
+  for (const b of L.blocks) if (b.mat === 'crate' || b.mat === 'cart' || b.mat === 'post') { const prev = L.blocks.find(q => q.x1 >= b.x0 && q.x0 < b.x0 && q !== b && q.mat !== b.mat); b.base = prev ? prev.y : base; for (let i = b.x0; i < b.x1; i++) L.gb[i] = b.base; }
+  L.plats.sort((a, b) => a.x0 - b.x0); L.plats.forEach((p, i) => { p.i = i; if (p.bx0 == null) { p.bx0 = p.x0; p.bx1 = p.x1; } });
+  L.bucket = []; for (const p of L.plats) for (let k = Math.floor(p.bx0 / 64); k <= Math.floor(p.bx1 / 64); k++) (L.bucket[k] = L.bucket[k] || []).push(p);
+  L.picks.sort((a, b) => a.x - b.x);
+  return L;
+}
+// moving and sinking platforms (functions of time and stand state, shared by the game and the bot's look-ahead)
+function raftPos(p, t) {
+  const P = 6.4, u = ((t + p.ph) % P + P) % P; let f;
+  if (u < 1.4) f = 0; else if (u < 3.2) f = ss(1.4, 3.2, u); else if (u < 4.6) f = 1; else f = 1 - ss(4.6, 6.4, u);
+  return { x0: p.a + (p.b - p.a) * f, dwellFar: u >= 3.2 && u < 4.6, f };
+}
+function maxRise(Dd) {   // the highest the feet can get from flat ground: full hold, then the best-timed second hop
+  let best = 0; const dt = 1 / 240;
+  for (const tp of [null].concat(Dd.dbl ? Array.from({ length: 50 }, (_, i) => i * .02) : [])) {
+    let vy = -Dd.v0, y = 0, t = 0, held = 0, used = false;
+    for (let k = 0; k < 3000; k++) {
+      if (tp != null && !used && t >= tp) { vy = -Dd.dbl; used = true; held = Dd.hold; }
+      if (held < Dd.hold && vy < 0) { held += dt; vy += Dd.gh * dt; } else vy += Dd.g * dt;
+      y += vy * dt; t += dt; best = Math.max(best, -y); if (y > 0) break;
+    }
+  }
+  return best;
+}
+function stoneOff(p, st, t) {
+  if (st.sinkT == null) return 0;
+  const full = DIF.sinkDelay + 24 / DIF.sinkRate;
+  if (t - st.sinkT > full + 2.5) { st.sinkT = null; return 0; }          // the stone bobs back up
+  return clamp((t - st.sinkT - DIF.sinkDelay) * DIF.sinkRate, 0, 24);
+}
+
+// ======================= v3: state, physics, flow, bot =======================
 const S = { mode: 'loading', t: 0, u: 0, cu: 0, fade: 0, next: null };
 let LVL = null, RUN = null;
+const SP = 56;
+const PLAY = new Set(LORDER);
 const SEQ = ['title', 'eastclip', 'lv1', 'map1', 'lv2', 'map2', 'lv3', 'camp', 'map3', 'lv4', 'map4', 'market', 'palace', 'map5', 'beth', 'house', 'dream', 'away', 'map6', 'home', 'end'];
-function progressOf(L, x) {
-  const f = Math.max(0, x - LV.START);
-  if (L.home) return Math.min(1, f / (LV.HOME_END - LV.START));
-  if (L.isRoad) return Math.min(ROADLEN, f) / TOTAL; if (L.name === 'market') return (ROADLEN + Math.min(MKLEN, f)) / TOTAL; return (ROADLEN + MKLEN + Math.min(BTLEN, f)) / TOTAL;
-}
-// "about four months": Ezra 7:9 gives four months from Babylon to Jerusalem; the HUD counts months along the road
-function monthOf(L, x) { if (L.home) return 0; if (L.isRoad) return 1 + Math.floor(clamp((x - LV.START) / ROADLEN, 0, .999) * 4); return 4; }
-function newRun() { RUN = { hits: 0, water: 6, dates: 6, drain: 0, cp: null, cpSup: [6, 6] }; }
-function startLevel(name, fromX) {
-  if (ROADLV[name]) { const cfg = ROADLV[name]; LVL = makeRoad(); LVL.name = name; LVL.n = cfg.n; LVL.end = cfg.x1; LVL.cps = cfg.cps; LVL.banners = cfg.banners; LVL.x0 = cfg.x0; }
-  else LVL = name === 'market' ? makeMarket() : name === 'beth' ? makeBeth() : makeHome();
-  const x = fromX == null ? (LVL.x0 || LV.START) : fromX;
-  LVL.rec = new Float32Array(LVL.N);
-  for (let i = 0; i < LVL.N; i++) LVL.rec[i] = surfaceY(i, true);
-  const C = { x, fy: surfaceY(x, true), vy: 0, air: false, hold: false, holdT: 0, lastGround: 0, inv: 0, auto: null };
-  LVL.c = C; LVL.cy = camY(x); LVL.cam = x - LV.LEAD_SX; LVL.flash = null; LVL.flashT = 0; LVL.pops = []; LVL.bannerT = {}; LVL.splashes = [];
-  for (const o of LVL.obs) if (o.x < x) o.hit = true;
-  for (const p of LVL.picks) if (p.x < x + 20) p.got = true;
-  for (const [bx] of LVL.banners) if (bx < x - 20) LVL.bannerT[bx] = -99;
-  LVL.cpIdx = 0; for (let i = 0; i < LVL.cps.length; i++) if (LVL.cps[i] <= x) LVL.cpIdx = i;
-  LVL.started = S.t; LVL.jumps = 0; LVL.arrive = null;
-  RUN.cp = { lvl: name, x: LVL.cps[LVL.cpIdx] }; RUN.cpSup = [Math.max(6, RUN.water), Math.max(6, RUN.dates)];
-}
-function stoneAt(x) { if (!LVL.STONES) return null; for (const s of LVL.STONES) if (Math.abs(x - s) <= (G.easy ? 21 : 18)) return s; return null; }
-function surfaceY(x, visual) {
-  const i = clamp(Math.round(x), 0, LVL.N - 1), k = LVL.kind[i];
-  if (k === 2) return visual ? LVL.gb[i] : LVL.gb[i] + 90;
-  if (k === 3) { if (visual) return LVL.WL - 3; return stoneAt(x) != null ? LVL.WL - 3 : LVL.WL + 8; }
-  return LVL.gb[i];
-}
-function groundBase(x) { return LVL.gb[clamp(Math.round(x), 0, LVL.N - 1)]; }
-function camY(x) { if (!LVL.isRoad) return 0; let s = 0; for (let k = -4; k <= 4; k++) s += groundBase(x + k * 17.5); return s / 9 - 140; }
+const nextOf = m => SEQ[SEQ.indexOf(m) + 1];
+const SAVE = {
+  best: (() => { try { return JSON.parse(localStorage.getItem('rtb3-best') || '{}'); } catch (e) { return {}; } })(),
+  unlock: parseInt(localStorage.getItem('rtb3-unlock') || '1', 10) || 1,
+  put(lv, res) { const d = this.best[DIF.key] = this.best[DIF.key] || {}; const o = d[lv]; let nb = false;
+    if (!o || res.lamps > o.lamps || (res.lamps === o.lamps && res.time < o.time)) { d[lv] = res; nb = true; }
+    this.unlock = Math.max(this.unlock, LORDER.indexOf(lv) + 2); localStorage.setItem('rtb3-best', JSON.stringify(this.best)); localStorage.setItem('rtb3-unlock', String(this.unlock)); return nb; },
+};
+function newRun() { RUN = { water: DIF.startW, dates: 8, scrolls: {}, stats: {} }; }
+function lvlProg(L, x) { return clamp((x - 200) / (L.len - 260), 0, 1); }
+function todAt(L, x) { const f = lvlProg(L, x), K = L.cfg.tod; for (let k = 0; k < K.length - 1; k++) { const [t0, a] = K[k], [t1, b] = K[k + 1]; if (f < t1) return a === b ? { a, b, p: 0 } : { a, b, p: ss(t0, t1, f) }; } return { a: 'day', b: 'day', p: 0 }; }
 
-// ---------------- input ----------------
+function startLevel(name, fromX, keep) {
+  const L = genLevel(name, DIF.key); LVL = L; L.c0 = S.t;
+  const st = RUN.stats[name] = (keep && RUN.stats[name]) || { time: 0, falls: 0, hits: 0, outs: 0, t0: S.t };
+  const x = fromX == null ? 200 : fromX;
+  for (const p of L.picks) if (p.x < x) p.got = true;
+  const found = RUN.scrolls[name] = RUN.scrolls[name] || [false, false, false];
+  for (const s of L.scrolls) s.got = found[s.i];
+  L.rec = new Float32Array(L.N); for (let i = 0; i < L.N; i++) L.rec[i] = isFinite(L.gt[i]) ? L.gt[i] : L.base;
+  const C = { x, y: L.gt[Math.round(x)], vy: 0, air: false, holding: false, holdT: 0, buf: 0, dbl: false, lastGround: S.t, inv: 0, resp: 0, on: null, ride: false };
+  L.c = C; L.cam = x - LV.LEAD_SX; L.cy = 0; L.pops = []; L.bannerT = {}; L.splashes = []; L.note = null; L.flash = null; L.flashT = -9;
+  for (const [bx] of L.banners) if (bx < x - 20) L.bannerT[bx] = -99;
+  L.cpIdx = 0; for (let i = 0; i < L.cps.length; i++) if (L.cps[i] <= x + 1) L.cpIdx = i;
+  RUN.cp = { lvl: name, x: L.cps[L.cpIdx], water: Math.max(RUN.water, Math.ceil(DIF.startW * .7)) };
+  L.drainW = 0; L.drainD = 0; L.arrive = null; L.jumps = 0;
+}
+
+// ---- surfaces ----
+function platsNear(L, x) { return L.bucket[Math.floor(x / 64)] || []; }
+function platTop(L, p, t, sts) {
+  if (p.kind === 'stone') { const off = stoneOff(p, sts ? sts[p.i] || p.st : p.st, t); return off > 8 ? Infinity : p.y + off; }
+  return p.y;
+}
+function platX0(p, t) { return p.kind === 'raft' ? raftPos(p, t).x0 : p.x0; }
+// highest surface under [x-HW, x+HW] that the feet (at prevY) can stand on
+function support(L, x, prevY, t, sts) {
+  let best = Infinity, on = null;
+  const a = Math.max(0, Math.floor(x - HW)), b = Math.min(L.N - 1, Math.ceil(x + HW));
+  for (let i = a; i <= b; i++) { const g = L.gt[i]; if (g < best && g >= prevY - STEP_UP) best = g; }
+  for (const p of platsNear(L, x)) {
+    const x0 = platX0(p, t), x1 = x0 + (p.x1 - p.x0); if (x + HW * .7 < x0 || x - HW * .7 > x1) continue;
+    const top = platTop(L, p, t, sts); if (top >= prevY - 1.5 && top < best) { best = top; on = p; }
+  }
+  return { y: best, on: best === Infinity ? null : on };
+}
+function waterAt(L, x) { for (const w of L.water) if (x > w.x0 && x < w.x1) return w; return null; }
+function windAt(L, x, t) { if (!L.storm || x < L.storm[0] || x > L.storm[1]) return 0; const g = .5 + .5 * Math.sin(t * .9 + x * .0021) * Math.sin(t * .37 + 1.3); return Math.min(DIF.speed * .55, DIF.speed * DIF.wind * (.4 + .8 * g)); }   // capped at 55% of camel speed
+
+// One physics step for the lead camel. Shared by the game and the bot's look-ahead (sim=true: no side effects).
+// inp: { edge: pressed this step, down: held }. Returns events.
+function stepC(L, C, inp, dt, t, sim, sts) {
+  const Dd = DIF; const ev = [];
+  if (C.resp > 0) { C.resp -= dt; return ev; }
+  C.inv = Math.max(0, C.inv - dt);
+  // horizontal speed: walking, wind, tired camels, riding a raft
+  let vx = Dd.speed * (C.tired ? .85 : 1) - windAt(L, C.x, t);
+  const near = L.len - C.x; if (near < 90) vx *= clamp(near / 90, 0, 1) * .85 + .15;
+  if (C.x >= L.len) vx = 0;
+  let ridingMove = 0;
+  if (!C.air && C.on && C.on.kind === 'raft') { const r0 = raftPos(C.on, t - dt), r1 = raftPos(C.on, t); ridingMove = r1.x0 - r0.x0; if (!r1.dwellFar) vx = 0; }
+  if (L.arrive) vx = Math.min(vx, Math.max(0, (L.len - C.x) * 2));
+  // jump input (with a short buffer and coyote time)
+  if (inp.edge) C.buf = .12;
+  if (C.buf > 0) {
+    if (!C.air || t - C.lastGround < .09) { C.vy = -Dd.v0; C.air = true; C.holding = true; C.holdT = 0; C.buf = 0; C.dbl = !!Dd.dbl; C.on = null; if (!sim) { L.jumps++; Snd.jump(); } }
+    else if (C.dbl && inp.edge) { C.vy = -Dd.dbl; C.dbl = false; C.holding = false; C.buf = 0; if (!sim) Snd.jump(); }
+  }
+  C.buf -= dt;
+  // move horizontally, stopped by walls taller than a step
+  let nx = C.x + vx * dt + ridingMove;
+  if (vx > 0) { for (let i = Math.ceil(C.x + HW); i <= Math.ceil(nx + HW) && i < L.N; i++) if (L.gt[i] < C.y - STEP_UP) { nx = Math.min(nx, i - HW - .01); if (!C.air) C.blocked = true; break; } }
+  else if (vx < 0) { for (let i = Math.floor(C.x - HW); i >= Math.floor(nx - HW) && i >= 0; i--) if (L.gt[i] < C.y - STEP_UP) { nx = Math.max(nx, i + 1 + HW + .01); break; } }
+  C.x = Math.max(0, nx);
+  // vertical
+  if (C.air) {
+    if (C.holding && inp.down && C.vy < 0 && C.holdT < Dd.hold) { C.holdT += dt; C.vy += Dd.gh * dt; } else { C.holding = false; C.vy += Dd.g * dt; }
+    const ny = C.y + C.vy * dt; const s = support(L, C.x, C.y, t, sts);
+    if (C.vy >= 0 && ny >= s.y) { C.y = s.y; C.air = false; C.vy = 0; C.on = s.on; C.lastGround = t; ev.push('land'); }
+    else C.y = ny;
+  } else {
+    const s = support(L, C.x, C.y, t, sts);
+    if (s.y <= C.y + 2) { C.y = s.y; C.on = s.on; C.lastGround = t; } else { C.air = true; C.vy = 0; C.on = null; C.dbl = !!Dd.dbl; }
+  }
+  if (!C.air && C.on && C.on.kind === 'stone') { const st = sts ? (sts[C.on.i] = sts[C.on.i] || { sinkT: C.on.st.sinkT }) : C.on.st; if (st.sinkT == null) st.sinkT = t; }
+  // falls: a pit, or into the river
+  const w = waterAt(L, C.x);
+  if ((w && C.y > w.y + 5) || C.y > L.base + 60) ev.push(w ? 'splash' : 'fall');
+  // thorns
+  if (C.inv <= 0) for (const h of L.hazards) if (Math.abs(h.x - C.x) < h.w / 2 + 8 && C.y > h.y - h.h + 2) { ev.push('hit'); break; }
+  return ev;
+}
+function respawnFrom(L, C, fx) {
+  // back to firm ground before the gap or river (behind a mooring post)
+  let i = Math.round(fx); const w = waterAt(L, fx); if (w) i = Math.round(w.x0) - 1;
+  while (i > 0 && !isFinite(L.gt[i])) i--;
+  while (i > 0 && L.gm[i] === MAT.post) i--;
+  // every stone of this river (and any river close by) comes back up at once
+  for (const p of L.plats) if (p.kind === 'stone' && p.x1 > i - 40 && p.x0 < i + 700) p.st.sinkT = null;
+  // about one second of run-up on level, thorn-free ground before the edge
+  const want = Math.round(DIF.speed * 1.0);
+  let x = i - HW - 1; const g0 = L.gt[i];
+  while (x > 1 && i - x < want && isFinite(L.gt[x - 1]) && L.gt[x - 1] === g0 && !L.hazards.some(h => Math.abs(h.x - (x - 1)) < h.w / 2 + 10)) x--;
+  if (x < 1 || !isFinite(L.gt[x])) x = i;
+  C.x = x; C.y = L.gt[x]; C.vy = 0; C.air = false; C.on = null; C.resp = .7; C.inv = 1.6; C.dbl = false; C.holding = false; C.buf = 0;
+}
+function hudFlash(kind) { LVL.flash = kind; LVL.flashT = S.t; }
+function loseWater(n, txt) { const L = LVL, C = L.c; RUN.water = Math.max(0, RUN.water - n); hudFlash('low'); L.pops.push({ x: C.x - L.cam - 62, y: C.y - 104 - L.cy, t: S.t, txt: txt || ('-' + n), c: 'coral' }); }
+
+function updatePlay(dt) {
+  const L = LVL, C = L.c, st = RUN.stats[L.name];
+  if (L.done) return;
+  st.time += dt;
+  C.tired = RUN.dates <= 0;
+  const ev = stepC(L, C, { edge: !IN.consumed && (IN.consumed = true), down: IN.down }, dt, S.t, false, null);
+  for (const e of ev) {
+    if (e === 'hit') { C.inv = 1.4; st.hits++; Snd.hit(); loseWater(DIF.hit); }
+    if (e === 'fall' || e === 'splash') { if (QS.get('debug')) console.log('FALL', e, Math.round(C.x), Math.round(C.y), C.vy, C.air); st.falls++; if (e === 'splash') { L.splashes.push({ x: C.x, t: S.t, y: (waterAt(L, C.x) || {}).y || C.y }); Snd.splash(); } else Snd.hit(); respawnFrom(L, C, C.x); loseWater(DIF.fall, 'TRY AGAIN'); break; }
+    if (e === 'land' && C.on && C.on.kind === 'stone') { /* sinks soon */ }
+  }
+  // supplies drain over time
+  if (C.resp <= 0 && !L.arrive) {
+    L.drainW += dt; L.drainD += dt;
+    if (L.drainW >= DIF.drainW) { L.drainW = 0; RUN.water = Math.max(0, RUN.water - 1); if (RUN.water <= 3) hudFlash('low'); }
+    if (L.drainD >= DIF.drainD) { L.drainD = 0; RUN.dates = Math.max(0, RUN.dates - 1); }
+  }
+  // pickups and scrolls
+  for (const p of L.picks) { if (p.got || p.x < C.x - 30) continue; if (p.x > C.x + 40) break;
+    if (Math.abs(p.x - C.x) < 22 && p.y > C.y - 66 && p.y < C.y + 4) { p.got = true; if (p.kind === 'jug') RUN.water = Math.min(30, RUN.water + DIF.jug); else RUN.dates = Math.min(30, RUN.dates + 2); hudFlash(p.kind); Snd.chime(); L.pops.push({ x: p.x - L.cam - 6, y: p.y - L.cy, t: S.t, txt: '+' + (p.kind === 'jug' ? DIF.jug : 2), c: 'white' }); } }
+  for (const s of L.scrolls) if (!s.got && Math.abs(s.x - C.x) < 22 && s.y > C.y - 70 && s.y < C.y + 4) { s.got = true; RUN.scrolls[L.name][s.i] = true; Snd.joy(); L.note = { s: SCROLLS[L.name][s.i], t: S.t }; L.pops.push({ x: s.x - L.cam - 6, y: s.y - L.cy, t: S.t, txt: 'SCROLL!', c: 'goldlight' }); }
+  // the followers walk where the lead camel walked
+  if (!C.resp) { const xi = Math.round(C.x); for (let i = Math.max(0, xi - 3); i <= Math.min(L.N - 1, xi); i++) L.rec[i] = C.y; }
+  // checkpoints and banners
+  for (let i = L.cpIdx + 1; i < L.cps.length; i++) if (C.x >= L.cps[i]) { L.cpIdx = i; RUN.cp = { lvl: L.name, x: L.cps[i], water: Math.max(RUN.water, Math.ceil(DIF.startW * .6)) }; L.pops.push({ x: C.x - L.cam, y: C.y - 80 - L.cy, t: S.t, txt: 'CAMP REACHED', c: 'mintlight' }); Snd.chime(); }
+  for (const [bx] of L.banners) if (C.x >= bx && L.bannerT[bx] == null) L.bannerT[bx] = S.t;
+  // camera
+  L.cam = C.x - LV.LEAD_SX; if (!C.air) L.cy += (clamp(C.y - L.base, -110, 10) * .8 - L.cy) * Math.min(1, dt * 2.5);
+  // Bethlehem: the star's captions, then the arrival
+  if (L.name === 'beth') bethCaptions(L, C);
+  if (RUN.water <= 0) { st.outs++; S.mode = 'rest'; S.u = 0; return; }
+  if (C.x >= L.len - 1 && !C.air) {
+    if (L.name === 'beth') { if (!L.arrive) { L.arrive = { stopT: S.t }; Snd.joy(); } }
+    else if (!L.endT) L.endT = S.t; else if (S.t - L.endT > .5) finishLevel();
+  }
+}
+function finishLevel() {
+  const L = LVL, st = RUN.stats[L.name]; L.done = true;
+  const sc = RUN.scrolls[L.name].filter(Boolean).length; const lamps = 1 + (sc === 3 ? 1 : 0) + (RUN.water >= 8 ? 1 : 0);
+  const res = { time: Math.round(st.time), water: RUN.water, scrolls: sc, lamps, falls: st.falls, hits: st.hits, outs: st.outs };
+  RUN.last = Object.assign({ lvl: L.name, newBest: SAVE.put(L.name, res) }, res);
+  go('result');
+}
+function bethCaptions(L, C) {
+  const seq = ['departed', 'went', 'stood']; if (!L.cap) L.cap = { i: -1, t0: 0 };
+  const since = S.t - L.c0, held = S.t - L.cap.t0;
+  if (L.cap.i === -1 && since > 2.6) L.cap = { i: 0, t0: S.t };
+  else if (L.cap.i === 0 && held >= minRead(Q.departed[1])) L.cap = { i: 1, t0: S.t };
+  else if (L.cap.i === 1 && held >= minRead(Q.went[1])) L.cap = { i: -2, t0: S.t };
+  else if (L.cap.i === -2 && C.x > L.len - 700) L.cap = { i: 2, t0: S.t };
+  else if (L.cap.i === 2 && L.starStop && held >= minRead(Q.stood[1])) L.cap = { i: 3, t0: S.t };
+}
+function bethReady() { const L = LVL; return !!(L && L.name === 'beth' && L.cap && L.cap.i === 3 && S.t - L.cap.t0 >= minRead(Q.joy[1])); }
+
+// ---- input ----
 const IN = { down: false, pressT: -9, consumed: true };
 function press() { if (!IN.down) { IN.down = true; IN.pressT = S.t; IN.consumed = false; onTap(); } }
 function release() { IN.down = false; }
 function canvasXY(e) { const r = view.getBoundingClientRect(); const dpr = view.width / r.width; return [((e.clientX - r.left) * dpr - LAY.ox) / LAY.s, ((e.clientY - r.top) * dpr - LAY.oy) / LAY.s]; }
-const BTN_EASY = [28, 152, 150, 168], BTN_ABOUT = [170, 152, 292, 168];
 const inBox = (x, y, b) => x >= b[0] && x <= b[2] && y >= b[1] && y <= b[3];
-function toggleEasy() { G.easy = !G.easy; localStorage.setItem('rtb-easy', G.easy ? '1' : '0'); }
+const BTN = { pause: [268, 166, 292, 180], resume: [100, 78, 220, 96], plevels: [100, 104, 220, 122], easy: [26, 128, 104, 142], normal: [121, 128, 199, 142], wise: [216, 128, 294, 142], play: [26, 150, 104, 166], levels: [121, 150, 199, 166], about: [216, 150, 294, 166] };
+function setPause(on) {   // freezes world time, drain, rafts and sinking stones together (update() skips while paused)
+  S.paused = on; release(); IN.consumed = true; IN.pressT = -9; if (LVL && LVL.c) LVL.c.buf = 0; BOT.plan = null;
+}
+function setDiff(k) { DIF = DIFFS[k]; localStorage.setItem('rtb3-diff', k); }
+function levelRowBox(i) { return [40, 30 + i * 18, 280, 45 + i * 18]; }
 view.addEventListener('pointerdown', e => {
   e.preventDefault(); Snd.start();
   const [x, y] = canvasXY(e);
   if (inMute(x, y) && y < 181) { Snd.toggle(); return; }
-  if (S.mode === 'title' && !S.next) {
-    if (inBox(x, y, BTN_EASY)) { toggleEasy(); return; }
-    if (inBox(x, y, BTN_ABOUT)) { go('about'); return; }
+  if (LAY.portrait && LAY.pui && LAY.pui.length) {      // the big portrait controls
+    const r = view.getBoundingClientRect(), dx = (e.clientX - r.left) * (view.width / r.width), dy = (e.clientY - r.top) * (view.height / r.height);
+    const hit = LAY.pui.find(b => dx >= b.x0 && dx <= b.x1 && dy >= b.y0 && dy <= b.y1);
+    if (hit) { hit.act(); return; }
+    if (S.mode === 'about' || S.mode === 'levels' || S.mode === 'title' || S.paused) return;
+  }
+  if (S.paused) { if (inBox(x, y, BTN.resume)) setPause(false); else if (inBox(x, y, BTN.plevels)) { setPause(false); go('levels'); } return; }
+  if (PLAY.has(S.mode) && inBox(x, y, BTN.pause) && LVL && !LVL.done) { setPause(true); return; }
+  if (!S.next && S.mode === 'title') {
+    for (const k of ['easy', 'normal', 'wise']) if (inBox(x, y, BTN[k])) { setDiff(k); return; }
+    if (inBox(x, y, BTN.levels)) { go('levels'); return; }
+    if (inBox(x, y, BTN.about)) { go('about'); return; }
+  }
+  if (!S.next && S.mode === 'levels') {
+    for (let i = 0; i < LORDER.length; i++) if (inBox(x, y, levelRowBox(i)) && i < SAVE.unlock) { newRun(); RUN.fromSelect = true; go(LORDER[i]); return; }
+    if (y > 160) { go('title'); return; }
+    return;
   }
   try { view.setPointerCapture(e.pointerId); } catch (_) {}
   press();
@@ -411,22 +657,24 @@ window.addEventListener('keydown', e => {
   if (e.repeat) { if ([' ', 'ArrowUp', 'w', 'W'].includes(e.key)) e.preventDefault(); return; }
   if ([' ', 'ArrowUp', 'w', 'W', 'Enter'].includes(e.key)) { e.preventDefault(); Snd.start(); press(); }
   else if (e.key === 'm' || e.key === 'M') { Snd.start(); Snd.toggle(); }
-  else if ((e.key === 'e' || e.key === 'E') && S.mode === 'title') toggleEasy();
-  else if ((e.key === 'a' || e.key === 'A') && S.mode === 'title') go('about');
+  else if (S.mode === 'title' && '123'.includes(e.key)) setDiff(['easy', 'normal', 'wise']['123'.indexOf(e.key)]);
+  else if (S.mode === 'title' && (e.key === 'l' || e.key === 'L')) go('levels');
+  else if (S.mode === 'title' && (e.key === 'a' || e.key === 'A')) go('about');
+  else if ((e.key === 'p' || e.key === 'P' || e.key === 'Escape') && PLAY.has(S.mode) && !S.next && LVL && !LVL.done) setPause(!S.paused);
+  else if (S.mode === 'levels' && e.key === 'Escape') go('title');
 });
 window.addEventListener('keyup', e => { if ([' ', 'ArrowUp', 'w', 'W', 'Enter'].includes(e.key)) release(); });
 window.addEventListener('blur', release);
 
 const CLIPOF = { eastclip: 'east', map1: 'map1', map2: 'map2', map3: 'map3', map4: 'map4', map5: 'map5', map6: 'map6', house: 'house', dream: 'dream', away: 'away' };
 const CLIPLEN = { eastclip: 6.9, map1: 3.0, map2: 2.6, map3: 2.6, map4: 6.3, map5: 2.6, map6: 3.0, house: 12.5, dream: 6.7, away: 5.3 };
-// FIX-2 #9: every caption stays up for at least (words x 0.45 s + 2 s), 50% longer in easy mode, and then
-// until the player taps ("TAP TO CONTINUE"). The cutscene holds its last frame while it waits.
+// every caption stays up for at least (words x 0.45 s + 2 s), 50% longer on Easy, and then until a tap
 const HOLDS = {
   eastclip: [[1.9, 6.8, 'east']], map4: [[.5, 6.2, 'came']],
   house: [[.5, 2.5, 'house'], [2.8, 4.6, 'saw'], [4.9, 7.3, 'fell'], [7.5, 8.7, 'opened'], [8.9, 12.4, 'gifts']],
   dream: [[.6, 6.6, 'dream']], away: [[0, 5.2, 'away']],
 };
-function minRead(s) { return (s.trim().split(/\s+/).length * .45 + 2) * (G.easy ? 1.5 : 1); }
+function minRead(s) { return (s.trim().split(/\s+/).length * .45 + 2) * (DIF.key === 'easy' ? 1.5 : 1); }
 const CAP = { k: -1, t0: 0, rel: false };
 function holdIdx() { const H = HOLDS[S.mode]; if (!H) return -1; return H.findIndex(([a, b]) => S.cu >= a && S.cu <= b); }
 function canContinue() {
@@ -434,311 +682,326 @@ function canContinue() {
   if (HOLDS[m]) { const k = holdIdx(); return k >= 0 && CAP.k === k && !CAP.rel && S.u - CAP.t0 >= minRead(Q[HOLDS[m][k][2]][1]); }
   if (m === 'palace') return palaceReady();
   if (m === 'beth') return bethReady();
+  if (m === 'result') return S.u > 1.2;
   return false;
 }
-function bethReady() { const L = LVL; return !!(L && L.name === 'beth' && L.cap && L.cap.i === 3 && S.t - L.cap.t0 >= minRead(Q.joy[1])); }
 function onTap() {
   const m = S.mode; if (S.next) return;
   if (m === 'title') { Snd.start(); newRun(); go('eastclip'); }
   else if (m === 'about') { if (S.u > .4) go('title'); }
   else if (HOLDS[m]) { if (canContinue()) CAP.rel = true; }
   else if (m.startsWith('map')) { if (S.u > 0.8) go(nextOf(m)); }
-  else if (m === 'beth') { if (bethReady()) go('house'); }
+  else if (m === 'beth') { if (bethReady()) finishLevel(); }
   else if (m === 'camp') { if (S.u > 2.6) go('map3'); }
   else if (m === 'palace') dialogTap();
-  else if (m === 'rest') { if (S.u > 0.8) restart(); }
+  else if (m === 'rest') { if (S.u > 0.8) restartFromCamp(); }
+  else if (m === 'result') { if (S.u > 1.2) go(RUN.last.lvl === 'beth' ? 'house' : nextOf(RUN.last.lvl)); }
   else if (m === 'end') { if (S.u > 1.2) go('title'); }
 }
-const nextOf = m => SEQ[SEQ.indexOf(m) + 1];
 function go(m) { if (S.next) return; S.next = m; S.fade = 0; }
 function enter(m) {
-  S.mode = m; S.u = 0; S.cu = 0; CAP.k = -1; CAP.rel = false; release(); IN.consumed = true;
-  if (PLAY.has(m)) { startLevel(m, RUN.resumeX); RUN.resumeX = null; }
-  if (m === 'camp') { RUN.campFrom = [RUN.water, RUN.dates]; }
+  S.paused = false; S.mode = m; S.u = 0; S.cu = 0; CAP.k = -1; CAP.rel = false; release(); IN.consumed = true;
+  if (PLAY.has(m)) { if (!RUN) newRun(); if (RUN.levelStart !== m || RUN.resumeX == null) { RUN.water = DIF.startW; RUN.dates = Math.max(RUN.dates, 8); } RUN.levelStart = m; startLevel(m, RUN.resumeX, RUN.resumeX != null); RUN.resumeX = null; }
+  if (m === 'camp') RUN.campFrom = [RUN.water, RUN.dates];
   if (m === 'palace') { DLG.step = 0; DLG.t0 = 0; DLG.st = 0; }
-  if (m === 'end') { G.best = 1; localStorage.setItem('rtb-best', '1'); }
 }
-function restart() { RUN.water = RUN.cpSup[0]; RUN.dates = RUN.cpSup[1]; RUN.resumeX = RUN.cp.x; S.next = RUN.cp.lvl; S.fade = 0; }
+function restartFromCamp() { RUN.water = Math.max(6, RUN.cp.water); RUN.dates = Math.max(6, RUN.dates); RUN.resumeX = RUN.cp.x; RUN.levelStart = RUN.cp.lvl; S.next = RUN.cp.lvl; S.fade = 0; }
 
-// ---------------- play update ----------------
-const V0 = 170, HOLD_MAX = .2; const GRAVN = () => G.easy ? 480 : 560, GRAVH = () => G.easy ? 260 : 300;
-function hitSupplies() {
-  if (G.easy) { if (RUN.water >= RUN.dates) RUN.water = Math.max(0, RUN.water - 1); else RUN.dates = Math.max(0, RUN.dates - 1); }
-  else { RUN.water = Math.max(0, RUN.water - 1); RUN.dates = Math.max(0, RUN.dates - 1); }
-  LVL.flashLow = RUN.water <= RUN.dates ? 'jug' : 'dates'; LVL.flashLowT = S.t;
+// ---------------- bot (tests: ?bot=1) ----------------
+// A look-ahead planner: from where the lead camel stands it tries "do nothing", taps, held jumps and
+// (on Easy/Normal) a second hop, simulates each with the real physics, and picks the safest progress.
+const BOT = { on: QS.get('bot') === '1', low: QS.get('lowroad') === '1', plan: null, nextPlanT: 0, airPlanT: 0 };
+function simRun(L, C0, sched, T, t0) {
+  const C = Object.assign({}, C0); const sts = {}; let score = 0, got = new Set(); const dt = STEP; let landed = false, tl = 0;   // same step as the game, so the look-ahead matches it exactly
+  for (let k = 0; k * dt < T; k++) {
+    const tau = k * dt; let edge = false, down = false;
+    for (const a of sched) { if (tau >= a.at && tau < a.at + dt) edge = true; if (tau >= a.at && tau < a.at + a.h) down = true; }
+    const ev = stepC(L, C, { edge, down }, dt, t0 + tau, true, sts);
+    if (ev.includes('fall') || ev.includes('splash')) return { score: -1000 + C.x * .01, C };
+    if (ev.includes('hit')) { score -= 70; C.inv = 1.4; }
+    for (const p of L.picks) { if (p.x > C.x + 30) break; if (!p.got && !got.has(p) && Math.abs(p.x - C.x) < 22 && p.y > C.y - 66 && p.y < C.y + 4) { got.add(p); score += BOT.low ? 0 : 22; } }
+    for (const s of L.scrolls) if (!s.got && !got.has(s) && Math.abs(s.x - C.x) < 22 && s.y > C.y - 70 && s.y < C.y + 4) { got.add(s); score += BOT.low ? 0 : 60; }
+    if (ev.includes('land')) { landed = true; tl = tau; }
+    if (landed && tau - tl > .5 && sched.length) break;
+  }
+  const inT = L.towers && L.towers.some(q => C.x > q.x0 && C.x < q.x1);
+  if (inT && !C.air) score += (L.base - C.y) * (BOT.low ? -2 : 3);
+  return { score: score + (C.x - C0.x) + (C.air ? -3 : 2), C };
 }
-function hurt(txt) {
-  const C = LVL.c; if (C.inv > 0) return false; C.inv = 1.5; RUN.hits++; hitSupplies(); Snd.hit();
-  LVL.pops.push({ x: C.x - LVL.cam + 4, y: C.fy - 70, t: S.t, txt: txt || (G.easy ? '-1' : '-2'), c: 'coral' });
-  return true;
-}
-function autoHop(C, target, ty) {
-  const sp = SPEED(); const T = clamp((target - C.x) / sp, .45, 1.2);
-  C.vy = (ty - C.fy - .5 * GRAVN() * T * T) / T; C.air = true; C.auto = { target }; C.hold = false;
-}
-function updatePlay(dt) {
-  const C = LVL.c, L = LVL; const sp = SPEED();
-  let mul = 1;
-  if (L.name === 'beth') {
-    if (!L.arrive && C.x >= L.end - 170) L.arrive = { t: S.t, stopT: null };
-    if (L.arrive) mul = clamp((L.end - C.x) / 170, 0, 1) * .9 + (C.x < L.end ? .1 : 0);
-    const seq = ['departed', 'went', 'stood']; if (!L.cap) L.cap = { i: -1, t0: 0 };
-    const since = S.t - L.started, held = S.t - L.cap.t0;
-    if (L.cap.i === -1 && since > 2.6) L.cap = { i: 0, t0: S.t };
-    else if ((L.cap.i === 0 || L.cap.i === 1) && held >= minRead(Q[seq[L.cap.i]][1])) L.cap = { i: L.cap.i + 1, t0: S.t };
-    else if (L.cap.i === 2 && L.starStop && held >= minRead(Q.stood[1])) L.cap = { i: 3, t0: S.t };
-  } else if (C.x >= L.end - 90) mul = clamp((L.end - C.x) / 90, 0, 1) * .85 + (C.x < L.end ? .15 : 0);
-  const kNow = L.kind[clamp(Math.round(C.x), 0, L.N - 1)];
-  if (kNow === 5 && !C.air) mul *= .78;                 // wading the ford
-  const prevX = C.x;
-  C.x = Math.min(L.end, C.x + sp * mul * dt);
-  const moving = C.x - prevX > 0.001;
-  const locked = L.arrive || C.x >= L.end - 30 || !!C.auto;
-  const grounded = !C.air;
-  if (!locked && !IN.consumed && S.t - IN.pressT < .14 && (grounded || S.t - C.lastGround < .09)) {
-    IN.consumed = true; C.air = true; C.vy = -V0; C.hold = true; C.holdT = 0; L.jumps++; Snd.jump();
-  }
-  if (C.air) {
-    if (C.hold && IN.down && C.vy < 0 && C.holdT < HOLD_MAX) { C.holdT += dt; C.vy += GRAVH() * dt; } else { C.hold = false; C.vy += GRAVN() * dt; }
-    C.fy += C.vy * dt;
-    const sy = surfaceY(C.x);
-    if (C.vy > 0 && C.fy >= sy) { C.fy = sy; C.air = false; C.vy = 0; C.auto = null; C.lastGround = S.t; if (L.kind[clamp(Math.round(C.x), 0, L.N - 1)] === 5) L.splashes.push({ x: C.x, t: S.t, y: L.JWL }); }
-  } else {
-    const sy = surfaceY(C.x);
-    if (sy - C.fy > 5) { C.air = true; C.vy = 20; } else { C.fy = sy; C.lastGround = S.t; }
-  }
-  const k = L.kind[clamp(Math.round(C.x), 0, L.N - 1)];
-  if (!C.auto) {
-    if (k === 3 && C.fy >= L.WL + 4) {
-      L.splashes.push({ x: C.x, t: S.t, y: L.WL }); Snd.splash(); hurt();
-      const nxt = L.STONES.find(s => s > C.x + 6) || (L.R1 + 30); const ty = nxt > L.R1 ? groundBase(nxt) : L.WL - 3;
-      autoHop(C, nxt, ty);
-    } else if (k === 2 && C.fy >= groundBase(C.x) + 10) {
-      hurt(); let e = C.x; while (L.kind[Math.round(e)] === 2) e++; autoHop(C, e + 22, groundBase(e + 22));
-    }
-  }
-  const LEG = G.easy ? 7 : 10;
-  for (const o of L.obs) {
-    if (o.hit || Math.abs(o.x - C.x) > 40) continue; const d = OB[o.k];
-    if (C.x + LEG > o.x - d.hw && C.x - LEG < o.x + d.hw && C.fy > groundBase(o.x) - d.h + 2) { o.hit = true; hurt(); }
-    if (o.x < C.x - 30) o.hit = true;
-  }
-  for (const p of L.picks) {
-    if (p.got || Math.abs(p.x - C.x) > 50) continue; const gy = surfaceY(p.x, true), py = gy - p.hgt;
-    if (p.x + 6 > C.x - 20 && p.x - 6 < C.x + 35 && py + 15 > C.fy - 68 && py < C.fy - 4) {
-      p.got = true; if (p.kind === 'jug') RUN.water = Math.min(99, RUN.water + 1); else RUN.dates = Math.min(99, RUN.dates + 1);
-      L.flash = p.kind; L.flashT = S.t; Snd.chime(); L.pops.push({ x: p.x - L.cam - 6, y: py, t: S.t, txt: '+1', c: 'white' });
-    }
-  }
-  if (!G.easy && moving) { RUN.drain += dt; if (RUN.drain > 14) { RUN.drain = 0; if (RUN.water >= RUN.dates) RUN.water = Math.max(0, RUN.water - 1); else RUN.dates = Math.max(0, RUN.dates - 1); L.flashLow = RUN.water <= RUN.dates ? 'jug' : 'dates'; L.flashLowT = S.t; } }
-  C.inv = Math.max(0, C.inv - dt);
-  const xi = Math.round(C.x); for (let i = Math.round(prevX); i <= xi; i++) if (i >= 0 && i < L.N) L.rec[i] = C.fy;
-  for (let i = L.cpIdx + 1; i < L.cps.length; i++) if (C.x >= L.cps[i]) { L.cpIdx = i; RUN.cp = { lvl: L.name, x: L.cps[i] }; RUN.cpSup = [Math.max(6, RUN.water), Math.max(6, RUN.dates)]; }
-  for (const [bx] of L.banners) if (C.x >= bx && L.bannerT[bx] == null) L.bannerT[bx] = S.t;
-  if (L.name === 'market') { for (const p of L.lane) { const d = p.x - C.x; if (d < 120 && p.step < 1) p.step = Math.min(1, p.step + dt * 2.2); p.x += p.v * dt * (p.step > 0 ? .3 : 1); } for (const p of L.back) p.x += p.v * dt; for (const p of L.front) p.x += p.v * dt; }
-  L.cam = C.x - LV.LEAD_SX; L.cy += (camY(C.x) - L.cy) * Math.min(1, dt * 3);
-  if (!L.home) { const prog = progressOf(L, C.x); if (prog > G.best && G.best < 1) { G.best = prog; if (Math.random() < .02) localStorage.setItem('rtb-best', String(prog)); } }
-  if (RUN.water + RUN.dates <= 0 && !L.arrive) { localStorage.setItem('rtb-best', String(G.best)); S.mode = 'rest'; S.u = 0; return; }
-  if (C.x >= L.end - .5 && !C.air) {
-    if (L.name === 'beth') { if (!L.arrive.stopT) { L.arrive.stopT = S.t; Snd.joy(); localStorage.setItem('rtb-best', String(G.best)); } }
-    else if (!L.endT) L.endT = S.t; else if (S.t - L.endT > .6) { localStorage.setItem('rtb-best', String(G.best)); go(L.name === 'lv3' ? 'camp' : nextOf(L.name)); }
-  }
-}
-
-// ---------------- bot (test only: ?bot=1) ----------------
-const BOT = { on: QS.get('bot') === '1', holdUntil: 0 };
 function botStep() {
-  if (BOT.on && (canContinue() || S.mode === 'camp' && S.u > 3.4 || S.mode === 'rest' && S.u > 1.5)) { press(); release(); return; }
-  if (!BOT.on || !LVL || !PLAY.has(S.mode)) return;
-  const C = LVL.c; const sp = SPEED();
-  if (IN.down && S.t > BOT.holdUntil) release();
-  if (C.air || C.auto) return;
-  let want = 0;
-  for (const o of LVL.obs) { if (o.hit) continue; const d = OB[o.k]; const gap = (o.x - d.hw) - (C.x + (G.easy ? 7 : 10)); if (gap > -4 && gap < sp * .08) { want = d.h > 9 ? .22 : .03; break; } }
-  for (const r of LVL.RAV || []) { const gap = (r - 13) - C.x; if (gap > 0 && gap < sp * .12) want = .2; }
-  if (LVL.STONES && C.x > LVL.R0 - 40 && C.x < LVL.R1) { const s = stoneAt(C.x); if (s != null && C.x > s + 4) want = .02; if (s == null && C.x < LVL.R0 && LVL.R0 - C.x < 12) want = .02; }
-  if (want) { press(); BOT.holdUntil = S.t + want; }
+  if (!BOT.on) return;
+  if ((canContinue() && S.mode !== 'result') || S.mode === 'camp' && S.u > 3.4 || S.mode === 'rest' && S.u > 1.5 || S.mode === 'result' && S.u > (+QS.get('resultHold') || 1.5)) { press(); release(); return; }
+  if (!LVL || !PLAY.has(S.mode) || LVL.done || LVL.arrive) return;
+  const C = LVL.c; if (C.resp > 0) return;
+  // execute the current plan
+  const P = BOT.plan;
+  if (P) { const tau = S.t - P.t0; let downNow = false;
+    for (const a of P.sched) { if (!a.fired && tau >= a.at) { a.fired = true; release(); press(); } if (tau >= a.at && tau < a.at + a.h) downNow = true; }
+    if (!downNow && IN.down) release();
+    if (P.sched.every(a => a.fired) && !downNow && !C.air) BOT.plan = null;
+    if (BOT.plan && tau > 2.5) BOT.plan = null;
+    if (BOT.plan && C.air && DIF.dbl && C.dbl && !P.sched.some(a => a.dbl) && S.t > BOT.airPlanT) { BOT.airPlanT = S.t + .05;
+      const keep = simRun(LVL, C, [], 1.2, S.t), dbl = simRun(LVL, C, [{ at: 0, h: .2 }], 1.2, S.t);
+      if (dbl.score > keep.score + 5) { P.sched.push({ at: tau, h: .2, dbl: true }); } }
+    return;
+  }
+  if (C.air || S.t < BOT.nextPlanT) return;
+  BOT.nextPlanT = S.t + (LVL.towers && LVL.towers.some(q => C.x > q.x0 - 60 && C.x < q.x1) ? 0 : 1 / 20);
+  const cands = [[]];
+  for (const h of [.03, .12, .3]) { cands.push([{ at: 0, h }]); if (DIF.dbl) for (const d of [.26, .4]) cands.push([{ at: 0, h }, { at: d, h: .2, dbl: true }]); }
+  let best = null, bs = -1e9;
+  // in a tower, also weigh jumping a little later: if a later jump is best, wait and plan again next step
+  const inTower = LVL.towers && LVL.towers.some(q => C.x > q.x0 - 60 && C.x < q.x1);
+  if (inTower) for (const at of [.12, .25, .4, .6]) for (const h of [.12, .3]) { cands.push([{ at, h }]); if (DIF.dbl) cands.push([{ at, h }, { at: at + .3, h: .2, dbl: true }]); }
+  const T = inTower ? 2.2 : 1.5;
+  for (const sc of cands) { const r = simRun(LVL, C, sc, T, S.t); const s = r.score - sc.length * .5; if (s > bs) { bs = s; best = sc; } }
+  if (best && best.length && best[0].at > 0) return;
+  if (best && best.length) BOT.plan = { t0: S.t, sched: best.map(a => Object.assign({ fired: false }, a)) };
 }
 
-// ---------------- drawing: play ----------------
-function drawStrip(key, f, y, v) { const im = IMG[key + '-' + v] || IMG[key]; const sx = clamp(Math.floor((LVL.cam + (LVL.stripOff || 0)) * f), 0, im.width - W); ctx.drawImage(im, sx, 0, W, H, 0, Math.round(y), W, H); }
+// ======================= v3: drawing the levels =======================
+const MATTILE = [null, 'sand', 'rock', 'brick', 'street', 'sand', 'sand', 'sand'];
+let SHAKE = [0, 0];
+const VEIL = (() => { const c = document.createElement('canvas'); c.width = W; c.height = 148; const g = c.getContext('2d'); return { c, g, img: g.createImageData(W, 148) }; })();
+function stripImg(key, v) { return IMG[key + '-' + LVL.cfg.strip + '-' + v] || IMG[key + '-' + LVL.cfg.strip + '-' + LVL.cfg.tod[0][1]]; }
+function drawStrip(key, f, y, v) { const im = stripImg(key, v); if (!im) return; const sx = clamp(Math.floor(LVL.cam * f), 0, im.width - W); ctx.drawImage(im, sx, 0, W, H, 0, Math.round(y), W, H); }
+function tileFor(code, v) { const m = MATTILE[code] || 'sand'; return IMG['tile-' + (LVL.cfg.theme === 'market' && code === 1 ? 'street' : m) + '-' + v]; }
 function drawGround(v) {
-  const L = LVL, cam = L.cam, cy = L.cy;
-  const ts = IMG['tile-sand-' + v], tr = IMG['tile-rock-' + v], tp = IMG['tile-pit-' + v], twt = IMG['tile-water-' + v];
+  const L = LVL, cam = L.cam, cy = L.cy, twt = IMG['tile-water-' + v], tp = IMG['tile-pit-' + v];
   for (let sx = 0; sx < W; sx++) {
-    const wx = Math.floor(sx + cam); const i = clamp(wx, 0, L.N - 1); const k = L.kind[i];
-    if (k === 3) {
-      const wy = Math.round(L.WL - cy); ctx.drawImage(twt, mod(wx - Math.trunc(S.t * 16), 76), 0, 1, 13, sx, wy, 1, 13);
-      const top = wy + 13; ctx.drawImage(ts, mod(wx, 116), 6, 1, H - top, sx, top, 1, H - top); continue;
+    const wx = Math.floor(sx + cam); if (wx < 0 || wx >= L.N) continue; const g = L.gt[wx];
+    if (!isFinite(g)) {
+      const w = waterAt(L, wx);
+      if (w) { const wy = Math.round(w.y - cy); ctx.drawImage(twt, mod(wx - Math.trunc(S.t * 16), 76), 0, 1, 40, sx, wy, 1, H - wy); }
+      else { let k = wx; while (k > 0 && !isFinite(L.gt[k])) k--; const top = Math.round(L.gt[k] - cy) + 2; ctx.drawImage(tp, 6 + (wx % 14), 0, 1, Math.min(140, H - top), sx, top, 1, H - top); }
+      continue;
     }
-    const top = Math.round(L.gb[i] - cy); if (top >= H) continue; const h = Math.min(140, H - top);
-    if (k === 2) { const rv = L.RAV.find(r => Math.abs(wx - r) < 13); ctx.drawImage(tp, clamp(wx - (rv - 13), 0, 25), 0, 1, h, sx, top, 1, h); }
-    else ctx.drawImage(k === 1 ? tr : ts, mod(wx, k === 1 ? 760 : 116), 0, 1, h, sx, top, 1, h);
-    if (k === 5) { const wy = Math.round(L.JWL - cy); ctx.drawImage(twt, mod(wx - Math.trunc(S.t * 10), 76), 0, 1, top - wy + 3, sx, wy, 1, top - wy + 3); }
+    const code = L.gm[wx], base = L.gb[wx]; const top = Math.round(base - cy); if (top >= H) continue;
+    const tl = tileFor(code === 5 || code === 6 || code === 7 ? (L.cfg.theme === 'market' ? 4 : 1) : code, v);
+    if (tl) ctx.drawImage(tl, mod(wx, tl.width), 0, 1, Math.min(tl.height, H - top), sx, top, 1, Math.min(tl.height, H - top));
   }
 }
-function fordOverlay(v) { // shallow Jordan water over the camels' legs
-  const L = LVL; if (!L.isRoad || L.home) return; const cam = L.cam, cy = L.cy; const twt = IMG['tile-water-' + v]; ctx.globalAlpha = .85;
-  for (let sx = 0; sx < W; sx++) { const wx = Math.floor(sx + cam); if (L.kind[clamp(wx, 0, L.N - 1)] !== 5) continue; const wy = Math.round(L.JWL - cy); const top = Math.round(L.gb[wx] - cy); ctx.drawImage(twt, mod(wx - Math.trunc(S.t * 10), 76), 0, 1, top - wy, sx, wy, 1, top - wy); }
-  ctx.globalAlpha = 1;
+function drawObjects(v) {   // crates, carts, posts, ledges, stones, rafts, thorns, cairns, camps, decor
+  const L = LVL, cam = L.cam, cy = L.cy, t = S.t;
+  for (const b of L.blocks) { if (b.x1 < cam - 50 || b.x0 > cam + 340) continue; const sx = b.x0 - cam;
+    if (b.mat === 'crate') spr('crate', sx - 1, b.y - cy - 2, v); else if (b.mat === 'cart') spr('cart', sx, b.y - cy, v); else if (b.mat === 'post') spr('post', sx - 1, b.y - cy, v); }
+  for (const p of L.plats) { const x0 = platX0(p, t); if (x0 > cam + 340 || x0 + (p.x1 - p.x0) < cam - 40) continue; const sx = x0 - cam;
+    if (p.kind === 'ledge') { const w = p.x1 - p.x0; for (let q = 0; q < w; q += 32) spr('ledge_32', sx + Math.min(q, w - 32), p.y - cy, v); }
+    else if (p.kind === 'awning' || p.kind === 'roof') { R(sx, p.y - cy - 1, sx + p.x1 - p.x0 - 1, p.y - cy, 'white'); R(sx, p.y - cy + 1, sx + p.x1 - p.x0 - 1, p.y - cy + 1, 'goldlight'); }
+    else if (p.kind === 'stone') { const off = stoneOff(p, p.st, t); const y = p.y + off - cy; for (let q = 0; q < p.x1 - p.x0 - 6; q += 24) spr('stone', sx - 3 + Math.min(q, p.x1 - p.x0 - 29), y - 2, v); if (off > 0 && off < 9) for (let q = 0; q < 4; q++) px(sx + 4 + q * 6, y + 1 + (Math.trunc(t * 20) + q) % 2, 'white'); }
+    else if (p.kind === 'raft') { spr('raft', sx - 1, p.y - cy - 1 + Math.round(Math.sin(t * 3)), v); } }
+  const dark = v === 'night' || v === 'dusk';
+  for (const h of L.hazards) { const sx = h.x - cam; if (sx > -30 && sx < 340) { if (dark) spr('thorn_lit', sx - 12, h.y - cy - 16, 'day'); spr('thorn', sx - 11, h.y - cy - 15, dark ? 'dawn' : v); } }
+  for (const cx of L.cairns) { const sx = cx - cam; if (sx > -20 && sx < 340) { const gy = (isFinite(L.gt[Math.round(cx)]) ? L.gt[Math.round(cx)] : L.base) - cy; spr('cairn_tall', sx - 8, gy - 31, v); } }
+  for (let i = 1; i < L.cps.length; i++) { const sx = L.cps[i] - cam; if (sx > -30 && sx < 340) { const gy = L.gt[Math.round(L.cps[i])] - cy; spr('cpfire_' + Math.trunc(t * 4) % 2, sx - 4, gy - 33, v); } }
+  for (const d of L.decor) { const sx = d.x - cam; if (sx < -30 || sx > 340) continue; if (d.kind === 'tuft') { const gy = L.gt[Math.round(d.x)] - cy; for (const q of [-2, 0, 2]) line(sx, gy, sx + q, gy - 4 - Math.abs(q) / 2, 'palmlt'); } }
 }
-function drawCaravan(poseFor) {
-  const L = LVL, C = L.c, cam = L.cam, cy = L.cy;
-  for (let i = 3; i >= 0; i--) {     // three wise men and a servant leading the pack camel
-    const cx = C.x - SP * i; const fy = i === 0 ? C.fy : L.rec[clamp(Math.round(cx), 0, L.N - 1)];
-    const gy = surfaceY(cx, true); const jy = gy - fy;
-    let pose = 'walk';
-    const stopped = C.x >= L.end - 1;
-    if (jy > 1.5 || (i === 0 && C.air)) pose = 'jump';
-    else if (groundBase(cx + 8) - groundBase(cx - 8) > 6) pose = 'slide';
-    let hop = 0; if (L.arrive && L.arrive.stopT) { const tt = S.t - L.arrive.stopT - i * .14; if (tt > 0 && tt < 2.4) { hop = 9 * Math.abs(Math.sin(tt * Math.PI / .6)); if (hop > 2) pose = 'jump'; } }
-    const sx = cx - 28 - cam, sy = fy - 50 - cy - hop;
-    if (sx > 330 || sx < -80) continue;
-    if (i === 0 && C.inv > 0 && Math.trunc(S.t * 12) % 2) continue;
-    const fr = mod(Math.trunc(cx / 2.8), 8);
-    if (pose === 'walk' && !stopped && L.kind[clamp(Math.round(cx), 0, L.N - 1)] !== 5) for (let q = 0; q < 3; q++) { const age = (S.t * 2.6 + q / 3 + i * .2) % 1; if (age < .7) { px(sx + 10 - age * 10, gy - cy - 1 - age * 4, 'sandhi'); px(sx + 9 - age * 10, gy - cy - age * 4, 'paper'); } }
-    if (pose === 'slide') for (let q = 0; q < 10; q++) { const age = (S.t * 3 + q / 10) % 1; px(sx + 44 + age * 18 + hsh(q) * 6, gy - cy - 1 - Math.sin(age * 3.14) * (8 + hsh(q + 3) * 8), q % 2 ? 'sandhi' : 'paper'); }
-    const name = pose === 'walk' ? (stopped ? `camel_walk_${i}_2` : `camel_walk_${i}_${fr}`) : `camel_${pose}_${i}`;
-    const bob = (pose === 'walk' && !stopped && fr % 4 < 2) ? 1 : 0;
-    if (i === 3) tinted(v => { spr(name, sx, sy, v); spr('merchant_2', sx + 19, sy - 10 + bob, v); }, lit);
-    else { const rp = poseFor(i, pose); tinted(v => { spr(name, sx, sy, v); spr(`rider_${i}_${rp}`, sx + 15, sy - 16 + bob, v); }, lit); }
+function drawPeople() {
+  const L = LVL, C = L.c, cam = L.cam, cy = L.cy, t = S.t;
+  for (const p of L.people || []) {
+    const ahead = p.x - C.x; const want = ahead > -50 && ahead < 110 ? 1 : 0;          // step aside as the caravan nears
+    p.st += (want - p.st) * Math.min(1, (S.paused ? 0 : 1) * 1 / 60 * 5);
+    const off = p.walk && p.st < .2 ? Math.sin(t * .6 + p.ph) * p.range : 0, dir = p.walk ? Math.cos(t * .6 + p.ph) : 0;
+    const wx = p.x + off, sx = wx - cam - 9; if (sx < -20 || sx > 330) continue;
+    const gb = L.gb[clamp(Math.round(wx), 0, L.N - 1)], gy = (isFinite(gb) ? gb : L.base) - cy;
+    const f = p.walk && p.st < .2 ? Math.trunc(t * 4 + p.ph) % 2 : 0;
+    spr(`person_${p.k}_${f}_${p.c}`, sx, gy - 30 - Math.round(p.st * 9), 'day', dir < 0 || (p.st > .5 && ahead > 0));
+    if (p.st > .3 && p.st < .9 && ahead > 0) bubble(sx + 2, gy - 48 - Math.round(p.st * 9), 'ex');
   }
 }
-function riderPose(i, pose) {
-  const t = S.t, L = LVL;
-  if (L.home) return 'ridenog_' + (Math.trunc(t * 2) + (i === 1 ? 1 : 0)) % 2;   // FIX-2 #2: the gifts were given
-  if (L.arrive && L.arrive.stopT && S.t - L.arrive.stopT < 3.2) return 'joy_' + (Math.trunc(t * 6) + i) % 2;
-  if (i === 0 && (pose === 'jump' || pose === 'slide')) return 'clutch_0';
-  if (i === 2 && L.name === 'lv3' && L.c.x > 3880 && L.c.x < 4300) return 'wave_' + Math.trunc(t * 6) % 2;
-  return 'ride_' + (Math.trunc(t * 2) + (i === 1 ? 1 : 0)) % 2;
-}
-function drawObs(v) { const L = LVL, cam = L.cam, cy = L.cy; for (const o of L.obs) { const sx = o.x - cam; if (sx < -40 || sx > 350) continue; const d = OB[o.k]; spr(d.s, sx + d.dx, groundBase(o.x) - cy + d.dy, v); } }
 function drawPicks() {
   const L = LVL, cam = L.cam, cy = L.cy;
-  for (const p of L.picks) { if (p.got) continue; const sx = p.x - cam - 6; if (sx < -20 || sx > 340) continue; const y = surfaceY(p.x, true) - cy - p.hgt; spr(p.kind, sx, y + Math.round(1.5 * Math.sin(S.t * 5 + p.x))); sparkle(sx + 12, y - 1, Math.trunc(S.t * 8 + p.x)); }
+  for (const p of L.picks) { if (p.got) continue; const sx = p.x - cam - 6; if (sx < -20 || sx > 340) continue; const y = p.y - cy - 7; spr(p.kind, sx, y + Math.round(1.5 * Math.sin(S.t * 5 + p.x))); sparkle(sx + 12, y - 1, Math.trunc(S.t * 8 + p.x)); }
+  for (const s of L.scrolls) { if (s.got) continue; const sx = s.x - cam - 6; if (sx < -20 || sx > 340) continue; const y = s.y - cy - 5 + Math.round(2 * Math.sin(S.t * 3 + s.x)); spr('scroll', sx, y); for (let k = 0; k < 3; k++) sparkle(sx + 6 + Math.cos(S.t * 2 + k * 2.1) * 9, y + 5 + Math.sin(S.t * 2 + k * 2.1) * 7, Math.trunc(S.t * 6) + k, 'paper'); }
+}
+function drawCaravan() {
+  const L = LVL, C = L.c, cam = L.cam, cy = L.cy;
+  for (let i = 3; i >= 0; i--) {
+    const cx = C.x - SP * i; if (cx < 0) continue; const ix = clamp(Math.round(cx), 0, L.N - 1);
+    const fy = i === 0 ? C.y : L.rec[ix]; const gy = isFinite(L.gt[ix]) ? L.gt[ix] : fy;
+    let pose = 'walk'; const stopped = (C.x >= L.len - 1) || (C.blocked && i === 0) || (C.on && C.on.kind === 'raft' && i === 0);
+    if (i === 0 ? C.air : gy - fy > 2) pose = 'jump';
+    let hop = 0; if (L.arrive) { const tt = S.t - L.arrive.stopT - i * .14; if (tt > 0 && tt < 2.4) { hop = 9 * Math.abs(Math.sin(tt * Math.PI / .6)); if (hop > 2) pose = 'jump'; } }
+    const sx = cx - 28 - cam, sy = fy - 50 - cy - hop;
+    if (sx > 330 || sx < -80) continue;
+    if (i === 0 && (C.inv > 0 || C.resp > 0) && Math.trunc(S.t * 12) % 2) continue;
+    const fr = mod(Math.trunc(cx / 2.8), 8);
+    if (pose === 'walk' && !stopped) for (let q = 0; q < 3; q++) { const age = (S.t * 2.6 + q / 3 + i * .2) % 1; if (age < .7) { px(sx + 10 - age * 10, fy - cy - 1 - age * 4, 'sandhi'); } }
+    const name = pose === 'walk' ? (stopped ? `camel_walk_${i}_2` : `camel_walk_${i}_${fr}`) : `camel_${pose}_${i}`;
+    const bob = (pose === 'walk' && !stopped && fr % 4 < 2) ? 1 : 0;
+    const rp = L.name === 'home' ? 'ridenog_' + (Math.trunc(S.t * 2) + i) % 2 : (L.arrive && S.t - L.arrive.stopT < 3.2) ? 'joy_' + (Math.trunc(S.t * 6) + i) % 2 : (i === 0 && pose === 'jump') ? 'clutch_0' : 'ride_' + (Math.trunc(S.t * 2) + (i === 1 ? 1 : 0)) % 2;
+    if (i === 3) tinted(v => { spr(name, sx, sy, v); spr('merchant_2', sx + 19, sy - 10 + bob, v); }, lit);
+    else tinted(v => { spr(name, sx, sy, v); spr(`rider_${i}_${rp}`, sx + 15, sy - 16 + bob, v); }, lit);
+  }
 }
 function drawPops() { const L = LVL; L.pops = L.pops.filter(p => S.t - p.t < .9); for (const p of L.pops) popup(p.x, p.y, S.t - p.t, p.txt, p.c); }
 function drawBanners() { const L = LVL; for (const [bx, s] of L.banners) { const t0 = L.bannerT[bx]; if (t0 != null && t0 > 0) banner(s, (S.t - t0) / 2.4); } }
-function bannerUp() { const L = LVL; for (const [bx] of L.banners) { const t0 = L.bannerT[bx]; if (t0 != null && t0 > 0 && S.t - t0 < 2.4) return true; } return false; }
-function hint(s, y = 150) { if (Math.trunc(S.t * 2.5) % 3 === 2) return; T(s, 160, y, 'white', 1, true, 'ink'); }
-function hudFor(L) {
-  const C = L.c; const night = L.night(C.x);
-  const flash = S.t - L.flashT < .9 ? L.flash : null; const flashLow = S.t - (L.flashLowT || -9) < 1.2 ? L.flashLow : null;
-  const unsafe = C.inv > 0 && Math.trunc(S.t * 10) % 2;
-  hud(S.t, { month: monthOf(L, C.x), home: !!L.home, star: L.name === 'lv1' || L.name === 'beth', night, water: RUN.water, dates: RUN.dates, prog: progressOf(L, C.x), safe: [unsafe ? 0 : 1, unsafe ? 0 : 1, unsafe ? 0 : 1], flash, flashLow, low: RUN.water + RUN.dates <= 4, off: L.hudOff || 0 });
+function hint(s, y = 150) { T(s, 160, y, 'white', 1, true, 'ink'); }
+function fmtT(s) { s = Math.max(0, Math.round(s)); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); }
+function hudPlay() {
+  const L = LVL, C = L.c, t = S.t, y0 = -(L.hudOff || 0); if (L.hudOff >= 20) return;
+  R(0, y0, 319, 19 + y0, 'ink'); R(0, 18 + y0, 319, 19 + y0, 'gold');
+  T('L' + L.n, 5, 6 + y0, 'goldlight'); T(DIF.name, 20, 6 + y0, DIF.col);
+  const night = L.cfg.night(lvlProg(L, C.x)); spr(night ? 'icon_moon' : 'icon_sun', 66, 4 + y0);
+  T(L.name === 'home' ? 'HOMEWARD' : 'MONTH ' + Math.min(4, L.n), 80, 6 + y0, 'white');
+  const fl = S.t - L.flashT < 1 ? L.flash : null, low = RUN.water <= 3;
+  spr('jug', 138, 1 + y0); T(String(RUN.water).padStart(2, '0'), 153, 6 + y0, fl === 'jug' ? 'goldlight' : (low || fl === 'low') && Math.trunc(t * 4) % 2 ? 'coral' : 'white');
+  spr('dates', 172, 1 + y0); T(String(RUN.dates).padStart(2, '0'), 187, 6 + y0, fl === 'dates' ? 'goldlight' : RUN.dates <= 0 ? 'coral' : 'white');
+  const f = RUN.scrolls[L.name] || [];
+  for (let i = 0; i < 3; i++) { const x = 205 + i * 14; if (f[i]) spr('scroll', x, 4 + y0); else { R(x + 2, 6 + y0, x + 9, 12 + y0, 'slate'); R(x + 3, 7 + y0, x + 8, 11 + y0, 'ink'); } }
+  if (L.name !== 'home') for (let i = 0; i < 3; i++) { const x = 255 + i * 21; R(x, 1 + y0, x + 15, 16 + y0, 'gold'); R(x + 1, 2 + y0, x + 14, 15 + y0, 'navy'); spr('gift_' + i, x + 3, y0); }
+  const b = 167 + (L.hudOff || 0); R(0, b, 319, 179, 'ink'); R(0, b, 319, b, 'gold');
+  T(L.cfg.short, 5, b + 4, 'goldlight'); const bx = 92, BW = 128;
+  R(bx, b + 5, bx + BW, b + 8, 'slate'); const pw = Math.trunc(BW * lvlProg(L, C.x)); R(bx, b + 5, bx + pw, b + 8, L.name === 'home' ? 'mint' : 'goldlight');
+  for (let i = 1; i < L.cps.length; i++) { const cx = bx + Math.trunc(BW * lvlProg(L, L.cps[i])); R(cx, b + 3, cx, b + 10, i <= L.cpIdx ? 'mintlight' : 'silver'); }
+  spr('icon_camel', bx + pw - 5, b + 1); spr(L.name === 'lv1' || L.name === 'beth' ? 'icon_star' : 'icon_house', bx + BW + 4, b + 1);
+  T(fmtT(RUN.stats[L.name].time), 238, b + 4, 'white');
+  R(272, b + 2, 288, b + 11, 'navy'); R(277, b + 4, 278, b + 9, 'paper'); R(282, b + 4, 283, b + 9, 'paper');   // pause button
 }
-let SHAKE = [0, 0];
-const VEIL = (() => { const c = document.createElement('canvas'); c.width = W; c.height = 148; const g = c.getContext('2d'); return { c, g, img: g.createImageData(W, 148) }; })();
-function drawRoad() {
-  const L = LVL, C = L.c, cam = L.cam, cy = L.cy, t = S.t; TOD = todAt(L, C.x);
+function drawPlay() {
+  const L = LVL, C = L.c, cam = L.cam, cy = L.cy, t = S.t, th = L.cfg.theme; TOD = todAt(L, C.x);
+  // sky and background
   ctx.drawImage(IMG['sky-' + TOD.a], 0, 0); if (TOD.p > .02 && TOD.b !== TOD.a) { ctx.globalAlpha = TOD.p; ctx.drawImage(IMG['sky-' + TOD.b], 0, 0); ctx.globalAlpha = 1; }
-  const STA = { night: 1, dusk: .4, dawn: .2, day: 0, storm: 0 }, SV = { night: 1, dusk: 1, dawn: 1, day: 0, storm: 0 };
-  stars(t, STA[TOD.a] * (1 - TOD.p) + STA[TOD.b] * TOD.p, cam * .02);
-  const sv = SV[TOD.a] * (1 - TOD.p) + SV[TOD.b] * TOD.p; const sa = L.storm(C.x);
-  // "we have seen his star in the east" (Mt 2:2): the Star shines over level 1 only; Matthew next
-  // shows it going before them from Jerusalem to Bethlehem (Mt 2:9), so the road between shows none.
-  if (L.name === 'lv1' && sv > .5) bigStar(258, 44, t, 1, 0);
-  tinted(v => { drawStrip('far', .07, -cy * .04, v); drawStrip('mid', .28, -cy * .12, v); });
-  // a trade caravan passing on the far road, behind the near hills and dimmed; the youngest wise man waves
-  if (L.name === 'lv3' && C.x > 3820 && C.x < 4320) { ctx.globalAlpha = .7;
-    const base = 330 + .6 * (3820 - LV.LEAD_SX);
-    for (let k = 0; k < 3; k++) {
-      const nxw = base + k * 70 - (C.x - 3820) * .5; const sx = nxw - cam * .6;
-      const gy = 129 - 5 * Math.sin(nxw / 57 + 2) - 3 * Math.sin(nxw / 19) - cy * .35 + 5;
-      if (sx > -80 && sx < 330) { spr(`camel_walk_${3 + k % 2}_${mod(Math.trunc(-nxw / 2.8), 8)}`, sx, gy - 50, 'dusk', true); spr(`merchant_${k + 3}`, sx + 26, gy - 59, 'dusk', true); }
-    }
-    ctx.globalAlpha = 1;
+  const STA = { night: 1, dusk: .4, dawn: .2, day: 0, storm: 0 }; stars(t, STA[TOD.a] * (1 - TOD.p) + STA[TOD.b] * TOD.p, cam * .02);
+  if (th === 'market') {
+    for (let k = 0; k < 5; k++) { const x = mod(k * 97 - cam * .05 - t * 2, 420) - 60; spr('cloud', x, 28 + k % 3 * 14); }
+    for (let x = -mod(40 + cam * .15, 640); x < W; x += 640) ctx.drawImage(IMG.jerfar, Math.round(x), 62 - cy * .2);
+    for (let x = -mod(20 + cam * .5, 900); x < W; x += 900) ctx.drawImage(IMG.jermid, Math.round(x), 56 - cy * .4);
+    for (const r of L.roofs) { const sx = r.x - cam; if (sx < -60 || sx > 330) continue; const ry = r.y - cy; R(sx + 2, ry + 3, sx + r.w - 3, r.gy - cy, 'woodlight'); R(sx + r.w - 9, ry + 3, sx + r.w - 3, r.gy - cy, 'wood'); R(sx, ry, sx + r.w - 1, ry + 3, 'paper'); R(sx, ry + 3, sx + r.w - 1, ry + 3, 'wood'); R(sx + 12, ry + 10, sx + 18, ry + 17, 'brown'); R(sx + 32, ry + 10, sx + 38, ry + 17, 'goldlight'); }
+    for (const s of L.stalls) { const sx = s.x - cam; if (sx > -60 && sx < 330) { R(sx - 1, L.base - cy - 3, sx + 54, L.base - cy, 'wood'); spr('merchant_' + (Math.round(s.x / 53) % 7), sx + 18, s.y - cy + 13); spr('stall_' + (Math.round(s.x / 97) % 4), sx, s.y - cy); } }
+  } else if (th === 'beth') {
+    const hx = L.len + 43 - cam; let stx = 262, sty = 40; if (hx + 45 < stx) stx = hx + 45;
+    const since = t - L.c0, reb = since < 2.6 ? Math.max(0, 1.2 - since / 2.2) : 0; if (hx + 45 <= 262.5 && !L.starStop) L.starStop = t;
+    bigStar(stx, sty, t, Math.min(1.25, .3 + since * 1.2), Math.max(reb, L.starStop ? Math.max(0, 1 - (t - L.starStop) / 2.4) : 0)); L.stx = stx; L.sty = sty;
+    ctx.drawImage(IMG.bhills, clamp(Math.floor(cam * .25), 0, IMG.bhills.width - W), 0, W, H, 0, -cy * .2, W, H);
+    const ux = clamp(Math.floor(cam * .5), 0, IMG.bhuts.width - W); ctx.drawImage(IMG.bhuts, ux, 0, W, H, 0, -cy * .4, W, H);
+  } else {
+    if (L.cfg.star && L.cfg.star(lvlProg(L, C.x))) bigStar(258, 44, t, 1, 0);
+    tinted(v => { drawStrip('far', .07, -cy * .04, v); drawStrip('mid', .28, -cy * .12, v); drawStrip('near', .6, -cy * .35, v); });
   }
-  tinted(v => drawStrip('near', .6, -cy * .35, v));
-  tinted(v => drawGround(v));
-  if (L.STONES) for (let k = 0; k < L.STONES.length; k++) {
-    const s = L.STONES[k], sx = s - cam; if (sx < -30 || sx > 350) continue;
-    const near = [0, 1, 2, 3].some(i => Math.abs(C.x - SP * i - s) < 14); const bob = near ? 0 : Math.round(1.5 + 1.5 * Math.sin(t * 4 + k * 1.7));
-    tinted(v => spr('stone', sx - 16, L.WL - cy - 4 + bob, v));
-    for (let q = -14; q <= 14; q += 3) if (mod(q + Math.trunc(t * 5), 2)) px(sx + q, L.WL - cy + 1, 'white');
-  }
-  for (let k = 0; k < 400; k++) {
-    const x = 120 + k * 27 + Math.trunc(hsh(k + 7) * 20); const sx = x - cam; if (sx < -10 || sx > 330) continue;
-    const kd = L.kind[clamp(x, 0, L.N - 1)]; if (kd === 2 || kd === 3 || kd === 5 || (x > L.R0 - 8 && x < L.R1 + 8)) continue;
-    const gy = groundBase(x) - cy;
-    if (kd === 1) { R(sx, gy - 2, sx + 3, gy, 'rockdk'); px(sx + 1, gy - 2, 'silver'); }
-    else if (hsh(k + 3) < .6) { R(sx, gy - 1, sx + 2, gy, 'wood'); px(sx, gy - 1, 'paper'); }
-    else for (const q of [-2, 0, 2]) line(sx, gy, sx + q, gy - 4 - Math.floor(Math.abs(q) / 2), k % 2 ? 'palmlt' : 'goldshade');
-  }
-  if (!L.home) for (const x of [L.R0 - 30, L.R0 - 14, L.R1 + 8, L.R1 + 26, LV.J0 - 40, LV.J0 - 22, LV.J1 + 10, LV.J1 + 30]) { const sx = x - cam; if (sx < -20 || sx > 330) continue; tinted(v => spr('reeds', sx - 8, groundBase(x) - cy - 17, v)); }
-  if (!L.home) for (const [x, k] of [[6330, 0], [6400, 1], [6490, 2], [6560, 0], [8480, 1], [8560, 2], [9020, 0], [9120, 1]]) { const sx = x - cam; if (sx > -60 && sx < 330) tinted(v => spr(`palm_${k}_${mod(Math.trunc(t * 2 + k), 4)}`, sx, groundBase(x) - cy - 62, v)); }
-  tinted(v => drawObs(v));
-  for (let k = 0; k < 14; k++) { const sx = mod(hsh(k) * 400 - t * (60 + hsh(k + 9) * 70) - cam * .9, 360) - 20; const gy = groundBase(sx + cam) - cy - 1 - hsh(k + 4) * 5; hline(sx, sx + 3 + k % 4, gy, k % 3 ? 'paper' : 'sandhi'); }
+  if (L.name === 'lv4') { const wx0 = 240 - cam, gy = L.base - cy; if (wx0 < 330 && wx0 + 520 > -10) { tinted(v => {
+      R(wx0, gy - 46, wx0 + 520, gy - 1, 'woodshade'); R(wx0, gy - 46, wx0 + 520, gy - 44, 'woodlight');
+      for (let q = 0; q < 520; q += 14) R(wx0 + q, gy - 52, wx0 + q + 7, gy - 46, 'woodshade');
+      for (let yy = gy - 40; yy < gy; yy += 8) for (let q = (yy & 8) ? 0 : 7; q < 520; q += 14) R(wx0 + q, yy, wx0 + q, yy + 7, 'wood');
+      const gx = wx0 + 70; R(gx - 10, gy - 66, gx + 50, gy - 1, 'woodshade'); for (let q = 0; q < 60; q += 12) R(gx - 10 + q, gy - 72, gx - 4 + q, gy - 66, 'woodshade');
+      poly([[gx + 6, gy - 1], [gx + 6, gy - 34], [gx + 20, gy - 46], [gx + 34, gy - 34], [gx + 34, gy - 1]], 'ink'); R(gx - 10, gy - 66, gx + 50, gy - 64, 'woodlight'); });
+      panel(wx0 + 42, gy - 98, wx0 + 138, gy - 80, 'ink', 'goldlight'); T('DAMASCUS', wx0 + 90, gy - 93, 'goldlight', 1, true); } }
+  const gv = th === 'market' ? 'day' : th === 'beth' ? 'night' : null;
+  if (gv) { drawGround(gv); if (th === 'market') drawPeople(); drawObjects(gv); } else tinted(v => { drawGround(v); drawObjects(v); });
+  if (th === 'beth') { const hx = L.len + 43 - cam; if (hx > -100 && hx < 330) spr('house', hx, L.base - 71 - cy, 'dawn'); if (L.starStop) beam(L.stx, L.sty + 6, hx + 45, L.base - 57 - cy, t, Math.trunc(16 * ss(0, 1.4, t - L.starStop))); }
   drawPicks();
   L.splashes = L.splashes.filter(s => t - s.t < .5); for (const s of L.splashes) spr('splash_' + Math.min(2, Math.trunc((t - s.t) * 6)), s.x - cam - 15, s.y - cy - 15);
-  // sandstorm: the star cannot be seen; the lanterns and the road's cairns keep them on the way
+  // sandstorm: low visibility, wind; the lanterns and the cairns show the way
+  const sa = L.storm ? ss(L.storm[0] - 150, L.storm[0], C.x) * (1 - ss(L.storm[1], L.storm[1] + 150, C.x)) : 0;
   if (sa > 0) {
-    const lx = C.x - cam + 52, ly = C.fy - cy - 34, lr2 = (64 + 6 * Math.sin(t * 9)) ** 2;
-    const img = VEIL.img; const d = img.data; d.fill(0); const cov = sa * .58; const sh = Math.trunc(t * 40) % 4, t30 = Math.trunc(t * 30);
+    const lx = C.x - cam + 40, ly = C.y - cy - 34, lrad = 76 + 4 * Math.sin(t * 9), lr2 = lrad ** 2;
+    const img = VEIL.img; const d = img.data; d.fill(0); const cov = sa * .62; const sh = Math.trunc(t * 40) % 4, t30 = Math.trunc(t * 30);
     const A = RGB.wood, B = RGB.woodlight;
-    for (let y = 0; y < 148; y++) { const yy = y + 19; const by = BAY[yy & 3]; const dy2 = (yy - ly) ** 2; for (let x = 0; x < W; x++) { const near = (x - lx) ** 2 * .55 + dy2; let c = cov; if (near < lr2) c = cov * (.15 + .85 * near / lr2); if (by[(x + sh) & 3] >= c) continue; const band = mod(yy + Math.trunc(x * .15) + t30, 14) < 7 ? A : B; const o = (y * W + x) * 4; d[o] = band[0]; d[o + 1] = band[1]; d[o + 2] = band[2]; d[o + 3] = 255; } }
+    for (let y = 0; y < 148; y++) { const yy = y + 19; const by = BAY[yy & 3]; const dy2 = (yy - ly) ** 2; for (let x = 0; x < W; x++) { const near = (x - lx) ** 2 * .5 + dy2; let c = cov; if (near < lr2) c = near < lr2 * .55 ? 0 : cov * ((near / lr2 - .55) / .45); if (by[(x + sh) & 3] >= c) continue; const band = mod(yy + Math.trunc(x * .15) + t30, 14) < 7 ? A : B; const o = (y * W + x) * 4; d[o] = band[0]; d[o + 1] = band[1]; d[o + 2] = band[2]; d[o + 3] = 255; } }
     VEIL.g.putImageData(img, 0, 0); ctx.drawImage(VEIL.c, 0, 19);
-    for (let x = LV.STORM0 + 60; x < LV.STORM1; x += 130) { const sx = x - cam; if (sx < -20 || sx > 330) continue; const gy = groundBase(x) - cy; tinted(v => spr('cairn', sx - 6, gy - 15, v)); if (Math.trunc(t * 3 + x) % 3) sparkle(sx, gy - 16, Math.trunc(t * 6), 'paper'); }
+    for (let a = 0; a < 6.283; a += .025) { const qx = lx + Math.cos(a) * lrad * 1.414 * .74, qy = ly + Math.sin(a) * lrad * .74; if (qy > 20 && qy < 165 && (Math.trunc(a * 24 + t * 10) % 3)) { const c = (Math.trunc(a * 10 + t * 4) & 1) ? 'goldlight' : 'paper'; px(qx, qy, c); px(qx + 1, qy, c); } }
+    for (const cx of L.cairns) { const sx = cx - cam; if (sx < -20 || sx > 330) continue; const gy = (isFinite(L.gt[Math.round(cx)]) ? L.gt[Math.round(cx)] : L.base) - cy; spr('cairn_tall', sx - 8, gy - 31, 'day'); sparkle(sx, gy - 33, Math.trunc(t * 6), 'white'); }
     for (let k = 0; k < Math.trunc(70 * sa); k++) { const x = mod(hsh(k) * 420 - t * (260 + hsh(k + 5) * 200), 380) - 30; const y = 22 + hsh(k + 11) * 140 + Math.sin(t * 3 + k) * 4; const l = 5 + Math.trunc(hsh(k + 2) * 12); line(x, y, x + l, y - 1, ['sandhi', 'paper', 'woodlight'][k % 3]); }
-    SHAKE = [Math.round(Math.sin(t * 47) * 2.4 * sa), Math.round(Math.sin(t * 61 + 1) * 1.6 * sa)];
+    SHAKE = [Math.round(Math.sin(t * 47) * 2 * sa), Math.round(Math.sin(t * 61 + 1) * 1.3 * sa)];
   } else SHAKE = [0, 0];
-  drawCaravan(riderPose);
-  tinted(v => fordOverlay(v));
-  const onWater = x => (x > L.R0 - 80 && x < L.R1 + 20) || (x > LV.J0 - 80 && x < LV.J1 + 20) || L.RAV.some(r => Math.abs(x + 30 - r) < 70);
-  for (let k = 0; k < 40; k++) { const fx = 500 + k * 330 + Math.trunc(hsh(k + 31) * 150); const sx = fx - cam * 1.5; if (sx > -70 && sx < 330 && (L.home || !onWater(sx + cam))) tinted(v => spr('fg_' + (k % 2), sx, 151, v)); }
+  drawCaravan();
   drawPops(); drawBanners();
-  if (L.name === 'lv1' && C.x < 760 && L.jumps < 2) hint('TAP, CLICK OR SPACE TO JUMP');
-  else if (L.name === 'lv2' && C.x > 3420 && C.x < 3540) hint('HOLD TO JUMP HIGHER');
-  else if (L.name === 'lv2' && C.x > 2240 && C.x < 2330) hint('JUMP FROM STONE TO STONE');
-  else if (L.name === 'lv4' && C.x > 8520 && C.x < 8640) hint('WADE ACROSS THE FORD');
-  hudFor(L);
+  if (L.note && S.t - L.note.t < 5) caption(L.note.s, 'TRAVEL SCROLL', { width: 296, top: 26 });
+  if (th === 'beth' && L.cap && L.cap.i >= 0) { const key = ['departed', 'went', 'stood', 'joy'][L.cap.i]; const hx = L.len + 43 - cam;
+    caption(Q[key][1], Q[key][0], L.cap.i === 3 || hx < 340 ? { width: 196, x0: 8, top: 24 } : { width: 122, x0: 194, top: 68 }); }
+  if (L.n === 1 && C.x < 900 && L.jumps < 3) hint('TAP: HOP   HOLD: BIG JUMP' + (DIF.dbl ? '   TAP AGAIN IN THE AIR' : ''));
+  L.hudOff = L.arrive ? Math.trunc(24 * ss(0, 1, t - L.arrive.stopT)) : 0;
+  hudPlay();
 }
-function drawMarket() {
-  const L = LVL, C = L.c, cam = L.cam, t = S.t; TOD = { a: 'day', b: 'day', p: 0 };
-  ctx.drawImage(IMG['sky-day'], 0, 0);
-  for (let k = 0; k < 5; k++) { const x = mod(k * 97 - cam * .05 - t * 2, 420) - 60; spr('cloud', x, 28 + k % 3 * 14); }
-  const jf = IMG.jerfar, jm = IMG.jermid;
-  for (let x = -mod(40 + cam * .15, 640); x < W; x += 640) ctx.drawImage(jf, Math.round(x), 62);
-  for (let x = -mod(20 + cam * .5, 900); x < W; x += 900) ctx.drawImage(jm, Math.round(x), 56);
-  const st = IMG['tile-street-day']; for (let x = -mod(cam, 22); x < W; x += 22) ctx.drawImage(st, Math.round(x), 150);
-  R(0, 139, 319, 149, 'woodlight'); R(0, 139, 319, 139, 'paper'); R(0, 148, 319, 149, 'wood');      // the far sidewalk (FIX-2 #4)
-  for (const [x, k] of L.stalls) { const sx = x - cam * .8; if (sx > -60 && sx < 330) {
-    R(sx - 1, 141, sx + 54, 144, 'wood'); spr('stall_' + k, sx, 94); R(sx + 2, 136, sx + 51, 141, 'woodshade'); R(sx + 2, 136, sx + 51, 136, 'wood');
-    for (const lx of [sx + 3, sx + 48]) R(lx, 120, lx + 2, 141, 'brown'); } }
-  for (const x of [760, 1720]) { const sx = x - cam; if (sx > -60 && sx < 330) spr('fountain_' + Math.trunc(t * 8) % 3, sx - 24, 114); }
-  const gx = L.GATE - cam; if (gx < 340) { spr('gate', gx, 22); for (const x of [L.GATE - 34, L.GATE + 116]) { const sx = x - cam; R(sx, 134, sx + 7, 151, 'rock'); R(sx - 2, 130, sx + 9, 134, 'rockdk'); spr('fire_' + mod(Math.trunc(t * 9) + x, 4), sx - 7, 110); } }
-  for (const p of L.back) { const sx = p.x - cam; if (sx > -20 && sx < 330) spr(`person_${p.k}_${Math.trunc(t * 5 + p.k) % 2}_${p.c}`, sx, 121 + (p.k % 3) * 2, 'day', p.v < 0); }
-  const laneDraw = (behind) => { for (const p of L.lane) { const sx = p.x - cam; if (sx < -20 || sx > 330) continue; const y = 135 - p.step * 14; if ((p.step > .5) !== behind) continue; spr(`person_${p.k}_${Math.trunc(t * 5 + p.k) % 2}_${p.c}`, sx, y); if (p.step > 0 && p.step < 1) bubble(sx + 2, y - 16, 'ex'); } };
-  laneDraw(true); drawObs('day'); drawPicks(); laneDraw(false);
-  drawCaravan(riderPose);
-  for (const p of L.front) { const sx = p.x - cam * 1.25 + 60; if (sx > -20 && sx < 330 && !L.obs.some(o => !o.hit && Math.abs(o.x - cam - sx - 8) < 26)) spr(`person_${(p.k + 3) % 7}_${Math.trunc(t * 5 + p.k) % 2}_${p.c}`, sx, 139, 'day', p.v < 0); }
-  drawPops(); drawBanners();
-  hudFor(L);
+function drawResult() {
+  const R0 = RUN.last; drawPlay(); inkfade(.55);
+  panel(30, 18, 290, 164, 'navy', 'gold');
+  T('LEVEL ' + LCFG[R0.lvl].n + ' COMPLETE', 160, 26, 'goldlight', 1, true); T(LCFG[R0.lvl].title, 160, 38, 'white', 1, true);
+  for (let i = 0; i < 3; i++) spr(i < R0.lamps ? 'lamp_on' : 'lamp_off', 132 + i * 20, 50);
+  T('TIME  ' + fmtT(R0.time), 48, 68, 'white'); T('WATER LEFT  ' + R0.water, 48, 80, 'white'); T('SCROLLS  ' + R0.scrolls + ' / 3', 180, 68, 'white'); T('FALLS  ' + R0.falls, 180, 80, 'white');
+  if (R0.newBest) T('NEW BEST!', 160, 92, 'mintlight', 1, true);
+  const f = RUN.scrolls[R0.lvl]; let y = 104;
+  for (let i = 0; i < 3; i++) { const s = f[i] ? SCROLLS[R0.lvl][i] : '? (a hidden scroll is still out there)'; for (const row of wrap(s, 232)) { T(row, 48, y, f[i] ? 'paper' : 'slate'); y += 9; } spr(f[i] ? 'scroll' : 'lamp_off', 34, y - 10); y += 2; }
 }
-function drawBeth() {
-  const L = LVL, C = L.c, cam = L.cam, t = S.t; TOD = { a: 'night', b: 'night', p: 0 };
-  ctx.drawImage(IMG['sky-night'], 0, 0); stars(t, 1, cam * .02);
-  const hx = L.HOUSE - cam;
-  let stx = 262, sty = 40; if (hx + 45 < stx) stx = hx + 45;
-  const sinceStart = t - L.started; const reburst = sinceStart < 2.6 ? Math.max(0, 1.2 - sinceStart / 2.2) : 0;
-  const stopped = hx + 45 <= 262.5; if (stopped && !L.starStop) L.starStop = t;
-  const joyB = L.starStop ? Math.max(0, 1 - (t - L.starStop) / 2.4) : 0;
-  bigStar(stx, sty, t, Math.min(1.25, .3 + sinceStart * 1.2), Math.max(reburst, joyB));
-  ctx.drawImage(IMG.bhills, clamp(Math.floor(cam * .25), 0, IMG.bhills.width - W), 0, W, H, 0, 0, W, H);
-  const ux = clamp(Math.floor(cam * .5), 0, IMG.bhuts.width - W); ctx.drawImage(IMG.bhuts, ux, 0, W, H, 0, 0, W, H);
-  D.bethWindows.forEach(([x, y], k) => { const sx = x - ux; if (sx > -8 && sx < 330) { R(sx, y, sx + 5, y + 5, (k + Math.trunc(t * .7)) % 5 ? 'goldlight' : 'gold'); R(sx, y, sx + 5, y, 'brown'); } });
-  drawGround('night');
-  for (let k = 0; k < 24; k++) { const x = 90 + k * 118; const sx = x - cam; if (sx > -30 && sx < 330 && Math.abs(x - (L.HOUSE + 48)) > 80) spr('olive', sx, 137, 'night'); }
-  if (hx > -100 && hx < 330) spr('house', hx, 90, 'dawn');
-  drawObs('night'); drawPicks();
-  if (L.starStop) { const f = ss(0, 1.4, t - L.starStop); beam(stx, sty + 6, hx + 45, 104, t, Math.trunc(16 * f)); }
-  drawCaravan(riderPose);
-  if (L.starStop && t - L.starStop < 2.6) for (let k = 0; k < 16; k++) { const s = t - L.starStop; const r = 12 + mod(s * 46 + k * 9, 70); const a = k * .39 + s * .4; sparkle(stx + Math.cos(a) * r, sty + Math.sin(a) * r * .7, Math.trunc(t * 10) + k, k % 2 ? 'goldlight' : 'paper'); }
-  drawPops(); drawBanners();
-  const cap = { width: 196, x0: 8, top: 30 };
-  if (L.cap && L.cap.i >= 0) { const key = ['departed', 'went', 'stood', 'joy'][L.cap.i]; caption(Q[key][1], Q[key][0], cap); }
-  L.hudOff = L.starStop ? Math.trunc(24 * ss(0, 1, t - L.starStop)) : 0;
-  hudFor(L);
+function drawLevels() {
+  R(0, 0, 319, 179, 'navy'); T('CHOOSE A LEVEL   (' + DIF.name + ')', 160, 12, 'goldlight', 1, true);
+  const best = SAVE.best[DIF.key] || {};
+  LORDER.forEach((lv, i) => { const b = levelRowBox(i), open = i < SAVE.unlock;
+    panel(b[0], b[1], b[2], b[3], open ? 'ink' : 'slate', open ? 'goldlight' : 'silver');
+    T(open ? (i + 1) + '  ' + LCFG[lv].title : (i + 1) + '  LOCKED', b[0] + 8, b[1] + 5, open ? 'white' : 'silver');
+    const r = best[lv]; if (r) { for (let k = 0; k < 3; k++) spr(k < r.lamps ? 'lamp_on' : 'lamp_off', b[2] - 74 + k * 11, b[1] + 2); T(fmtT(r.time), b[2] - 34, b[1] + 5, 'silver'); } });
+  T('TAP A LEVEL TO PLAY   TAP HERE TO GO BACK', 160, 168, 'goldlight', 1, true);
+}
+
+// ======================= portrait phone menus (FIX-V3-2 M1) =======================
+// In portrait the 320x180 game is a thin strip. Title, About, level select, result cards and the pause
+// menu are redrawn below it as large pixel text (cap height >= 14 CSS px) with tall buttons (>= 46 CSS px).
+// The landscape layout is untouched.
+const PUI = { aboutPage: 0 };
+function portraitUI(g, s) {
+  const m = S.mode, dpr = LAY.dpr;
+  const want = m === 'title' || m === 'about' || m === 'levels' || m === 'result' || (PLAY.has(m) && S.paused);
+  if (!want || S.next) return false;
+  const W2 = view.width, top = LAY.oy + H * s + 12 * dpr, bot = view.height - 14 * dpr;
+  const ts = Math.ceil(15 / 7 * dpr), lh = 12 * ts, pad = 14 * dpr, BH = 50 * dpr;   // ~15 CSS px caps, 50 CSS px buttons
+  LAY.puiTextCss = 7 * ts / dpr;
+  const charW = 6 * ts, cols = Math.floor((W2 - 2 * pad) / charW);
+  const text = (str, x, y, col = 'white', center = false, k = ts) => { const im = textImg(str, col, 1); g.drawImage(im, Math.round(center ? x - im.width * k / 2 : x), Math.round(y), im.width * k, im.height * k); };
+  const box = (x0, y0, x1, y1, fill, edge) => { g.fillStyle = COL[edge]; g.fillRect(x0, y0, x1 - x0, y1 - y0); g.fillStyle = COL[fill]; g.fillRect(x0 + 2 * dpr, y0 + 2 * dpr, x1 - x0 - 4 * dpr, y1 - y0 - 4 * dpr); };
+  const button = (label, x0, y0, x1, y1, act, on = false, col = 'white') => { box(x0, y0, x1, y1, on ? 'deepteal' : 'navy', on ? 'mint' : 'goldlight'); text(label, (x0 + x1) / 2, (y0 + y1) / 2 - 3.5 * ts, col, true); LAY.pui.push({ x0, y0, x1, y1, act, label }); };
+  g.fillStyle = COL.ink; g.fillRect(0, top - 4 * dpr, W2, view.height - top + 4 * dpr);
+  let y = top;
+  if (m === 'title') {
+    const third = (W2 - 2 * pad - 2 * 8 * dpr) / 3;
+    ['easy', 'normal', 'wise'].forEach((k, i) => { const x0 = pad + i * (third + 8 * dpr); button(DIFFS[k].name, x0, y, x0 + third, y + BH, () => setDiff(k), DIF.key === k, DIF.key === k ? DIFFS[k].col : 'white'); });
+    y += BH + 10 * dpr;
+    const tip = { easy: 'SLOWER, DOUBLE HOP, LOTS OF WATER', normal: 'DOUBLE HOP, LESS WATER', wise: 'FAST, NO DOUBLE HOP, ONE CAMP' }[DIF.key];
+    for (const row of wrap(tip, cols * 6)) { text(row, W2 / 2, y, DIF.col, true); y += lh; }
+    y += 10 * dpr;
+    button('PLAY', pad, y, W2 - pad, y + BH * 1.2, () => { Snd.start(); newRun(); go('eastclip'); }, false, 'goldlight'); y += BH * 1.2 + 12 * dpr;
+    const half = (W2 - 2 * pad - 10 * dpr) / 2;
+    button('LEVELS', pad, y, pad + half, y + BH, () => go('levels')); button('ABOUT', W2 - pad - half, y, W2 - pad, y + BH, () => { PUI.aboutPage = 0; go('about'); });
+    return true;
+  }
+  if (m === 'about') {
+    const lines = []; for (const p of ABOUT) { for (const row of wrap(p, cols * 6)) lines.push(row); lines.push(''); }
+    text('ABOUT THIS STORY', W2 / 2, y, 'goldlight', true); y += lh * 1.4;
+    const per = Math.max(3, Math.floor((bot - BH - 16 * dpr - y) / lh)); const pages = Math.ceil(lines.length / per);
+    PUI.aboutPage = clamp(PUI.aboutPage, 0, pages - 1);
+    lines.slice(PUI.aboutPage * per, PUI.aboutPage * per + per).forEach((l, i) => text(l, pad, y + i * lh));
+    const by = bot - BH, half = (W2 - 2 * pad - 10 * dpr) / 2;
+    button('BACK', pad, by, pad + half, bot, () => go('title'));
+    if (PUI.aboutPage < pages - 1) button('NEXT ' + (PUI.aboutPage + 1) + '/' + pages, W2 - pad - half, by, W2 - pad, bot, () => { PUI.aboutPage++; });
+    else button('START AGAIN', W2 - pad - half, by, W2 - pad, bot, () => { PUI.aboutPage = 0; });
+    return true;
+  }
+  if (m === 'levels') {
+    text('CHOOSE A LEVEL (' + DIF.name + ')', W2 / 2, y, 'goldlight', true); y += lh * 1.3;
+    const best = SAVE.best[DIF.key] || {}, rh = Math.min(BH, (bot - BH - 12 * dpr - y) / LORDER.length - 6 * dpr);
+    LORDER.forEach((lv, i) => { const open = i < SAVE.unlock, r = best[lv]; const y0 = y + i * (rh + 6 * dpr);
+      const label = open ? (i + 1) + ' ' + LCFG[lv].short + (r ? '  ' + r.lamps + '/3 LAMPS' : '') : (i + 1) + ' LOCKED';
+      if (open) button(label, pad, y0, W2 - pad, y0 + rh, () => { newRun(); RUN.fromSelect = true; go(lv); });
+      else { box(pad, y0, W2 - pad, y0 + rh, 'slate', 'silver'); text(label, W2 / 2, y0 + rh / 2 - 3.5 * ts, 'silver', true); } });
+    button('BACK', pad, bot - BH, W2 - pad, bot, () => go('title'));
+    return true;
+  }
+  if (m === 'result') {
+    const R0 = RUN.last, f = RUN.scrolls[R0.lvl];
+    text('LEVEL ' + LCFG[R0.lvl].n + ' COMPLETE', W2 / 2, y, 'goldlight', true); y += lh;
+    text(LCFG[R0.lvl].short, W2 / 2, y, 'white', true); y += lh * 1.2;
+    text('LAMPS ' + R0.lamps + ' / 3' + (R0.newBest ? '  NEW BEST!' : ''), pad, y, 'goldlight'); y += lh;
+    text('TIME ' + fmtT(R0.time) + '   FALLS ' + R0.falls, pad, y); y += lh;
+    text('WATER LEFT ' + R0.water + '   SCROLLS ' + R0.scrolls + '/3', pad, y); y += lh * 1.3;
+    const k2 = Math.max(ts - 1, Math.ceil(14 / 7 * dpr)), lh2 = 12 * k2, cols2 = Math.floor((W2 - 2 * pad) / (6 * k2));
+    for (let i = 0; i < 3; i++) { const str = f[i] ? SCROLLS[R0.lvl][i] : '? a hidden scroll is still out there'; for (const row of wrap(str, cols2 * 6)) { if (y + lh2 > bot - BH - 8 * dpr) break; text(row, pad, y, f[i] ? 'paper' : 'silver', false, k2); y += lh2; } y += 6 * dpr; }
+    button('CONTINUE', pad, bot - BH, W2 - pad, bot, () => { if (S.u > .6) go(R0.lvl === 'beth' ? 'house' : nextOf(R0.lvl)); }, false, 'goldlight');
+    return true;
+  }
+  // paused
+  text('PAUSED', W2 / 2, y, 'goldlight', true); y += lh * 1.6;
+  button('RESUME', pad, y, W2 - pad, y + BH, () => setPause(false), false, 'goldlight'); y += BH + 14 * dpr;
+  button('LEVELS', pad, y, W2 - pad, y + BH, () => { setPause(false); go('levels'); });
+  return true;
 }
 
 // ---------------- cutscenes, camp, palace, about, rest, title, end ----------------
@@ -752,17 +1015,20 @@ function drawTitle() {
   T('THE ROAD TO', 160, 9, 'paper', 2, true, 'ink');
   T('BETHLEHEM', 160, 26, 'goldlight', 4, true, 'goldshade');
   T('THE JOURNEY OF THE WISE MEN', 160, 58, 'paper', 1, true, 'ink');
-  T('TAP OR PRESS SPACE TO START', 160, 69, 'white', 1, true, 'ink');
-  if (G.best > 0.001) T(G.best >= 1 ? 'BEST: REACHED BETHLEHEM' : 'BEST: ' + Math.round(G.best * 100) + '% OF THE WAY', 160, 80, 'silver', 1, true, 'ink');
-  button(BTN_EASY, 'EASY MODE: ' + (G.easy ? 'ON' : 'OFF'), G.easy, 'mintlight');
-  button(BTN_ABOUT, 'ABOUT THIS STORY', false);
+  T('TAP PLAY OR PRESS SPACE TO START', 160, 69, 'white', 1, true, 'ink');
+
+  for (const k of ['easy', 'normal', 'wise']) { const b = BTN[k], on = DIF.key === k; panel(b[0], b[1], b[2], b[3], on ? 'deepteal' : 'navy', on ? 'mint' : 'silver'); T(DIFFS[k].name, (b[0] + b[2]) / 2, b[1] + 4, on ? DIFFS[k].col : 'white', 1, true); }
+  const tip = { easy: 'EASY: SLOWER, DOUBLE HOP, LOTS OF WATER', normal: 'NORMAL: DOUBLE HOP, LESS WATER', wise: 'WISE: FAST, NO DOUBLE HOP, ONE CAMP' }[DIF.key];
+  R(40, 113, 280, 124, 'ink'); T(tip, 160, 115, DIF.col, 1, true);
+  for (const [k, lab] of [['play', 'PLAY'], ['levels', 'LEVELS'], ['about', 'ABOUT']]) { const b = BTN[k]; panel(b[0], b[1], b[2], b[3], k === 'play' ? 'ink' : 'navy', k === 'play' ? 'goldlight' : 'silver'); T(lab, (b[0] + b[2]) / 2, b[1] + 5, k === 'play' ? 'goldlight' : 'white', 1, true); }
   for (const [x, y, ph] of [[30, 24, 0], [292, 70, 2], [22, 70, 4]]) if ((Math.trunc(t * 5) + ph) % 6 < 3) sparkle(x, y, Math.trunc(t * 5));
 }
 const ABOUT = [
   'This game follows Matthew 2:1-12. Scripture quotations are from the King James Version.',
-  'Wise men from the east saw his star and came to Jerusalem. Herod asked the chief priests and scribes, and they answered from the prophet Micah: Bethlehem. The star went before them to the house of the young child and Mary his mother.',
+  'Wise men from the east saw his star and came to Jerusalem. The chief priests and scribes answered Herod from the prophet Micah: Bethlehem. The star went before them to the young child and Mary his mother.',
+  "Matthew says only 'from the east'; starting in Mesopotamia is one common view.",
   'The Bible does not say how many wise men there were, or their names. It names three gifts: gold, frankincense and myrrh.',
-  'The levels show one possible caravan route; the Bible does not give the route. They go up the Euphrates, by Tadmor (Palmyra), through Damascus, over the Jordan near Jericho. The Bible does not say which way they went home.',
+  'The levels show one possible caravan route; the Bible does not give the route (Euphrates, Tadmor, Damascus, the Jordan near Jericho), or say which way they went home.',
   "The Bible does not say how long the wise men travelled. The game counts four months, like Ezra's journey (Ezra 7:9).",
 ];
 function drawAbout() {
@@ -783,10 +1049,13 @@ function drawCamp() {
   const u = S.u; clip('camp', u, true);
   const [w0, d0] = RUN.campFrom; const f = ss(.6, 2.4, u); RUN.water = Math.max(w0, Math.round(w0 + (Math.max(12, w0) - w0) * f)); RUN.dates = Math.max(d0, Math.round(d0 + (Math.max(12, d0) - d0) * f));
   let flash = null; for (const [tp, kind, x, y] of CAMP_POPS) { if (u >= tp && u - tp < .9) { popup(x, y, u - tp); flash = kind; } if (Math.abs(u - tp) < 1 / 60 && Snd.on) Snd.chime(); }
-  banner('THE OASIS OF TADMOR (PALMYRA)', (u - .2) / 2.4);
-  if (u > 2.6) { panel(8, 26, 112, 52, 'ink', 'goldlight'); T('SUPPLIES FULL', 60, 32, 'goldlight', 1, true); T('TAP TO GO ON', 60, 42, 'white', 1, true); }
-  hud(S.t, { month: 3, star: false, night: true, water: RUN.water, dates: RUN.dates, prog: (LV.L3 - LV.START) / TOTAL, safe: [1, 1, 1], flash });
-  RUN.cp = { lvl: 'lv4', x: LV.L3 }; RUN.cpSup = [Math.max(6, RUN.water), Math.max(6, RUN.dates)];
+  banner('TADMOR (PALMYRA)', Math.min(.5, (u - .2) / 2.4));          // slides in and stays: the place is named
+  if (u > 2.6) { panel(206, 50, 312, 76, 'ink', 'goldlight'); T('SUPPLIES FULL', 259, 56, 'goldlight', 1, true); T('TAP TO GO ON', 259, 66, 'white', 1, true); }
+  // header and footer as in play: level and mode, water and dates, the level name
+  R(0, 0, 319, 19, 'ink'); R(0, 18, 319, 19, 'gold'); T('L3', 5, 6, 'goldlight'); T(DIF.name, 20, 6, DIF.col); spr('icon_moon', 66, 4); T('MONTH 3', 80, 6, 'white');
+  spr('jug', 138, 1); T(String(RUN.water).padStart(2, '0'), 153, 6, flash === 'jug' ? 'goldlight' : 'white'); spr('dates', 172, 1); T(String(RUN.dates).padStart(2, '0'), 187, 6, flash === 'dates' ? 'goldlight' : 'white');
+  for (let i = 0; i < 3; i++) { const x = 255 + i * 21; R(x, 1, x + 15, 16, 'gold'); R(x + 1, 2, x + 14, 15, 'navy'); spr('gift_' + i, x + 3, 0); }
+  R(0, 167, 319, 179, 'ink'); R(0, 167, 319, 167, 'gold'); T('THE SYRIAN DESERT: CAMP AT TADMOR', 5, 171, 'goldlight');
 }
 // Herod's palace (Mt 2:2-8). Herod is shown plainly, as the king who asks questions.
 const PSTEPS = [
@@ -827,11 +1096,11 @@ function drawPalace() {
   noteVerse(s, ref);
 }
 function drawRest() {
-  if (LVL.isRoad) drawRoad(); else if (LVL.name === 'market') drawMarket(); else drawBeth();
+  drawPlay();
   inkfade(.5); panel(40, 46, 280, 122, 'navy', 'gold');
   T('REST AT CAMP', 160, 56, 'goldlight', 2, true, 'ink');
-  T('The camels need water and dates.', 160, 80, 'white', 1, true);
-  T('Pick up jugs and dates on the road.', 160, 92, 'mist', 1, true);
+  T('The water has run out.', 160, 80, 'white', 1, true);
+  T('Pick up water jugs on the way!', 160, 92, 'mist', 1, true);
   T('TAP TO SET OUT FROM THE LAST CAMP', 160, 108, 'goldlight', 1, true);
 }
 const END_TW = []; { let s2 = 77; const r2 = () => { s2 = (s2 * 16807) % 2147483647; return s2 / 2147483647; }; for (let k = 0; k < 46; k++) { const x = 4 + Math.floor(r2() * 312), y = 4 + Math.floor(r2() * 172); if (x > 46 && x < 274 && y > 8) continue; END_TW.push([x, y, r2() * 6.28, 1.5 + r2() * 2.5, k]); } }
@@ -857,7 +1126,9 @@ function present() {
     g.fillStyle = 'rgb(14,24,48)'; g.fillRect(LAY.ox, LAY.oy, W * s, H * s); g.imageSmoothingEnabled = true; const es = .86; g.drawImage(IMG.endcard, LAY.ox + W * s * (1 - es) / 2, LAY.oy + H * s * .01, W * s * es, H * s * es); g.imageSmoothingEnabled = false;
     drawEndOverlay(); g.drawImage(ovl, LAY.ox, LAY.oy, W * s, H * s);
   } else g.drawImage(buf, LAY.ox + SHAKE[0] * s, LAY.oy + SHAKE[1] * s, W * s, H * s);
-  if (LAY.portrait) {
+  LAY.pui = [];
+  if (LAY.portrait && portraitUI(g, s)) { /* big portrait menus drawn */ }
+  else if (LAY.portrait) {
     // Phone portrait: the game strip is small, so the current verse is repeated below it in large
     // pixel type and the hints sit at the bottom. Cap height = 7 font px x ts device px.
     const dpr = LAY.dpr, avail = view.width - 24 * dpr;
@@ -888,16 +1159,19 @@ function render() {
   ctx.globalAlpha = 1; SHAKE = [0, 0]; const m = S.mode;
   if (m === 'loading') { R(0, 0, 319, 179, 'ink'); T('LOADING...', 160, 86, 'goldlight', 1, true); return; }
   if (m === 'title') drawTitle(); else if (m === 'about') drawAbout();
-  else if (m === 'market') drawMarket(); else if (m === 'beth') drawBeth(); else if (PLAY.has(m)) drawRoad();
+  else if (PLAY.has(m)) drawPlay(); else if (m === 'result') drawResult(); else if (m === 'levels') drawLevels();
   else if (m === 'camp') drawCamp(); else if (m === 'palace') drawPalace(); else if (m === 'rest') drawRest();
   else if (m === 'end') { /* drawn in present() */ }
   else drawClip();
+  if (S.paused) { inkfade(.5); panel(80, 50, 240, 132, 'navy', 'gold'); T('PAUSED', 160, 60, 'goldlight', 1, true);
+    for (const [b, l] of [[BTN.resume, 'RESUME'], [BTN.plevels, 'LEVELS']]) { panel(b[0], b[1], b[2], b[3], 'ink', 'goldlight'); T(l, 160, b[1] + 6, 'white', 1, true); } }
   if (canContinue()) { R(104, 166, 216, 178, 'ink'); T('TAP TO CONTINUE', 160, 168, 'goldlight', 1, true); }
   if (m !== 'end') muteIcon();
   if (S.next) inkfade(S.fade / .25);
   else if (S.u < .25 && m !== 'title' && m !== 'rest') inkfade(1 - S.u / .25);
 }
 function update(dt) {
+  if (S.paused) return;
   S.t += dt; S.u += dt;
   if (S.next) { S.fade += dt; if (S.fade >= .25) { const n = S.next; S.next = null; enter(n); } return; }
   if (CLIPOF[S.mode]) {
@@ -920,12 +1194,16 @@ window.addEventListener('resize', layout);
 
 // test / review hooks (read-only state + jump to a beat)
 window.WM = {
-  get state() { const C = LVL && LVL.c; return { mode: S.mode, u: CLIPOF[S.mode] ? S.cu : S.u, cont: canContinue(), t: S.t, lvl: LVL && LVL.name, x: C ? C.x : null, air: C ? C.air : null, jumps: LVL ? LVL.jumps : 0, hits: RUN ? RUN.hits : 0, water: RUN && RUN.water, dates: RUN && RUN.dates, easy: G.easy, best: G.best, sound: Snd.on, musicPlaying: !music.paused, dlg: DLG.step, verseCssPx: LAY.verseCssPx || null, hintCssPx: LAY.hintCssPx || null }; },
+  get state() { const C = LVL && LVL.c; const st = RUN && LVL && RUN.stats[LVL.name]; return { mode: S.mode, u: CLIPOF[S.mode] ? S.cu : S.u, cont: canContinue(), t: S.t, lvl: LVL && LVL.name, x: C ? C.x : null, y: C ? C.y : null, air: C ? C.air : null, len: LVL && LVL.len,
+    water: RUN && RUN.water, dates: RUN && RUN.dates, diff: DIF.key, onKind: C && !C.air ? (C.on ? C.on.kind : ['none', 'sand', 'rock', 'brick', 'street', 'crate', 'cart', 'post'][LVL.gm[Math.round(C.x)]]) : null, nearWater: !!(C && LVL.water.some(w => w.x1 > C.x - 120 && w.x0 < C.x + 160)), stats: st ? Object.assign({}, st) : null, last: RUN && RUN.last, scrolls: RUN && LVL ? RUN.scrolls[LVL.name] : null, sound: Snd.on, musicPlaying: !music.paused, dlg: DLG.step, paused: !!S.paused, pui: LAY.pui ? LAY.pui.map(b => [b.label, Math.round((b.y1 - b.y0) / LAY.dpr)]) : [], puiTextCss: LAY.puiTextCss || null, verseCssPx: LAY.verseCssPx || null, hintCssPx: LAY.hintCssPx || null }; },
   verses: () => [...shownVerses], Q, verseProblems, perf: PERF,
   jump(mode, x) { if (!RUN) newRun(); RUN.resumeX = x == null ? null : x; S.next = null; enter(mode); },
-  press, release, bot: BOT, setSupplies(w, d) { RUN.water = w; RUN.dates = d; },
+  press, release, bot: BOT, setSupplies(w, d) { RUN.water = w; RUN.dates = d; }, setDiff, levels: LORDER, gen: genLevel,
+  puiBoxes: () => (LAY.pui || []).map(b => ({ label: b.label, x0: b.x0, y0: b.y0, x1: b.x1, y1: b.y1 })), scrollText: lv => SCROLLS[lv],
+  people: () => (LVL && LVL.people || []).length, peopleOnScreen: () => (LVL && LVL.people || []).filter(p => p.x - LVL.cam > -10 && p.x - LVL.cam < 330).length, peopleAhead: () => (LVL && LVL.people || []).filter(p => p.x - LVL.cam > 200 && p.x - LVL.cam < 310).length,
+  world: () => LVL ? { t: S.t, drainW: LVL.drainW, stones: LVL.plats.filter(p => p.kind === 'stone').map(p => p.st.sinkT), rafts: LVL.plats.filter(p => p.kind === 'raft').map(p => Math.round(raftPos(p, S.t).x0 * 10)) } : null, sim(sched, T) { const r = simRun(LVL, LVL.c, sched || [], T || 1.5, S.t); return { score: r.score, x: r.C.x, y: r.C.y, air: r.C.air }; },
 };
 requestAnimationFrame(frame);
-Promise.all(assetList().map(([k, s]) => loadImg(k, s))).then(() => { S.mode = 'title'; S.u = 0; const st = QS.get('start'); if (st) { newRun(); window.WM.jump(st, QS.get('x') ? parseFloat(QS.get('x')) : null); } })
+Promise.all(assetList().map(([k, s]) => loadImg(k, s))).then(() => { S.mode = 'title'; S.u = 0; if (QS.get('diff')) setDiff(QS.get('diff')); const st = QS.get('start'); if (st) { newRun(); window.WM.jump(st, QS.get('x') ? parseFloat(QS.get('x')) : null); } })
   .catch(e => { console.error(e); S.mode = 'loading'; });
 })();
