@@ -255,6 +255,12 @@ const Snd = {
   jump() { this.tone(392, .12, 'square', .025); },
   hit() { this.tone(130, .25, 'triangle', .12); this.tone(98, .3, 'sine', .1, .05); },
   splash() { if (!this.on || !this.ac) return; const a = this.ac, n = a.sampleRate * .3, b = a.createBuffer(1, n, a.sampleRate), d = b.getChannelData(0); for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / n) ** 2 * .25; const s = a.createBufferSource(); s.buffer = b; const f = a.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 1800; s.connect(f); f.connect(a.destination); s.start(); },
+  boing() { if (!this.on || !this.ac) return; const a = this.ac, t0 = a.currentTime, o = a.createOscillator(), g = a.createGain(); o.type = 'square';
+    o.frequency.setValueAtTime(180, t0); o.frequency.exponentialRampToValueAtTime(620, t0 + .12); o.frequency.exponentialRampToValueAtTime(420, t0 + .2);
+    g.gain.setValueAtTime(0, t0); g.gain.linearRampToValueAtTime(.035, t0 + .01); g.gain.exponentialRampToValueAtTime(.0001, t0 + .24); o.connect(g); g.connect(a.destination); o.start(t0); o.stop(t0 + .26); },
+  scatter() { if (!this.on || !this.ac) return; const a = this.ac, n = a.sampleRate * .18, b = a.createBuffer(1, n, a.sampleRate), d = b.getChannelData(0); for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / n) * .18;
+    const s = a.createBufferSource(); s.buffer = b; const f = a.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = 2600; s.connect(f); f.connect(a.destination); s.start(a.currentTime + .05);
+    [1480, 1760, 1320].forEach((q, i) => this.tone(q, .06, 'triangle', .03, .08 + i * .05)); },
   joy() { [523.3, 659.3, 784, 1046.5].forEach((f, i) => this.tone(f, .4, 'triangle', .05, i * .09)); },
 };
 
@@ -416,6 +422,7 @@ function genLevel(name, dk) {
   L.plats.sort((a, b) => a.x0 - b.x0); L.plats.forEach((p, i) => { p.i = i; if (p.bx0 == null) { p.bx0 = p.x0; p.bx1 = p.x1; } });
   L.bucket = []; for (const p of L.plats) for (let k = Math.floor(p.bx0 / 64); k <= Math.floor(p.bx1 / 64); k++) (L.bucket[k] = L.bucket[k] || []).push(p);
   L.picks.sort((a, b) => a.x - b.x);
+  placeCritters(L, Dd, name);
   return L;
 }
 // moving and sinking platforms (functions of time and stand state, shared by the game and the bot's look-ahead)
@@ -443,6 +450,181 @@ function stoneOff(p, st, t) {
   return clamp((t - st.sinkT - DIF.sinkDelay) * DIF.sinkRate, 0, 24);
 }
 
+// ======================= v4: critters to bounce on =======================
+// Nothing dies. Land on top = a bounce (higher than a jump) and the animal is scared off in a puff of sand.
+// Touch one from the side = lose a few dates and flash. Motion is a pure function of time and the lead
+// camel's x, so the bot's look-ahead (stepC with sim=true) sees exactly what the game does.
+const CRK = {
+  frog: { w: 20, h: 16, mv: 'hop', sc: 2 }, snake: { w: 30, h: 10, mv: 'patrol', range: 16, spd: 12, sc: 2 },
+  scorp: { w: 24, h: 18, mv: 'patrol', range: 12, spd: 10, sc: 2 }, viper: { w: 30, h: 10, mv: 'patrol', range: 20, spd: 16, sc: 2 },
+  jackal: { w: 34, h: 22, mv: 'dash', run: 90, k: .8, sc: 2 }, boar: { w: 36, h: 26, mv: 'dash', run: 70, k: .6, sc: 2 },
+  locust: { w: 26, h: 16, mv: 'hover', sc: 2 }, thief: { w: 20, h: 31, mv: 'patrol', range: 14, spd: 14, sc: 2 }, vulture: { w: 28, h: 18, mv: 'swoop', sc: 2 },
+};
+const CRSET = { lv1: ['frog', 'snake'], lv2: ['frog', 'snake'], lv3: ['scorp', 'viper', 'jackal'], lv4: ['boar', 'locust'], market: ['thief'], beth: ['vulture'], home: ['vulture'] };
+const CRTUNE = {   // count, speed, extra stomp width, stomp window (px below the top that still counts), date cost
+  easy: { n: 4, sp: .55, xw: 5, win: 10, cost: 1, sep: 650 }, normal: { n: 6, sp: 1, xw: 2, win: 7, cost: 2, sep: 420 }, wise: { n: 8, sp: 1.3, xw: 1, win: 6, cost: 2, sep: 300 },
+};
+// result-card line per level (plain, checkable natural history)
+const CRFACT = {
+  lv1: 'Frogs and water snakes live along the rivers of Mesopotamia.', lv2: 'Frogs and water snakes live along the Euphrates.',
+  lv3: 'Jackals, scorpions and sand vipers live in the Syrian Desert.', lv4: 'Wild boar lived in the thickets of the Jordan Valley.',
+  market: 'Thieves were a real danger to travelers and caravans.', beth: 'Griffon vultures still nest in the Judean Desert.',
+  home: 'Griffon vultures are among the largest birds of the Middle East.',
+};
+const bounceV = Dd => Dd.v0 * 1.3;
+function crFlat(L, a, b, rl = 1) {
+  a = Math.round(a); b = Math.round(b); if (a < 1 || b >= L.N) return false; const g = L.gt[a]; if (!isFinite(g)) return false;
+  for (let i = a; i <= b; i++) if (L.gt[i] !== g) return false;
+  if (L.water.some(w => w.x1 > a - 30 && w.x0 < b + 30)) return false;
+  if (L.plats.some(p => (p.kind === 'stone' || p.kind === 'raft') && p.bx1 > a - 60 && p.bx0 < b + 60)) return false;
+  if (L.hazards.some(h => h.x + h.w / 2 > a - 70 * rl && h.x - h.w / 2 < b + 70 * rl)) return false;
+  if ((L.towers || []).some(q => q.x1 + 30 > a && q.x0 - 60 < b)) return false;
+  if (L.storm && b > L.storm[0] - 260 && a < L.storm[1] + 220) return false;     // never in the lantern dark
+  if (L.cps.some(c => c > a - 90 * rl && c < b + 90 * rl)) return false;
+  return true;
+}
+function placeCritters(L, Dd, name) {
+  const kinds = CRSET[name]; L.crits = []; if (!kinds) return;
+  const tu = CRTUNE[Dd.key], r = mkRng(hashStr('crit:' + name + ':' + Dd.key)), S_ = Math.round(Dd.speed * 2 * bounceV(Dd) / Dd.g);
+  const add = (kind, x, extra) => { const k = CRK[kind]; const c = Object.assign({ kind, x0: x, gy: L.gt[Math.round(x)], w: k.w, h: k.h, ph: r() * 6.28, hp: 1, i: L.crits.length }, extra || {}); L.crits.push(c); return c; };
+  const span = kind => { const k = CRK[kind]; return [140 + (k.run || 0) + (k.range || 0), 180 + (k.range || 0)]; };
+  let last = -1e9; const end = L.len - 450;
+  const far = (x, sep) => L.crits.every(c => Math.abs(c.x0 - x) >= sep);
+  const findFrom = (x, kind, extraAfter = 0, sep = tu.sep, rl = 1) => { let [b, a] = span(kind); if (rl < 1) { b = 100 + (b - 140); a = 140 + (a - 180); } for (; x < end; x += 8) if (far(x, sep) && far(x + extraAfter, sep) && crFlat(L, x - b, x + a + extraAfter, rl)) return x; return null; };
+  let x = name === 'lv1' ? 1000 : 650;
+  if (name === 'lv1') { let ix = findFrom(x, 'frog'); const ir = findFrom(x, 'frog', 0, tu.sep, .6); if (ir != null && (ix == null || ir < ix - 600)) ix = ir; if (ix != null) { L.intro = add('frog', ix, { still: true }); last = ix; x = ix + tu.sep; } }   // the first one, alone on flat ground
+  // one bounce chain per level: three still critters spaced by one passive bounce
+  const chainKind = { lv1: 'frog', lv2: 'frog', lv3: 'scorp', lv4: 'locust', market: 'thief', beth: 'vulture', home: 'vulture' }[name];
+  const chainAt = L.len * (name === 'lv1' ? .55 : .4);
+  const n = tu.n; const step = (end - x) / n; let k = 0, chained = false;
+  for (let tgt = x; L.crits.length < n + (L.intro ? 1 : 0) && tgt < end; tgt += step, k++) {
+    if (!chained && tgt >= chainAt) { const cx = findFrom(tgt, chainKind, 2 * S_ + 20); if (cx != null) { for (let j = 0; j < 3; j++) add(chainKind, cx + j * S_, { still: true, chain: true }); last = cx + 2 * S_; chained = true; continue; } }
+    const kind = kinds[k % kinds.length]; const cx = findFrom(Math.max(tgt, last + tu.sep), kind); if (cx == null) continue;
+    const c = add(kind, cx); last = cx; if (Dd.key === 'wise' && L.crits.length % 3 === 0) c.hp = 2;   // Wise: some need two bounces
+  }
+  if (!chained) for (const [from, rl] of [[chainAt * .5, 1], [L.intro ? L.intro.x0 + 300 : 700, .6]]) { const cx = findFrom(from, chainKind, 2 * S_ + 20, tu.sep * .45, rl); if (cx != null) { for (let j = 0; j < 3; j++) add(chainKind, cx + j * S_, { still: true, chain: true }); chained = true; break; } }
+  // short of the target (towers, storm and rivers leave little flat ground)? fill in with a closer spacing
+  const want = Math.max(4, n - (Dd.key === 'easy' ? 1 : 0)) + (L.intro ? 1 : 0);
+  for (let pass = 0, k2 = 0; pass < 3 && L.crits.length < want; pass++) for (let tgt = (L.intro ? L.intro.x0 + 300 : 700) + pass * 97; tgt < end && L.crits.length < want; tgt += 211, k2++) {
+    const kind = kinds[k2 % kinds.length]; const cx = findFrom(tgt, kind, 0, tu.sep * (pass ? .45 : .65), pass === 2 ? .6 : 1); if (cx == null) break; if (cx > tgt + 300) { tgt = cx - 211; }
+    const c = add(kind, cx); if (Dd.key === 'wise' && L.crits.length % 3 === 0) c.hp = 2; }
+  L.crits.sort((a, b) => a.x0 - b.x0); L.crits.forEach((c, i) => c.i = i);
+  L.chainS = S_;
+}
+function crState(c, sts) { if (!sts) return c; const k = 'c' + c.i; return sts[k] || (sts[k] = { hp: c.hp, gone: c.gone, fx: c.fx, fa: c.fa }); }
+// position at time t for a lead camel at cx: centre x, bottom y, top y
+function crPos(c, t, cx, s) {
+  const k = CRK[c.kind], sp = CRTUNE[DIF.key].sp; let x = c.x0, alt = 0;
+  if (s && s.fx != null) { x = s.fx; alt = s.fa || 0; }
+  else if (!c.still) {
+    if (k.mv === 'hop') alt = Math.max(0, Math.sin(t * 3.2 * sp + c.ph)) * 6;
+    else if (k.mv === 'patrol') x = c.x0 + Math.sin(t * k.spd * sp / k.range + c.ph) * k.range;
+    else if (k.mv === 'dash') x = c.x0 - Math.min(k.run, Math.max(0, cx - (c.x0 - 150)) * k.k * sp);
+    else if (k.mv === 'hover') { x = c.x0 + Math.sin(t * 1.3 + c.ph) * 8; alt = 3 + 2 * Math.sin(t * 5 + c.ph); }
+    else if (k.mv === 'swoop') { const d = c.x0 - cx; alt = d > 230 ? 52 : d > 70 ? 4 + 48 * (d - 70) / 160 : 4; x = c.x0 - clamp((230 - d) * .35 * sp, 0, 60); }
+  } else if (k.mv === 'hover') alt = 3;
+  const bot = c.gy - alt; return { x, bot, top: bot - c.h, alt };
+}
+// in the air, falling: did the feet come down on a critter's back this step?
+function crBounce(L, C, y0, y1, t, sts) {
+  if (!L.crits || C.vy <= 0) return null; const tu = CRTUNE[DIF.key];
+  for (const c of L.crits) { if (Math.abs(c.x0 - C.x) > 160) continue; const s = crState(c, sts); if (s.gone) continue;
+    const p = crPos(c, t, C.x, s); if (Math.abs(p.x - C.x) < c.w / 2 + 8 + tu.xw && y0 <= p.top + tu.win && y1 >= p.top - 1) return { c, s, p }; }
+  return null;
+}
+function crSide(L, C, t, sts) {
+  if (!L.crits) return null;
+  for (const c of L.crits) { if (Math.abs(c.x0 - C.x) > 160) continue; const s = crState(c, sts); if (s.gone) continue;
+    const p = crPos(c, t, C.x, s); if (Math.abs(p.x - C.x) < c.w / 2 + 8 && C.y > p.top + 1 && C.y - 34 < p.bot) return { c, s, p }; }
+  return null;
+}
+function crDoBounce(C, b, t) {   // shared by game and sim
+  const Dd = DIF; C.y = b.p.top; C.vy = -bounceV(Dd); C.air = true; C.holding = true; C.holdT = 0; C.dbl = !!Dd.dbl; C.on = null; C.chain = (C.chain || 0) + 1;
+  b.s.hp = (b.s.hp == null ? b.c.hp : b.s.hp) - 1;
+  if (b.s.hp <= 0) { b.s.gone = true; b.s.goneT = t; b.s.gx = b.p.x; b.s.gb = b.p.bot; } else { b.s.fx = b.p.x; b.s.fa = b.p.alt; b.s.dazeT = t; }
+}
+function addPop(L, p) {   // stack a new pop-up above any live one it would overlap
+  for (let k = 0; k < 6; k++) { const hit = L.pops.some(q => { const a = Math.max(0, S.t - q.t); return a < .9 && Math.abs(q.x - p.x) < 70 && Math.abs((q.y - a * 22) - p.y) < 11; }); if (!hit) break; p.y -= 11; }
+  L.pops.push(p);
+}
+// game-side effects of a bounce or a side hit
+function crEvents(L, C, ev, st) {
+  const b = C.lastB, h = C.lastH;
+  if (ev.includes('bounce') && b) { st.bounces = (st.bounces || 0) + 1; Snd.boing();
+    const sx = b.p.x - L.cam - 6, sy = b.p.top - L.cy - 10;
+    if (!b.s.gone) addPop(L, { x: sx, y: sy, t: S.t, txt: 'DAZED!', c: 'goldlight' });
+    else { Snd.scatter(); st.scared = (st.scared || 0) + 1; const give = b.c.kind === 'vulture' ? 2 : 1; RUN.dates = Math.min(30, RUN.dates + give); hudFlash('dates');
+      addPop(L, { x: sx, y: sy, t: S.t, txt: b.c.kind === 'thief' ? 'GIFT SAVED! +' + give : b.c.kind === 'vulture' ? 'GOT DATES BACK! +' + give : 'DATES! +' + give, c: 'white' }); }
+    if (C.chain === 3) { RUN.water = Math.min(30, RUN.water + DIF.jug); st.chains = (st.chains || 0) + 1; hudFlash('jug'); Snd.joy(); addPop(L, { x: sx - 30, y: sy - 4, t: S.t, txt: '3 BOUNCES! +' + DIF.jug + ' WATER', c: 'mintlight' }); }
+  }
+  if (ev.includes('chit') && h) { st.chits = (st.chits || 0) + 1; Snd.hit(); const n = CRTUNE[DIF.key].cost; RUN.dates = Math.max(0, RUN.dates - n); hudFlash('ldates');
+    addPop(L, { x: C.x - L.cam - 62, y: C.y - 104 - L.cy, t: S.t, txt: (h.c.kind === 'thief' ? 'GRABBED! -' : h.c.kind === 'vulture' ? 'STOLEN! -' : 'OOPS! -') + n + ' DATES', c: 'coral' }); }
+}
+
+// ---- drawing (pixel art in the game palette; facing left, toward the caravan) ----
+function flipX(x, fn) { ctx.save(); ctx.translate(2 * Math.round(x) + 1, 0); ctx.scale(-1, 1); fn(); ctx.restore(); }
+const CRDRAW = {
+  frog(x, y, f) { const b = 'palmlt', d = 'palm';
+    if (f === 1) { R(x - 5, y - 9, x + 4, y - 5, b); R(x - 4, y - 12, x - 1, y - 9, b); px(x - 3, y - 11, 'ink'); line(x + 3, y - 5, x + 6, y - 1, d); line(x - 4, y - 5, x - 6, y - 2, d); hline(x - 4, x + 3, y - 6, 'mintlight'); return; }
+    R(x - 5, y - 5, x + 5, y - 1, b); R(x - 6, y - 2, x - 3, y, d); R(x + 3, y - 2, x + 6, y, d); R(x - 5, y - 8, x - 2, y - 5, b); R(x + 1, y - 8, x + 4, y - 5, b);
+    px(x - 4, y - 7, 'white'); px(x + 2, y - 7, 'white'); px(x - 3, y - 7, 'ink'); px(x + 3, y - 7, 'ink'); hline(x - 4, x + 4, y - 3, 'mintlight'); px(x - 1, y - 4, d); px(x + 1, y - 4, d); },
+  snake(x, y, f) { snakeBody(x, y, f, 'palm', 'palmlt'); },
+  viper(x, y, f) { snakeBody(x, y, f, 'woodlight', 'woodshade'); },
+  _snake(x, y, f, c1, c2) { for (let i = 0; i < 18; i++) { const yy = y - 2 - Math.round(Math.sin(i * .7 + f * 1.6) * 1.5); R(x - 9 + i, yy - 1, x - 9 + i, yy + 1, i % 4 < 2 ? c1 : c2); }
+    const hy = y - 2 - Math.round(Math.sin(f * 1.6) * 1.5); R(x - 11, hy - 2, x - 8, hy + 1, c1); px(x - 10, hy - 1, 'ink'); if (f % 2) px(x - 12, hy, 'coral'); },
+  scorp(x, y, f) { const b = 'woodshade', d = 'brown'; R(x - 4, y - 4, x + 4, y - 1, b); hline(x - 4, x + 4, y - 4, 'wood');
+    for (let i = 0; i < 4; i++) { const lx = x - 3 + i * 2; vline(lx + (f && i % 2 ? 1 : 0), y - 1, y, d); }
+    R(x - 7, y - 4, x - 5, y - 2, b); px(x - 8, y - 4, d); px(x - 8, y - 2, d);   // claws
+    R(x + 5, y - 5, x + 6, y - 3, b); R(x + 6, y - 8, x + 7, y - 6, b); R(x + 4, y - 10, x + 6, y - 9, b); px(x + 3, y - 9, 'coral'); },
+  jackal(x, y, f) { const b = 'woodlight', d = 'wood', s = 'woodshade'; R(x - 6, y - 10, x + 6, y - 6, b); hline(x - 6, x + 6, y - 6, d); R(x - 10, y - 13, x - 5, y - 9, b); R(x - 12, y - 11, x - 10, y - 10, b); px(x - 12, y - 11, 'ink');
+    px(x - 7, y - 15, s); px(x - 9, y - 15, s); R(x - 8, y - 14, x - 7, y - 13, s); px(x - 8, y - 12, 'ink');
+    const a = f % 2 ? 2 : 0; vline(x - 5 + a, y - 5, y, s); vline(x - 3 - a, y - 5, y, d); vline(x + 4 - a, y - 5, y, s); vline(x + 6 + a, y - 5, y, d);
+    line(x + 7, y - 9, x + 10, y - 6 + (f % 2), s); px(x + 10, y - 5 + (f % 2), 'paper'); },
+  boar(x, y, f) { const b = 'hair', d = 'brown'; R(x - 8, y - 12, x + 8, y - 4, b); hline(x - 6, x + 8, y - 12, 'woodshade'); hline(x - 7, x + 8, y - 5, 'brown'); for (let q = -6; q < 8; q += 3) px(x + q, y - 13, 'woodshade');
+    R(x - 12, y - 10, x - 8, y - 5, b); R(x - 13, y - 7, x - 12, y - 5, 'pink'); px(x - 10, y - 9, 'ink'); px(x - 12, y - 9, 'white'); px(x - 13, y - 10, 'white');
+    const a = f % 2 ? 1 : 0; for (const [lx, o] of [[-6, a], [-3, -a], [4, -a], [7, a]]) vline(x + lx + o, y - 4, y, d); px(x + 9, y - 10, d); px(x + 10, y - 9, d); },
+  locust(x, y, f, t) { for (let k = 0; k < 9; k++) { const a = k * 2.4 + t * (5 + k % 3), rx = Math.cos(a) * (5 + k % 3 * 1.5), ry = Math.sin(a * 1.3) * 3;
+      const cx = Math.round(x + rx), cy = Math.round(y - 5 + ry); hline(cx - 1, cx + 1, cy, k % 2 ? 'palm' : 'goldshade'); px(cx - 1, cy, 'ink'); if ((Math.trunc(t * 20) + k) % 2) hline(cx, cx + 1, cy - 1, 'mist'); else px(cx + 1, cy + 1, 'palmlt'); } },
+  thief(x, y, f, t, _p, stt) { const a = f % 2; R(x - 4, y - 13, x + 3, y - 4, 'plum'); R(x - 3, y - 16, x + 2, y - 12, 'violet'); R(x - 4, y - 13, x - 2, y - 11, 'skinshade'); px(x - 3, y - 12, 'ink');
+    vline(x - 2 + a, y - 4, y, 'brown'); vline(x + 1 - a, y - 4, y, 'brown'); R(x - 8, y - 10, x - 5, y - 9, 'skinshade');   // reaching hand
+    if (stt !== 'run') { R(x + 2, y - 11, x + 8, y - 5, 'ink'); R(x + 3, y - 10, x + 7, y - 6, 'gold'); hline(x + 3, x + 7, y - 8, 'red'); vline(x + 5, y - 10, y - 6, 'red'); px(x + 4, y - 11, 'goldlight'); px(x + 6, y - 11, 'goldlight'); px(x + 2, y - 7, 'skinshade'); } },
+  vulture(x, y, f, t, perched) { const b = 'brown', d = 'rockdk'; R(x - 4, y - 7, x + 5, y - 2, b); R(x - 7, y - 9, x - 4, y - 6, 'pink'); px(x - 6, y - 8, 'ink'); px(x - 8, y - 7, 'paper');
+    R(x - 4, y - 7, x - 2, y - 6, 'paper');   // ruff
+    if (perched) { R(x - 1, y - 9, x + 6, y - 5, d); vline(x - 1, y - 2, y, 'woodshade'); vline(x + 2, y - 2, y, 'woodshade'); return; }
+    if (f % 2) { R(x - 3, y - 14, x + 5, y - 8, d); hline(x - 4, x + 7, y - 14, b); } else { R(x - 3, y - 4, x + 9, y - 2, d); hline(x + 6, x + 11, y - 1, d); } },
+};
+function snakeBody(x, y, f, c1, c2) { CRDRAW._snake(x, y, f, c1, c2); }
+function drawCrit(c, sx, by, f, t, flip, stt) {   // small animals are drawn at 2x so they read next to the camels
+  const sc = CRK[c.kind].sc || 1; sx = Math.round(sx); by = Math.round(by);
+  ctx.save(); ctx.translate(sx, by); ctx.scale(flip ? -sc : sc, sc); ctx.translate(-sx, -by);
+  CRDRAW[c.kind](sx, by, f, t, c.kind === 'vulture' && (c.still || stt === 'daze'), stt); ctx.restore();
+}
+function puff(x, y, age) {   // a puff of sand
+  if (age < 0 || age > .5) return; const r = 3 + age * 26;
+  for (let k = 0; k < 12; k++) { const a = k * .5236 + age * 2; px(x + Math.cos(a) * r, y - 4 + Math.sin(a) * r * .6, k % 3 ? 'sandhi' : 'paper'); if (age < .3) px(x + Math.cos(a) * r * .5, y - 4 + Math.sin(a) * r * .3, 'woodlight'); }
+}
+function drawCritters() {
+  const L = LVL; if (!L.crits) return; const cam = L.cam, cy = L.cy, t = S.t, C = L.c;
+  for (const c of L.crits) {
+    if (c.x0 - cam < -260 || c.x0 - cam > 360) continue;
+    if (c.gone) { const age = t - c.goneT; if (age > 2) continue; puff(c.gx - cam, c.gb - cy, age);
+      const fly = CRK[c.kind].mv === 'swoop' || c.kind === 'locust';
+      const fx = c.gx - cam - age * (fly ? 120 : 170), fy = c.gb - cy - (fly ? age * 70 : Math.abs(Math.sin(age * 14)) * 3);
+      if (age > .12 && fx > -30) drawCrit(c, fx, fy, Math.trunc(t * 12) % 2, t, false, 'run');
+      if (c.kind === 'thief' && age < 1.2) { const gx = c.gx - cam + 4, gy = c.gb - cy - 6 + Math.min(6, age * age * 60); R(gx - 2, gy - 3, gx + 1, gy, 'gold'); hline(gx - 2, gx + 1, gy - 2, 'goldlight'); if (age > .3) sparkle(gx, gy - 6, Math.trunc(t * 8)); }   // the dropped gift
+      continue; }
+    const p = crPos(c, t, C.x, c), sx = p.x - cam, by = p.bot - cy; if (sx < -30 || sx > 340) continue;
+    const k = CRK[c.kind]; let f = 0;
+    if (c.fx != null) f = 0; else if (k.mv === 'hop') f = p.alt > 1.5 ? 1 : 0; else if (k.mv === 'swoop' && !c.still) f = Math.trunc(t * 6) % 2; else f = Math.trunc(t * (k.mv === 'dash' && p.x < c.x0 - 1 ? 10 : 3) + c.ph) % 2;
+    const flip = k.mv === 'patrol' && Math.cos(t * k.spd * CRTUNE[DIF.key].sp / k.range + c.ph) > 0 && c.fx == null && !c.still;
+    if (c.hp > 1 && c.fx == null) { const blink = Math.trunc(t * 3) % 2; if (blink) { px(sx - 1, p.top - cy - 4, 'coral'); px(sx + 1, p.top - cy - 4, 'coral'); } }   // a tough one (needs 2)
+    drawCrit(c, sx, by, f, t, flip, c.fx != null ? 'daze' : '');
+    if (c.fx != null) for (let q = 0; q < 3; q++) { const a = t * 6 + q * 2.1; sparkle(sx + Math.cos(a) * 7, p.top - cy - 5 + Math.sin(a) * 2, Math.trunc(t * 8) + q); }
+    if (c === L.intro && p.x - C.x < 230 && p.x - C.x > -10) { const ay = p.top - cy - 10 + Math.round(Math.sin(t * 6) * 2); T('V', sx, ay - 8, 'goldlight', 1, true, 'ink'); }
+  }
+}
+function critHint() { const L = LVL, C = L.c; if (L.intro && !L.intro.gone && L.intro.x0 - C.x < 230 && L.intro.x0 - C.x > -20) { R(110, 26, 210, 40, 'ink'); T('JUMP ON IT!', 160, 30, 'goldlight', 1, true); } }
+
 // ======================= v3: state, physics, flow, bot =======================
 const S = { mode: 'loading', t: 0, u: 0, cu: 0, fade: 0, next: null };
 let LVL = null, RUN = null;
@@ -463,7 +645,7 @@ function todAt(L, x) { const f = lvlProg(L, x), K = L.cfg.tod; for (let k = 0; k
 
 function startLevel(name, fromX, keep) {
   const L = genLevel(name, DIF.key); LVL = L; L.c0 = S.t;
-  const st = RUN.stats[name] = (keep && RUN.stats[name]) || { time: 0, falls: 0, hits: 0, outs: 0, t0: S.t };
+  const st = RUN.stats[name] = (keep && RUN.stats[name]) || { time: 0, falls: 0, hits: 0, outs: 0, bounces: 0, chits: 0, scared: 0, chains: 0, t0: S.t };
   const x = fromX == null ? 200 : fromX;
   for (const p of L.picks) if (p.x < x) p.got = true;
   const found = RUN.scrolls[name] = RUN.scrolls[name] || [false, false, false];
@@ -527,11 +709,13 @@ function stepC(L, C, inp, dt, t, sim, sts) {
   if (C.air) {
     if (C.holding && inp.down && C.vy < 0 && C.holdT < Dd.hold) { C.holdT += dt; C.vy += Dd.gh * dt; } else { C.holding = false; C.vy += Dd.g * dt; }
     const ny = C.y + C.vy * dt; const s = support(L, C.x, C.y, t, sts);
-    if (C.vy >= 0 && ny >= s.y) { C.y = s.y; C.air = false; C.vy = 0; C.on = s.on; C.lastGround = t; ev.push('land'); }
+    const cb = C.vy > 0 && L.crits && L.crits.length ? crBounce(L, C, C.y, Math.min(ny, s.y), t, sts) : null;
+    if (cb) { crDoBounce(C, cb, t); C.lastB = cb; ev.push('bounce'); }
+    else if (C.vy >= 0 && ny >= s.y) { C.y = s.y; C.air = false; C.vy = 0; C.on = s.on; C.lastGround = t; C.chain = 0; ev.push('land'); }
     else C.y = ny;
   } else {
     const s = support(L, C.x, C.y, t, sts);
-    if (s.y <= C.y + 2) { C.y = s.y; C.on = s.on; C.lastGround = t; } else { C.air = true; C.vy = 0; C.on = null; C.dbl = !!Dd.dbl; }
+    if (s.y <= C.y + 2) { C.y = s.y; C.on = s.on; C.lastGround = t; C.chain = 0; } else { C.air = true; C.vy = 0; C.on = null; C.dbl = !!Dd.dbl; }
   }
   if (!C.air && C.on && C.on.kind === 'stone') { const st = sts ? (sts[C.on.i] = sts[C.on.i] || { sinkT: C.on.st.sinkT }) : C.on.st; if (st.sinkT == null) st.sinkT = t; }
   // falls: a pit, or into the river
@@ -539,6 +723,8 @@ function stepC(L, C, inp, dt, t, sim, sts) {
   if ((w && C.y > w.y + 5) || C.y > L.base + 60) ev.push(w ? 'splash' : 'fall');
   // thorns
   if (C.inv <= 0) for (const h of L.hazards) if (Math.abs(h.x - C.x) < h.w / 2 + 8 && C.y > h.y - h.h + 2) { ev.push('hit'); break; }
+  // v4 critters: touched from the side or front
+  if (C.inv <= 0 && L.crits && L.crits.length && !ev.includes('bounce')) { const ch = crSide(L, C, t, sts); if (ch) { C.inv = 1.0; C.lastH = ch; ev.push('chit'); } }
   return ev;
 }
 function respawnFrom(L, C, fx) {
@@ -553,7 +739,7 @@ function respawnFrom(L, C, fx) {
   let x = i - HW - 1; const g0 = L.gt[i];
   while (x > 1 && i - x < want && isFinite(L.gt[x - 1]) && L.gt[x - 1] === g0 && !L.hazards.some(h => Math.abs(h.x - (x - 1)) < h.w / 2 + 10)) x--;
   if (x < 1 || !isFinite(L.gt[x])) x = i;
-  C.x = x; C.y = L.gt[x]; C.vy = 0; C.air = false; C.on = null; C.resp = .7; C.inv = 1.6; C.dbl = false; C.holding = false; C.buf = 0;
+  C.x = x; C.y = L.gt[x]; C.vy = 0; C.air = false; C.on = null; C.resp = .7; C.inv = 1.6; C.dbl = false; C.chain = 0; C.holding = false; C.buf = 0;
 }
 function hudFlash(kind) { LVL.flash = kind; LVL.flashT = S.t; }
 function loseWater(n, txt) { const L = LVL, C = L.c; RUN.water = Math.max(0, RUN.water - n); hudFlash('low'); L.pops.push({ x: C.x - L.cam - 62, y: C.y - 104 - L.cy, t: S.t, txt: txt || ('-' + n), c: 'coral' }); }
@@ -569,6 +755,7 @@ function updatePlay(dt) {
     if (e === 'fall' || e === 'splash') { if (QS.get('debug')) console.log('FALL', e, Math.round(C.x), Math.round(C.y), C.vy, C.air); st.falls++; if (e === 'splash') { L.splashes.push({ x: C.x, t: S.t, y: (waterAt(L, C.x) || {}).y || C.y }); Snd.splash(); } else Snd.hit(); respawnFrom(L, C, C.x); loseWater(DIF.fall, 'TRY AGAIN'); break; }
     if (e === 'land' && C.on && C.on.kind === 'stone') { /* sinks soon */ }
   }
+  if (ev.includes('bounce') || ev.includes('chit')) crEvents(L, C, ev, st);
   // supplies drain over time
   if (C.resp <= 0 && !L.arrive) {
     L.drainW += dt; L.drainD += dt;
@@ -597,7 +784,7 @@ function updatePlay(dt) {
 function finishLevel() {
   const L = LVL, st = RUN.stats[L.name]; L.done = true;
   const sc = RUN.scrolls[L.name].filter(Boolean).length; const lamps = 1 + (sc === 3 ? 1 : 0) + (RUN.water >= 8 ? 1 : 0);
-  const res = { time: Math.round(st.time), water: RUN.water, scrolls: sc, lamps, falls: st.falls, hits: st.hits, outs: st.outs };
+  const res = { time: Math.round(st.time), water: RUN.water, scrolls: sc, lamps, falls: st.falls, hits: st.hits, outs: st.outs, bounces: st.bounces || 0, chits: st.chits || 0, scared: st.scared || 0, chains: st.chains || 0 };
   RUN.last = Object.assign({ lvl: L.name, newBest: SAVE.put(L.name, res) }, res);
   go('result');
 }
@@ -719,6 +906,8 @@ function simRun(L, C0, sched, T, t0) {
     const ev = stepC(L, C, { edge, down }, dt, t0 + tau, true, sts);
     if (ev.includes('fall') || ev.includes('splash')) return { score: -1000 + C.x * .01, C };
     if (ev.includes('hit')) { score -= 70; C.inv = 1.4; }
+    if (ev.includes('chit')) score -= 60;
+    if (ev.includes('bounce')) score += BOT.low ? 0 : (C.chain >= 3 ? 50 : 30);
     for (const p of L.picks) { if (p.x > C.x + 30) break; if (!p.got && !got.has(p) && Math.abs(p.x - C.x) < 22 && p.y > C.y - 66 && p.y < C.y + 4) { got.add(p); score += BOT.low ? 0 : 22; } }
     for (const s of L.scrolls) if (!s.got && !got.has(s) && Math.abs(s.x - C.x) < 22 && s.y > C.y - 70 && s.y < C.y + 4) { got.add(s); score += BOT.low ? 0 : 60; }
     if (ev.includes('land')) { landed = true; tl = tau; }
@@ -846,7 +1035,7 @@ function hudPlay() {
   T(L.name === 'home' ? 'HOMEWARD' : 'MONTH ' + Math.min(4, L.n), 80, 6 + y0, 'white');
   const fl = S.t - L.flashT < 1 ? L.flash : null, low = RUN.water <= 3;
   spr('jug', 138, 1 + y0); T(String(RUN.water).padStart(2, '0'), 153, 6 + y0, fl === 'jug' ? 'goldlight' : (low || fl === 'low') && Math.trunc(t * 4) % 2 ? 'coral' : 'white');
-  spr('dates', 172, 1 + y0); T(String(RUN.dates).padStart(2, '0'), 187, 6 + y0, fl === 'dates' ? 'goldlight' : RUN.dates <= 0 ? 'coral' : 'white');
+  spr('dates', 172, 1 + y0); T(String(RUN.dates).padStart(2, '0'), 187, 6 + y0, fl === 'dates' ? 'goldlight' : fl === 'ldates' && Math.trunc(t * 8) % 2 ? 'coral' : RUN.dates <= 0 ? 'coral' : 'white');
   const f = RUN.scrolls[L.name] || [];
   for (let i = 0; i < 3; i++) { const x = 205 + i * 14; if (f[i]) spr('scroll', x, 4 + y0); else { R(x + 2, 6 + y0, x + 9, 12 + y0, 'slate'); R(x + 3, 7 + y0, x + 8, 11 + y0, 'ink'); } }
   if (L.name !== 'home') for (let i = 0; i < 3; i++) { const x = 255 + i * 21; R(x, 1 + y0, x + 15, 16 + y0, 'gold'); R(x + 1, 2 + y0, x + 14, 15 + y0, 'navy'); spr('gift_' + i, x + 3, y0); }
@@ -889,7 +1078,7 @@ function drawPlay() {
   const gv = th === 'market' ? 'day' : th === 'beth' ? 'night' : null;
   if (gv) { drawGround(gv); if (th === 'market') drawPeople(); drawObjects(gv); } else tinted(v => { drawGround(v); drawObjects(v); });
   if (th === 'beth') { const hx = L.len + 43 - cam; if (hx > -100 && hx < 330) spr('house', hx, L.base - 71 - cy, 'dawn'); if (L.starStop) beam(L.stx, L.sty + 6, hx + 45, L.base - 57 - cy, t, Math.trunc(16 * ss(0, 1.4, t - L.starStop))); }
-  drawPicks();
+  drawPicks(); drawCritters();
   L.splashes = L.splashes.filter(s => t - s.t < .5); for (const s of L.splashes) spr('splash_' + Math.min(2, Math.trunc((t - s.t) * 6)), s.x - cam - 15, s.y - cy - 15);
   // sandstorm: low visibility, wind; the lanterns and the cairns show the way
   const sa = L.storm ? ss(L.storm[0] - 150, L.storm[0], C.x) * (1 - ss(L.storm[1], L.storm[1] + 150, C.x)) : 0;
@@ -909,6 +1098,7 @@ function drawPlay() {
   if (L.note && S.t - L.note.t < 5) caption(L.note.s, 'TRAVEL SCROLL', { width: 296, top: 26 });
   if (th === 'beth' && L.cap && L.cap.i >= 0) { const key = ['departed', 'went', 'stood', 'joy'][L.cap.i]; const hx = L.len + 43 - cam;
     caption(Q[key][1], Q[key][0], L.cap.i === 3 || hx < 340 ? { width: 196, x0: 8, top: 24 } : { width: 122, x0: 194, top: 68 }); }
+  critHint();
   if (L.n === 1 && C.x < 900 && L.jumps < 3) hint('TAP: HOP   HOLD: BIG JUMP' + (DIF.dbl ? '   TAP AGAIN IN THE AIR' : ''));
   L.hudOff = L.arrive ? Math.trunc(24 * ss(0, 1, t - L.arrive.stopT)) : 0;
   hudPlay();
@@ -919,7 +1109,7 @@ function drawResult() {
   T('LEVEL ' + LCFG[R0.lvl].n + ' COMPLETE', 160, 26, 'goldlight', 1, true); T(LCFG[R0.lvl].title, 160, 38, 'white', 1, true);
   for (let i = 0; i < 3; i++) spr(i < R0.lamps ? 'lamp_on' : 'lamp_off', 132 + i * 20, 50);
   T('TIME  ' + fmtT(R0.time), 48, 68, 'white'); T('WATER LEFT  ' + R0.water, 48, 80, 'white'); T('SCROLLS  ' + R0.scrolls + ' / 3', 180, 68, 'white'); T('FALLS  ' + R0.falls, 180, 80, 'white');
-  if (R0.newBest) T('NEW BEST!', 160, 92, 'mintlight', 1, true);
+  T('SCARED OFF  ' + (R0.scared || 0) + (R0.chains ? '   CHAIN x' + R0.chains : ''), 48, 92, 'white'); if (R0.newBest) T('NEW BEST!', 236, 92, 'mintlight', 1, true);
   const f = RUN.scrolls[R0.lvl]; let y = 104;
   for (let i = 0; i < 3; i++) { const s = f[i] ? SCROLLS[R0.lvl][i] : '? (a hidden scroll is still out there)'; for (const row of wrap(s, 232)) { T(row, 48, y, f[i] ? 'paper' : 'slate'); y += 9; } spr(f[i] ? 'scroll' : 'lamp_off', 34, y - 10); y += 2; }
 }
@@ -991,9 +1181,11 @@ function portraitUI(g, s) {
     text(LCFG[R0.lvl].short, W2 / 2, y, 'white', true); y += lh * 1.2;
     text('LAMPS ' + R0.lamps + ' / 3' + (R0.newBest ? '  NEW BEST!' : ''), pad, y, 'goldlight'); y += lh;
     text('TIME ' + fmtT(R0.time) + '   FALLS ' + R0.falls, pad, y); y += lh;
-    text('WATER LEFT ' + R0.water + '   SCROLLS ' + R0.scrolls + '/3', pad, y); y += lh * 1.3;
+    text('WATER LEFT ' + R0.water + '   SCROLLS ' + R0.scrolls + '/3', pad, y); y += lh;
+    text('SCARED OFF ' + (R0.scared || 0) + (R0.chains ? '   CHAIN x' + R0.chains : ''), pad, y); y += lh * 1.3;
     const k2 = Math.max(ts - 1, Math.ceil(14 / 7 * dpr)), lh2 = 12 * k2, cols2 = Math.floor((W2 - 2 * pad) / (6 * k2));
     for (let i = 0; i < 3; i++) { const str = f[i] ? SCROLLS[R0.lvl][i] : '? a hidden scroll is still out there'; for (const row of wrap(str, cols2 * 6)) { if (y + lh2 > bot - BH - 8 * dpr) break; text(row, pad, y, f[i] ? 'paper' : 'silver', false, k2); y += lh2; } y += 6 * dpr; }
+    if (CRFACT[R0.lvl]) for (const row of wrap(CRFACT[R0.lvl], cols2 * 6)) { if (y + lh2 > bot - BH - 8 * dpr) break; text(row, pad, y, 'mintlight', false, k2); y += lh2; }
     button('CONTINUE', pad, bot - BH, W2 - pad, bot, () => { if (S.u > .6) go(R0.lvl === 'beth' ? 'house' : nextOf(R0.lvl)); }, false, 'goldlight');
     return true;
   }
@@ -1194,12 +1386,14 @@ window.addEventListener('resize', layout);
 
 // test / review hooks (read-only state + jump to a beat)
 window.WM = {
-  get state() { const C = LVL && LVL.c; const st = RUN && LVL && RUN.stats[LVL.name]; return { mode: S.mode, u: CLIPOF[S.mode] ? S.cu : S.u, cont: canContinue(), t: S.t, lvl: LVL && LVL.name, x: C ? C.x : null, y: C ? C.y : null, air: C ? C.air : null, len: LVL && LVL.len,
+  get state() { const C = LVL && LVL.c; const st = RUN && LVL && RUN.stats[LVL.name]; return { mode: S.mode, u: CLIPOF[S.mode] ? S.cu : S.u, cont: canContinue(), t: S.t, lvl: LVL && LVL.name, x: C ? C.x : null, y: C ? C.y : null, air: C ? C.air : null, chain: C ? C.chain || 0 : 0, inv: C ? C.inv : 0, len: LVL && LVL.len,
     water: RUN && RUN.water, dates: RUN && RUN.dates, diff: DIF.key, onKind: C && !C.air ? (C.on ? C.on.kind : ['none', 'sand', 'rock', 'brick', 'street', 'crate', 'cart', 'post'][LVL.gm[Math.round(C.x)]]) : null, nearWater: !!(C && LVL.water.some(w => w.x1 > C.x - 120 && w.x0 < C.x + 160)), stats: st ? Object.assign({}, st) : null, last: RUN && RUN.last, scrolls: RUN && LVL ? RUN.scrolls[LVL.name] : null, sound: Snd.on, musicPlaying: !music.paused, dlg: DLG.step, paused: !!S.paused, pui: LAY.pui ? LAY.pui.map(b => [b.label, Math.round((b.y1 - b.y0) / LAY.dpr)]) : [], puiTextCss: LAY.puiTextCss || null, verseCssPx: LAY.verseCssPx || null, hintCssPx: LAY.hintCssPx || null }; },
   verses: () => [...shownVerses], Q, verseProblems, perf: PERF,
   jump(mode, x) { if (!RUN) newRun(); RUN.resumeX = x == null ? null : x; S.next = null; enter(mode); },
   press, release, bot: BOT, setSupplies(w, d) { RUN.water = w; RUN.dates = d; }, setDiff, levels: LORDER, gen: genLevel,
   puiBoxes: () => (LAY.pui || []).map(b => ({ label: b.label, x0: b.x0, y0: b.y0, x1: b.x1, y1: b.y1 })), scrollText: lv => SCROLLS[lv],
+  critters: () => (LVL && LVL.crits || []).map(c => { const p = crPos(c, S.t, LVL.c.x, c); return { kind: c.kind, i: c.i, x0: c.x0, x: p.x, top: p.top, bot: p.bot, w: c.w, hp: c.hp, gone: !!c.gone, dazed: c.fx != null, still: !!c.still, chain: !!c.chain, intro: c === LVL.intro }; }),
+  critPlan: (lv, d) => { const L = genLevel(lv, d); return { chainS: L.chainS, crits: L.crits.map(c => ({ kind: c.kind, x0: c.x0, hp: c.hp, chain: !!c.chain, still: !!c.still, gy: c.gy })), len: L.len }; },
   people: () => (LVL && LVL.people || []).length, peopleOnScreen: () => (LVL && LVL.people || []).filter(p => p.x - LVL.cam > -10 && p.x - LVL.cam < 330).length, peopleAhead: () => (LVL && LVL.people || []).filter(p => p.x - LVL.cam > 200 && p.x - LVL.cam < 310).length,
   world: () => LVL ? { t: S.t, drainW: LVL.drainW, stones: LVL.plats.filter(p => p.kind === 'stone').map(p => p.st.sinkT), rafts: LVL.plats.filter(p => p.kind === 'raft').map(p => Math.round(raftPos(p, S.t).x0 * 10)) } : null, sim(sched, T) { const r = simRun(LVL, LVL.c, sched || [], T || 1.5, S.t); return { score: r.score, x: r.C.x, y: r.C.y, air: r.C.air }; },
 };
