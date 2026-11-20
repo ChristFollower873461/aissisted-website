@@ -9,6 +9,10 @@
 /guides/workflow-automation-with-control/ /workflow-automation/ 301
 /guides/public-evidence-aissisted-consulting-blog / 301
 /guides/public-evidence-aissisted-consulting-blog/ / 301
+# Preserve the comparison intent of the retired article before the blog catch-all.
+/blog/cloud-vs-on-prem-ai-for-small-business /guides/local-and-on-prem-ai/ 301
+/blog/cloud-vs-on-prem-ai-for-small-business/ /guides/local-and-on-prem-ai/ 301
+/blog/cloud-vs-on-prem-ai-for-small-business.html /guides/local-and-on-prem-ai/ 301
 /blog / 301
 /blog/ / 301
 /blog/* / 301
