@@ -84,15 +84,13 @@ try {
       } catch { return route.fulfill({ status: 404, body: "" }); }
     });
     await page.goto(origin + "/" + routeName + "/?utm_source=google&utm_campaign=isolated_network_test");
-    assert.equal(scripts.filter(x => x.routeName === routeName).length, 0, "SDK must not load before opt-in");
+    assert.equal(scripts.filter(x => x.routeName === routeName).length, 0, "SDK must not load before a successful receipt");
     await page.locator('[name="name"]').fill("TEST Network Proof");
     await page.locator('[name="email"]').fill("test-" + routeName + "@example.test");
     await page.locator('[name="company"]').fill("TEST isolated sink");
     await page.locator('[name="message"]').fill("TEST Google request capture, no customer data.");
     if (routeName === "workflow-check") await page.locator('[name="helpTiming"]').selectOption("yes");
     await page.locator('[name="consentToSubmit"]').check();
-    await page.locator('[name="measurementConsent"]').check();
-    await page.waitForFunction(() => Boolean(window.google_tag_manager), { timeout: 30000 });
     await page.locator("[data-contact-submit]").click();
     await page.getByText("We couldn't confirm receipt.", { exact: false }).waitFor();
     assert.equal(captured.filter(x => x.routeName === routeName && x.matchingContactConversion).length, 0,

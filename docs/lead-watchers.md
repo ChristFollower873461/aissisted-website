@@ -28,10 +28,10 @@ Example (not activated):
 
     python3 tools/website_lead_watch.py --account-id ACCOUNT_ID \
       --database-id d6d66c29-66e8-4fda-a918-11eafdd4b42c \
-      --keychain-service aiccrm-lead-watch-d1-read
+      --keychain-service arkd1
 
 Alternatively replace --keychain-service with --token-file /external/private/token.
-This service name is a proposed name, not a claim a credential exists.
+Use the existing Keychain service arkd1 (D1 ops only), as directed by Ark. No new token is needed. This build does not read, replace or export its value.
 
 The SELECT reads ID, creation time, stable inquiry event ID and a SQL-normalized
 attribution category only. It excludes booking-channel rows and never selects
