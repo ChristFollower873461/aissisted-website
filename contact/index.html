@@ -43,7 +43,7 @@
     }
     </script>
   </head>
-  <body data-page="contact">
+  <body data-page="contact" data-lead-consent>
     <a class="skip-link" href="#main">Skip to content</a>
 
     <header class="site-header" data-header>
@@ -116,7 +116,7 @@
           <div class="reveal">
             <p class="kicker">First message</p>
             <h2 class="h2 h2-small" id="form-title">What's costing you time, leads, or attention?</h2>
-            <form class="form" id="contact-form" data-contact-form aria-label="Contact AIssisted Consulting" style="margin-top: 28px">
+            <form class="form" id="contact-form" method="post" action="/api/contact/submit" data-contact-form aria-label="Contact AIssisted Consulting" style="margin-top: 28px">
               <div class="form-grid">
                 <label>
                   Name
@@ -163,6 +163,7 @@
                 <input id="consentToSubmit" name="consentToSubmit" type="checkbox" required>
                 <span>Send this inquiry to AIssisted Consulting for a direct reply.</span>
               </label>
+              <p class="form-note">See our <a href="/privacy-and-control/#website-measurement">privacy and ad measurement choices</a>.</p>
               <div class="form-actions">
                 <button class="btn btn-gold" type="submit" data-contact-submit>Send inquiry</button>
                 <a class="btn btn-ghost" href="tel:+13528173567">Call instead</a>
@@ -237,9 +238,10 @@
       </div>
     </footer>
 
-    <script src="/main.js?v=20260718"></script>
-    <script src="/assets/aic-google-ads-tracking.js?v=20260817"></script>
+    <script src="/assets/aic-lead-tracking-config.js?v=20261121"></script>
+    <script src="/assets/aic-lead-tracking.js?v=20261121"></script>
+    <script src="/assets/aic-google-ads-tracking.js?v=20261121"></script>
     <script src="/assets/site/site.js?v=20260907"></script>
-    <script src="./contact.js?v=20261018-topic"></script>
+    <script src="/contact/contact.js?v=20261121"></script>
   </body>
 </html>

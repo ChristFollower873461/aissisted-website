@@ -48,3 +48,8 @@ jobs:
 
       - name: Run all regression suites
         run: npm test
+
+      - name: Check read-only lead watchers against isolated fixtures
+        run: |
+          python3 tools/test_lead_watchers.py
+          python3 tools/test_website_lead_watch.py

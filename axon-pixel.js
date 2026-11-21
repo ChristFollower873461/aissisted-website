@@ -7,9 +7,11 @@
   // This wrapper loads independently of Google tracking; enforce the same
   // production origins before creating an SDK queue or calling an existing SDK.
   var origin = String(window.location.origin || "").toLowerCase();
-  if (origin !== "https://aissistedconsulting.com" &&
-      origin !== "https://www.aissistedconsulting.com") {
-    window.__aissistedAxonTrackingSuppressed = "nonproduction_preview";
+  if (window.navigator?.globalPrivacyControl === true ||
+      (origin !== "https://aissistedconsulting.com" &&
+       origin !== "https://www.aissistedconsulting.com")) {
+    window.__aissistedAxonTrackingSuppressed = window.navigator?.globalPrivacyControl === true
+      ? "global_privacy_control" : "nonproduction_preview";
     window.aissistedAxon = Object.freeze({
       trackGenerateLead: function () { return false; }
     });
