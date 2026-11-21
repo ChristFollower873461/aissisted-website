@@ -34,7 +34,9 @@
     "gclid",
     "gbraid",
     "wbraid",
-    "msclkid"
+    "msclkid",
+    "fbclid",
+    "oppref"
   ];
   var ATTRIBUTION_QUERY_KEYS = [
     "gclid",
@@ -45,7 +47,9 @@
     "utm_campaign",
     "utm_content",
     "utm_term",
-    "msclkid"
+    "msclkid",
+    "fbclid",
+    "oppref"
   ];
   var MAX_ATTRIBUTION_SOURCE_LENGTH = 500;
 
@@ -81,7 +85,14 @@
     }
   }
 
+  function measurementDenied() {
+    return (window.AIC_REQUIRE_MEASUREMENT_CONSENT === true ||
+      document.body?.hasAttribute?.("data-lead-consent") === true) &&
+      window.AicLeadTracking?.hasConsent?.() !== true;
+  }
+
   function ensureGoogleTag() {
+    if (measurementDenied()) return false;
     if (isTrackingSuppressed()) {
       window.__aicTrackingSuppressed = "nonproduction_preview";
       return false;
@@ -104,6 +115,12 @@
         region: RESTRICTED_CONSENT_REGIONS,
         wait_for_update: 500
       });
+      if (window.AIC_REQUIRE_MEASUREMENT_CONSENT === true) {
+        window.gtag("consent", "update", {
+          ad_storage: "granted", analytics_storage: "granted",
+          ad_user_data: "denied", ad_personalization: "denied"
+        });
+      }
       window.__aicGoogleConsentConfigured = true;
     }
 
@@ -146,11 +163,11 @@
     if (Object.keys(touch).length) {
       touch.captured_at = new Date().toISOString();
       touch.landing_path = window.location.pathname;
-      writeStoredTouch(touch);
+      if (!measurementDenied()) writeStoredTouch(touch);
       return touch;
     }
 
-    return readStoredTouch();
+    return measurementDenied() ? {} : readStoredTouch();
   }
 
   function safeRelativePath(value, fallbackPath) {
@@ -164,7 +181,7 @@
   function attributionSourcePage(fallbackPath) {
     var fallback = safeRelativePath(fallbackPath, "/contact/") || "/contact/";
     var touch = currentTouch();
-    var landingPath = safeRelativePath(touch.landing_path, fallback);
+    var landingPath = fallback === "/workflow-check/" ? fallback : safeRelativePath(touch.landing_path, fallback);
     var params = new URLSearchParams();
 
     ATTRIBUTION_QUERY_KEYS.forEach(function (key) {
@@ -246,7 +263,7 @@
   }
 
   function recordGoogleAdsConversion(eventName, payload, explicitLabel) {
-    if (isTrackingSuppressed()) return false;
+    if (isTrackingSuppressed() || measurementDenied()) return false;
     if (typeof window.gtag !== "function") return false;
 
     var conversion = normalizedConversionConfig(eventName, explicitLabel, payload);
@@ -291,7 +308,7 @@
 
     // Keep attribution and the return value available to forms, but do not
     // publish preview events to an existing SDK, data layer or tracking listener.
-    if (isTrackingSuppressed()) return payload;
+    if (isTrackingSuppressed() || measurementDenied()) return payload;
 
     window.dataLayer = window.dataLayer || [];
     window.dataLayer.push(payload);
