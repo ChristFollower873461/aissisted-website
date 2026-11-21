@@ -3,5 +3,5 @@
 window.AIC_REQUIRE_MEASUREMENT_CONSENT = true;
 window.AIC_LEAD_TRACKING_CONFIG = Object.freeze({
   metaPixelId: "",
-  openaiPixelId: ""
+  openaiPixelId: "9EJG5cTw52d5ZtFUAkRz7J"
 });

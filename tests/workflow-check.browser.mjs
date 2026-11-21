@@ -31,8 +31,9 @@ const browser = await chromium.launch({ headless: true, executablePath: process.
 let loseReceipt = true;
 const mime = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".json": "application/json",
   ".png": "image/png", ".jpg": "image/jpeg", ".webp": "image/webp", ".woff2": "font/woff2" };
-async function prepare(viewport, origin = "https://aissistedconsulting.com") {
+async function prepare(viewport, origin = "https://aissistedconsulting.com", gpc = false) {
   const context = await browser.newContext({ viewport, reducedMotion: "reduce" });
+  if (gpc) await context.addInitScript(() => Object.defineProperty(navigator, "globalPrivacyControl", { get: () => true }));
   const page = await context.newPage();
   const errors = [];
   page.on("pageerror", error => errors.push(error.message));
@@ -40,6 +41,10 @@ async function prepare(viewport, origin = "https://aissistedconsulting.com") {
     const request = route.request(), url = new URL(request.url());
     if (url.origin !== origin) {
       external.push(url.hostname);
+      if (url.hostname === "bzrcdn.openai.com" && url.pathname.startsWith("/pixel-config/v1/")) {
+        return route.fulfill({ status: 200, contentType: "application/json",
+          body: JSON.stringify({ automatic_advanced_matching_enabled: false }) });
+      }
       // Leave SDK queues intact; tests inspect the exact calls, not vendor delivery.
       return route.fulfill({ status: 200, contentType: "text/javascript", body: "" });
     }
@@ -93,28 +98,26 @@ try {
   await desktop.page.screenshot({ path: path.join(out, "existing-contact-desktop.png"), fullPage: true });
   await desktop.page.goto("https://aissistedconsulting.com/workflow-check/?utm_source=meta&utm_medium=paid_social&utm_campaign=test_workflow");
   await desktop.page.screenshot({ path: path.join(out, "workflow-check-desktop.png"), fullPage: true });
-  assert.equal(external.length, 0, "no SDKs before consent");
+  assert.equal(external.length, 0, "no SDKs before a successful receipt");
   assert.equal(await desktop.page.locator('input:not([type="hidden"]):not([type="checkbox"]):not([name="websiteLeaveBlank"]), textarea, select').count(), 5);
-  assert.equal(await desktop.page.locator('[name="measurementConsent"]').isChecked(), false);
+  assert.equal(await desktop.page.locator('[name="measurementConsent"]').count(), 0);
   await fill(desktop.page);
-  await desktop.page.locator('[name="measurementConsent"]').check();
   await desktop.page.locator("[data-contact-submit]").click();
   await desktop.page.getByText("We couldn't confirm receipt.", { exact: false }).waitFor();
   assert.deepEqual(await counts(desktop.page), { google: 0, meta: 0, openai: 0 });
   await desktop.page.locator("[data-contact-submit]").click();
   await desktop.page.getByText("Inquiry received. AIssisted Consulting will reply directly.", { exact: true }).waitFor();
+  await desktop.page.waitForFunction(() => (window.oaiq?.q || []).some(a => a[0] === "measure"));
   assert.deepEqual(await counts(desktop.page), { google: 1, meta: 1, openai: 1 });
-  assert.equal(await desktop.page.locator('[name="measurementConsent"]').isChecked(), true,
-    "receipt clears inquiry fields without revoking the visible visit-level choice");
   assert.equal(requests[0].key, requests[1].key);
   assert.deepEqual(requests[0].body, requests[1].body);
   await fill(desktop.page);
-  await desktop.page.locator('[name="measurementConsent"]').check();
   await desktop.page.locator("[data-contact-submit]").click();
   await desktop.page.getByText("A matching inquiry was already received recently.", { exact: true }).waitFor();
   // Explicit successful receipt replay must also remain deduplicated.
   const storedId = fixture.sqlite.prepare("SELECT id FROM contact_inquiries").get().id;
   await desktop.page.evaluate(id => window.AicLeadTracking.trackReceipt(id), storedId);
+  await desktop.page.waitForFunction(() => (window.oaiq?.q || []).some(a => a[0] === "measure"));
   assert.deepEqual(await counts(desktop.page), { google: 1, meta: 1, openai: 1 });
   assert.equal(crm.size, 1);
   assert.equal(fixture.sqlite.prepare("SELECT count(*) AS n FROM contact_inquiries").get().n, 1);
@@ -134,21 +137,30 @@ try {
   const preview = await prepare({ width: 390, height: 844 }, "https://preview.pages.dev");
   const priorExternal = external.length;
   await preview.page.goto("https://preview.pages.dev/workflow-check/");
-  await preview.page.locator('[name="measurementConsent"]').check();
   await preview.page.evaluate(() => window.AicLeadTracking.trackReceipt("inq_preview"));
   assert.equal(external.length, priorExternal);
   assert.deepEqual(await counts(preview.page), { google: 0, meta: 0, openai: 0 });
-  assert.deepEqual([...desktop.errors, ...phone.errors, ...preview.errors], []);
+  const gpc = await prepare({ width: 390, height: 844 }, "https://aissistedconsulting.com", true);
+  const beforeGpc = external.length;
+  await gpc.page.goto("https://aissistedconsulting.com/workflow-check/");
+  await fill(gpc.page);
+  await gpc.page.locator('[name="email"]').fill("test-gpc@example.test");
+  await gpc.page.locator("[data-contact-submit]").click();
+  await gpc.page.getByText("Inquiry received. AIssisted Consulting will reply directly.", { exact: true }).waitFor();
+  assert.deepEqual(await counts(gpc.page), { google: 0, meta: 0, openai: 0 });
+  assert.equal(external.length, beforeGpc, "GPC must prevent every advertising SDK request");
+  assert.equal(crm.size, 2, "one ordinary inquiry plus one separately accepted GPC inquiry");
+  assert.deepEqual([...desktop.errors, ...phone.errors, ...preview.errors, ...gpc.errors], []);
   const inquiry = fixture.sqlite.prepare("SELECT id, created_at, source_page FROM contact_inquiries").get();
   await writeFile(path.join(out, "isolated-lead.json"), JSON.stringify({
     inquiry, crm: { id: 901, ...payload }, receivedCount: received.length,
-    storedLeads: crm.size, conversions: await counts(desktop.page)
+    storedLeads: 1, gpcStoredLeads: 1, conversions: await counts(desktop.page)
   }, null, 2));
   await writeFile(path.join(out, "browser-results.json"), JSON.stringify({
     status: "passed", storedLeads: 1, source: payload.sourcePage,
     lostAcknowledgementRetry: "same idempotency key; no events until successful receipt",
     duplicateSubmit: "one CRM record, one conversion per provider",
-    conversions: await counts(desktop.page), preview: "silent", initialConsent: "off",
+    conversions: await counts(desktop.page), preview: "silent", measurement: "default on after successful receipt; GPC off", gpc: "inquiry accepted, zero SDK requests or events",
     phoneOverflow: false, menu: "passed", pageErrors: []
   }, null, 2));
 } finally {

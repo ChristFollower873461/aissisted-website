@@ -86,7 +86,8 @@
   }
 
   function measurementDenied() {
-    return (window.AIC_REQUIRE_MEASUREMENT_CONSENT === true ||
+    return window.navigator?.globalPrivacyControl === true ||
+      (window.AIC_REQUIRE_MEASUREMENT_CONSENT === true ||
       document.body?.hasAttribute?.("data-lead-consent") === true) &&
       window.AicLeadTracking?.hasConsent?.() !== true;
   }

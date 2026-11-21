@@ -6,11 +6,12 @@ This PR does not deploy or activate an ad account, watcher, scheduler or paid ca
 
 Edit assets/aic-lead-tracking-config.js with the Meta pixel/dataset numeric ID
 and the OpenAI Measurement Pixel pixelId. These are public identifiers, NOT API keys.
-Blank/invalid IDs do not load that SDK. Leave them blank until the account owner
-has confirmed the correct accounts and disabled automatic advanced matching.
+Blank/invalid IDs do not load that SDK. OpenAI pixelId is 9EJG5cTw52d5ZtFUAkRz7J,
+set on Ark’s instruction. Meta remains blank pending its business portfolio.
+Automatic advanced matching must remain disabled in the ad accounts.
 The application never explicitly passes names, email, phone or form text to pixels.
 Meta autoConfig is disabled in the wrapper. OpenAI automatic advanced matching
-is an account setting: verify it is OFF before adding its ID.
+is an account setting: it must be OFF for this wrapper to load the SDK.
 
 Google reuses AW-17956049177, GA4 G-4PD9VYERRY and contact conversion
 AW-17956049177/BxPjCKTg9swcEJmijvJC. No second Google conversion is created.
@@ -22,13 +23,25 @@ are separate inputs for the Meta watcher. No account settings are changed here.
 
 ## Measurement behavior
 
-Contact and workflow-check pages have a separate optional measurement checkbox.
-No Google/Meta/OpenAI SDK loads on those pages until selected. Consent defaults
-off each page visit and stays visibly selected when inquiry fields clear;
-unchecking it stops future calls. Other existing site pages retain their current measurement behavior.
-The old main.js Axon bootstrap is omitted on these two pages; site/site.js still
-owns their navigation/year. Existing legacy form-script callers retain fallback
-behavior. Advertising measurement is never required to submit an inquiry.
+Contact and workflow-check forms retain required reply consent, with no optional
+measurement checkbox. A successful receipt enables ad measurement by default.
+If navigator.globalPrivacyControl === true, no SDK loads and no conversion
+events are sent. The signal is checked again on every receipt; Google’s shared
+wrapper and the legacy Axon wrapper also suppress GPC. Enable GPC in a supporting
+browser/extension and reload before submitting to opt out.
+
+On these two forms, SDKs are initialized only after a successful receipt, never
+on page load or an ambiguous response. Inquiry handling still works under GPC.
+The old main.js Axon bootstrap remains omitted on these pages; site/site.js owns
+navigation/year. No form fields are sent explicitly to the pixel wrappers.
+OpenAI advanced matching is account-controlled, not disabled by opt_out:true;
+the wrapper first reads the pixel’s public config and loads the SDK only when
+automatic_advanced_matching_enabled is exactly false. True, unavailable or
+invalid configuration fails closed without blocking the inquiry or Google/Meta.
+GPC is checked again after this asynchronous read. No ad-account setting is
+modified by this PR. The supplied pixel’s public config was true when checked
+on 2026-11-21: OpenAI measurement therefore stays off until the account owner
+disables automatic matching. Reload after the setting is changed.
 
 Only a successful API response with ok:true and a non-empty inquiry.id reaches
 the new tracker. Google transaction_id, Meta eventID and OpenAI event_id reuse
@@ -78,9 +91,9 @@ baseline, PJ alerts, and manual answered_at/outcome. Default lead log:
 Do not activate before these inputs are configured and monitored.
 
 Limits: browser blocking can lower ad totals; CRM/log is authoritative.
-Without measurement opt-in, a previous page's stored advertising touch is not
-read on these forms. Direct workflow-check URL attribution remains available,
-but non-opt-in cross-page visits may be logged as direct.
+Before receipt (and under GPC), a previous page’s stored advertising touch is
+not read on these forms. Direct workflow-check URL attribution remains available,
+but cross-page visits may be logged as direct.
 The CRM watcher sees only successfully relayed records. Existing relay monitor
 health and actual end-to-end alert timing must be verified at activation.
 Fixtures prove behavior, not live destination delivery.
