@@ -11,11 +11,12 @@
   }
 
   const submitButton = form.querySelector("[data-contact-submit]");
+  const idleButtonText = submitButton.textContent;
   const statusNode = document.getElementById("contact-submit-status");
   const pendingAttempts = new Map();
   const trackedInquiries = new Set();
   const requestTimeoutMs = 15000;
-  const uncertainMessage = "We couldn't confirm receipt. Your message is still here. Keep it unchanged and choose Send inquiry to retry.";
+  const uncertainMessage = "We couldn't confirm receipt. Your message is still here. Keep it unchanged and choose " + idleButtonText.trim() + " to retry.";
   let inFlight = false;
 
   function createIdempotencyKey() {
@@ -42,13 +43,17 @@
 
   function readFormFields() {
     const formData = new FormData(form);
+    const timing = formData.get("helpTiming");
+    const message = timing
+      ? String(formData.get("message") || "") + "\n\nLooking for help in the next 30 days? " + (timing === "yes" ? "Yes" : "Not yet")
+      : formData.get("message");
     return {
       name: formData.get("name"),
       email: formData.get("email"),
       phone: formData.get("phone"),
       company: formData.get("company"),
       audience: formData.get("audience"),
-      message: formData.get("message"),
+      message,
       websiteLeaveBlank: formData.get("websiteLeaveBlank"),
       consentToSubmit: formData.get("consentToSubmit") === "on"
     };
@@ -148,19 +153,25 @@
         : "Inquiry received. Your newer edits are still here and have not been sent.", "success");
       if (!trackedInquiries.has(result.inquiryId)) {
         trackedInquiries.add(result.inquiryId);
-        bestEffort(() => globalThis.aissistedAxon?.trackGenerateLead?.({ currency: "USD", value: 25 }));
-        bestEffort(() => globalThis.AicAdsTracking?.emit?.("aic_contact_submit", {
-          channel: "website_contact",
-          creative_angle: "local_ai_implementation",
-          inquiry_topic: attempt.payload.audience || "not_selected"
-        }));
+        if (globalThis.AicLeadTracking) {
+          bestEffort(() => globalThis.AicLeadTracking.trackReceipt(result.inquiryId, {
+            channel: new FormData(form).get("sourcePage") === "/workflow-check/" ? "workflow_check" : "website_contact"
+          }));
+        } else {
+          bestEffort(() => globalThis.aissistedAxon?.trackGenerateLead?.({ currency: "USD", value: 25 }));
+          bestEffort(() => globalThis.AicAdsTracking?.emit?.("aic_contact_submit", {
+            channel: "website_contact",
+            creative_angle: "local_ai_implementation",
+            inquiry_topic: attempt.payload.audience || "not_selected"
+          }));
+        }
       }
     } catch (_) {
       setStatus(uncertainMessage, "error");
     } finally {
       inFlight = false;
       submitButton.disabled = false;
-      submitButton.textContent = "Send inquiry";
+      submitButton.textContent = idleButtonText;
     }
   });
 })();

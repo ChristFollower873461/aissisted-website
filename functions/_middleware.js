@@ -14,6 +14,7 @@ const BLOCKED_PREFIXES = [
   "/db/",
   "/config/",
   "/scripts/",
+  "/tools/",
   "/migrations/",
   "/node_modules/"
 ];
@@ -42,6 +43,7 @@ const GONE_PATHS = new Set([
 ]);
 
 const REDIRECTS = new Map([
+  ["/tools/", "/tools"],
   ["/grail", "/grail/"],
   ["/grail/index.html", "/grail/"],
   ["/grail/activation.html", "/grail/activation"],
