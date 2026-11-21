@@ -60,6 +60,17 @@ conversion per provider, then writes isolated-lead.json. With QA_OUTPUT set,
 test_website_lead_watch.py reads that exact fake inquiry through a loopback D1
 SELECT fixture and proves one log entry plus repeatable output.
 
+For actual Google SDK transport generation, run
+tests/google-contact-network.browser.mjs on Neo. It fetches only allowlisted
+public Google tag JavaScript, serves both forms locally under intercepted
+production URLs, and captures all generated measurement requests without
+forwarding them. It asserts the exact Ads ID/contact label and inquiry ID
+in the generated conversion URL, no conversion after an uncertain receipt,
+and no additional request on a receipt replay. google-contact-network.json
+contains the captured URLs and the explicit non-forwarding boundary.
+This is stronger than checking the gtag queue, but still does not prove Google
+accepted a live event or that an account's diagnostic status has cleared.
+
 See lead-watchers.md for the real read endpoint and one credential per watcher.
 Ark owns two-minute automation setup, scheduler delivery dedup, initial-history
 baseline, PJ alerts, and manual answered_at/outcome. Default lead log:
