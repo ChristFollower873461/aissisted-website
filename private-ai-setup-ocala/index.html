@@ -21,23 +21,49 @@
     <link rel="stylesheet" href="/assets/site/page.css?v=20260907">
     <script type="application/ld+json">
     {
-          "@context": "https://schema.org",
+      "@context": "https://schema.org",
+      "@graph": [
+        {
           "@type": "WebPage",
           "name": "Private AI Setup in Ocala | AIssisted Consulting",
           "description": "Private AI setup in Ocala and Marion County: workload assessment, hardware sizing, access controls, testing and training. Local and hosted limits explained.",
           "url": "https://aissistedconsulting.com/private-ai-setup-ocala/",
+          "@id": "https://aissistedconsulting.com/private-ai-setup-ocala/#webpage",
+          "about": {
+            "@id": "https://aissistedconsulting.com/private-ai-setup-ocala/#service"
+          },
           "publisher": {
-                "@type": "LocalBusiness",
-                "name": "AIssisted Consulting",
-                "telephone": "+13528173567",
-                "email": "pj@aissistedconsulting.com",
-                "address": {
-                      "@type": "PostalAddress",
-                      "addressLocality": "Ocala",
-                      "addressRegion": "FL",
-                      "addressCountry": "US"
-                }
+            "@id": "https://aissistedconsulting.com/#business"
           }
+        },
+        {
+          "@type": "Service",
+          "@id": "https://aissistedconsulting.com/private-ai-setup-ocala/#service",
+          "name": "Private AI setup",
+          "serviceType": [
+            "Private AI setup"
+          ],
+          "url": "https://aissistedconsulting.com/private-ai-setup-ocala/",
+          "provider": {
+            "@type": "LocalBusiness",
+            "name": "AIssisted Consulting",
+            "telephone": "+13528173567",
+            "email": "pj@aissistedconsulting.com",
+            "address": {
+              "@type": "PostalAddress",
+              "addressLocality": "Ocala",
+              "addressRegion": "FL",
+              "addressCountry": "US"
+            },
+            "@id": "https://aissistedconsulting.com/#business",
+            "url": "https://aissistedconsulting.com/"
+          },
+          "areaServed": [
+            "Ocala, Florida",
+            "Marion County, Florida"
+          ]
+        }
+      ]
     }
     </script>
   </head>
@@ -105,7 +131,7 @@
         <div class="container page-hero-copy">
           <p class="kicker">Your files. Your boundary.</p>
           <h1 class="h1" id="page-title">Private AI setup in Ocala.</h1>
-          <p class="sub">AIssisted Consulting sets up AI around your own files, with a clear decision about what stays on your machine and what may leave. On-site in Ocala and Marion County, with remote setup and support available.</p>
+          <p class="sub">We set up AI that works on your own files, on a machine you control. You decide what stays on it and what, if anything, goes out. On-site in Ocala and Marion County, or remote.</p>
           <div class="hero-actions">
             <a class="btn btn-gold" href="../contact/?topic=privacy_and_control">Talk through your setup</a>
             <a class="btn btn-ghost" href="../services/">All services</a>
@@ -122,11 +148,11 @@
           <div class="grid grid-2">
             <div class="card">
               <h3>One useful task</h3>
-              <p>Bring a description of the job, not a folder of confidential records. We start with public or synthetic samples, identify sensitive inputs, and decide what stays manual. An internal document summary or record-cleanup task can be a starting point, not a promise that every file can be automated.</p>
+              <p>Bring a description of one job, not the confidential files. We start with sample or made-up data, flag the sensitive parts, and decide what stays manual. Good first jobs: summarizing internal documents or cleaning up messy records.</p>
             </div>
             <div class="card">
               <h3>Size for that task</h3>
-              <p>We assess the workload, model requirements, memory, storage and connectivity before recommending hardware. We also consider who will maintain it. A small local model may be enough; a larger task may need more memory or a different approach. Buying a machine is not the assessment.</p>
+              <p>We look at the job, the model it needs, memory, storage and connection before recommending hardware, and we plan who will maintain it. Sometimes a small local model is enough. If it isn't, we tell you before you buy.</p>
             </div>
           </div>
         </div>
@@ -140,7 +166,7 @@
           <div class="grid grid-3">
             <div class="card">
               <h3>Set the boundary</h3>
-              <p>We configure accounts and limit access to the files and connections the workflow needs. We agree who can use it and who can change it. Encryption, backups and updates belong in the setup discussion, not in a promise that local software is automatically private.</p>
+              <p>We set up accounts and give the AI access only to the files and connections the job needs. We agree who can use it and who can change it. Encryption, backups and updates are part of the setup.</p>
             </div>
             <div class="card">
               <h3>Test before sensitive use</h3>
@@ -148,7 +174,7 @@
             </div>
             <div class="card">
               <h3>Keep it usable</h3>
-              <p>Training and ongoing support are part of the work we scope with you. We agree update checks, troubleshooting and recovery responsibilities, so someone knows how to stop the system and get help. Support access should be agreed, limited and logged.</p>
+              <p>We train your people and agree on support: who checks updates, who fixes problems, and how to stop the system. Any remote support access is agreed, limited and logged.</p>
             </div>
           </div>
         </div>
@@ -156,17 +182,17 @@
       <section class="section" aria-labelledby="section-3">
         <div class="container">
           <div class="head">
-            <p class="kicker">Local is a boundary, not a label</p>
-            <h2 class="h2" id="section-3">Owning the agent is not the same as local inference.</h2>
+            <p class="kicker">Choose where your data goes</p>
+            <h2 class="h2" id="section-3">Local means the model runs on your machine.</h2>
           </div>
           <div class="grid grid-2">
             <div class="card">
               <h3>Choose where the model runs</h3>
-              <p>A client-owned agent does not mean every model call is local. A hosted model processes the material sent to it outside your machine. We explain that route before connecting it. If a workflow must stay local, we choose and test a local route instead of quietly falling back to a cloud service.</p>
+              <p>An assistant can live on your hardware and still send work to a cloud model. We tell you where each task runs before we connect it. If a job must stay local, it runs on a local model, and we test that it never quietly falls back to the cloud.</p>
             </div>
             <div class="card">
               <h3>Know the limits</h3>
-              <p>Local models can differ from hosted models in speed, capability and hardware needs. Connected tools, logs and online updates also matter. This is a scoped setup service, not a security or compliance certification. Read our <a href="../guides/local-and-on-prem-ai/">local and on-prem AI guide</a> for the trade-offs.</p>
+              <p>Local models are usually slower and less capable than the top cloud models, and they need more hardware. We show you that trade-off for your job. This is setup and training, not a security audit or compliance certification. More in our <a href="../guides/local-and-on-prem-ai/">local and on-prem AI guide</a>.</p>
             </div>
           </div>
         </div>
@@ -175,12 +201,14 @@
         <div class="container">
           <div class="head">
             <p class="kicker">See the approach</p>
-            <h2 class="h2" id="section-4">A demonstration, not a client result.</h2>
+            <h2 class="h2" id="section-4">Watch a real local run on demo data.</h2>
           </div>
           <div class="grid grid-1">
             <div class="card">
               <h3>Watch a labeled example</h3>
-              <p>The <a href="../#proof">homepage private-data demonstration</a> replays a local processing run on synthetic records. It shows the approach without exposing client data; it does not guarantee the same result for your files. Already choosing a machine? See our <a href="../mac-mini-ai-agent-setup/">Mac mini AI agent setup service</a>.</p>
+              <p>The <a href="../#proof">homepage demo</a> replays a real local run: 89 messy synthetic records in, 80 clean ones out, nothing sent to the internet. It shows how we work. Your files will have their own results. Already choosing a machine? See our <a href="../mac-mini-ai-agent-setup/">Mac mini AI agent setup service</a>.</p>
+              <p>Work with <a href="../about/">founder PJ Standley, based in Ocala</a>.</p>
+              <p>Prefer we process files on our machine? See our <a href="../privacy-and-control/">Private Data Service</a>.</p>
             </div>
           </div>
         </div>
@@ -195,6 +223,7 @@
               <a class="btn btn-gold" href="../contact/?topic=privacy_and_control">Talk through your setup</a>
               <a class="btn btn-ghost" href="../book/">Book the $225 plan</a>
             </div>
+            <p>60-minute session plus a one-page plan; setup is quoted separately.</p>
           </div>
           <address class="contact-lines">
             <a href="tel:+13528173567">(352) 817-3567</a>
