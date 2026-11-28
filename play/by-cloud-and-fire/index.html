@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#193c39"><title>By Cloud and Fire</title>
+<link rel="icon" href="data:,"><link rel="stylesheet" href="v2.css">
+<script defer src="verses.js"></script><script defer src="v2-rules.js"></script><script defer src="v2-content.js"></script><script defer src="v2-engine.js"></script><script defer src="v2-scene.js"></script><script defer src="v2-activities.js"></script><script defer src="v2-ui.js"></script></head>
+<body>
+<main id="s1" data-screen="cover">
+<div id="scene"><canvas id="s1land" aria-label="Journey illustration"></canvas>
+<header id="instruments" hidden><div id="s1location"></div><nav aria-label="Journey controls"><button id="journalButton" aria-label="Journal" title="Journal">▤</button><button id="pause" aria-label="Pause" title="Pause">Ⅱ</button></nav><div id="s1hud" aria-label="Household"></div></header>
+</div>
+<section id="cover"><div class="coverpanel"><p class="rubric">A journey game through the Bible</p><h1>By Cloud and Fire</h1><p class="lede">Guide one household out of Egypt, through the sea, to the wells of Elim.</p>
+<div id="houses" role="radiogroup" aria-label="Household"></div>
+<div class="coverrow"><select id="mode" aria-label="Journey difficulty"><option value="Easy">Easy: slow clocks</option><option value="Normal" selected>Normal</option><option value="Faithful">Faithful: quick clocks</option></select>
+<button id="start">Begin at Rameses</button><button hidden id="s1Resume">Resume</button></div>
+<div id="saved" hidden><p id="savedLine"></p><button id="savedNext">Continue to Chapter III</button></div></div></section>
+<article id="s1page" hidden><section id="s1content"></section></article>
+<section id="pauseSheet" hidden aria-label="Paused"><div><h2>Paused</h2><p id="pauseLine">The road waits for you.</p><button id="pauseResume">Resume</button><button id="pauseTitle">Back to the title</button></div></section>
+</main>
+<dialog id="leaf" aria-labelledby="leafTitle"><header><h2 id="leafTitle"></h2><button id="closeLeaf">Close</button></header><div id="leafContent"></div></dialog>
+</body></html>
